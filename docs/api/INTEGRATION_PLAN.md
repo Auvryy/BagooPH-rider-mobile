@@ -1,0 +1,138 @@
+# Connecting the rider app and web backend
+
+## Dated starting point
+
+Reviewed October 5, 2026 against the local web checkout at commit
+`f24704f0a74162369687b8bfce976775cd58208f`. Source links below use the public main
+branch for navigation; they do not prove that every local change is published.
+
+| Observation | Consequence |
+|---|---|
+| `routes/api.php` contains public `GET /track/{tracking_number}` only | Authenticated rider API adapters still need to be built |
+| Composer declares Laravel `^13.17` and Sanctum `^4.0` | Native token configuration/trait/persistence/routes are separate work |
+| No `HasApiTokens`, `createToken`, `auth:sanctum`, or personal-token migration found in reviewed app/routes/migrations | Do not promise a working mobile login from dependency presence |
+| Existing courier/lifecycle services enforce many normal-path operations | Delegate API commands to them; audit gaps before exposing each command |
+| Phase 0 remains partial; B01–B03 are implemented in the current roadmap | Continue backend dependency order; documents do not complete approvals/resources/recovery |
+| Waybill input evidence, failed-attempt/return/retry, manifests, notifications and financial ledgers remain partial/missing in the roadmap | Release mobile capabilities only after their corresponding backend acceptance passes |
+| Scoped normal-flow tests exist; documented full-suite failures and PostgreSQL concurrency limits remain | Re-run relevant current checks; prior web test counts are not evidence for this app |
+
+This is a starting audit, not a second running backend roadmap. Refresh these
+observations when starting an implementation slice. Do not copy historical
+completion ratings into a claim of current readiness.
+
+## Reuse points
+
+| Backend reference | API adapter responsibility |
+|---|---|
+| `app/Services/Courier/CourierOperationsService.php` | Delegate scoped queries, availability, claims and authorized courier operations after current contract audit |
+| `app/Services/Courier/CourierMessagingService.php` | Preserve delivery-linked authorization, phase-bound recipient and selected-thread reads |
+| `app/Services/Orders/OrderLifecycleService.php` | Preserve canonical commercial gates and buyer-only completion |
+| `app/Services/Logistics/OrderStateMachineService.php` | Preserve ordered custody/source-state enforcement, not another client state machine |
+| `app/Services/Logistics/ProofOfDeliveryValidator.php` | Reuse and extend agreed proof validation without weaker mobile rules |
+| Existing policies/shared application validators/private evidence protection | Build JSON-aware positive gates and scoped resources; separate holding/recovery permission |
+
+Existing web controllers return Inertia pages or redirects. Create thin API
+controllers and allowlisted JSON Resources; do not scrape pages, share React
+components with Flutter, or copy controller business logic into new routes.
+Inspect actual method signatures and tests before calling a reuse point.
+
+## Contract ownership
+
+The backend owns the executable API and its policies. The mobile maintainer
+owns DTO decoding, controller states, platform adapters, and consumer tests.
+Both agree the payload/error/capability contract for a slice before implementation.
+The same person may hold both roles; ownership still identifies where a change
+belongs.
+
+Create an OpenAPI specification in the backend repo **as part of the authorized
+API task**, initially for auth/me/tasks and one command. Commit sanitized request,
+response, and error fixtures next to its tests. No specification or generated
+client exists yet; this document is not a claim of one.
+
+Record the accepted backend contract version/commit in mobile release notes and
+consumer fixtures. Keep a reviewed snapshot/reference when needed; do not
+maintain two independently edited full specs. Start with hand-written Dart
+DTOs; generate code only after the contract stabilizes and the output is tested.
+
+## Sequence per vertical slice
+
+1. **Inspect:** current backend roadmap, relevant services, source rules, existing
+   clients and tests. Record a missing prerequisite before promising a date.
+2. **Agree:** one screen/action, allowed/disclosed fields, auth scope, concrete
+   examples, all failure responses, and the backend-owned evidence/limits.
+3. **Backend adapter:** JSON-aware token/account gates, validation, scoped
+   Resource, existing service call, consistent transaction/lock/idempotency.
+4. **Backend checks:** success, wrong role/tenant/hub/assignment, stale state,
+   duplicate request, storage failure, terminal order, and no secret leakage.
+   Use isolated PostgreSQL for actual claim/lock races.
+5. **Publish contract to staging:** synthetic accounts and existing role flows;
+   no public simulator or fabricated operational success. Agree deploy revision.
+6. **Mobile slice:** typed DTO/repository, controller states, screen, native
+   adapter as needed, meaningful consumer/widget and physical-device checks.
+7. **Cross-role acceptance:** a mobile action is visible in the actual web hub,
+   seller/buyer/admin role that owns the next step. Verify negative cases too.
+8. **Review/merge/deploy:** user-controlled publication, matching docs/capabilities,
+   compatibility and rollback plan. Do not merge another developer's worktree.
+
+Prefer small branch pairs, such as backend auth adapter + mobile login/holding,
+then task reads + mobile queue, then atomic pickup + scan screen. Do not implement
+all endpoints in one branch or demand a complete mobile rewrite to consume v1.
+Each work record remains 1–14 calendar days; larger phases are split.
+
+## Hosting and environment gates
+
+Keep API routing inside the existing Laravel deployment. Use a known first-party
+HTTPS origin with `/api/v1`; a new API subdomain/server is not required. Shared
+services and database transactions must be identical regardless of web hostname.
+Mobile tokens do not depend on browser session cookies across subdomains.
+
+The operator verifies, in staging before release:
+
+- Correct API routes and JSON errors through Nginx/Laravel and the existing
+  Cloudflare configuration; no native request trapped by HTML login/challenge.
+- Cloudflare Full (strict) with a valid origin certificate when Cloudflare
+  terminates traffic; private API/proof responses explicitly bypass cache.
+- Explicit trusted proxy IPs/CIDRs, correct client-IP budgets and HTTPS handling;
+  no wildcard trusted forwarded headers or unauthenticated blanket API bypass.
+- PHP/web server/proxy body/time limits agree with purpose-specific proof limits.
+- Private proof/KYC storage and access rules, backup policy, cleanup, token
+  expiry/pruning and credential separation are deployed, not only committed.
+- Browser-only previews use approved CORS/CSRF behavior; native tokens remain
+  first-party-only. Rate limits handle polling and retries without losing safeguards.
+- Request references are observable without logging sensitive payloads. No
+  raw SQL/debug HTML or sample-success response is exposed on failure.
+
+Cloudflare's primary docs describe [Full (strict)](https://developers.cloudflare.com/ssl/origin-configuration/ssl-modes/full-strict/),
+[cache-rule settings](https://developers.cloudflare.com/cache/how-to/cache-rules/settings/),
+and [challenge-page limitations](https://developers.cloudflare.com/cloudflare-challenges/challenge-types/challenge-pages/).
+Applying these settings is an operator task; this docs branch does not change deployment.
+
+## Safe rollout and rollback
+
+Use additive database/API changes first. Deploy the compatible backend and verify
+staging with the current mobile fixture, then release the app. When possible,
+enable new capabilities only after the backend has passed acceptance. Keep older
+client versions functional for an agreed support window.
+
+On a backend rollback, disable affected capabilities and retain schema/data that
+the previous version can safely read. Do not delete accepted proof/events or
+roll back custody/cash history. Backups and controlled append-only repair are
+different from reverting a deployment. A client rollback must preserve command
+reconciliation and account privacy.
+
+If a required action is missing, show an accurate unavailable state and escalate
+the dependency. Do not call a legacy weaker web endpoint, write status directly,
+or claim an offline handoff. Deferred extras cannot take time from the accepted
+core-flow gates.
+
+## First implementation acceptance
+
+The first useful integration is an existing approved rider signing in on a real
+phone, receiving own holding/placement/duty capabilities, and reading only own
+tasks through staging. Verify pending/rejected/wrong-role/suspended cases,
+expired token/logout, 401 JSON instead of redirect, no private cache leakage,
+and source-policy consistency before adding custody commands.
+
+Source audit authority: [backend roadmap](https://github.com/Auvryy/BagooPH/blob/main/docs/CORE_FLOW_ROADMAP.md),
+[architecture](https://github.com/Auvryy/BagooPH/blob/main/docs/ARCHITECTURE.md),
+and [validation](https://github.com/Auvryy/BagooPH/blob/main/docs/CORE_FLOW_VALIDATION_AND_EDGE_CASES.md).

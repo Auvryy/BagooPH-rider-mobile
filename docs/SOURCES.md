@@ -1,0 +1,95 @@
+# Sources, authority and synchronization
+
+## Reviewed source snapshot
+
+Reviewed October 5, 2026 from the local Bagoo web checkout at
+`f24704f0a74162369687b8bfce976775cd58208f`. No web files were edited for this task.
+Public links below navigate the main branch of `Auvryy/BagooPH`; this review does
+not establish that its local commit is already published or that remote main
+will keep the same content. Re-read current authoritative sources at each API
+slice and record changed rules before implementation.
+
+This repo adapts rider responsibilities and presentation instead of copying the
+entire web documentation directory. Full copies would create competing state
+models and duplicate a changing implementation audit. Historical source material
+is useful context, never permission for a weaker mobile shortcut.
+
+## Web authority map
+
+| Source | Authority and use in this repo |
+|---|---|
+| [docs/README.md](https://github.com/Auvryy/BagooPH/blob/main/docs/README.md) | Documentation routing, realistic scope, November 20 backend target |
+| [SYSTEM_FLOW_AND_SPECIFICATIONS.md](https://github.com/Auvryy/BagooPH/blob/main/docs/SYSTEM_FLOW_AND_SPECIFICATIONS.md) | Canonical commercial states, fixed roles, buyer-only completion, financial gates |
+| [CORE_FLOW_VALIDATION_AND_EDGE_CASES.md](https://github.com/Auvryy/BagooPH/blob/main/docs/CORE_FLOW_VALIDATION_AND_EDGE_CASES.md) | Server validation, authorization, locks/idempotency, suspension/recovery, proof and cash rules |
+| [SORTING_CENTER_LOGISTICS_FLOW.md](https://github.com/Auvryy/BagooPH/blob/main/docs/SORTING_CENTER_LOGISTICS_FLOW.md) | Physical custody, Mother Hubs/manifests, failed return/retry/RTS, counter self-pickup and COD movement |
+| [COURIER_FLOW.md](https://github.com/Auvryy/BagooPH/blob/main/docs/COURIER_FLOW.md) | Pickup/final-mile phase duties and rider notifications |
+| [ADMIN_FLOW.md](https://github.com/Auvryy/BagooPH/blob/main/docs/ADMIN_FLOW.md) | KYC versus placement, company/handler governance, restrictions and recovery authority |
+| [STYLE_GUIDE.md](https://github.com/Auvryy/BagooPH/blob/main/docs/STYLE_GUIDE.md) | Brand, typeface, accessible presentation |
+| [RIDER_UI_DESIGN.md](https://github.com/Auvryy/BagooPH/blob/main/docs/RIDER_UI_DESIGN.md) | Task hierarchy, relevant stop/directions, message/proof interactions |
+| [AGENTS.md](https://github.com/Auvryy/BagooPH/blob/main/AGENTS.md) | Latest specific rider preferences: 8px corners, `#FFFAFB` canvas, subtle outlines/shadows; apply in native logical pixels |
+| [CORE_FLOW_ROADMAP.md](https://github.com/Auvryy/BagooPH/blob/main/docs/CORE_FLOW_ROADMAP.md) | Sole changing backend implementation audit, accepted phase order and remaining gaps |
+| [ARCHITECTURE.md](https://github.com/Auvryy/BagooPH/blob/main/docs/ARCHITECTURE.md) | Supporting context: Laravel/Inertia/React monolith, services, PostgreSQL/Docker |
+| [VERIFICATION_DOCUMENT_SECURITY.md](https://github.com/Auvryy/BagooPH/blob/main/docs/VERIFICATION_DOCUMENT_SECURITY.md) | Existing private document protection and deployment/operator requirements |
+
+Executable starting-point references include
+[routes/api.php](https://github.com/Auvryy/BagooPH/blob/main/routes/api.php),
+[composer.json](https://github.com/Auvryy/BagooPH/blob/main/composer.json),
+[User.php](https://github.com/Auvryy/BagooPH/blob/main/app/Models/User.php), and
+the services listed in [api/INTEGRATION_PLAN.md](api/INTEGRATION_PLAN.md).
+Migrations/models define executable storage. Supporting schema drafts do not
+prove API payloads, migration deployment or new ledger readiness.
+
+## Conflict rule
+
+1. Use the system specification for commercial status and actor ownership.
+2. Use the validation contract for input, authorization, concurrency and failure safety.
+3. Use the sorting-center contract for physical custody.
+4. Use role documents for permitted rider presentation/actions.
+5. Use the backend roadmap for implementation state and dependency order.
+
+The later explicit rider radius/canvas preference supersedes older larger rider
+cards in the design guide; it does not restyle other portals or change business
+authority. Flutter presentation adapts web interaction intent without assuming
+web CSS breakpoints, Leaflet components, or browser authentication transfer.
+
+If backend code contradicts a normative contract, report it to its owner and
+record the gap in that repo's roadmap. If a proposed mobile endpoint contradicts
+a rule, amend the proposal before implementation. Do not create another source
+of truth by editing the contract to match a bug or stale demo.
+
+## Technical sources
+
+Consulted official docs/package maintainer pages on October 5, 2026. These
+support tool capabilities and general patterns; exact folder structure,
+polling budgets and contract field choices are project recommendations.
+
+| Primary reference | Use |
+|---|---|
+| [Flutter architecture recommendations](https://docs.flutter.dev/app-architecture/recommendations) | UI/data separation, repositories/views, conditional domain layer |
+| [Flutter Android setup](https://docs.flutter.dev/platform-integration/android/setup) | Native tooling/device verification |
+| [Android sdkmanager](https://developer.android.com/tools/sdkmanager) | SDK command-line tooling without requiring an IDE |
+| [Riverpod](https://pub.dev/packages/flutter_riverpod) | Proposed asynchronous state/dependency tool |
+| [Dio](https://pub.dev/packages/dio) | Proposed shared transport/uploads/interceptors |
+| [go_router](https://pub.dev/packages/go_router) | Proposed route handling |
+| [flutter_secure_storage](https://pub.dev/packages/flutter_secure_storage) | Native token storage and Linux Secret Service requirements |
+| [mobile_scanner](https://pub.dev/packages/mobile_scanner) | Camera scanning and unsupported Linux platform |
+| [image_picker](https://pub.dev/packages/image_picker) | Android lost-data handling and desktop camera limits |
+| [url_launcher](https://pub.dev/packages/url_launcher) | External navigation/browser/contact handling |
+| [Laravel Sanctum](https://laravel.com/framework/docs/13.x/sanctum) | Native token versus first-party cookie auth, expiry/revocation |
+| [Cloudflare Full (strict)](https://developers.cloudflare.com/ssl/origin-configuration/ssl-modes/full-strict/) | Validated origin TLS |
+| [Cloudflare cache-rule settings](https://developers.cloudflare.com/cache/how-to/cache-rules/settings/) | Private API cache bypass planning |
+| [Cloudflare challenge pages](https://developers.cloudflare.com/cloudflare-challenges/challenge-types/challenge-pages/) | Native API cannot solve an HTML interstitial |
+| [OpenStreetMap tile policy](https://operations.osmfoundation.org/policies/tiles/) | Attribution/provider restrictions if embedded public tiles are selected |
+
+No package version or policy is assumed permanent. Check primary docs at the
+implementation task, pin tested resolutions, and record material constraints.
+Live hosting, a signed Android release and hardware behavior were not audited
+by this documentation source review.
+
+## Synchronization checklist
+
+For each feature: re-read the relevant current web rules/roadmap; agree the
+backend contract/version; update the mobile flow/schema examples and acceptance
+cases; verify both roles see the same result; record the actual checks and
+remaining limits. Publish only reviewed public references and synthetic examples.
+Local work-guide provisioning belongs outside GitHub documentation.

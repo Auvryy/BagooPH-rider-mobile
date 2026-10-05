@@ -9,6 +9,16 @@ not establish that its local commit is already published or that remote main
 will keep the same content. Re-read current authoritative sources at each API
 slice and record changed rules before implementation.
 
+The October 5 major-task planning follow-up reviewed courier flow/design, current
+Rider screen/controller behavior, API routes/token indicators and backend phase
+dependencies at `88ed1871e39755ae09ee233112351e42472fda30`. A read-only authenticated
+remote-main check matched that checkout. The observations in
+[TASK_TRACKING.md](TASK_TRACKING.md) and [api/INTEGRATION_PLAN.md](api/INTEGRATION_PLAN.md)
+are scoped snapshots, not a new full backend audit or deployment verification.
+The original normative-source review above remains dated to its earlier commit.
+GitHub links may require repository access; the authorized checkout is available
+for source review when unauthenticated pages are unavailable.
+
 This repo adapts rider responsibilities and presentation instead of copying the
 entire web documentation directory. Full copies would create competing state
 models and duplicate a changing implementation audit. Historical source material
@@ -66,6 +76,7 @@ polling budgets and contract field choices are project recommendations.
 | Primary reference | Use |
 |---|---|
 | [Flutter architecture recommendations](https://docs.flutter.dev/app-architecture/recommendations) | UI/data separation, repositories/views, conditional domain layer |
+| [Flutter accessibility](https://docs.flutter.dev/ui/accessibility) | Screen-reader review, contrast, touch targets and large-text acceptance |
 | [Flutter Android setup](https://docs.flutter.dev/platform-integration/android/setup) | Native tooling/device verification |
 | [Android sdkmanager](https://developer.android.com/tools/sdkmanager) | SDK command-line tooling without requiring an IDE |
 | [Riverpod](https://pub.dev/packages/flutter_riverpod) | Proposed asynchronous state/dependency tool |

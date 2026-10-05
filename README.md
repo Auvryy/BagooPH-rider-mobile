@@ -21,6 +21,13 @@ Start with the [documentation map](docs/README.md) for rider responsibilities,
 the recommended Flutter stack, application architecture, the proposed Laravel
 API contract, and acceptance checks.
 
+The [major task map](docs/TASK_TRACKING.md) defines 16 work areas, their screens,
+build order, dependencies and completion evidence. Use it when later requests
+split features into focused tasks and branches. Always reference the current
+Bagoo website project's docs and features before each slice so changes in other
+roles stay visible; [sources and synchronization](docs/SOURCES.md) explain where
+to check. The map is a plan, not implemented app functionality.
+
 The working presentation target is **November 21, 2026** in Asia/Manila.
 Development and verification should finish by **November 20**. The
 [delivery plan](docs/DELIVERY_PLAN.md) records dependencies and scope decisions;

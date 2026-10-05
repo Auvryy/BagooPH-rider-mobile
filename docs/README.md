@@ -13,6 +13,7 @@ they do not authorize changing the backend or implementing every proposed featur
 | Document | Question it answers |
 |---|---|
 | [PRODUCT_SCOPE.md](PRODUCT_SCOPE.md) | Who uses this app, what belongs in the presentation, and what stays outside? |
+| [TASK_TRACKING.md](TASK_TRACKING.md) | What are the 16 major work areas, which screens belong to them, and how will later tasks/branches build and verify them? |
 | [RIDER_FLOW.md](RIDER_FLOW.md) | What may a rider do at each stage, including failures and cash custody? |
 | [TECH_STACK.md](TECH_STACK.md) | Which tools are installed, which are proposed, and why choose them? |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Where does Flutter code belong and how does data reach the screens? |
@@ -48,6 +49,12 @@ actor permissions. This repo governs Flutter presentation, client structure,
 and its agreed API consumer contract. Read [SOURCES.md](SOURCES.md) to resolve
 conflicts. Record the conflict and coordinate the owning backend change;
 never weaken a business rule to make a mobile demonstration work.
+
+Always reference the current Bagoo website project before a Rider feature branch:
+check its docs, new features, roadmap, relevant code and tests across all roles.
+Record the source/API revision and verify deployed cross-role behavior when the
+slice is integrated. Use [TASK_TRACKING.md](TASK_TRACKING.md) for mobile work
+ownership; keep changing backend implementation evidence in the web roadmap.
 
 Update the flow, contract, acceptance cases, and delivery dependencies together
 when an approved feature changes. Keep examples synthetic and avoid copying

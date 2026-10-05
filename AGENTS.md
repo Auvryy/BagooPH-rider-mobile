@@ -8,10 +8,17 @@
    a realistic deadline, track measured time, and verify updates.
 3. Inspect the branch, worktree, relevant code, and applicable documentation.
    Preserve unrelated changes and establish what is implemented versus planned.
-4. Reuse an existing record when a prompt continues the same task. Create a
+4. Read [docs/TASK_TRACKING.md](docs/TASK_TRACKING.md) to identify the major work
+   area, screens, dependencies and finish evidence before planning feature slices.
+   Always reference the current Bagoo website project to keep track of its docs,
+   new features and behavior across buyer, seller, courier, logistics and admin.
+   Before each branch, inspect relevant current web rules, roadmap, code and
+   tests; record the reviewed revision and the accepted API/deployment evidence.
+   Use [docs/SOURCES.md](docs/SOURCES.md) for authority and conflict handling.
+5. Reuse an existing record when a prompt continues the same task. Create a
    record for new feature, fix, branch, documentation, or investigation work.
    A conversational question alone does not need a new development task.
-5. Start every mobile task title with the exact `rider-mobile/` prefix, followed
+6. Start every mobile task title with the exact `rider-mobile/` prefix, followed
    by a clear description, such as `rider-mobile/validate pickup waybills`.
    Before any task write, re-read its current title and require that prefix.
    This applies to edits, status/dates, checklists, comments, timers/time logs,
@@ -105,6 +112,9 @@ service names, credentials, CLI paths, or remote task IDs.
   verifies layouts, not native permissions, scanning, or Android performance.
 - Update relevant docs when behavior changes. Keep planned interfaces labelled
   and do not mark unfinished backend dependencies complete.
+- Keep major-area coverage and remaining work current in `docs/TASK_TRACKING.md`
+  after each feature slice. Create later subtasks only when requested; a major
+  area is not a single oversized branch or a duplicate backend progress list.
 - Follow the local guide for concise progress notes and completion evidence.
   Log measured time only. Estimates are never substituted for actual time.
 - Confirm an effort estimate before active work and use a timer for every work

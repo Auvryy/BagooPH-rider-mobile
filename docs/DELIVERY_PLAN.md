@@ -27,6 +27,13 @@ the backend's phase order. Calendar targets do not waive operational safeguards.
 
 ## Task names and ownership
 
+Use [TASK_TRACKING.md](TASK_TRACKING.md) for the 16 major work areas, screen map,
+step-by-step build order and later branch workflow. Its M01–M16 references group
+this same baseline across R00–R11; they add no automatic tasks, dates or effort.
+Before each slice, reference the current Bagoo website docs, features, roadmap,
+code and tests for changes affecting Rider work. Record reviewed and accepted
+revisions rather than treating this schedule as current backend evidence.
+
 Every execution task title starts with **`rider-mobile/`**, followed by a natural
 description. For example: `rider-mobile/document pickup and delivery` or
 `rider-mobile/add courier sign-in`. Apply this format when creating work from

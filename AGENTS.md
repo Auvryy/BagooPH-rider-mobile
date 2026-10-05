@@ -96,3 +96,8 @@ service names, credentials, CLI paths, or remote task IDs.
   and do not mark unfinished backend dependencies complete.
 - Follow the local guide for concise progress notes and completion evidence.
   Log measured time only. Estimates are never substituted for actual time.
+- Task titles, descriptions, checklists, comments and time-entry notes describe
+  only BagooPH Rider work, its outcomes and actual checks. Keep local tools,
+  automation, services, configuration paths and guide contents out of remote
+  task text. Related backend details belong there only when needed to explain
+  a Rider feature or integration dependency.

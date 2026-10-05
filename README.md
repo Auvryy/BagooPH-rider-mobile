@@ -21,6 +21,16 @@ Start with the [documentation map](docs/README.md) for rider responsibilities,
 the recommended Flutter stack, application architecture, the proposed Laravel
 API contract, and acceptance checks.
 
+The [major task map](docs/TASK_TRACKING.md) defines 16 work areas, their screens,
+build order, dependencies and completion evidence. The
+[detailed backlog](docs/SUBTASK_BACKLOG.md) breaks them into **180 subtasks** and
+**63 suggested batches**, with stable IDs, steps, checks, dependencies and effort.
+Later prompts can request one card or a batch; all are planned client work.
+Always reference the current Bagoo website project's docs and features before
+each slice so changes in other
+roles stay visible; [sources and synchronization](docs/SOURCES.md) explain where
+to check. The map is a plan, not implemented app functionality.
+
 The working presentation target is **November 21, 2026** in Asia/Manila.
 Development and verification should finish by **November 20**. The
 [delivery plan](docs/DELIVERY_PLAN.md) records dependencies and scope decisions;
@@ -82,5 +92,7 @@ flutter build web
 ```
 
 The Android application identifier and Flutter launcher icons are scaffold defaults
-to finalize before a mobile release. The next feature is rider authentication and
-approval holding against an agreed Laravel API contract.
+to finalize before a mobile release. Begin with current website/API agreement
+(B01-A), then the prerequisite conventions and Flutter foundation. Authentication
+and approval holding follow against accepted native endpoints. Select the later
+slice from the detailed backlog instead of treating the whole plan as one branch.

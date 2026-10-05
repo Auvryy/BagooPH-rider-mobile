@@ -9,6 +9,27 @@ not establish that its local commit is already published or that remote main
 will keep the same content. Re-read current authoritative sources at each API
 slice and record changed rules before implementation.
 
+The October 5 major-task planning follow-up reviewed courier flow/design, current
+Rider screen/controller behavior, API routes/token indicators and backend phase
+dependencies at `88ed1871e39755ae09ee233112351e42472fda30`. A read-only authenticated
+remote-main check matched that checkout. The observations in
+[TASK_TRACKING.md](TASK_TRACKING.md) and [api/INTEGRATION_PLAN.md](api/INTEGRATION_PLAN.md)
+are scoped snapshots, not a new full backend audit or deployment verification.
+The original normative-source review above remains dated to its earlier commit.
+GitHub links may require repository access; the authorized checkout is available
+for source review when unauthenticated pages are unavailable.
+
+The detailed-subtask review on October 5 observed the buyer-access branch at
+`cbb941c284cd83f2d41ae3cb13db6a583a97ee06` with a roadmap edit in progress.
+The other developer subsequently advanced the checkout to clean local `main`
+at `16b502c5381938e9a9cfb7300f176b3311511713`. No web edits, commits, branch changes
+or resets were performed by this Rider task. The newer roadmap includes B05
+buyer holding and narrow owned-existing-order receipt behavior; delivery and
+whole-flow cards include that authorization boundary. The inspected API routes
+still expose public tracking only. This is source evidence, without a fresh
+remote-main comparison, deployment check or rerun of the backend's reported tests.
+Refresh it at each future slice rather than treating this as a live status list.
+
 This repo adapts rider responsibilities and presentation instead of copying the
 entire web documentation directory. Full copies would create competing state
 models and duplicate a changing implementation audit. Historical source material
@@ -66,6 +87,7 @@ polling budgets and contract field choices are project recommendations.
 | Primary reference | Use |
 |---|---|
 | [Flutter architecture recommendations](https://docs.flutter.dev/app-architecture/recommendations) | UI/data separation, repositories/views, conditional domain layer |
+| [Flutter accessibility](https://docs.flutter.dev/ui/accessibility) | Screen-reader review, contrast, touch targets and large-text acceptance |
 | [Flutter Android setup](https://docs.flutter.dev/platform-integration/android/setup) | Native tooling/device verification |
 | [Android sdkmanager](https://developer.android.com/tools/sdkmanager) | SDK command-line tooling without requiring an IDE |
 | [Riverpod](https://pub.dev/packages/flutter_riverpod) | Proposed asynchronous state/dependency tool |

@@ -13,11 +13,21 @@ the backend's phase order. Calendar targets do not waive operational safeguards.
 
 - One mobile maintainer is assumed. Backend work is coordinated with the web
   maintainer; its effort is not included below or assumed to be free.
-- The proposed client work totals **130–204 focused hours**, including docs and
-  verification, roughly **20–31 hours per week** over this delivery window.
-  These are planning ranges, not logged time or a measured productivity result.
-- Backend adapters, incomplete core-flow work, Android setup, deployment review,
-  device availability, and contract decisions can extend effort beyond this range.
+- The [detailed backlog](SUBTASK_BACKLOG.md) now contains **180 subtasks** with
+  **315 client hours** of point estimates and a **213–499.5-hour planning range**.
+  It makes integration, adverse cases, privacy, Android and release work explicit.
+  Backend implementation and documentation effort recorded separately are excluded.
+  These forecasts are not measured time or statistical confidence bounds.
+- The earlier **130–204-hour** coarse forecast included initial docs and
+  verification. It is retained below for comparison and superseded for future
+  client planning; do not add it to the detailed total.
+- The full point estimate needs roughly **48 client hours per week** across
+  October 6–November 20. Maintainer capacity is not established. The original
+  windows are overloaded in places: R08 contains 65 client hours in four calendar
+  days, R09 34.5 hours in three, and R10 26.5 hours in two. Replan the selected
+  slices and agree scope/capacity before treating the baseline as a commitment.
+- Incomplete backend phases, unavailable APIs, deployment, device access and
+  unresolved contract decisions can delay integration regardless of client hours.
 - Every execution task uses **1–14 inclusive calendar days**, an effort estimate,
   explicit acceptance and a real dependency. Split a phase into smaller tasks
   when its scope cannot fit; a broad feature name is not a two-week loophole.
@@ -26,6 +36,16 @@ the backend's phase order. Calendar targets do not waive operational safeguards.
   coding branches. Re-estimate from evidence after the first integrated slice.
 
 ## Task names and ownership
+
+Use [TASK_TRACKING.md](TASK_TRACKING.md) for the 16 major work areas, screen map,
+step-by-step build order and later branch workflow. Its M01–M16 references group
+this same baseline across R00–R11. Use [SUBTASK_BACKLOG.md](SUBTASK_BACKLOG.md) to
+select stable Mxx.yy cards or one of 63 suggested batches. Detailed cards stay in
+the repository; only requested execution work becomes an active work record.
+Planning references create no automatic feature branches or reserved dates.
+Before each slice, reference the current Bagoo website docs, features, roadmap,
+code and tests for changes affecting Rider work. Record reviewed and accepted
+revisions rather than treating this schedule as current backend evidence.
 
 Every execution task title starts with **`rider-mobile/`**, followed by a natural
 description. For example: `rider-mobile/document pickup and delivery` or
@@ -57,9 +77,14 @@ checks performed, and revise future estimates when scope or evidence changes.
 Board-wide totals may include other work; review this project's scoped records
 without changing unrelated tasks or their time entries.
 
-## Proposed sequence
+## Original milestone references
 
-| Item | Start | Due | Calendar days | Client effort | Prerequisite and finish evidence |
+These are tentative sequence references, not an executable capacity allocation.
+The effort column is the earlier coarse forecast; the detailed backlog has the
+current per-card and per-milestone estimates. Preserve the November target and
+required acceptance while replanning selected scope from current evidence.
+
+| Item | Start | Due | Calendar days | Earlier coarse effort | Prerequisite and finish evidence |
 |---|---|---|---:|---:|---|
 | R00 Rider plan and source adaptation | Oct 5 | Oct 6 | 2 | 3–4 h | Scope, flow, API proposal, local work guide and doc checks |
 | R01 Agree first API slice | Oct 6 | Oct 8 | 3 | 6–10 h | Backend owner agrees auth/me/task schema, policies, errors and limits; R00 handoff |
@@ -74,10 +99,13 @@ without changing unrelated tasks or their time entries.
 | R10 Cross-role checks and fixes | Nov 18 | Nov 19 | 2 | 12–20 h | Real phone, isolated tests and staging deployment; acceptance matrix and unresolved issues reviewed |
 | R11 Freeze and rehearsal | Nov 20 | Nov 20 | 1 | 3–6 h | Reproducible build/demo, reviewed evidence, backup and honest known limits; no new features |
 
-All dates are in 2026. A shared date is a handoff, not a promise of simultaneous
-full-time work. R01 may start on October 6 only after R00's relevant contract
-draft is ready. The 130–204-hour total is the sum of these ranges. Developer
-availability and backend progress must be reviewed, not inferred from this table.
+All dates are in 2026 and are subject to replanning. A shared date is a handoff,
+not a promise of simultaneous full-time work. R01 may start on October 6 only
+after R00's relevant contract draft is ready. The 130–204-hour sum above is
+historical; the detailed point estimate is 315 hours. Each selected task still
+needs satisfied dependencies, a realistic 1–14-day window and a due date no later
+than November 20. An impossible full-baseline schedule requires an explicit scope
+decision; it never permits weakening custody, authorization, evidence or money rules.
 
 ## Gates and scope decisions
 

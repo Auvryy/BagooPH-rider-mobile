@@ -2,9 +2,11 @@
 
 ## Dated starting point
 
-Reviewed October 5, 2026 against the local web checkout at commit
-`f24704f0a74162369687b8bfce976775cd58208f`. Source links below use the public main
-branch for navigation; they do not prove that every local change is published.
+Rechecked for major-task planning on October 5, 2026 against the web checkout at
+`88ed1871e39755ae09ee233112351e42472fda30`. A read-only remote-main check matched
+this commit. The earlier integration review used
+`f24704f0a74162369687b8bfce976775cd58208f`. Source links navigate main and may need
+repository access; this source inspection does not verify a deployed environment.
 
 | Observation | Consequence |
 |---|---|
@@ -12,13 +14,27 @@ branch for navigation; they do not prove that every local change is published.
 | Composer declares Laravel `^13.17` and Sanctum `^4.0` | Native token configuration/trait/persistence/routes are separate work |
 | No `HasApiTokens`, `createToken`, `auth:sanctum`, or personal-token migration found in reviewed app/routes/migrations | Do not promise a working mobile login from dependency presence |
 | Existing courier/lifecycle services enforce many normal-path operations | Delegate API commands to them; audit gaps before exposing each command |
-| Phase 0 remains partial; B01–B03 are implemented in the current roadmap | Continue backend dependency order; documents do not complete approvals/resources/recovery |
+| Phase 0 remains partial; the current roadmap includes B01–B04 implementation evidence, including logistics eligibility | Continue backend dependency order; new resource controls do not complete restrictions/recovery or native APIs |
 | Waybill input evidence, failed-attempt/return/retry, manifests, notifications and financial ledgers remain partial/missing in the roadmap | Release mobile capabilities only after their corresponding backend acceptance passes |
 | Scoped normal-flow tests exist; documented full-suite failures and PostgreSQL concurrency limits remain | Re-run relevant current checks; prior web test counts are not evidence for this app |
 
 This is a starting audit, not a second running backend roadmap. Refresh these
 observations when starting an implementation slice. Do not copy historical
 completion ratings into a claim of current readiness.
+
+The October 5 detailed-backlog follow-up also inspected newer buyer-access work,
+ending at local `main` revision `16b502c5381938e9a9cfb7300f176b3311511713`.
+See [SOURCES.md](../SOURCES.md) for the changing-checkout context and exact limits.
+B05's buyer holding and narrowly permitted owned-delivered-order receipt path
+must be included in cross-role delivery checks; they do not grant general
+restricted access. The inspected API routes remain public tracking only. Neither
+this source read nor the backlog verifies a deployed native API or reruns backend
+acceptance. The older table above stays a dated observation, not a live audit.
+
+Use [SUBTASK_BACKLOG.md](../SUBTASK_BACKLOG.md) to select client agreement, adapter
+and acceptance cards. Its external prerequisite register identifies required
+backend evidence without creating backend implementation tasks or copying its
+running roadmap. Review the current owner-approved contract before each slice.
 
 ## Reuse points
 

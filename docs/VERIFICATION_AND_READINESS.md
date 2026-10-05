@@ -106,11 +106,12 @@ by hiding work or changing measured time.
 | Efficient tech and architecture | [TECH_STACK.md](TECH_STACK.md), [ARCHITECTURE.md](ARCHITECTURE.md) |
 | Low-friction future web/mobile integration | [api/CONTRACT.md](api/CONTRACT.md), [api/INTEGRATION_PLAN.md](api/INTEGRATION_PLAN.md) |
 | November presentation, realistic short tasks | [DELIVERY_PLAN.md](DELIVERY_PLAN.md) |
+| Detailed future cards, dependency checks and batch prompts | [SUBTASK_BACKLOG.md](SUBTASK_BACKLOG.md) |
 | Optional/uncertain ideas evaluated | [DECISIONS_AND_IDEAS.md](DECISIONS_AND_IDEAS.md) |
 | Private guide used for every work request | Root `AGENTS.md` and ignored local `Task Creator.md` |
 | Before/after assessment and evidence | This document |
 
-## This branch's verification record
+## Initial documentation verification
 
 Documentation checks passed on October 5, 2026:
 
@@ -129,3 +130,31 @@ Documentation checks passed on October 5, 2026:
 The acceptance matrix above remains future runtime work. No new Flutter build,
 native camera, backend suite, PostgreSQL concurrency, or deployment check was
 performed for this docs-only branch.
+
+## Detailed backlog verification — October 5, 2026
+
+The follow-up contains 180 planned cards across all 16 major areas, with 63
+suggested batches, 540 implementation steps, 362 completion checks and 38
+requirement-coverage rows. All feature cards remain planned; none is counted
+as implemented by completing the documentation.
+
+- The canonical JSON validates unique/sequential IDs, one batch per card,
+  resolved task/coverage references, acyclic task and batch dependency graphs,
+  valid effort ranges and 1–14-day tentative windows ending by November 20.
+- `python tool/render_rider_backlog.py --check` confirms that the index and
+  sixteen linked area pages match the catalog. Completion requires evidence;
+  generated documentation does not prove backend or hardware readiness.
+- Local Markdown paths/anchors, referenced web-source paths, code fences and
+  both JSON examples passed checks. All publishable files passed the privacy
+  scan; the local guide remains ignored, untracked and mode 600.
+- The detailed forecast totals 315 client hours, with a 213–499.5-hour range.
+  Delivery guidance marks the older 130–204-hour forecast as superseded and
+  exposes overloaded milestone windows instead of claiming the baseline fits.
+- The latest inspected web source and review limits are recorded in
+  [SOURCES.md](SOURCES.md). New buyer-access behavior is represented in planned
+  receipt checks. Web work was read only; native APIs and deployment are unverified.
+
+Git whitespace checks passed. Changes cover planning docs and a standard-library
+documentation renderer. Runtime code, Flutter dependencies and the backend were
+not changed, so no new Flutter build or backend suite was needed for this scope.
+Physical Android and cross-role operational checks remain future acceptance work.

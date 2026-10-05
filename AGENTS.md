@@ -8,10 +8,21 @@
    a realistic deadline, track measured time, and verify updates.
 3. Inspect the branch, worktree, relevant code, and applicable documentation.
    Preserve unrelated changes and establish what is implemented versus planned.
-4. Reuse an existing record when a prompt continues the same task. Create a
+4. Read [docs/TASK_TRACKING.md](docs/TASK_TRACKING.md) to identify the major work
+   area, screens, dependencies and finish evidence before planning feature slices.
+   Select requested cards or batches from
+   [docs/SUBTASK_BACKLOG.md](docs/SUBTASK_BACKLOG.md). Check their direct and
+   transitive prerequisites and external evidence before starting; do not silently
+   implement unrequested prerequisites or clear operational gates with fixtures.
+   Always reference the current Bagoo website project to keep track of its docs,
+   new features and behavior across buyer, seller, courier, logistics and admin.
+   Before each branch, inspect relevant current web rules, roadmap, code and
+   tests; record the reviewed revision and the accepted API/deployment evidence.
+   Use [docs/SOURCES.md](docs/SOURCES.md) for authority and conflict handling.
+5. Reuse an existing record when a prompt continues the same task. Create a
    record for new feature, fix, branch, documentation, or investigation work.
    A conversational question alone does not need a new development task.
-5. Start every mobile task title with the exact `rider-mobile/` prefix, followed
+6. Start every mobile task title with the exact `rider-mobile/` prefix, followed
    by a clear description, such as `rider-mobile/validate pickup waybills`.
    Before any task write, re-read its current title and require that prefix.
    This applies to edits, status/dates, checklists, comments, timers/time logs,
@@ -105,6 +116,16 @@ service names, credentials, CLI paths, or remote task IDs.
   verifies layouts, not native permissions, scanning, or Android performance.
 - Update relevant docs when behavior changes. Keep planned interfaces labelled
   and do not mark unfinished backend dependencies complete.
+- Keep major-area coverage and remaining work current in `docs/TASK_TRACKING.md`
+  after each feature slice. Detailed future cards live in `docs/SUBTASK_BACKLOG.md`
+  and its canonical `docs/planning/subtasks.json`; keep IDs stable, update only
+  verified status/evidence, and regenerate with `python tool/render_rider_backlog.py`.
+  Create external execution records only for requested work. A major area is not
+  a single oversized branch or a duplicate backend progress list.
+- Detailed effort supersedes the earlier coarse forecast. Treat each card's
+  milestone window as tentative; re-estimate selected work and verify capacity
+  before setting execution dates. Preserve 1–14 inclusive days and the November
+  20 deadline, or obtain an explicit scope decision without weakening safeguards.
 - Follow the local guide for concise progress notes and completion evidence.
   Log measured time only. Estimates are never substituted for actual time.
 - Confirm an effort estimate before active work and use a timer for every work

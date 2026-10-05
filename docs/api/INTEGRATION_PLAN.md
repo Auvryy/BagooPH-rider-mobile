@@ -22,6 +22,20 @@ This is a starting audit, not a second running backend roadmap. Refresh these
 observations when starting an implementation slice. Do not copy historical
 completion ratings into a claim of current readiness.
 
+The October 5 detailed-backlog follow-up also inspected newer buyer-access work,
+ending at local `main` revision `16b502c5381938e9a9cfb7300f176b3311511713`.
+See [SOURCES.md](../SOURCES.md) for the changing-checkout context and exact limits.
+B05's buyer holding and narrowly permitted owned-delivered-order receipt path
+must be included in cross-role delivery checks; they do not grant general
+restricted access. The inspected API routes remain public tracking only. Neither
+this source read nor the backlog verifies a deployed native API or reruns backend
+acceptance. The older table above stays a dated observation, not a live audit.
+
+Use [SUBTASK_BACKLOG.md](../SUBTASK_BACKLOG.md) to select client agreement, adapter
+and acceptance cards. Its external prerequisite register identifies required
+backend evidence without creating backend implementation tasks or copying its
+running roadmap. Review the current owner-approved contract before each slice.
+
 ## Reuse points
 
 | Backend reference | API adapter responsibility |

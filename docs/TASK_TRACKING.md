@@ -2,9 +2,10 @@
 
 This is the feature map for building BagooPH Rider Mobile, reviewed October 5,
 2026. It answers **what we need to build, in what order, and what proves each
-area works**. Use it when later requests turn one major area into small tasks
-and branches. It does not create those future tasks or authorize implementing
-them now.
+area works**. The [detailed backlog](SUBTASK_BACKLOG.md) now turns these areas
+into **180 planned subtasks and 63 suggested batches** for later prompts.
+Creating the planning cards does not create future execution records or
+authorize implementing them now.
 
 The current app has a welcome screen and debug Device Preview in
 [lib/main.dart](../lib/main.dart). The architecture and authenticated API are
@@ -29,13 +30,17 @@ Observe cross-role behavior in the authorized web environment when testing an
 integrated slice, and record the deployed revision. A code merge alone does not
 prove that a website deployment or mobile endpoint is available.
 
-For this scoped review, the web checkout and a read-only remote-main check both
+For the earlier scoped major-area review, the web checkout and a read-only
+remote-main check both
 identified `88ed1871e39755ae09ee233112351e42472fda30`. Its roadmap includes the
 B04 logistics eligibility work; Phase 0 remains partial. Its API routes still
 contain public tracking only, and the inspected app/routes/migrations have no
 native token implementation. This dated observation is not a second backend
 status list. Re-read the roadmap and executable API before each implementation
-slice; later website changes can alter dependencies.
+slice; later website changes can alter dependencies. The detailed-backlog follow-up
+also inspected newer buyer-access work and the later local main revision recorded
+in [SOURCES.md](SOURCES.md). Its buyer holding and narrow owned-order receipt rules
+are reflected in planned delivery acceptance; deployment remains unverified.
 
 ## What “major task” means here
 
@@ -51,9 +56,10 @@ actions; the Rider app cannot shortcut this chain or confirm buyer receipt.
 
 The execution milestones R00–R11, proposed dates and capacity assumptions stay
 in [DELIVERY_PLAN.md](DELIVERY_PLAN.md). The areas below partition that same
-baseline; they do not add sixteen more phases or another effort total. Estimate
-each requested branch from current evidence rather than dividing the old
-130–204-hour planning range evenly. Major areas may span several milestones;
+baseline; they do not add sixteen more phases. The detailed estimate is a
+**315-hour reforecast**, with a **213–499.5-hour planning range**, superseding
+the earlier coarse 130–204 hours rather than adding another budget. Estimate
+each requested branch from current evidence. Major areas may span several milestones;
 each actual execution task must fit 1–14 inclusive calendar days.
 
 | Area | Major work | Rider outcome | Main dependency | Delivery milestone |
@@ -460,7 +466,14 @@ phase order. M16 is ongoing verification as well as the final gate.
 
 ## How we will track later subtasks and branches
 
-For each later request, select a major area and define one reviewable vertical
+Start with [SUBTASK_BACKLOG.md](SUBTASK_BACKLOG.md). Each Mxx.yy card contains a
+specific outcome, implementation steps, completion checks, prerequisites, effort
+and a tentative milestone reference. Suggested Bxx-X batches group one to four
+related cards, with branch hints and prerequisite summaries. These stable IDs
+belong to repository planning; they are not external task IDs. The canonical
+catalog and generated pages keep the detailed plan consistent.
+
+For each later request, select the requested card/batch and one reviewable vertical
 slice: user outcome, data/API, states, screen/action and checks. A branch does
 not need to finish a whole major area. Do not split purely into “UI done” and
 “backend done” while claiming the user action works.
@@ -468,9 +481,10 @@ not need to finish a whole major area. Do not split purely into “UI done” an
 1. **Recheck the website.** Read current relevant rules, roadmap, code and tests;
    note the reviewed commit and deploy/contract revision. Check buyer/seller/hub/
    admin changes that affect this Rider slice and identify the owning dependency.
-2. **Define the slice.** Choose M01–M16 ownership, included/excluded behavior,
-   screens/states, concrete finish evidence and missing prerequisites. Check for
-   existing scoped work; continue an existing task rather than duplicating it.
+2. **Define the slice.** Record M01–M16 ownership and selected Mxx.yy/Bxx-X IDs,
+   included/excluded behavior, screens/states, concrete finish evidence and direct
+   plus transitive prerequisites. Do not expand into unrequested prerequisites.
+   Check for existing scoped work; continue an existing task rather than duplicating it.
 3. **Open only requested work.** Each executable title starts with exactly
    `rider-mobile/`, followed by a clear Rider description. Choose owner, relevant
    existing labels, realistic effort and a 1–14-day inclusive start/due window,
@@ -490,8 +504,10 @@ not need to finish a whole major area. Do not split purely into “UI done” an
    The user handles pushing and publication. Distinguish implemented/verified,
    implemented/awaiting verification, and proposed/blocked evidence.
 8. **Update the plan.** Record the slice outcome, accepted API revision, coverage
-   and remaining work under its major area. Complete an area only when all its
-   required outcomes are verified. Re-estimate future work from actual evidence.
+   and remaining work under its major area. Update verified catalog status/evidence
+   without renumbering IDs, regenerate its pages, and run the consistency check.
+   Complete an area only when all its required outcomes are verified. Re-estimate
+   future work from actual evidence.
 
 Before **every** external work-record mutation, re-read the title and require
 `rider-mobile/`. This includes status/dates, checklists, notes, timers/time entries,
@@ -520,12 +536,13 @@ an operational acceptance item, and a pushed branch cannot close an untested one
 
 ### Minimum information for a requested slice
 
-Use this template when the user asks to create subtasks; it is not a command to
-populate all future work now.
+Use this template when activating requested cards or batches; it is not a command
+to populate every future execution record now.
 
 ```text
 Title: rider-mobile/<plain Rider outcome>
 Major area: Mxx — <name>
+Selected subtask/batch IDs:
 User outcome and screens/states:
 Included behavior / exclusions:
 Current web source and reviewed revision:

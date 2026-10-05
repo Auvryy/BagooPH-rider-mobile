@@ -19,6 +19,17 @@ The original normative-source review above remains dated to its earlier commit.
 GitHub links may require repository access; the authorized checkout is available
 for source review when unauthenticated pages are unavailable.
 
+The detailed-subtask review on October 5 observed the buyer-access branch at
+`cbb941c284cd83f2d41ae3cb13db6a583a97ee06` with a roadmap edit in progress.
+The other developer subsequently advanced the checkout to clean local `main`
+at `16b502c5381938e9a9cfb7300f176b3311511713`. No web edits, commits, branch changes
+or resets were performed by this Rider task. The newer roadmap includes B05
+buyer holding and narrow owned-existing-order receipt behavior; delivery and
+whole-flow cards include that authorization boundary. The inspected API routes
+still expose public tracking only. This is source evidence, without a fresh
+remote-main comparison, deployment check or rerun of the backend's reported tests.
+Refresh it at each future slice rather than treating this as a live status list.
+
 This repo adapts rider responsibilities and presentation instead of copying the
 entire web documentation directory. Full copies would create competing state
 models and duplicate a changing implementation audit. Historical source material

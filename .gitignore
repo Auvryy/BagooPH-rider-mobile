@@ -54,3 +54,6 @@ app.*.map.json
 android/key.properties
 *.jks
 *.keystore
+
+# Machine-local work guide
+/Task Creator.md

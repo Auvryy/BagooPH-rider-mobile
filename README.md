@@ -15,6 +15,17 @@ rules. Future API integration must preserve approval, assignment scope, authenti
 custody, buyer-only completion, and separate COD reconciliation. This repository
 does not modify the web/backend project.
 
+## Rider plan
+
+Start with the [documentation map](docs/README.md) for rider responsibilities,
+the recommended Flutter stack, application architecture, the proposed Laravel
+API contract, and acceptance checks.
+
+The working presentation target is **November 21, 2026** in Asia/Manila.
+Development and verification should finish by **November 20**. The
+[delivery plan](docs/DELIVERY_PLAN.md) records dependencies and scope decisions;
+the date does not imply that the proposed features are implemented.
+
 ## Requirements
 
 Created with Flutter 3.47.1 and Dart 3.13.1. Use that version or a compatible newer

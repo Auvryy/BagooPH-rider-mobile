@@ -11,6 +11,17 @@
 4. Reuse an existing record when a prompt continues the same task. Create a
    record for new feature, fix, branch, documentation, or investigation work.
    A conversational question alone does not need a new development task.
+5. Start every mobile task title with the exact `rider-mobile/` prefix, followed
+   by a clear description, such as `rider-mobile/validate pickup waybills`.
+   Before any task write, re-read its current title and require that prefix.
+   This applies to edits, status/dates, checklists, comments, timers/time logs,
+   dependencies, attachments and deletion. Preserve the prefix when renaming.
+   Refer to web/shared tasks without editing them; a Rider label, parent or
+   matching keyword alone does not establish mobile ownership.
+
+An explicitly requested rename of a verified existing Rider Mobile task may
+add the prefix once. Preserve its other fields and verify the new title before
+any further writes. This exception does not authorize renaming unrelated tasks.
 
 The local guide is intentionally ignored by Git and is supplied separately on
 each machine. If it is missing or its tracker is unavailable, report the gap,
@@ -96,6 +107,13 @@ service names, credentials, CLI paths, or remote task IDs.
   and do not mark unfinished backend dependencies complete.
 - Follow the local guide for concise progress notes and completion evidence.
   Log measured time only. Estimates are never substituted for actual time.
+- Confirm an effort estimate before active work and use a timer for every work
+  session. Stop it when pausing, switching tasks or finishing; verify that the
+  session was recorded once and the timer is stopped.
+- Before marking a task done, inspect its time entries and logged-versus-estimated
+  summary. Report the measured total and explain meaningful variance through
+  Rider work performed. Never randomize, pad or rewrite actual time for appearance
+  or to match an estimate. Revise future estimates when scope or evidence changes.
 - Task titles, descriptions, checklists, comments and time-entry notes describe
   only BagooPH Rider work, its outcomes and actual checks. Keep local tools,
   automation, services, configuration paths and guide contents out of remote

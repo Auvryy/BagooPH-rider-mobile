@@ -25,6 +25,38 @@ the backend's phase order. Calendar targets do not waive operational safeguards.
   performed here; future rows are not automatically created tasks or approved
   coding branches. Re-estimate from evidence after the first integrated slice.
 
+## Task names and ownership
+
+Every execution task title starts with **`rider-mobile/`**, followed by a natural
+description. For example: `rider-mobile/document pickup and delivery` or
+`rider-mobile/add courier sign-in`. Apply this format when creating work from
+the proposed rows below; their R00–R11 identifiers are planning references.
+
+Before every task mutation, re-read the target and require that exact title
+prefix. Only those records may receive edits, status/date changes, checklists,
+comments, timers/time entries, dependencies or attachments, or be deleted.
+Keep the prefix in title edits. Web tasks and shared parent/label/sprint records
+remain unchanged; their names or Rider labels do not grant mobile edit scope.
+Backend dependencies may be read/referenced without changing their records.
+
+For an explicitly requested migration of an existing verified mobile task,
+rename it once while preserving other fields, then verify the prefix before
+further changes. Task text remains limited to BagooPH Rider work and actual
+checks under the root `AGENTS.md` and local guide.
+
+## Estimates and actual work
+
+Confirm each task's effort estimate before starting, run a timer during active
+work, and stop it whenever work pauses, changes tasks or finishes. Verify the
+saved session after stopping. Before completion, check the task's time entries
+and logged-versus-estimated summary; each work interval must be counted once.
+
+Keep actual time measured. Never randomize, pad or alter it to look natural or
+match the target. Explain meaningful differences through the Rider work and
+checks performed, and revise future estimates when scope or evidence changes.
+Board-wide totals may include other work; review this project's scoped records
+without changing unrelated tasks or their time entries.
+
 ## Proposed sequence
 
 | Item | Start | Due | Calendar days | Client effort | Prerequisite and finish evidence |
@@ -77,6 +109,8 @@ of the full baseline. Record decisions in [DECISIONS_AND_IDEAS.md](DECISIONS_AND
 
 1. The authorized behavior and dependencies are clear; the work record has
    realistic dates, estimate, checkboxes, and measured time under the local guide.
+   Saved sessions and the actual-versus-estimated total have been verified, with
+   no running timer or duplicated interval.
 2. Relevant source rules, agreed contract, typed states and failure behavior
    match; unsupported backend capabilities stay unavailable.
 3. Appropriate automated checks and needed device/cross-role acceptance pass.

@@ -25,6 +25,25 @@ the backend's phase order. Calendar targets do not waive operational safeguards.
   performed here; future rows are not automatically created tasks or approved
   coding branches. Re-estimate from evidence after the first integrated slice.
 
+## Task names and ownership
+
+Every execution task title starts with **`rider-mobile/`**, followed by a natural
+description. For example: `rider-mobile/document pickup and delivery` or
+`rider-mobile/add courier sign-in`. Apply this format when creating work from
+the proposed rows below; their R00–R11 identifiers are planning references.
+
+Before every task mutation, re-read the target and require that exact title
+prefix. Only those records may receive edits, status/date changes, checklists,
+comments, timers/time entries, dependencies or attachments, or be deleted.
+Keep the prefix in title edits. Web tasks and shared parent/label/sprint records
+remain unchanged; their names or Rider labels do not grant mobile edit scope.
+Backend dependencies may be read/referenced without changing their records.
+
+For an explicitly requested migration of an existing verified mobile task,
+rename it once while preserving other fields, then verify the prefix before
+further changes. Task text remains limited to BagooPH Rider work and actual
+checks under the root `AGENTS.md` and local guide.
+
 ## Proposed sequence
 
 | Item | Start | Due | Calendar days | Client effort | Prerequisite and finish evidence |

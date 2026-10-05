@@ -11,6 +11,17 @@
 4. Reuse an existing record when a prompt continues the same task. Create a
    record for new feature, fix, branch, documentation, or investigation work.
    A conversational question alone does not need a new development task.
+5. Start every mobile task title with the exact `rider-mobile/` prefix, followed
+   by a clear description, such as `rider-mobile/validate pickup waybills`.
+   Before any task write, re-read its current title and require that prefix.
+   This applies to edits, status/dates, checklists, comments, timers/time logs,
+   dependencies, attachments and deletion. Preserve the prefix when renaming.
+   Refer to web/shared tasks without editing them; a Rider label, parent or
+   matching keyword alone does not establish mobile ownership.
+
+An explicitly requested rename of a verified existing Rider Mobile task may
+add the prefix once. Preserve its other fields and verify the new title before
+any further writes. This exception does not authorize renaming unrelated tasks.
 
 The local guide is intentionally ignored by Git and is supplied separately on
 each machine. If it is missing or its tracker is unavailable, report the gap,

@@ -107,6 +107,13 @@ service names, credentials, CLI paths, or remote task IDs.
   and do not mark unfinished backend dependencies complete.
 - Follow the local guide for concise progress notes and completion evidence.
   Log measured time only. Estimates are never substituted for actual time.
+- Confirm an effort estimate before active work and use a timer for every work
+  session. Stop it when pausing, switching tasks or finishing; verify that the
+  session was recorded once and the timer is stopped.
+- Before marking a task done, inspect its time entries and logged-versus-estimated
+  summary. Report the measured total and explain meaningful variance through
+  Rider work performed. Never randomize, pad or rewrite actual time for appearance
+  or to match an estimate. Revise future estimates when scope or evidence changes.
 - Task titles, descriptions, checklists, comments and time-entry notes describe
   only BagooPH Rider work, its outcomes and actual checks. Keep local tools,
   automation, services, configuration paths and guide contents out of remote

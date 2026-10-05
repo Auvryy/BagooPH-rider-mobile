@@ -44,6 +44,19 @@ rename it once while preserving other fields, then verify the prefix before
 further changes. Task text remains limited to BagooPH Rider work and actual
 checks under the root `AGENTS.md` and local guide.
 
+## Estimates and actual work
+
+Confirm each task's effort estimate before starting, run a timer during active
+work, and stop it whenever work pauses, changes tasks or finishes. Verify the
+saved session after stopping. Before completion, check the task's time entries
+and logged-versus-estimated summary; each work interval must be counted once.
+
+Keep actual time measured. Never randomize, pad or alter it to look natural or
+match the target. Explain meaningful differences through the Rider work and
+checks performed, and revise future estimates when scope or evidence changes.
+Board-wide totals may include other work; review this project's scoped records
+without changing unrelated tasks or their time entries.
+
 ## Proposed sequence
 
 | Item | Start | Due | Calendar days | Client effort | Prerequisite and finish evidence |
@@ -96,6 +109,8 @@ of the full baseline. Record decisions in [DECISIONS_AND_IDEAS.md](DECISIONS_AND
 
 1. The authorized behavior and dependencies are clear; the work record has
    realistic dates, estimate, checkboxes, and measured time under the local guide.
+   Saved sessions and the actual-versus-estimated total have been verified, with
+   no running timer or duplicated interval.
 2. Relevant source rules, agreed contract, typed states and failure behavior
    match; unsupported backend capabilities stay unavailable.
 3. Appropriate automated checks and needed device/cross-role acceptance pass.

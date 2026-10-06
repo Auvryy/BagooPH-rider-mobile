@@ -3,12 +3,17 @@
 Flutter application for BagooPH pickup and delivery couriers. Both assignment
 phases belong to the same rider app and courier account role.
 
-## Starter scope
+## Current preview
 
-- Minimal BagooPH Rider welcome screen.
+- Login with labelled email/password fields, password visibility and local feedback.
+- Registration with three explorable stages: rider details, vehicle and documents.
+- Original Bagoo logo and bundled Plus Jakarta Sans, using the Rider design tokens.
 - Android application scaffold, with Linux and web development targets.
 - Device Preview phone frames and controls on debug Linux/web runs.
-- No authentication, API connection, parcel actions, or sample operational data yet.
+- These are design previews. Sign-in and application submission are not connected;
+  no account is created, no documents are uploaded and no parcel actions exist.
+
+See [the auth preview guide](docs/AUTH_PREVIEW.md) for controls, checks and limits.
 
 The existing Bagoo Laravel application remains the backend and source of business
 rules. Future API integration must preserve approval, assignment scope, authenticated
@@ -25,7 +30,7 @@ The [major task map](docs/TASK_TRACKING.md) defines 16 work areas, their screens
 build order, dependencies and completion evidence. The
 [detailed backlog](docs/SUBTASK_BACKLOG.md) breaks them into **180 subtasks** and
 **63 suggested batches**, with stable IDs, steps, checks, dependencies and effort.
-Later prompts can request one card or a batch; all are planned client work.
+Later prompts can request one card or a batch; full feature cards remain planned.
 Always reference the current Bagoo website project's docs and features before
 each slice so changes in other
 roles stay visible; [sources and synchronization](docs/SOURCES.md) explain where
@@ -41,7 +46,8 @@ The [complete frontend design specification](docs/DESIGN_SPEC.md) now defines
 navigation, the counted screen inventory, page-by-page composition, responsive
 geometry, visual tokens, maps, theory-based rationale and illustrative layouts.
 It covers the current plan plus explicitly optional/conditional/future concepts;
-these are design views, not implemented native routes.
+the full inventory remains planned. The login and registration previews are the
+first implemented presentation slice.
 
 The working presentation target is **November 21, 2026** in Asia/Manila.
 Development and verification should finish by **November 20**. The
@@ -68,11 +74,14 @@ flutter run -d linux
 
 Use Device Preview's controls to choose a phone, orientation, and text scale.
 Press `r` in the terminal to hot reload and `q` to quit.
+Login opens first. Select **Apply as a rider** to see registration. Tap any of
+its three step headings or **Continue** to explore; fields need not be completed
+to switch steps. **Back to sign in** returns to login.
 
 For a browser preview:
 
 ```sh
-flutter run -d chrome
+flutter run -d chrome --dart-define=DEVICE_PREVIEW=false
 ```
 
 To see the normal Linux window without the phone frame:
@@ -85,10 +94,26 @@ Device Preview is disabled on physical Android devices and in release builds. It
 previews layouts; camera scanning, permissions, and device behavior still need
 verification on a real phone.
 
+For a fixed browser address with locally bundled rendering resources:
+
+```sh
+flutter build web --no-web-resources-cdn
+python3 -m http.server 4173 --bind 127.0.0.1 --directory build/web
+```
+
+Open [Login](http://127.0.0.1:4173/#/login) or
+[Registration](http://127.0.0.1:4173/#/register). Resize the browser to check phone
+and desktop layouts. Keep the server terminal running; use Ctrl+C to stop it.
+
 ## Project files
 
 ```text
-lib/main.dart       App entry point, starter screen, and preview setup
+lib/main.dart       App entry point, preview setup, and login/register routes
+lib/app/            Rider theme
+lib/core/ui/        Shared Bagoo identity
+lib/features/auth/  Login, registration, and shared form presentation
+assets/             Bagoo mark, Plus Jakarta Sans font and font license
+test/               Auth preview behavior and responsive layout checks
 android/            Android runner
 linux/              Linux preview runner
 web/                Web preview runner
@@ -99,12 +124,13 @@ pubspec.yaml        App metadata and dependencies
 
 ```sh
 flutter analyze
+flutter test
 flutter build linux --debug
 flutter build web
 ```
 
 The Android application identifier and Flutter launcher icons are scaffold defaults
 to finalize before a mobile release. Begin with current website/API agreement
-(B01-A), then the prerequisite conventions and Flutter foundation. Authentication
+(B01-A), then the remaining prerequisite conventions and Flutter foundation. Authentication
 and approval holding follow against accepted native endpoints. Select the later
 slice from the detailed backlog instead of treating the whole plan as one branch.

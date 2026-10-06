@@ -1,6 +1,6 @@
 # Rider documentation map
 
-Reviewed October 5, 2026. Working presentation target: **November 21, 2026**,
+Reviewed October 6, 2026. Working presentation target: **November 21, 2026**,
 Asia/Manila. Latest development deadline: **November 20**.
 
 BagooPH Rider Mobile is the dedicated Android client for approved pickup and
@@ -15,6 +15,7 @@ they do not authorize changing the backend or implementing every proposed featur
 | [PRODUCT_SCOPE.md](PRODUCT_SCOPE.md) | Who uses this app, what belongs in the presentation, and what stays outside? |
 | [FEATURE_DIRECTION.md](FEATURE_DIRECTION.md) | Which selected frontend features do we want, how will they work, and how do pickup claims differ from final-mile assignment? |
 | [DESIGN_SPEC.md](DESIGN_SPEC.md) | How should every page, overlay, map and state look and behave, with responsive navigation, visual rules and research rationale? |
+| [AUTH_PREVIEW.md](AUTH_PREVIEW.md) | How can I open and review the implemented login and registration design previews? |
 | [TASK_TRACKING.md](TASK_TRACKING.md) | What are the 16 major work areas, which screens belong to them, and how will later tasks/branches build and verify them? |
 | [SUBTASK_BACKLOG.md](SUBTASK_BACKLOG.md) | Which of the 180 detailed cards or 63 suggested batches can a later prompt select, with what dependencies, steps, checks and effort? |
 | [RIDER_FLOW.md](RIDER_FLOW.md) | What may a rider do at each stage, including failures and cash custody? |
@@ -29,9 +30,11 @@ they do not authorize changing the backend or implementing every proposed featur
 
 ## Current code versus target
 
-The committed starter contains a welcome screen, Android/Linux/web runners,
-Flutter dependencies, and debug Device Preview. It has no authentication,
-repositories, rider screens, operational fixture data, or backend connection.
+The app contains login and three-stage registration design previews, bundled
+Bagoo branding and Plus Jakarta Sans, Android/Linux/web runners and debug Device
+Preview. The [preview guide](AUTH_PREVIEW.md) records this presentation slice and
+its checks. It has no connected authentication, repositories, operational rider
+screens, operational fixture data, or backend connection.
 The architecture and `/api/v1` routes described here are **proposed**.
 
 The reviewed backend has reusable courier/lifecycle services and existing web

@@ -12,7 +12,8 @@ results of a Rider usability experiment.
 
 ## R01
 
-[Current mobile layout and safe-area guidance](https://developer.apple.com/design/human-interface-guidelines/layout)  
+[Current mobile layout and safe-area guidance](https://developer.apple.com/design/human-interface-guidelines/layout)
+
 [Published content data](https://developer.apple.com/tutorials/data/design/human-interface-guidelines/layout.json)
 
 Live guidance retrieved through published content data because the HTML
@@ -22,7 +23,8 @@ Rider palette or exact responsive threshold.
 
 ## R02
 
-[Current navigation-material guidance](https://developer.apple.com/design/human-interface-guidelines/materials)  
+[Current navigation-material guidance](https://developer.apple.com/design/human-interface-guidelines/materials)
+
 [Published content data](https://developer.apple.com/tutorials/data/design/human-interface-guidelines/materials.json)
 
 Content retrieved October 6; visible change log includes September 9, 2025.

@@ -35,6 +35,15 @@ the backend's phase order. Calendar targets do not waive operational safeguards.
   performed here; future rows are not automatically created tasks or approved
   coding branches. Re-estimate from evidence after the first integrated slice.
 
+## Selected frontend additions
+
+Stop Mode, Parcel Finder and Doorstep Guide were selected on October 6, 2026;
+see [FEATURE_DIRECTION.md](FEATURE_DIRECTION.md). The existing 180-card,
+315-hour forecast remains the baseline. Stop Mode reuses relevant presentation
+work; new tag storage and instruction data require incremental scope/effort
+estimates before executable dates are set. This selection preserves the
+November 20 freeze and does not authorize multi-parcel final-mile dispatch.
+
 ## Task names and ownership
 
 Use [TASK_TRACKING.md](TASK_TRACKING.md) for the 16 major work areas, screen map,

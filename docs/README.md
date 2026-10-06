@@ -13,6 +13,7 @@ they do not authorize changing the backend or implementing every proposed featur
 | Document | Question it answers |
 |---|---|
 | [PRODUCT_SCOPE.md](PRODUCT_SCOPE.md) | Who uses this app, what belongs in the presentation, and what stays outside? |
+| [FEATURE_DIRECTION.md](FEATURE_DIRECTION.md) | Which selected frontend features do we want, how will they work, and how do pickup claims differ from final-mile assignment? |
 | [TASK_TRACKING.md](TASK_TRACKING.md) | What are the 16 major work areas, which screens belong to them, and how will later tasks/branches build and verify them? |
 | [SUBTASK_BACKLOG.md](SUBTASK_BACKLOG.md) | Which of the 180 detailed cards or 63 suggested batches can a later prompt select, with what dependencies, steps, checks and effort? |
 | [RIDER_FLOW.md](RIDER_FLOW.md) | What may a rider do at each stage, including failures and cash custody? |

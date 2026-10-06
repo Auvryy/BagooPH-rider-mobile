@@ -31,6 +31,12 @@ each slice so changes in other
 roles stay visible; [sources and synchronization](docs/SOURCES.md) explain where
 to check. The map is a plan, not implemented app functionality.
 
+The selected frontend direction is **Stop Mode, Parcel Finder and Doorstep
+Guide**. [Their feature plan](docs/FEATURE_DIRECTION.md) defines the desired
+screens, acceptance, dependencies and pickup-versus-final-mile dispatch model.
+These are selected additions for planning, not implemented starter features;
+the detailed catalog and estimate still describe the existing baseline.
+
 The working presentation target is **November 21, 2026** in Asia/Manila.
 Development and verification should finish by **November 20**. The
 [delivery plan](docs/DELIVERY_PLAN.md) records dependencies and scope decisions;

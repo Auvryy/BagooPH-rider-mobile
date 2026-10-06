@@ -35,6 +35,28 @@ entire web documentation directory. Full copies would create competing state
 models and duplicate a changing implementation audit. Historical source material
 is useful context, never permission for a weaker mobile shortcut.
 
+## October 6 dispatch and selected-feature review
+
+The selected [frontend direction](FEATURE_DIRECTION.md) reviewed the local web
+checkout at `3db99d84604d218dbc151ea71cb3814adea95a59`. The shared checkout had
+unrelated in-progress work; this Rider review changed none of it. This is a
+scoped source observation, not publication, deployment or new runtime-test
+acceptance. The backend roadmap still owns implementation/remediation status.
+
+| Reviewed source | Observation relevant to the mobile plan |
+|---|---|
+| `docs/COURIER_FLOW.md` | Logistics placement is separate; seller pickups are rider-claimed, while the destination hub assigns final-mile work to an eligible barangay rider |
+| `app/Http/Controllers/Courier/CourierDeliveryController.php` and `app/Services/Courier/CourierOperationsService.php` | Available pickups and atomic claims check company/origin hub, readiness, duty and capacity; no seller-barangay check was found on that path |
+| `app/Models/Delivery.php` | Current active-pickup maximum is five; clients should receive capacity rather than hardcode it |
+| `app/Services/Logistics/OrderStateMachineService.php` | Final-mile assignment checks company/destination hub and rejects a configured barangay mismatch when destination barangay is present; a missing rider barangay does not make that conditional comparison fail |
+| `app/Services/Logistics/LogisticsEligibilityService.php` and `resources/js/Pages/Hub/Deliveries.tsx` | Hub candidates exclude active courier work; the UI includes matching or unconfigured barangay riders; new final-mile assignment is not an accepted multi-parcel run |
+| `docs/CORE_FLOW_VALIDATION_AND_EDGE_CASES.md` | Required company/hub/barangay scope must be respected; pickup-area policy and missing coverage semantics need agreement rather than a claim of universal strict barangay enforcement |
+
+The selected three features change presentation/planning only. Any stricter
+pickup-area rule, mandatory exact final-mile coverage or delivery batching
+needs an explicit owning-backend decision and tests before the client relies
+on it. No new endpoint or contract revision was accepted by this review.
+
 ## Web authority map
 
 | Source | Authority and use in this repo |

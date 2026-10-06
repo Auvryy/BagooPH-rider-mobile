@@ -1,0 +1,2776 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-10-06",
+  "project": "BagooPH Rider",
+  "selection": [
+    "Stop Mode",
+    "Parcel Finder",
+    "Doorstep Guide"
+  ],
+  "root_navigation": [
+    {
+      "label": "Tasks",
+      "page": "P05"
+    },
+    {
+      "label": "Trips",
+      "page": "P18"
+    },
+    {
+      "label": "Messages",
+      "page": "P21"
+    },
+    {
+      "label": "Profile",
+      "page": "P25"
+    }
+  ],
+  "counting_rule": "Count distinct designed full views, app overlays and external step/panels separately. Filters, shared states and Stop Mode stage variants are not extra full pages. All are planned designs, not implemented native routes.",
+  "pages": [
+    {
+      "id": "P01",
+      "name": "Sign in",
+      "group": "Entry",
+      "scope": "baseline",
+      "owner": "M03",
+      "shell": "auth",
+      "family": "form",
+      "purpose": "Enter the approved courier account and understand access results.",
+      "entry": [
+        "start",
+        "P03"
+      ],
+      "children": [
+        "P05",
+        "P03",
+        "E06",
+        "P02"
+      ],
+      "top": "Small BagooPH identity, Sign in heading, short purpose.",
+      "blocks": [
+        "Persistent email label and autofill",
+        "Password with accessible show/hide control",
+        "Remember-email meaning separate from session persistence"
+      ],
+      "primary": "Sign in: full-width after the fields; stays above the keyboard when needed.",
+      "secondary": "Forgot password under password; Apply as a rider below the main action.",
+      "why": "One red submit button makes the next action distinct; neutral outlined fields make editing recognizable. Recovery links use dark accent text rather than rival filled buttons.",
+      "special_states": "Bad credentials remain beside the correct field; expired session explains re-entry; unknown or wrong-role access does not open Tasks.",
+      "dependency": "Accepted sign-in and own-account contract; no browser-to-native session assumption.",
+      "native_implemented": false
+    },
+    {
+      "id": "P02",
+      "name": "Application preparation",
+      "group": "Entry",
+      "scope": "optional",
+      "owner": "M03",
+      "shell": "auth",
+      "family": "guide",
+      "purpose": "Prepare the rider to complete the existing application without surprise uploads.",
+      "entry": [
+        "P01",
+        "P32"
+      ],
+      "children": [
+        "E01",
+        "P01"
+      ],
+      "top": "Apply as a rider, Back and concise eligibility explanation.",
+      "blocks": [
+        "Required identity and vehicle documents",
+        "Accepted format/size from the current policy",
+        "Three application stages and what happens after submission"
+      ],
+      "primary": "Continue application: full-width lower action opens approved first-party entry.",
+      "secondary": "Already applied: Sign in; document help opens P33.",
+      "why": "An unboxed checklist reads as guidance, not completed verification; the red continuation identifies one path. Status claims are absent until a real submission is read.",
+      "special_states": "Missing requirements show unavailable guidance instead of fabricated limits; leaving keeps no document files in this page.",
+      "dependency": "First-party onboarding remains the recommended initial flow; this preparation view is an optional design addition.",
+      "native_implemented": false
+    },
+    {
+      "id": "P03",
+      "name": "Application and placement status",
+      "group": "Entry",
+      "scope": "baseline",
+      "owner": "M03",
+      "shell": "holding",
+      "family": "holding",
+      "purpose": "Explain review, correction, placement or access restrictions accurately.",
+      "entry": [
+        "P01",
+        "E05"
+      ],
+      "children": [
+        "P05",
+        "E05",
+        "P04",
+        "O09"
+      ],
+      "top": "Account name, exact status, last successful refresh.",
+      "blocks": [
+        "Pending: submitted details and neutral waiting explanation",
+        "Rejected: supplied feedback and correction link",
+        "Approved but unplaced: assignment pending and authorized contact",
+        "Inactive or suspended: permitted guidance and any narrow recovery link"
+      ],
+      "primary": "Contextual action: Refresh status, Correct application or Open recovery, depending on returned permission.",
+      "secondary": "Sign out stays visible; help is below the status explanation.",
+      "why": "Sand is for waiting/action-needed explanation; approved identity alone does not get a green Ready for work badge. Status text carries meaning independently of color.",
+      "special_states": "Unknown review state is unresolved, not approved; unavailable status differs from a rejected application; do not promise a review turnaround without supplied evidence.",
+      "dependency": "Fresh approval/activity/placement capabilities; native resubmission is not enabled by this design.",
+      "native_implemented": false
+    },
+    {
+      "id": "P04",
+      "name": "Restricted recovery overview",
+      "group": "Entry",
+      "scope": "baseline",
+      "owner": "M08",
+      "shell": "holding",
+      "family": "detail",
+      "purpose": "Show only explicitly authorized held-work recovery.",
+      "entry": [
+        "P03",
+        "P06"
+      ],
+      "children": [
+        "P17",
+        "P34"
+      ],
+      "top": "Restriction explanation and named receiving hub when authorized.",
+      "blocks": [
+        "Allowed held parcels and cash responsibilities",
+        "Receiving instruction and responsible actor",
+        "Status of outstanding recovery"
+      ],
+      "primary": "Open authorized handover: lower action only when returned as available.",
+      "secondary": "Contact the approved receiving team; sign out does not surrender custody.",
+      "why": "A quiet sand panel explains the restriction; a neutral list limits visual claims to returned duties. No ordinary task navigation appears.",
+      "special_states": "Missing recovery capability shows contact guidance; suspended status never becomes a normal dashboard through a cached task.",
+      "dependency": "Accepted narrow recovery contract and authorized receiving data.",
+      "native_implemented": false
+    },
+    {
+      "id": "P05",
+      "name": "Home / Tasks",
+      "group": "Work",
+      "scope": "baseline",
+      "owner": "M04",
+      "shell": "root",
+      "family": "list",
+      "purpose": "Find the next responsibility before statistics or decoration.",
+      "entry": [
+        "P01",
+        "P06",
+        "root"
+      ],
+      "children": [
+        "P06",
+        "P08",
+        "P23",
+        "O01",
+        "O02"
+      ],
+      "top": "Identity, assigned hub, duty switch and activity entry; heading Your tasks.",
+      "blocks": [
+        "Available pickups / Active pickups / Delivery filters with returned counts",
+        "Prominent selected or continuing task: stage, stop, full parcel reference, exact cash when relevant",
+        "Remaining queue in supplied order",
+        "Small truthful daily activity only after operational work"
+      ],
+      "primary": "Open Stop Mode on the prominent task; Claim pickup remains inside the available-task review.",
+      "secondary": "Search within this queue; filters open O02; duty change uses O01.",
+      "why": "One raised white current-task card gives hierarchy without outlining every row. Rose selection and dark text mark the active filter; secondary rows use spacing and subtle dividers.",
+      "special_states": "Off duty retains active work; missing assignment has placement guidance; empty queue differs from failed load; no map or fake totals in empty state.",
+      "dependency": "Scoped queue/capacity contract; selection is presentation and never optimization.",
+      "native_implemented": false
+    },
+    {
+      "id": "P06",
+      "name": "Stop Mode",
+      "group": "Work",
+      "scope": "selected",
+      "owner": "M04",
+      "shell": "child",
+      "family": "stop",
+      "purpose": "Finish the current authorized stop from one focused working view.",
+      "entry": [
+        "P05",
+        "P19",
+        "P24"
+      ],
+      "children": [
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P15",
+        "P14",
+        "P17",
+        "P22"
+      ],
+      "top": "Back, current phase/stage, full tracking reference and Help.",
+      "blocks": [
+        "Destination name and full address",
+        "Doorstep Guide excerpt with Open instructions",
+        "Compact saved-stop map if supported",
+        "Parcel Finder position when set",
+        "Exact COD or explicit prepaid/unavailable cash state",
+        "Short next-step instruction"
+      ],
+      "primary": "One stage-specific primary action in a sticky lower shelf above the navigation bar.",
+      "secondary": "Directions, Call and Message are neutral labelled controls beside the destination; Finder and guide links sit with their information.",
+      "why": "The primary shelf is red only for the permitted next action. Map and address form one group; instructions are borderless unless a warning needs a sand inset; selection never means custody.",
+      "special_states": "Eight stage variants are catalogued separately. Missing pin keeps address usable; stale permission removes the mutation; a lost response shows checking rather than success.",
+      "dependency": "Existing task/command acceptance, selected tag/instruction dependencies and optional map decision.",
+      "native_implemented": false
+    },
+    {
+      "id": "P07",
+      "name": "Waybill scanner",
+      "group": "Work",
+      "scope": "baseline",
+      "owner": "M06",
+      "shell": "focus",
+      "family": "scan",
+      "purpose": "Read genuine parcel input and review the match before custody changes.",
+      "entry": [
+        "P06",
+        "P17"
+      ],
+      "children": [
+        "O04",
+        "O11",
+        "Z01",
+        "P06"
+      ],
+      "top": "Close or Back, expected parcel, accessible torch control.",
+      "blocks": [
+        "Camera view with a bounded scan guide",
+        "Instructions outside the camera image",
+        "Expected full tracking reference",
+        "Read-result feedback and recovery"
+      ],
+      "primary": "Review match after a real read; never auto-confirm a custody transition.",
+      "secondary": "Torch is a 48-unit target; read-only code lookup uses O11 only if useful.",
+      "why": "Camera content has no decorative card; white/opaque control backplates preserve contrast. Match feedback includes text and icon, not only green.",
+      "special_states": "Denied camera offers device settings and permitted lookup; wrong, duplicate or unreadable code cannot produce a match; one pending read/review at a time.",
+      "dependency": "Camera adapter, physical-phone verification and accepted waybill evidence.",
+      "native_implemented": false
+    },
+    {
+      "id": "P08",
+      "name": "Parcel Finder",
+      "group": "Work",
+      "scope": "selected",
+      "owner": "M04",
+      "shell": "child",
+      "family": "finder",
+      "purpose": "Locate the rider's parcel in a compartment or bag.",
+      "entry": [
+        "P05",
+        "P06"
+      ],
+      "children": [
+        "O05",
+        "P06",
+        "P07"
+      ],
+      "top": "Parcel Finder, current scope and clear organization-only explanation.",
+      "blocks": [
+        "List of owned parcels with full reference and optional suffix emphasis",
+        "Small motorcycle/bag diagram with labelled slots",
+        "Selected parcel position and edit/clear actions"
+      ],
+      "primary": "Set parcel location: opens O05 for the selected owned parcel.",
+      "secondary": "Find by tracking reference; return to Stop Mode; scan identity through P07.",
+      "why": "Rose highlights one selected slot; other slots have visible outlines and text labels. A diagram is a personal memory aid, so it has no verified/custody badge.",
+      "special_states": "Unset location stays explicit; refresh preserves authorized local tags; account change clears scoped private state; final-mile multi-parcel load is not implied.",
+      "dependency": "Selected tag model, session-only versus private persistence and cleanup decision; current multi-pickup capacity only.",
+      "native_implemented": false
+    },
+    {
+      "id": "P09",
+      "name": "Doorstep Guide",
+      "group": "Work",
+      "scope": "selected",
+      "owner": "M09",
+      "shell": "child",
+      "family": "guide",
+      "purpose": "Understand the correct collection point or entrance before travel and handoff.",
+      "entry": [
+        "P06",
+        "P10"
+      ],
+      "children": [
+        "P10",
+        "P06",
+        "O12"
+      ],
+      "top": "Stop name, phase and the original destination.",
+      "blocks": [
+        "Authorized landmark and entrance",
+        "Floor/unit or collection-counter instructions",
+        "Access notes as plain text",
+        "Destination and contact fallback"
+      ],
+      "primary": "Directions to the saved destination: lower neutral action; guide reading itself is not a mutation.",
+      "secondary": "Copy address; call verified phase contact; return to Stop Mode.",
+      "why": "Borderless text sections avoid treating each sentence as a button. Only a materially important access warning uses a tinted inset; the destination remains dark and prominent.",
+      "special_states": "No notes says No extra instructions provided; unknown fields do not become guessed landmarks; clarification cannot silently redirect a parcel.",
+      "dependency": "Authorized phase-specific instruction data and update ownership; text-first selection excludes an automatic photo or pin-report service.",
+      "native_implemented": false
+    },
+    {
+      "id": "P10",
+      "name": "Expanded saved-stop map",
+      "group": "Work",
+      "scope": "conditional",
+      "owner": "M09",
+      "shell": "child",
+      "family": "map",
+      "purpose": "Explore the authorized saved stop without losing the address or task.",
+      "entry": [
+        "P06",
+        "P09"
+      ],
+      "children": [
+        "P06",
+        "P09",
+        "O13"
+      ],
+      "top": "Back, Saved stop label and parcel context.",
+      "blocks": [
+        "Street map with one authorized destination pin",
+        "Opaque stop/address summary",
+        "Labelled zoom and Show stop controls",
+        "Visible attribution and load feedback"
+      ],
+      "primary": "Directions: neutral control in the lower address shelf; custody action remains in Stop Mode.",
+      "secondary": "Show stop, zoom, Copy address and Open instructions.",
+      "why": "One bounded 8-unit map frame contains visual complexity. Opaque controls protect contrast; a stationary pin means a saved destination, never live rider location.",
+      "special_states": "Missing coordinates use the address layout; tile error preserves text and manual retry; no predicted route line, ETA, geofence enforcement or offline bulk tiles.",
+      "dependency": "Embedded-map M09.07 decision and provider policy; expanded layout is conditional until the renderer/data are accepted.",
+      "native_implemented": false
+    },
+    {
+      "id": "P11",
+      "name": "Delivery evidence",
+      "group": "Handoff",
+      "scope": "baseline",
+      "owner": "M07",
+      "shell": "focus",
+      "family": "form",
+      "purpose": "Review recipient evidence and a genuine proof image.",
+      "entry": [
+        "P06"
+      ],
+      "children": [
+        "Z02",
+        "O06",
+        "O07",
+        "P12",
+        "P13",
+        "O08"
+      ],
+      "top": "Parcel reference, step label and Back.",
+      "blocks": [
+        "Returned recipient/relationship requirements",
+        "Photo source action and proof thumbnail with replace/remove",
+        "Optional note with limit and inline errors",
+        "Brief evidence guidance"
+      ],
+      "primary": "Continue: full-width lower action after required evidence is ready.",
+      "secondary": "Replace/remove photo near the thumbnail; cancel via discard-draft O08.",
+      "why": "Fields have visible outlines; photo is grouped in one white surface. One red continuation avoids competing Capture, Retake and Submit colors.",
+      "special_states": "Camera/picker interruption recovers only the authorized draft; rejected upload keeps safe input; photo selection does not record delivery.",
+      "dependency": "Accepted evidence fields/limits, private media handling and real-device lifecycle verification.",
+      "native_implemented": false
+    },
+    {
+      "id": "P12",
+      "name": "Cash collection review",
+      "group": "Handoff",
+      "scope": "baseline",
+      "owner": "M07",
+      "shell": "focus",
+      "family": "finance",
+      "purpose": "Make exact cash due understandable and check change before handoff.",
+      "entry": [
+        "P11"
+      ],
+      "children": [
+        "P13",
+        "O10",
+        "P15"
+      ],
+      "top": "Parcel reference and Cash at delivery.",
+      "blocks": [
+        "Exact server amount due",
+        "Payment method or clear no-COD state",
+        "Optional cash-tendered helper and read-only correct change",
+        "Acknowledgement required by the accepted outcome"
+      ],
+      "primary": "Continue to review: lower red action only when the required cash evidence is valid.",
+      "secondary": "Cash problem opens O10; Back preserves permitted entered evidence.",
+      "why": "Amount due is dark and large; the card is not a colored earnings tile. Tender/change rows use grouping and a divider to keep calculation separate from recorded cash.",
+      "special_states": "Missing or invalid COD is unavailable, not zero; insufficient tender offers the allowed issue path; prepaid work skips unnecessary cash entry.",
+      "dependency": "Accepted exact-cash acknowledgement; helper does not replace the server amount or create remittance.",
+      "native_implemented": false
+    },
+    {
+      "id": "P13",
+      "name": "Final handoff review",
+      "group": "Handoff",
+      "scope": "baseline",
+      "owner": "M07",
+      "shell": "focus",
+      "family": "form",
+      "purpose": "Catch wrong parcel, evidence or cash before recording the outcome.",
+      "entry": [
+        "P11",
+        "P12"
+      ],
+      "children": [
+        "P14",
+        "P11",
+        "P12",
+        "P15",
+        "O08"
+      ],
+      "top": "Review handoff and full parcel identity.",
+      "blocks": [
+        "Saved recipient and destination",
+        "Authorized proof preview",
+        "Exact collection summary where required",
+        "Editable section links and clear outcome wording"
+      ],
+      "primary": "Record delivery: one lower red submit; changes to Recording while pending.",
+      "secondary": "Edit evidence or cash next to that section; Cancel does not cancel assignment.",
+      "why": "One review surface keeps related facts together; dark labelled values support recognition. The only saturated action is the actual record submission.",
+      "special_states": "Double tap is blocked; validation returns to the affected step with safe drafts; uncertain response is S09 and must reconcile before retry.",
+      "dependency": "Accepted outcome/idempotency contract; this records DELIVERED rather than buyer completion.",
+      "native_implemented": false
+    },
+    {
+      "id": "P14",
+      "name": "Recorded result receipt",
+      "group": "Handoff",
+      "scope": "baseline",
+      "owner": "M11",
+      "shell": "child",
+      "family": "receipt",
+      "purpose": "See what the server actually recorded and what responsibility remains.",
+      "entry": [
+        "P13",
+        "P06",
+        "P17"
+      ],
+      "children": [
+        "P05",
+        "P19",
+        "P06",
+        "P37"
+      ],
+      "top": "Outcome title, parcel and recorded time.",
+      "blocks": [
+        "Accepted result and event reference",
+        "Permitted evidence summary",
+        "Receiving hub for intake/return results",
+        "Buyer confirmation and cash duties shown separately"
+      ],
+      "primary": "Next task or View record: neutral lower action; no second record button.",
+      "secondary": "Open related timeline; show remaining cash responsibility only when available.",
+      "why": "A small mint result inset with icon/text acknowledges confirmed evidence. The rest is white and readable; no confetti, countdown or implied payout.",
+      "special_states": "Only server-confirmed result opens this receipt; origin intake, return receipt and delivery are named variants rather than separate new routes.",
+      "dependency": "Recorded event and authorized proof/history data; receipt cannot grant a new transition.",
+      "native_implemented": false
+    },
+    {
+      "id": "P15",
+      "name": "Failed-delivery form",
+      "group": "Exceptions",
+      "scope": "baseline",
+      "owner": "M08",
+      "shell": "focus",
+      "family": "form",
+      "purpose": "Record a permitted reason and understand the next responsibility.",
+      "entry": [
+        "P06",
+        "O10"
+      ],
+      "children": [
+        "P06",
+        "P16",
+        "O08"
+      ],
+      "top": "Could not deliver, parcel and current destination.",
+      "blocks": [
+        "Permitted reason list with plain labels",
+        "Required note/evidence by reason",
+        "Preview of returned next instruction",
+        "Explicit reminder that failure does not end custody"
+      ],
+      "primary": "Record failed attempt: lower red action after required fields.",
+      "secondary": "Back/Cancel preserves or discards through O08; approved help stays nearby.",
+      "why": "Reason fields and evidence boundaries are visible; sand communicates the return implication without using alarm red for every item.",
+      "special_states": "Unknown failure code is unsupported; denied/stale attempts refresh; recorded attempt count is server-owned; no rider-selected retry date.",
+      "dependency": "Accepted exception reasons/evidence, attempt record and hub-return contract.",
+      "native_implemented": false
+    },
+    {
+      "id": "P16",
+      "name": "Attempt and return timeline",
+      "group": "Exceptions",
+      "scope": "baseline",
+      "owner": "M08",
+      "shell": "child",
+      "family": "timeline",
+      "purpose": "Understand attempts, receipt and the hub's next decision.",
+      "entry": [
+        "P06",
+        "P15",
+        "P19"
+      ],
+      "children": [
+        "P06",
+        "P14",
+        "P34"
+      ],
+      "top": "Parcel reference and Recorded attempts.",
+      "blocks": [
+        "Time-ordered attempts with supplied reason/evidence",
+        "Hub return pending/received events",
+        "Approved retry decision or reverse-logistics instruction",
+        "Responsible actor for the current wait"
+      ],
+      "primary": "Open current responsibility: neutral lower link to Stop Mode.",
+      "secondary": "Open authorized evidence or help; filters do not erase attempts.",
+      "why": "Timeline uses a quiet line and labelled status dots; the current instruction alone receives sand or rose emphasis. Past records remain neutral.",
+      "special_states": "Waiting is distinct from approved retry; third-failure/refusal reverse flow is not a rider Return completed button.",
+      "dependency": "Recorded exception history, fresh instruction and private evidence permissions.",
+      "native_implemented": false
+    },
+    {
+      "id": "P17",
+      "name": "Restricted handover review",
+      "group": "Exceptions",
+      "scope": "baseline",
+      "owner": "M08",
+      "shell": "focus",
+      "family": "form",
+      "purpose": "Review a narrowly allowed parcel/cash recovery at the named receiver.",
+      "entry": [
+        "P04",
+        "P06"
+      ],
+      "children": [
+        "P14",
+        "P04",
+        "P34",
+        "O08"
+      ],
+      "top": "Recovery handover, authorized parcel and receiving hub.",
+      "blocks": [
+        "Reasoned restriction guidance",
+        "Returned evidence requirements",
+        "Current held parcel/cash summary",
+        "Receiver-owned receipt expectation"
+      ],
+      "primary": "Submit permitted recovery evidence: lower action only when explicitly allowed.",
+      "secondary": "Contact receiver; exit through safe draft handling.",
+      "why": "Neutral evidence fields and a sand responsibility panel avoid presenting restored approval. Read-only assignment data is not styled as an editable control.",
+      "special_states": "Absent capability removes submission; recovery acceptance cannot unlock ordinary operations or self-confirm the receiver's custody.",
+      "dependency": "Narrow backend recovery action; complete receiver evidence remains a prerequisite.",
+      "native_implemented": false
+    },
+    {
+      "id": "P18",
+      "name": "Trips",
+      "group": "History",
+      "scope": "baseline",
+      "owner": "M11",
+      "shell": "root",
+      "family": "list",
+      "purpose": "Find returned records within their real scope and period.",
+      "entry": [
+        "root",
+        "P14"
+      ],
+      "children": [
+        "P19",
+        "O17",
+        "O02"
+      ],
+      "top": "Trips, period and explicit returned history scope.",
+      "blocks": [
+        "Search tracking/address within allowed history",
+        "Date/phase filters where returned",
+        "Day-grouped records with readable outcome and time",
+        "Pagination or Load more with explicit progress"
+      ],
+      "primary": "Open a trip row: neutral chevron/text affordance; no arbitrary filled page-level action.",
+      "secondary": "Date range O17; clear filters; copy identifier.",
+      "why": "Borderless grouped rows and subtle separators suit reading many records. A current filter is rose; recorded result badges include text. No invented lifetime rates.",
+      "special_states": "No records differs from no matches and a failed page; unavailable pickup/previous-hub history stays disclosed.",
+      "dependency": "Scoped/paginated history contract; declared attribution and Philippine dates.",
+      "native_implemented": false
+    },
+    {
+      "id": "P19",
+      "name": "Trip detail and journey",
+      "group": "History",
+      "scope": "baseline",
+      "owner": "M11",
+      "shell": "child",
+      "family": "timeline",
+      "purpose": "Review recorded custody and the rider's contribution.",
+      "entry": [
+        "P18",
+        "P14",
+        "P23"
+      ],
+      "children": [
+        "P20",
+        "P16",
+        "P37",
+        "P06"
+      ],
+      "top": "Parcel, phase and recorded outcome.",
+      "blocks": [
+        "Saved stop and scope",
+        "Chronological custody milestones",
+        "Own accepted handoff/evidence when authorized",
+        "Separate buyer-confirmation and cash meaning"
+      ],
+      "primary": "View proof or Open current task when still authorized: neutral lower action.",
+      "secondary": "Copy tracking; expand timestamps and recorded details.",
+      "why": "Connected timeline groups the journey without a giant full-width map. White record sections are unboxed where headings/dividers suffice; selected context uses rose.",
+      "special_states": "Unavailable milestone has no fake timestamp; a past parcel cannot regain a live mutation; do not expose contacts after access ends.",
+      "dependency": "Recorded checkpoints/history and private proof access.",
+      "native_implemented": false
+    },
+    {
+      "id": "P20",
+      "name": "Private proof viewer",
+      "group": "History",
+      "scope": "baseline",
+      "owner": "M11",
+      "shell": "focus",
+      "family": "media",
+      "purpose": "Inspect the permitted accepted proof without turning it into public content.",
+      "entry": [
+        "P19",
+        "P14"
+      ],
+      "children": [
+        "P19",
+        "caller"
+      ],
+      "top": "Close/Back, parcel context and proof time when supplied.",
+      "blocks": [
+        "Image with opaque control backplates",
+        "Accessible zoom in/out/reset alternatives",
+        "Evidence caption and loading/error feedback"
+      ],
+      "primary": "Close: large reachable control; there is no download/share action by default.",
+      "secondary": "Zoom controls and return to record; gesture zoom is supplementary.",
+      "why": "Media can use a dark viewing stage with light readable controls; it is not the optional whole-app dark theme. Image bounds and controls are visually separate.",
+      "special_states": "Expired or denied access has a useful return path; no stale previous-account image; an accepted image is not editable here.",
+      "dependency": "Authorized private evidence, retention and cleanup policy.",
+      "native_implemented": false
+    },
+    {
+      "id": "P21",
+      "name": "Conversations",
+      "group": "Communication",
+      "scope": "baseline",
+      "owner": "M10",
+      "shell": "root",
+      "family": "list",
+      "purpose": "Find the correct parcel-linked person and thread.",
+      "entry": [
+        "root",
+        "P06"
+      ],
+      "children": [
+        "P22"
+      ],
+      "top": "Messages, scoped conversation count and search.",
+      "blocks": [
+        "Participant or stored avatar/initials",
+        "Parcel reference and Pickup/Delivery phase label",
+        "Last message/time and actual unread count",
+        "Read-only distinction for ended assignments"
+      ],
+      "primary": "Open conversation: row with clear name/phase; no New message to arbitrary users.",
+      "secondary": "Search by authorized contact/reference; refresh with feedback.",
+      "why": "Simple rows use separators rather than nested chat cards; rose marks selection and a small unread badge. Read state is actual data, not decorative dots.",
+      "special_states": "An empty list explains when threads appear; network failure does not mark all messages read; selection/drafts survive permitted refresh.",
+      "dependency": "Scoped conversations, phase-bound recipients and read acknowledgement.",
+      "native_implemented": false
+    },
+    {
+      "id": "P22",
+      "name": "Conversation thread",
+      "group": "Communication",
+      "scope": "baseline",
+      "owner": "M10",
+      "shell": "child",
+      "family": "chat",
+      "purpose": "Coordinate this parcel without losing task context.",
+      "entry": [
+        "P21",
+        "P06"
+      ],
+      "children": [
+        "P06",
+        "O15",
+        "O18"
+      ],
+      "top": "Back to conversations, participant, parcel and phase.",
+      "blocks": [
+        "Pinned short parcel/stop context",
+        "Scrollable message history",
+        "Read-only or read-update failure explanation",
+        "Composer with persistent label, character limit and send error"
+      ],
+      "primary": "Send message: labelled control beside or below composer; reachable above keyboard.",
+      "secondary": "Return to task; editable quick replies remain optional; retry read update is distinct from resending.",
+      "why": "Sent/received bubbles use neutral and light rose grouping; no saturated red wall of messages. Composer has a visible border and independently reachable Send.",
+      "special_states": "Switching thread preserves scoped drafts; stale recipient/phase cannot redirect a message; show new-message indicator without forcing scroll away from old content.",
+      "dependency": "Message/read APIs; only displayed selected messages are acknowledged. Composer layout covers root chrome temporarily in compact typing mode.",
+      "native_implemented": false
+    },
+    {
+      "id": "P23",
+      "name": "Activity inbox",
+      "group": "Activity",
+      "scope": "baseline",
+      "owner": "M12",
+      "shell": "child",
+      "family": "list",
+      "purpose": "Notice durable work, review and cash events missed during a session.",
+      "entry": [
+        "P05",
+        "P25"
+      ],
+      "children": [
+        "P24",
+        "P06",
+        "P03",
+        "P39",
+        "O14"
+      ],
+      "top": "Activity and actual unread scope.",
+      "blocks": [
+        "Time-grouped durable events",
+        "Plain event title, parcel/subject and timestamp",
+        "Read/unread status paired with text or icon",
+        "Useful authorized destination"
+      ],
+      "primary": "Open event: neutral row action, not an unsupported bulk mark-all control.",
+      "secondary": "Individual read actions O14 when supported; refresh.",
+      "why": "Unboxed rows use grouping for chronology; rose emphasis is reserved for unread selection, and event kinds use modest semantic icons.",
+      "special_states": "Unknown/delayed event remains readable without guessing a route; failed read update does not claim success; unavailable notice API is S11.",
+      "dependency": "Backend durable notification resource and fresh own-resource authorization.",
+      "native_implemented": false
+    },
+    {
+      "id": "P24",
+      "name": "Activity detail",
+      "group": "Activity",
+      "scope": "baseline",
+      "owner": "M12",
+      "shell": "child",
+      "family": "detail",
+      "purpose": "Read a notice and find the actual current action.",
+      "entry": [
+        "P23"
+      ],
+      "children": [
+        "P06",
+        "P03",
+        "P39",
+        "P34"
+      ],
+      "top": "Event title and supplied time.",
+      "blocks": [
+        "Event explanation and relevant reference",
+        "Current availability of the linked resource",
+        "Next responsible actor if known"
+      ],
+      "primary": "Open authorized destination: lower neutral or contextual primary only if real work is available.",
+      "secondary": "Back to Activity; Mark read only through the accepted own-event action.",
+      "why": "Most notices are neutral text; a sand or mint inset follows actual event meaning. An old event does not get a live-action badge merely because it was unread.",
+      "special_states": "Denied/removed target keeps a safe explanation; event history never overrides current authorization.",
+      "dependency": "Durable event details, accepted links and current capability.",
+      "native_implemented": false
+    },
+    {
+      "id": "P25",
+      "name": "Profile",
+      "group": "Account",
+      "scope": "baseline",
+      "owner": "M13",
+      "shell": "root",
+      "family": "profile",
+      "purpose": "Find identity, assignment and useful account actions.",
+      "entry": [
+        "root"
+      ],
+      "children": [
+        "P26",
+        "P27",
+        "P28",
+        "P29",
+        "P37"
+      ],
+      "top": "Actual avatar/initials, name and reviewed status; modest cover motif.",
+      "blocks": [
+        "Actual account/contact summary",
+        "Company, hub and barangay with absent-value wording",
+        "Rows for Information, Assignment, Vehicle, Settings and Cash when available"
+      ],
+      "primary": "Edit contact details: neutral labelled action after contact summary.",
+      "secondary": "Open managed records and settings; unsupported cash shows availability guidance rather than a wallet balance.",
+      "why": "A quiet cover adds identity without a credential/pass graphic. Rows are largely borderless with chevrons; review badge uses actual state and dark text.",
+      "special_states": "No default license, hours or hub; profile review and working eligibility stay separate; avatar editing is not added without a supported contract.",
+      "dependency": "Own identity/profile and managed placement resource.",
+      "native_implemented": false
+    },
+    {
+      "id": "P26",
+      "name": "Edit contact information",
+      "group": "Account",
+      "scope": "baseline",
+      "owner": "M13",
+      "shell": "focus",
+      "family": "form",
+      "purpose": "Save only permitted contact fields with clear validation.",
+      "entry": [
+        "P25"
+      ],
+      "children": [
+        "P25",
+        "O08"
+      ],
+      "top": "Edit information, Back and current field purpose.",
+      "blocks": [
+        "Permitted name and mobile fields",
+        "Persistent labels and actual format guidance",
+        "Inline field errors and saved acknowledgement"
+      ],
+      "primary": "Save contact details: full-width lower red action.",
+      "secondary": "Discard/back through O08 if changed; read-only reviewed identity fields link to guidance.",
+      "why": "Outlined inputs mean editable data; one white form surface groups the fields. Managed identity/placement is visually read-only rather than disabled-looking editable inputs.",
+      "special_states": "Rejected edits preserve safe text; duplicate save is blocked; fresh saved values replace drafts only after acceptance.",
+      "dependency": "Shared profile validators and permitted self-service fields.",
+      "native_implemented": false
+    },
+    {
+      "id": "P27",
+      "name": "Assignment and hub directory",
+      "group": "Account",
+      "scope": "baseline",
+      "owner": "M13",
+      "shell": "child",
+      "family": "detail",
+      "purpose": "Know where the rider works and how to reach the authorized hub.",
+      "entry": [
+        "P25",
+        "P06"
+      ],
+      "children": [
+        "P10",
+        "P34",
+        "O12"
+      ],
+      "top": "Company and assigned hub; area when configured.",
+      "blocks": [
+        "Read-only hub/area fields",
+        "Authorized address and contact",
+        "Receiving information only when supplied",
+        "Who handles placement corrections"
+      ],
+      "primary": "Directions to this hub: lower neutral action with an actual destination.",
+      "secondary": "Call permitted hub contact; ask for correction through supported guidance.",
+      "why": "A white grouping surface separates assignment from operational work; fields have no input outlines because they cannot be edited here.",
+      "special_states": "Unassigned/missing address and contact are explicit; no guessed operating hours; absent barangay does not claim strict area-only coverage.",
+      "dependency": "Own managed placement and permitted hub-directory fields; new receiving instructions need agreement.",
+      "native_implemented": false
+    },
+    {
+      "id": "P28",
+      "name": "Vehicle and credentials",
+      "group": "Account",
+      "scope": "baseline",
+      "owner": "M13",
+      "shell": "child",
+      "family": "detail",
+      "purpose": "Read accurate managed vehicle/license information.",
+      "entry": [
+        "P25"
+      ],
+      "children": [
+        "P34"
+      ],
+      "top": "Vehicle and credentials; logistics-managed explanation.",
+      "blocks": [
+        "Stored type/model/plate",
+        "License and registration status from actual fields",
+        "Permitted private document link only if supplied",
+        "Correction guidance"
+      ],
+      "primary": "Contact responsible team: neutral guidance action when a real contact exists.",
+      "secondary": "Back to Profile; reveal only authorized private evidence.",
+      "why": "Definition rows and quiet dividers make read-only facts easy to scan. No fake verification seal, barcode, uniform license restrictions or decorative pass.",
+      "special_states": "Not provided is different from verified; expired or unknown state is plain text; no rider-owned fleet/credential editing.",
+      "dependency": "Managed vehicle data and field-level/private document permission.",
+      "native_implemented": false
+    },
+    {
+      "id": "P29",
+      "name": "Settings",
+      "group": "Account",
+      "scope": "baseline",
+      "owner": "M14",
+      "shell": "child",
+      "family": "list",
+      "purpose": "Find supported preferences, security and help without a crowded menu.",
+      "entry": [
+        "P25"
+      ],
+      "children": [
+        "P30",
+        "P32",
+        "P35",
+        "P36",
+        "P43",
+        "P48",
+        "O09"
+      ],
+      "top": "Settings and Back.",
+      "blocks": [
+        "Account/security group",
+        "Device access group",
+        "Supported preferences only",
+        "Help, Privacy and About group",
+        "Sign out as a separated action"
+      ],
+      "primary": "No general primary button; each setting row opens its named destination.",
+      "secondary": "Sign out uses O09; optional controls appear only after actual support exists.",
+      "why": "Borderless rows with group dividers avoid a box around every preference. Sign out is labelled and separated, not colored like destructive account closure.",
+      "special_states": "Unavailable options explain or stay absent; no no-op switches or developer/API configuration in the rider menu.",
+      "dependency": "Accepted account actions; optional preferences remain their own design scope.",
+      "native_implemented": false
+    },
+    {
+      "id": "P30",
+      "name": "Privacy and security",
+      "group": "Account",
+      "scope": "baseline",
+      "owner": "M14",
+      "shell": "child",
+      "family": "detail",
+      "purpose": "Understand verification and change the password safely.",
+      "entry": [
+        "P29"
+      ],
+      "children": [
+        "P31",
+        "E08",
+        "P35",
+        "P47",
+        "O09"
+      ],
+      "top": "Privacy and security.",
+      "blocks": [
+        "Real email-verification status",
+        "Password-change row and requirements",
+        "Privacy notice link",
+        "Account-closure guidance when needed"
+      ],
+      "primary": "Change password: neutral row leading to the focused form.",
+      "secondary": "Verify email opens the supported first-party flow; sign out remains explicit.",
+      "why": "Status is a small labelled inset; rows and explanatory text remain neutral. There is no generic green Secure account promise or artificial security score.",
+      "special_states": "Unverified email shows the actual prerequisite; unsupported device-session lists are not invented; closure cannot abandon held parcels/cash.",
+      "dependency": "Email verification, password policy and controlled closure authority.",
+      "native_implemented": false
+    },
+    {
+      "id": "P31",
+      "name": "Change password",
+      "group": "Account",
+      "scope": "baseline",
+      "owner": "M14",
+      "shell": "focus",
+      "family": "form",
+      "purpose": "Change credentials without obscuring requirements or losing errors.",
+      "entry": [
+        "P30"
+      ],
+      "children": [
+        "P30",
+        "P01",
+        "O08"
+      ],
+      "top": "Change password, Back and verified-email prerequisite.",
+      "blocks": [
+        "Current/new/confirmation inputs with persistent labels",
+        "Password manager/autofill and paste support",
+        "Show/hide controls with accessible names",
+        "Requirement and validation text"
+      ],
+      "primary": "Update password: lower red submit with pending feedback.",
+      "secondary": "Back/discard through O08; recovery via approved entry if necessary.",
+      "why": "Clear outlined fields and a single submit focus on the task; requirements are text, not a misleading strength gauge unsupported by policy.",
+      "special_states": "Field failure retains permitted state but success clears sensitive values; revocation/expiry follows the real session policy.",
+      "dependency": "Accepted password/session policy; actual length constraints from the server.",
+      "native_implemented": false
+    },
+    {
+      "id": "P32",
+      "name": "Help center",
+      "group": "Help",
+      "scope": "baseline",
+      "owner": "M14",
+      "shell": "child",
+      "family": "list",
+      "purpose": "Find a useful next step for field and account problems.",
+      "entry": [
+        "P29",
+        "P06",
+        "P03"
+      ],
+      "children": [
+        "P33",
+        "P34",
+        "P46"
+      ],
+      "top": "Help, search or clear topic grouping.",
+      "blocks": [
+        "Pickup and hub handoff topics",
+        "Delivery/proof/cash topics",
+        "Access and application topics",
+        "Contact the correct supported team"
+      ],
+      "primary": "Open topic or Contact help: neutral rows; context can carry the active parcel.",
+      "secondary": "How Rider works is P46 if selected; permission guidance links P48.",
+      "why": "Readable category headings and rows are calmer than colored feature tiles. A current problem may use one sand instruction inset.",
+      "special_states": "No invented support hours, emergency service or response guarantee; offline known guidance stays distinct from unavailable live help.",
+      "dependency": "Approved help content/contact routes; static instructions must match current flow.",
+      "native_implemented": false
+    },
+    {
+      "id": "P33",
+      "name": "Help guide",
+      "group": "Help",
+      "scope": "baseline",
+      "owner": "M14",
+      "shell": "child",
+      "family": "guide",
+      "purpose": "Understand one task or recovery procedure in plain language.",
+      "entry": [
+        "P32",
+        "P02"
+      ],
+      "children": [
+        "P34",
+        "P06",
+        "P48"
+      ],
+      "top": "Guide title and Back.",
+      "blocks": [
+        "Short situation statement",
+        "Numbered permitted steps",
+        "Relevant field/evidence examples",
+        "Useful contact or related task link"
+      ],
+      "primary": "Open relevant task or Contact help: neutral lower link if authorized.",
+      "secondary": "Related guide links below the steps.",
+      "why": "Unboxed reading content, aligned steps and one caution inset improve grouping. Decorative illustrations never resemble a real proof or credential.",
+      "special_states": "Guidance cannot enable unsupported actions; stale version wording is updated with the owning flow; no dense legal wall above steps.",
+      "dependency": "Reviewed help guidance and the actual capability of the linked task.",
+      "native_implemented": false
+    },
+    {
+      "id": "P34",
+      "name": "Contact help with parcel context",
+      "group": "Help",
+      "scope": "baseline",
+      "owner": "M14",
+      "shell": "child",
+      "family": "detail",
+      "purpose": "Prepare useful context and contact an actual authorized help channel.",
+      "entry": [
+        "P32",
+        "P06",
+        "P04"
+      ],
+      "children": [
+        "O19",
+        "O12",
+        "P22"
+      ],
+      "top": "Help for this parcel or account.",
+      "blocks": [
+        "Selected authorized parcel/reference",
+        "Short problem summary for the rider to review",
+        "Available contact/channel and truthful availability",
+        "Copy safe context if supported"
+      ],
+      "primary": "Open supported contact channel: lower labelled neutral action.",
+      "secondary": "Choose another owned parcel using O19; keep sensitive proof out of copied context.",
+      "why": "Read-only context is unboxed; any editable summary has a visible outline. No fake ticket number or claim that a safety agent is monitoring.",
+      "special_states": "No configured channel means guidance rather than a dead button; submitted reports are not implied by copying or opening contact.",
+      "dependency": "Real contacts/approved help path; ticketing or incident persistence is outside this baseline.",
+      "native_implemented": false
+    },
+    {
+      "id": "P35",
+      "name": "Privacy notice",
+      "group": "Help",
+      "scope": "baseline",
+      "owner": "M14",
+      "shell": "child",
+      "family": "guide",
+      "purpose": "Read the current provided data-handling notice.",
+      "entry": [
+        "P29",
+        "P30"
+      ],
+      "children": [
+        "P34"
+      ],
+      "top": "Privacy, document version/date when supplied.",
+      "blocks": [
+        "Readable sections with contents links",
+        "Actual data-use and contact wording",
+        "Authorized policy contact"
+      ],
+      "primary": "No required accept button for reading an existing notice; Return is the main navigation.",
+      "secondary": "Copy/open an approved policy link if supported.",
+      "why": "Neutral reading canvas and headings support scanning; no decorative colored legal cards or hidden consent choices.",
+      "special_states": "Unavailable/version-missing content is honest; draft policy copy is not represented as approved legal guidance.",
+      "dependency": "Approved notice text; this design does not establish retention or legal commitments.",
+      "native_implemented": false
+    },
+    {
+      "id": "P36",
+      "name": "About Rider",
+      "group": "Help",
+      "scope": "baseline",
+      "owner": "M14",
+      "shell": "child",
+      "family": "guide",
+      "purpose": "Understand the app, supported version and how it fits the parcel flow.",
+      "entry": [
+        "P29"
+      ],
+      "children": [
+        "P32",
+        "P46"
+      ],
+      "top": "BagooPH Rider with a small original parcel motif.",
+      "blocks": [
+        "Actual app version and release label",
+        "Short Rider purpose",
+        "Help/privacy links",
+        "Update guidance only when an actual distribution link exists"
+      ],
+      "primary": "Help: neutral lower link when needed; no forced decorative button.",
+      "secondary": "Read How Rider works if available.",
+      "why": "A modest identity moment is appropriate on a low-frequency reading page. White surface and dark text remain consistent with operational screens.",
+      "special_states": "Build/version is actual data; no fake uptime, network endpoint, debug settings or automatically available update button.",
+      "dependency": "Public app metadata and approved support/distribution information.",
+      "native_implemented": false
+    },
+    {
+      "id": "P37",
+      "name": "Cash responsibility overview",
+      "group": "Money",
+      "scope": "baseline",
+      "owner": "M15",
+      "shell": "child",
+      "family": "finance",
+      "purpose": "Separate cash held, received remittance, discrepancy and earnings.",
+      "entry": [
+        "P25",
+        "P14",
+        "P19"
+      ],
+      "children": [
+        "P38",
+        "P39",
+        "P40",
+        "P41",
+        "O16"
+      ],
+      "top": "Cash responsibility and covered scope/period.",
+      "blocks": [
+        "Authoritative cash still held",
+        "Hub-received remittance records",
+        "Discrepancy/reconciliation meaning",
+        "Confirmed earnings as a separate destination"
+      ],
+      "primary": "View remittance instructions: lower neutral or contextual action when a real duty exists.",
+      "secondary": "Open receipts, discrepancies and explanation O16.",
+      "why": "Amounts are dark and labelled in white groups; no saturated Wallet balance tile. Sand marks an actual unresolved responsibility, mint an actual receipt.",
+      "special_states": "No ledger support means Unavailable, not zero; missing amount/period stays explicit; delivery itself does not remit money.",
+      "dependency": "Accepted append-only finance resource and matching rider/hub/admin records.",
+      "native_implemented": false
+    },
+    {
+      "id": "P38",
+      "name": "Remittance instructions",
+      "group": "Money",
+      "scope": "baseline",
+      "owner": "M15",
+      "shell": "child",
+      "family": "detail",
+      "purpose": "Know the actual receiving point and required handover evidence.",
+      "entry": [
+        "P37"
+      ],
+      "children": [
+        "P27",
+        "P39",
+        "P34"
+      ],
+      "top": "Remit cash, supplied amount and receiving hub.",
+      "blocks": [
+        "Exact outstanding amount from the ledger",
+        "Authorized receiver/address/contact",
+        "Accepted evidence/instruction",
+        "Receiver-owned confirmation expectation"
+      ],
+      "primary": "Open receiving directions or permitted remittance action: labelled lower action only if accepted.",
+      "secondary": "Contact receiver; view prior receipt.",
+      "why": "One responsibility group uses white or sand; read-only amounts have no input appearance. A rider acknowledgement is never styled as Hub received.",
+      "special_states": "Unavailable receiver/action has a reason; no arbitrary top-up or transfer method; uncertain submission reconciles before retry.",
+      "dependency": "Approved remittance contract and receiver evidence; no guessed payment channel.",
+      "native_implemented": false
+    },
+    {
+      "id": "P39",
+      "name": "Remittance receipt",
+      "group": "Money",
+      "scope": "baseline",
+      "owner": "M15",
+      "shell": "child",
+      "family": "receipt",
+      "purpose": "Inspect a hub-confirmed cash receipt and its separate reconciliation state.",
+      "entry": [
+        "P37",
+        "P38",
+        "P24"
+      ],
+      "children": [
+        "P37",
+        "P40"
+      ],
+      "top": "Receipt reference, recorded receiver and time.",
+      "blocks": [
+        "Confirmed received amount",
+        "Linked collection records when supplied",
+        "Reconciliation state and any remaining difference"
+      ],
+      "primary": "Back to cash responsibility: neutral lower action.",
+      "secondary": "Open discrepancy or related record if authorized.",
+      "why": "A small mint received inset is separate from neutral reconciliation rows; green receipt does not mean seller paid.",
+      "special_states": "Pending reconciliation remains pending; missing signature/reference is not fabricated; no editable receipt or false downloadable statement.",
+      "dependency": "Hub-confirmed receipt resource and scoped finance evidence.",
+      "native_implemented": false
+    },
+    {
+      "id": "P40",
+      "name": "Cash discrepancy detail",
+      "group": "Money",
+      "scope": "baseline",
+      "owner": "M15",
+      "shell": "child",
+      "family": "timeline",
+      "purpose": "Understand the recorded difference and the authorized resolution path.",
+      "entry": [
+        "P37",
+        "P39"
+      ],
+      "children": [
+        "P34",
+        "P39"
+      ],
+      "top": "Recorded discrepancy and related parcel/receipt.",
+      "blocks": [
+        "Expected versus received amounts from records",
+        "Supplied reason and current reviewer/action",
+        "Append-only correction history when returned"
+      ],
+      "primary": "Open approved review/contact path: lower neutral action.",
+      "secondary": "Back to receipt or cash responsibility.",
+      "why": "Dark numeric labels and a sand reason inset give clarity without implying blame. Timeline rows show recorded corrections rather than editable balances.",
+      "special_states": "Unknown resolution stays unknown; no frontend edit of ledger history or manufactured reconciled amount.",
+      "dependency": "Accepted discrepancy/correction resource and owning review authority.",
+      "native_implemented": false
+    },
+    {
+      "id": "P41",
+      "name": "Confirmed earnings",
+      "group": "Money",
+      "scope": "baseline",
+      "owner": "M15",
+      "shell": "child",
+      "family": "finance",
+      "purpose": "See only approved rider earnings for the returned period.",
+      "entry": [
+        "P25",
+        "P37"
+      ],
+      "children": [
+        "P42",
+        "O17"
+      ],
+      "top": "Confirmed earnings and actual period.",
+      "blocks": [
+        "Recorded total and explicit coverage",
+        "Per-delivery entries and adjustments",
+        "Clear separation from COD held",
+        "Date filter only where data supports it"
+      ],
+      "primary": "Open earning record: neutral row action; no Withdraw button.",
+      "secondary": "Date range O17; cash responsibilities remain a separate link.",
+      "why": "Neutral totals and restrained bars support reading; a small accent can select the period. Earnings are not shown as COD cash or guessed fixed-rate totals.",
+      "special_states": "Missing earning policy/resource is unavailable; absent history is not lifetime zero; no estimated amount labelled paid.",
+      "dependency": "Confirmed final-mile attribution and accepted earning records; withdrawal is excluded.",
+      "native_implemented": false
+    },
+    {
+      "id": "P42",
+      "name": "Earning record detail",
+      "group": "Money",
+      "scope": "baseline",
+      "owner": "M15",
+      "shell": "child",
+      "family": "detail",
+      "purpose": "Understand the recorded source of one earning amount.",
+      "entry": [
+        "P41"
+      ],
+      "children": [
+        "P19",
+        "P41"
+      ],
+      "top": "Recorded earning amount and parcel/event.",
+      "blocks": [
+        "Supplied earning components and adjustments",
+        "Recorded status/time and attribution",
+        "Related delivery reference"
+      ],
+      "primary": "Open related trip: neutral lower link.",
+      "secondary": "Return to earnings; copy the reference if supported.",
+      "why": "Definition rows with aligned currency values use quiet dividers; no decorative green payout seal or unrelated product commission breakdown.",
+      "special_states": "Unknown component/rate is not inferred; adjustments keep their actual source and state.",
+      "dependency": "Accepted per-record earning fields and private ownership scope.",
+      "native_implemented": false
+    },
+    {
+      "id": "P43",
+      "name": "Comfort preferences",
+      "group": "Optional",
+      "scope": "optional",
+      "owner": "M14",
+      "shell": "child",
+      "family": "list",
+      "purpose": "Choose only supported local comfort options and see a real preview.",
+      "entry": [
+        "P29"
+      ],
+      "children": [
+        "P44",
+        "P45"
+      ],
+      "top": "Preferences with a live readable sample.",
+      "blocks": [
+        "System text-size guidance or implemented app preference",
+        "Supported navigation preference",
+        "Language/theme entries only after those features exist",
+        "Optional motion/haptic control only if implemented"
+      ],
+      "primary": "No generic Save unless changes require it; each preference must visibly work.",
+      "secondary": "Open language/appearance; restore device defaults only if supported.",
+      "why": "Borderless rows and a neutral preview avoid a collection of nonfunctional switches. The preview demonstrates consequences before choice.",
+      "special_states": "Unsupported controls are absent or clearly explained; preferences cannot affect permission, assignment or duty.",
+      "dependency": "Optional preference implementation and real persistence/accessibility verification.",
+      "native_implemented": false
+    },
+    {
+      "id": "P44",
+      "name": "Language preference",
+      "group": "Optional",
+      "scope": "optional",
+      "owner": "M14",
+      "shell": "child",
+      "family": "choice",
+      "purpose": "Choose among actually completed translations.",
+      "entry": [
+        "P43"
+      ],
+      "children": [
+        "P43"
+      ],
+      "top": "Language with current selection.",
+      "blocks": [
+        "Supported language names in their own language",
+        "Radio selection and sample instruction",
+        "Effect on interface text, not operational codes"
+      ],
+      "primary": "Apply language: lower red action only when a change exists.",
+      "secondary": "Cancel keeps the current language.",
+      "why": "A rose selected row plus radio/text makes selection visible; other options are neutral, readable and large.",
+      "special_states": "No option for an incomplete translation; long labels and pluralization are checked; no silent translation of server failure codes.",
+      "dependency": "Optional complete translation/content QA; English/Filipino are candidates, not implemented claims.",
+      "native_implemented": false
+    },
+    {
+      "id": "P45",
+      "name": "Appearance preference",
+      "group": "Optional",
+      "scope": "optional",
+      "owner": "M14",
+      "shell": "child",
+      "family": "choice",
+      "purpose": "Preview and select only implemented appearance choices.",
+      "entry": [
+        "P43"
+      ],
+      "children": [
+        "P43"
+      ],
+      "top": "Appearance and small actual screen sample.",
+      "blocks": [
+        "System/light/dark choices if all supported",
+        "Readable previews and contrast explanation",
+        "Reduced-transparency/motion follows device support"
+      ],
+      "primary": "Apply appearance: lower red action for a real change.",
+      "secondary": "Cancel preserves the current appearance.",
+      "why": "The sample explains background/text/control changes; selection uses a radio and rose marker rather than relying on a color swatch alone.",
+      "special_states": "Dark appearance is a proposal until every component/state is checked; no instant appearance claim from a lone toggle.",
+      "dependency": "Optional complete palette/component implementation and contrast verification.",
+      "native_implemented": false
+    },
+    {
+      "id": "P46",
+      "name": "How Rider works tour",
+      "group": "Optional",
+      "scope": "optional",
+      "owner": "M14",
+      "shell": "focus",
+      "family": "guide",
+      "purpose": "Learn the two work phases and how the selected tools help.",
+      "entry": [
+        "P32",
+        "P36"
+      ],
+      "children": [
+        "P32",
+        "P05"
+      ],
+      "top": "How Rider works, step indicator and Skip.",
+      "blocks": [
+        "Seller-to-origin-hub pickup",
+        "Hub-assigned final-mile delivery",
+        "Parcel Finder and Doorstep Guide explanation",
+        "Cash and receipt meaning"
+      ],
+      "primary": "Next / Finish: lower reachable red action.",
+      "secondary": "Skip and Close are labelled; never gate work behind a decorative tour.",
+      "why": "Simple vector motifs and quiet pages suit introductory learning; no pretend interactive scanner or completion event.",
+      "special_states": "Tour remains revisitable; skipping never changes approval; permissions are requested during the actual task rather than all at onboarding.",
+      "dependency": "Optional static tour selection; no native onboarding/API claim.",
+      "native_implemented": false
+    },
+    {
+      "id": "P47",
+      "name": "Account closure guidance",
+      "group": "Conditional",
+      "scope": "conditional",
+      "owner": "M14",
+      "shell": "child",
+      "family": "guide",
+      "purpose": "Explain the controlled path when a rider wants to close the account.",
+      "entry": [
+        "P30",
+        "P33"
+      ],
+      "children": [
+        "P34"
+      ],
+      "top": "Account closure and responsibility explanation.",
+      "blocks": [
+        "Active parcel/cash duties when authorized",
+        "Who can review the request",
+        "Supported contact path and retained-record explanation from policy"
+      ],
+      "primary": "Contact authorized management: neutral lower action if a real route exists.",
+      "secondary": "Return to security; sign out remains separate.",
+      "why": "A restrained warning inset explains consequences; no red Delete account button when a guarded request contract is unavailable.",
+      "special_states": "No client-only closure, role conversion or silent abandonment of custody; policy wording is supplied rather than invented.",
+      "dependency": "Controlled closure/help policy; self-service deletion is not baseline functionality.",
+      "native_implemented": false
+    },
+    {
+      "id": "P48",
+      "name": "Device access and permissions",
+      "group": "Account",
+      "scope": "baseline",
+      "owner": "M14",
+      "shell": "child",
+      "family": "detail",
+      "purpose": "Understand actual camera/media/navigation access and how to recover denial.",
+      "entry": [
+        "P29",
+        "P07"
+      ],
+      "children": [
+        "Z01",
+        "P07"
+      ],
+      "top": "Device access with accurate permission states.",
+      "blocks": [
+        "Camera permission and the tasks that need it",
+        "Media access/picker guidance by device behavior",
+        "Location row only if an included feature actually needs it",
+        "Open device settings when supported"
+      ],
+      "primary": "Open device settings or Retry camera: lower labelled neutral action appropriate to the state.",
+      "secondary": "Return to the originating scan/proof task.",
+      "why": "Permission rows have status text/icons and no fake app-owned OS toggles. Neutral surfaces distinguish information from a real permission request.",
+      "special_states": "Denied/permanently denied/restricted are distinct; OS settings return refetches status; saved-stop navigation does not automatically require live GPS.",
+      "dependency": "Actual native permission/launcher adapters and real-device checks.",
+      "native_implemented": false
+    }
+  ],
+  "external_views": [
+    {
+      "id": "E01",
+      "name": "Application: rider information",
+      "group": "First-party web entry",
+      "scope": "external",
+      "owner": "M03",
+      "shell": "auth",
+      "family": "form",
+      "purpose": "Enter real registration/contact and operating-area fields.",
+      "top": "Rider information, Step 1 of 3.",
+      "blocks": [
+        "Name, birthday with current age policy",
+        "Email and Philippine mobile field",
+        "Address and operating-area selectors as supported"
+      ],
+      "primary": "Continue to vehicle: after the form.",
+      "secondary": "Back to sign in; inline help near the field.",
+      "why": "One red continuation and outlined fields clarify the sequence; the stepper is navigation context rather than verification.",
+      "special_states": "Field errors focus the first issue and preserve safe data; birth date cannot be replaced by a self-declared adult checkbox.",
+      "entry": [
+        "P02"
+      ],
+      "children": [
+        "E02",
+        "P01"
+      ],
+      "dependency": "Existing first-party web flow; native equivalent needs separate API scope.",
+      "native_implemented": false
+    },
+    {
+      "id": "E02",
+      "name": "Application: vehicle information",
+      "group": "First-party web entry",
+      "scope": "external",
+      "owner": "M03",
+      "shell": "auth",
+      "family": "form",
+      "purpose": "Provide the vehicle/license identifiers required by the current application.",
+      "top": "Vehicle information, Step 2 of 3.",
+      "blocks": [
+        "Supported vehicle-type choice",
+        "Plate or registration reference according to policy",
+        "License reference and field guidance"
+      ],
+      "primary": "Continue to documents: lower action.",
+      "secondary": "Back retains allowed field data.",
+      "why": "Vehicle choices are labelled radio/cards with real selected state; quiet forms avoid turning every type into a saturated tile.",
+      "special_states": "Actual permitted type/identifier rules apply; no guessed licensed status.",
+      "entry": [
+        "E01"
+      ],
+      "children": [
+        "E03",
+        "E01"
+      ],
+      "dependency": "Existing first-party web flow; native equivalent needs separate API scope.",
+      "native_implemented": false
+    },
+    {
+      "id": "E03",
+      "name": "Application: documents and password",
+      "group": "First-party web entry",
+      "scope": "external",
+      "owner": "M03",
+      "shell": "auth",
+      "family": "form",
+      "purpose": "Review required private documents and credentials before submission.",
+      "top": "Documents, Step 3 of 3.",
+      "blocks": [
+        "Identity/license/registration uploads with preview and replace/remove",
+        "Policy-supplied allowed limits",
+        "Password/confirmation with autofill",
+        "Explicit application submission wording"
+      ],
+      "primary": "Submit application: after requirements and review.",
+      "secondary": "Back, replace/remove and recovery help are secondary.",
+      "why": "Upload regions have discoverable borders; one red submit contrasts with neutral source controls. Upload selection is not approval.",
+      "special_states": "Interrupted/rejected uploads retain only safe allowed drafts; password values follow secure cleanup.",
+      "entry": [
+        "E02"
+      ],
+      "children": [
+        "E04",
+        "E05",
+        "E02"
+      ],
+      "dependency": "Existing first-party web flow; native equivalent needs separate API scope.",
+      "native_implemented": false
+    },
+    {
+      "id": "E04",
+      "name": "Email-code verification panel",
+      "group": "First-party web entry",
+      "scope": "external",
+      "owner": "M03",
+      "shell": "auth",
+      "family": "form",
+      "purpose": "Complete the existing registration or recovery email challenge.",
+      "top": "Verify email and masked supplied address.",
+      "blocks": [
+        "One accessible code input supporting full paste/autofill",
+        "Actual resend/expiry feedback",
+        "Change email or return path"
+      ],
+      "primary": "Verify: below the code field.",
+      "secondary": "Resend is a labelled secondary action only when allowed.",
+      "why": "Visible input boundary and one primary reduce attention switching; no mandatory six tiny independent boxes or cognitive puzzle.",
+      "special_states": "Wrong/expired code is recoverable; retry limits and timers come from the real flow, never a fake countdown.",
+      "entry": [
+        "E03",
+        "E06"
+      ],
+      "children": [
+        "E05",
+        "E07",
+        "caller"
+      ],
+      "dependency": "Existing first-party web flow; native equivalent needs separate API scope.",
+      "native_implemented": false
+    },
+    {
+      "id": "E05",
+      "name": "Application correction and resubmission",
+      "group": "First-party web entry",
+      "scope": "external",
+      "owner": "M03",
+      "shell": "auth",
+      "family": "form",
+      "purpose": "Respond to reviewer feedback in the current web flow.",
+      "top": "Application result and actual feedback.",
+      "blocks": [
+        "Pending or rejected status",
+        "Allowed corrections and document replacement",
+        "Reviewed details that cannot be silently overwritten"
+      ],
+      "primary": "Submit correction for review: lower action when allowed.",
+      "secondary": "Refresh status and sign out remain distinct.",
+      "why": "Sand highlights actionable feedback; fields alone have control borders. No green operational badge while placement/review is missing.",
+      "special_states": "Feedback is actual; a completed decision cannot be changed through an unsupported field.",
+      "entry": [
+        "P03",
+        "E03"
+      ],
+      "children": [
+        "P03",
+        "E04"
+      ],
+      "dependency": "Existing first-party web flow; native equivalent needs separate API scope.",
+      "native_implemented": false
+    },
+    {
+      "id": "E06",
+      "name": "Password recovery request",
+      "group": "First-party web entry",
+      "scope": "external",
+      "owner": "M03",
+      "shell": "auth",
+      "family": "form",
+      "purpose": "Start the supported recovery channel for the registered account.",
+      "top": "Recover access and Back.",
+      "blocks": [
+        "Persistent email field",
+        "Email-code or reset-link option supported by the current flow",
+        "Honest sent/request feedback"
+      ],
+      "primary": "Continue with supported recovery: after email.",
+      "secondary": "Back to Rider sign in; alternate supported recovery path.",
+      "why": "A simple neutral form avoids decorative distractions; one red continuation makes the action legible.",
+      "special_states": "Autofill/paste work; failed delivery of recovery mail is not shown as sent; no unsupported phone/SMS login.",
+      "entry": [
+        "P01"
+      ],
+      "children": [
+        "E04",
+        "E07",
+        "P01"
+      ],
+      "dependency": "Existing first-party web flow; native equivalent needs separate API scope.",
+      "native_implemented": false
+    },
+    {
+      "id": "E07",
+      "name": "Recovery: new password",
+      "group": "First-party web entry",
+      "scope": "external",
+      "owner": "M03",
+      "shell": "auth",
+      "family": "form",
+      "purpose": "Set the password after the real verified challenge or reset link.",
+      "top": "New password and verified recovery context.",
+      "blocks": [
+        "New/confirmation fields with current policy",
+        "Show/hide and password manager support",
+        "Useful field errors"
+      ],
+      "primary": "Set password: lower red action.",
+      "secondary": "Back to recovery; success returns to sign in rather than silently creating a native session.",
+      "why": "Outlined inputs and plain requirements prioritize the task; no made-up password strength or token details in user copy.",
+      "special_states": "Expired challenge returns to recovery; success clears secrets; the native app refetches a fresh session after sign-in.",
+      "entry": [
+        "E04",
+        "E06"
+      ],
+      "children": [
+        "P01",
+        "E06"
+      ],
+      "dependency": "Existing first-party web flow; native equivalent needs separate API scope.",
+      "native_implemented": false
+    },
+    {
+      "id": "E08",
+      "name": "Email verification outcome",
+      "group": "First-party web entry",
+      "scope": "external",
+      "owner": "M03",
+      "shell": "auth",
+      "family": "form",
+      "purpose": "Read the actual email verification result and return to refresh the account.",
+      "top": "Email verification result.",
+      "blocks": [
+        "Verified, expired or rejected link result",
+        "Actual resend/continuation option",
+        "Return-to-Rider instruction"
+      ],
+      "primary": "Return and refresh verification: supported continuation.",
+      "secondary": "Resend only when available; recovery/help remains secondary.",
+      "why": "A small confirmed mint state is used only after acceptance; errors use labelled dark error text on a pale inset.",
+      "special_states": "Expired link does not become verified; a web result does not automatically transfer browser authentication.",
+      "entry": [
+        "P30"
+      ],
+      "children": [
+        "P30",
+        "P01"
+      ],
+      "dependency": "Existing first-party web flow; native equivalent needs separate API scope.",
+      "native_implemented": false
+    }
+  ],
+  "overlays": [
+    {
+      "id": "O01",
+      "name": "Go off duty",
+      "scope": "baseline",
+      "owner": "M05",
+      "parent": "P05",
+      "content": "Explain no new work while existing responsibilities remain; Keep working and Go off duty are explicit.",
+      "treatment": "Red only on the chosen confirmation; no destructive account wording.",
+      "recovery": "Pending, rejection and uncertain result keep original duty until confirmed.",
+      "native_implemented": false
+    },
+    {
+      "id": "O02",
+      "name": "Queue/history filters",
+      "scope": "baseline",
+      "owner": "M04",
+      "parent": "P05",
+      "content": "Show applicable phase/date/payment filters, Apply and Clear with current selection.",
+      "treatment": "Neutral outlined choices; rose radio selection; lower Apply reachable.",
+      "recovery": "Cancel restores prior filters; count/result is updated only by the real query.",
+      "native_implemented": false
+    },
+    {
+      "id": "O03",
+      "name": "Pickup claim review",
+      "scope": "baseline",
+      "owner": "M06",
+      "parent": "P06",
+      "content": "Review ready parcel, seller, origin hub and returned eligibility before Claim pickup.",
+      "treatment": "One red claim; critical facts are neutral; claimed is not collected.",
+      "recovery": "Competing claim/stale capacity retains a useful refresh path.",
+      "native_implemented": false
+    },
+    {
+      "id": "O04",
+      "name": "Scan match review",
+      "scope": "baseline",
+      "owner": "M06",
+      "parent": "P07",
+      "content": "Compare actually read and expected full references, then invoke the permitted confirmation.",
+      "treatment": "Text and icon accompany a match; wrong code has labelled error.",
+      "recovery": "No automatic stored-code confirmation; duplicate/rejected read keeps custody unchanged.",
+      "native_implemented": false
+    },
+    {
+      "id": "O05",
+      "name": "Choose parcel compartment",
+      "scope": "selected",
+      "owner": "M04",
+      "parent": "P08",
+      "content": "Pick a labelled bag/compartment; Save location or Clear for this parcel only.",
+      "treatment": "Rose selection plus radio/text and outlined 48-unit targets.",
+      "recovery": "Tag save does not prove a scan, physical load or server custody.",
+      "native_implemented": false
+    },
+    {
+      "id": "O06",
+      "name": "Proof source choice",
+      "scope": "baseline",
+      "owner": "M07",
+      "parent": "P11",
+      "content": "Offer only supported camera/picker sources with accessible names.",
+      "treatment": "Neutral choice rows; no second red submit competes with evidence review.",
+      "recovery": "Unavailable camera shows a supported recovery path, not a fabricated image.",
+      "native_implemented": false
+    },
+    {
+      "id": "O07",
+      "name": "Replace or remove proof",
+      "scope": "baseline",
+      "owner": "M07",
+      "parent": "P11",
+      "content": "Preview local selected proof and Replace/Remove before outcome acceptance.",
+      "treatment": "Neutral replace; labelled removal; clear local-only meaning.",
+      "recovery": "Accepted immutable proof is viewed in P20 rather than edited here.",
+      "native_implemented": false
+    },
+    {
+      "id": "O08",
+      "name": "Discard unsaved draft",
+      "scope": "baseline",
+      "owner": "M16",
+      "parent": "caller",
+      "content": "Keep editing is easy to reach; Discard identifies exactly which local draft is lost.",
+      "treatment": "Separated destructive wording; do not color Cancel as the primary outcome.",
+      "recovery": "Dismiss preserves input; discarding does not cancel assignment.",
+      "native_implemented": false
+    },
+    {
+      "id": "O09",
+      "name": "Sign out",
+      "scope": "baseline",
+      "owner": "M03",
+      "parent": "P29",
+      "content": "Explain local session exit and safe draft cleanup without surrendering held work.",
+      "treatment": "Neutral Cancel and explicit Sign out; no closure wording.",
+      "recovery": "Server revocation failure and local cleanup result are distinct.",
+      "native_implemented": false
+    },
+    {
+      "id": "O10",
+      "name": "Cash problem guidance",
+      "scope": "baseline",
+      "owner": "M07",
+      "parent": "P12",
+      "content": "Explain missing amount/insufficient tender/change and open the permitted exception path.",
+      "treatment": "Sand guidance with dark amount text; no local override to amount due.",
+      "recovery": "Only supported failure codes and actual evidence can record an outcome.",
+      "native_implemented": false
+    },
+    {
+      "id": "O11",
+      "name": "Read-only code lookup",
+      "scope": "conditional",
+      "owner": "M06",
+      "parent": "P07",
+      "content": "Enter/copy a reference to locate owned context when scanning cannot read.",
+      "treatment": "Visible text field and neutral Look up; clearly not scan evidence.",
+      "recovery": "Lookup never substitutes for a required genuine matching scan or bypasses camera/evidence policy.",
+      "native_implemented": false
+    },
+    {
+      "id": "O12",
+      "name": "Call a permitted contact",
+      "scope": "baseline",
+      "owner": "M09",
+      "parent": "P06",
+      "content": "Show the valid phase contact and let the device dial through explicit action.",
+      "treatment": "Neutral labelled Call control, full target and safe dismissal.",
+      "recovery": "Missing phone removes the action; no invented masking/recording service.",
+      "native_implemented": false
+    },
+    {
+      "id": "O13",
+      "name": "Open navigation",
+      "scope": "baseline",
+      "owner": "M09",
+      "parent": "P10",
+      "content": "Review saved destination and choose an installed supported navigation app.",
+      "treatment": "Opaque white sheet over map; neutral choices and readable address.",
+      "recovery": "Launch failure retains copy/address; no default city or location tracking claim.",
+      "native_implemented": false
+    },
+    {
+      "id": "O14",
+      "name": "Activity item actions",
+      "scope": "baseline",
+      "owner": "M12",
+      "parent": "P23",
+      "content": "Open or mark an own event read only where accepted; keep actions contextual.",
+      "treatment": "Quiet action rows, labelled selection, no bulk fake success.",
+      "recovery": "Unknown target/read rejection stays readable and does not acknowledge unrelated events.",
+      "native_implemented": false
+    },
+    {
+      "id": "O15",
+      "name": "Read-status explanation",
+      "scope": "baseline",
+      "owner": "M10",
+      "parent": "P22",
+      "content": "Explain this thread's displayed acknowledgement and allow a failed read update retry.",
+      "treatment": "Neutral explanatory surface; no message-resend button mixed into read retry.",
+      "recovery": "Opening the inbox never marks every thread read.",
+      "native_implemented": false
+    },
+    {
+      "id": "O16",
+      "name": "Cash and earnings meaning",
+      "scope": "baseline",
+      "owner": "M15",
+      "parent": "P37",
+      "content": "Explain held, hub-received, reconciled and earned with the returned scope.",
+      "treatment": "Neutral labels and small semantic chips; no wallet/withdraw promise.",
+      "recovery": "Unknown finance capability is explicit; no guessed balances.",
+      "native_implemented": false
+    },
+    {
+      "id": "O17",
+      "name": "Date-range selection",
+      "scope": "baseline",
+      "owner": "M11",
+      "parent": "P18",
+      "content": "Choose a supported Philippine-date period with Apply/Clear.",
+      "treatment": "Readable outlined date controls; rose selected range, one primary Apply.",
+      "recovery": "Invalid range is inline; unsupported historical scope is not silently expanded.",
+      "native_implemented": false
+    },
+    {
+      "id": "O18",
+      "name": "Email verification guidance",
+      "scope": "baseline",
+      "owner": "M14",
+      "parent": "P30",
+      "content": "Explain the real prerequisite and launch the approved first-party verification path.",
+      "treatment": "Neutral information with an explicit continuation, not a fake local verify toggle.",
+      "recovery": "Return refetches actual status; absent verification action is unavailable.",
+      "native_implemented": false
+    },
+    {
+      "id": "O19",
+      "name": "Choose help parcel context",
+      "scope": "baseline",
+      "owner": "M14",
+      "parent": "P34",
+      "content": "Choose only returned owned work or Account issue before contacting help.",
+      "treatment": "Quiet parcel rows with clear selected radio and reference.",
+      "recovery": "Foreign/expired assignment is excluded; no copying private proof or customer details by default.",
+      "native_implemented": false
+    },
+    {
+      "id": "O20",
+      "name": "Why this action is unavailable",
+      "scope": "baseline",
+      "owner": "M04",
+      "parent": "caller",
+      "content": "Explain current missing permission, data, placement or prerequisite and give a real recovery action.",
+      "treatment": "Readable neutral/sand message, no decorative disabled-state tooltip requiring hover.",
+      "recovery": "Do not infer a reason from an empty list or promise that a retry will approve the account.",
+      "native_implemented": false
+    }
+  ],
+  "system_surfaces": [
+    {
+      "id": "Z01",
+      "name": "Device camera permission",
+      "purpose": "System-owned permission request after a contextual explanation; the app cannot recolor or fake its approval."
+    },
+    {
+      "id": "Z02",
+      "name": "Device camera / media picker",
+      "purpose": "System-owned capture/selection surface; preserve the app's parcel context and recover cancellation/interruption."
+    },
+    {
+      "id": "Z03",
+      "name": "Device navigation-app chooser",
+      "purpose": "Installed app choice/launch result; native look is device-owned and not an app design page."
+    }
+  ],
+  "states": [
+    {
+      "id": "S01",
+      "name": "Loading",
+      "behavior": "Show a finite progress description or skeleton for the requested region; retain safe context without sample work."
+    },
+    {
+      "id": "S02",
+      "name": "Returned empty / no matches",
+      "behavior": "Use a small quiet parcel motif and an actual next step; distinguish empty scope from a filter with no results."
+    },
+    {
+      "id": "S03",
+      "name": "Read failed",
+      "behavior": "Keep page identity and Retry; do not replace unknown counts with zero or erase authorized drafts."
+    },
+    {
+      "id": "S04",
+      "name": "Refreshing / stale",
+      "behavior": "Show last successful refresh when known; selection stays bound to the parcel and mutations recheck fresh permission."
+    },
+    {
+      "id": "S05",
+      "name": "Connection unavailable",
+      "behavior": "Keep allowed text/drafts, show recovery and honest unavailable submission; do not promise offline custody."
+    },
+    {
+      "id": "S06",
+      "name": "Submitting",
+      "behavior": "Name the action in progress, block repeated taps, keep the parcel visible and explain permitted cancellation."
+    },
+    {
+      "id": "S07",
+      "name": "Validation rejected",
+      "behavior": "Inline field errors plus announced summary, focus/scroll to first issue, preserve only safe permitted inputs."
+    },
+    {
+      "id": "S08",
+      "name": "Denied / stale assignment",
+      "behavior": "Show the server reason safely and refresh/return; never locally replay an action on another parcel."
+    },
+    {
+      "id": "S09",
+      "name": "Result unconfirmed",
+      "behavior": "Show Checking whether this was recorded and an accepted reconciliation path before a same-intent retry."
+    },
+    {
+      "id": "S10",
+      "name": "Confirmed result",
+      "behavior": "Use specific recorded outcome, time/reference when supplied and useful next step; no inferred buyer completion/payout."
+    },
+    {
+      "id": "S11",
+      "name": "Capability or data unavailable",
+      "behavior": "Explain what is unavailable; hide unsupported actions or give a focusable reason; never invent values or no-op preferences."
+    },
+    {
+      "id": "S12",
+      "name": "Permission unavailable",
+      "behavior": "Differentiate denied/restricted/permanently denied using actual device state; offer supported settings or permitted fallback."
+    },
+    {
+      "id": "S13",
+      "name": "Session ended / account changed",
+      "behavior": "Return to sign-in or holding and clear previous-account private state; sign-out does not remove custody responsibilities."
+    },
+    {
+      "id": "S14",
+      "name": "Read-only / completed phase",
+      "behavior": "Keep authorized history readable; disable sending/editing with a reason; an old record cannot gain live authority."
+    },
+    {
+      "id": "S15",
+      "name": "Compatibility / unknown status",
+      "behavior": "Use safe holding guidance, actual supported help/update links and fresh check; no guessing a new status or endpoint."
+    }
+  ],
+  "stop_variants": [
+    {
+      "id": "V01",
+      "name": "Available pickup",
+      "stop": "Seller preview",
+      "primary": "Claim pickup through O03",
+      "truth": "Preview, not custody; claim eligibility is fresh."
+    },
+    {
+      "id": "V02",
+      "name": "Claimed pickup",
+      "stop": "Seller",
+      "primary": "Scan and review actual collection",
+      "truth": "Claim created responsibility; seller handoff is still required."
+    },
+    {
+      "id": "V03",
+      "name": "Collected pickup",
+      "stop": "Assigned origin hub",
+      "primary": "Directions / await hub intake",
+      "truth": "Hub records receipt; rider cannot self-confirm origin intake."
+    },
+    {
+      "id": "V04",
+      "name": "Assigned final-mile",
+      "stop": "Destination hub",
+      "primary": "Scan and review departure",
+      "truth": "Hub assignment precedes physical departure; no self-claim of other parcels."
+    },
+    {
+      "id": "V05",
+      "name": "Out for delivery",
+      "stop": "Saved buyer destination",
+      "primary": "Open evidence flow P11",
+      "truth": "Exact COD, doorstep notes and genuine evidence; no buyer completion."
+    },
+    {
+      "id": "V06",
+      "name": "Delivery recorded",
+      "stop": "Recorded recipient handoff",
+      "primary": "View receipt or next work",
+      "truth": "Buyer confirmation and cash remittance remain separate."
+    },
+    {
+      "id": "V07",
+      "name": "Failed delivery / return",
+      "stop": "Destination hub",
+      "primary": "Open return instructions / await receipt",
+      "truth": "Held parcel remains visible until hub-owned return acceptance."
+    },
+    {
+      "id": "V08",
+      "name": "Restricted recovery",
+      "stop": "Authorized receiving hub",
+      "primary": "Open permitted recovery P17",
+      "truth": "Narrow capability only; this is not ordinary portal access."
+    }
+  ],
+  "coverage": [
+    {
+      "area": "M01",
+      "surfaces": [
+        "P01",
+        "P06",
+        "P09",
+        "P11",
+        "P37"
+      ],
+      "reason": "Visible values/actions depend on agreed resources; no field/API is inferred from a drawing."
+    },
+    {
+      "area": "M02",
+      "surfaces": [
+        "P05",
+        "P18",
+        "P21",
+        "P25",
+        "O08"
+      ],
+      "reason": "Shared shell, fields, safe areas, focus and recoverable modal patterns."
+    },
+    {
+      "area": "M03",
+      "surfaces": [
+        "P01",
+        "P02",
+        "P03",
+        "E01",
+        "E02",
+        "E03",
+        "E04",
+        "E05",
+        "E06",
+        "E07",
+        "E08",
+        "O09"
+      ],
+      "reason": "Entry, holding, existing web onboarding/recovery and logout."
+    },
+    {
+      "area": "M04",
+      "surfaces": [
+        "P05",
+        "P06",
+        "P08",
+        "O02",
+        "O20"
+      ],
+      "reason": "Own work overview, task detail, selection and chosen organization extension."
+    },
+    {
+      "area": "M05",
+      "surfaces": [
+        "P05",
+        "O01",
+        "P03"
+      ],
+      "reason": "Duty and working eligibility without hiding existing custody."
+    },
+    {
+      "area": "M06",
+      "surfaces": [
+        "P06",
+        "P07",
+        "P08",
+        "O03",
+        "O04"
+      ],
+      "reason": "Claimed seller pickup to origin-hub receipt, including real scan review."
+    },
+    {
+      "area": "M07",
+      "surfaces": [
+        "P06",
+        "P07",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "O06",
+        "O07",
+        "O10"
+      ],
+      "reason": "Assigned hub departure, recipient/evidence/cash review and confirmed outcome."
+    },
+    {
+      "area": "M08",
+      "surfaces": [
+        "P04",
+        "P06",
+        "P15",
+        "P16",
+        "P17"
+      ],
+      "reason": "Failure, return responsibility and limited recovery."
+    },
+    {
+      "area": "M09",
+      "surfaces": [
+        "P06",
+        "P09",
+        "P10",
+        "P27",
+        "O12",
+        "O13"
+      ],
+      "reason": "Phase-correct address, selected instruction extension, map and contact fallback."
+    },
+    {
+      "area": "M10",
+      "surfaces": [
+        "P21",
+        "P22",
+        "O15"
+      ],
+      "reason": "Conversation/list, context, composer, read and stale-phase behavior."
+    },
+    {
+      "area": "M11",
+      "surfaces": [
+        "P14",
+        "P18",
+        "P19",
+        "P20",
+        "O17"
+      ],
+      "reason": "Recorded results, history, timeline, scoped proof and filters."
+    },
+    {
+      "area": "M12",
+      "surfaces": [
+        "P23",
+        "P24",
+        "O14"
+      ],
+      "reason": "Durable notice list/details and own read actions."
+    },
+    {
+      "area": "M13",
+      "surfaces": [
+        "P25",
+        "P26",
+        "P27",
+        "P28"
+      ],
+      "reason": "Own identity, permitted contact edits and managed placement/vehicle facts."
+    },
+    {
+      "area": "M14",
+      "surfaces": [
+        "P29",
+        "P30",
+        "P31",
+        "P32",
+        "P33",
+        "P34",
+        "P35",
+        "P36",
+        "P43",
+        "P44",
+        "P45",
+        "P46",
+        "P47",
+        "P48"
+      ],
+      "reason": "Settings, security/help/notice/about, device access and explicitly optional pages."
+    },
+    {
+      "area": "M15",
+      "surfaces": [
+        "P12",
+        "P37",
+        "P38",
+        "P39",
+        "P40",
+        "P41",
+        "P42",
+        "O16"
+      ],
+      "reason": "Exact cash, remittance, discrepancy, reconciliation and confirmed earnings."
+    },
+    {
+      "area": "M16",
+      "surfaces": [
+        "O08",
+        "S01",
+        "S02",
+        "S03",
+        "S04",
+        "S05",
+        "S06",
+        "S07",
+        "S08",
+        "S09",
+        "S10",
+        "S11",
+        "S12",
+        "S13",
+        "S14",
+        "S15",
+        "Z01",
+        "Z02",
+        "Z03"
+      ],
+      "reason": "Every page inherits error/access/lifecycle, keyboard, accessibility and device checks."
+    }
+  ],
+  "future_concepts": [
+    {
+      "id": "F01",
+      "name": "Shift readiness",
+      "kind": "sheet",
+      "scope": "future",
+      "purpose": "Review actual device readiness and simple rider self-checks before new work.",
+      "layout": "Hub/duty context, actual camera/connectivity result, cash-change reminder if relevant; lower Continue and Not now.",
+      "why": "Neutral checklist with one rose selected state; no fake verified equipment or arbitrary mandatory checkboxes.",
+      "dependency": "Optional readiness logic and actual device signals; not selected for implementation."
+    },
+    {
+      "id": "F02",
+      "name": "Shift closeout",
+      "kind": "full_view",
+      "scope": "future",
+      "purpose": "See held parcels, pending returns and cash responsibility together after going off duty.",
+      "layout": "Real period at top, outstanding duties before delivered summary; lower Open next responsibility, with receipts linked in their group.",
+      "why": "Sand only on unresolved duties; quiet confirmed records. Closing a shift cannot hide custody or imply all cash was received.",
+      "dependency": "Scoped shift data and accepted finance/return resources; not a required duty-blocking gate."
+    },
+    {
+      "id": "F03",
+      "name": "Wrong-pin or entrance report",
+      "kind": "sheet",
+      "scope": "future",
+      "purpose": "Report a navigation problem while retaining the original saved destination.",
+      "layout": "Original address, permitted issue choice and short note; lower Submit report and Cancel; map correction preview only if accepted.",
+      "why": "Outlined evidence fields and one red Submit; submitted feedback is not an approved destination change.",
+      "dependency": "Accepted report persistence, review ownership and safe destination policy."
+    },
+    {
+      "id": "F04",
+      "name": "Arrival estimate and route plan",
+      "kind": "full_view",
+      "scope": "future",
+      "purpose": "Read supported travel estimates and an approved multi-stop sequence.",
+      "layout": "Estimate range and freshness, route/map/list explanation, accessible stop list and lower Open next stop.",
+      "why": "Neutral estimate labels distinguish forecast from promise; rose marks current selection; maps never simulate optimized results.",
+      "dependency": "Accepted routing/ETA data, freshness, permission and dispatch policy; current single final-mile capacity remains unchanged."
+    },
+    {
+      "id": "F05",
+      "name": "Batch load checklist",
+      "kind": "full_view",
+      "scope": "future",
+      "purpose": "Compare physically read parcel codes with an accepted manifest before departure.",
+      "layout": "Expected and verified counts, owned parcel list, missing/unexpected discrepancy groups and lower Review load.",
+      "why": "Text/icon match states and one actionable discrepancy group; scan review precedes any authorized departure.",
+      "dependency": "Accepted batch/manifest/capacity contract and real scan evidence; several final-mile parcels are not currently assignable as a run."
+    },
+    {
+      "id": "F06",
+      "name": "Same-stop parcel group",
+      "kind": "component",
+      "scope": "future",
+      "purpose": "Show compatible parcels at one verified collection/delivery stop.",
+      "layout": "Stop heading and parcel checklist inside Stop Mode; each identifier, cash amount and outcome remains separately visible.",
+      "why": "A shared region expresses common destination without a bulk Delivered button; grouping must not merge responsibilities.",
+      "dependency": "Verified compatible grouping; final-mile grouping needs separate capacity/assignment acceptance."
+    },
+    {
+      "id": "F07",
+      "name": "Queue changed review",
+      "kind": "sheet",
+      "scope": "future",
+      "purpose": "Explain additions, removals or server-directed changes after refresh.",
+      "layout": "Short change summary, affected parcel references, preserved authorized selection and lower Return to current task.",
+      "why": "Quiet delta rows and one selected context prevent surprise; no locally optimized reorder is implied.",
+      "dependency": "Reliable comparison of fresh authorized task resources; removed private context is cleared."
+    },
+    {
+      "id": "F08",
+      "name": "Recipient PIN verification",
+      "kind": "sheet",
+      "scope": "future",
+      "purpose": "Verify a recipient only if the accepted handoff model requires a real PIN.",
+      "layout": "Parcel/recipient context, one accessible paste-capable code field, actual expiry/retry feedback and lower Verify.",
+      "why": "Clear input boundary and single action reduce precision effort; PIN verification does not equal buyer completion.",
+      "dependency": "Backend identity/PIN issuance, verification and failure contract; decorative PIN input is excluded."
+    },
+    {
+      "id": "F09",
+      "name": "Shift statement preview",
+      "kind": "full_view",
+      "scope": "future",
+      "purpose": "Review a permitted dated summary before export.",
+      "layout": "Scope/period and actual trips, returns and receipts; redact unnecessary contacts; lower Export with format disclosure.",
+      "why": "Neutral document rows and dark amounts encourage verification before sharing; no fabricated payout statement.",
+      "dependency": "Accepted export data/privacy scope and actual file generation; not selected."
+    },
+    {
+      "id": "F10",
+      "name": "Editable quick replies",
+      "kind": "component",
+      "scope": "future",
+      "purpose": "Insert a phase-appropriate draft for the rider to review before sending.",
+      "layout": "Short labelled choices near the composer that insert text, then the existing Send action.",
+      "why": "Neutral compact chips avoid automatic messages and rival primary buttons; complete instruction remains visible for review.",
+      "dependency": "Optional template/content selection; existing recipient/phase authorization stays in force."
+    },
+    {
+      "id": "F11",
+      "name": "Incident report",
+      "kind": "sheet",
+      "scope": "future",
+      "purpose": "Report an incident through a real approved channel if that service is added.",
+      "layout": "Actual channel/availability, parcel context, permitted issue/evidence, lower Submit or Contact; safety help is clearly labelled.",
+      "why": "Readable evidence and truthful response state; no invented live monitoring, emergency number or round-the-clock support.",
+      "dependency": "Region-appropriate verified contacts and accepted reporting/support operation."
+    },
+    {
+      "id": "F12",
+      "name": "Consented location sharing",
+      "kind": "full_view",
+      "scope": "future",
+      "purpose": "Understand and control location sharing only for an accepted feature.",
+      "layout": "Who receives location and when, actual permission/share status, explicit Start/Stop and freshness; address still works independently.",
+      "why": "Control and disclosure precede any moving dot; a permission or toggle is not proof of a live connection.",
+      "dependency": "Explicit location/service/privacy/battery lifecycle scope; no background tracking in the baseline."
+    }
+  ],
+  "idea_coverage": [
+    {
+      "idea": 1,
+      "surfaces": [
+        "P06"
+      ]
+    },
+    {
+      "idea": 2,
+      "surfaces": [
+        "P05"
+      ]
+    },
+    {
+      "idea": 3,
+      "surfaces": [
+        "F01"
+      ]
+    },
+    {
+      "idea": 4,
+      "surfaces": [
+        "P05",
+        "P06",
+        "S04"
+      ]
+    },
+    {
+      "idea": 5,
+      "surfaces": [
+        "F02"
+      ]
+    },
+    {
+      "idea": 6,
+      "surfaces": [
+        "P10",
+        "F04"
+      ]
+    },
+    {
+      "idea": 7,
+      "surfaces": [
+        "P09"
+      ]
+    },
+    {
+      "idea": 8,
+      "surfaces": [
+        "F03"
+      ]
+    },
+    {
+      "idea": 9,
+      "surfaces": [
+        "O13",
+        "P43"
+      ]
+    },
+    {
+      "idea": 10,
+      "surfaces": [
+        "F04",
+        "F12"
+      ]
+    },
+    {
+      "idea": 11,
+      "surfaces": [
+        "P08",
+        "O05"
+      ]
+    },
+    {
+      "idea": 12,
+      "surfaces": [
+        "F05"
+      ]
+    },
+    {
+      "idea": 13,
+      "surfaces": [
+        "F06"
+      ]
+    },
+    {
+      "idea": 14,
+      "surfaces": [
+        "F07"
+      ]
+    },
+    {
+      "idea": 15,
+      "surfaces": [
+        "P06",
+        "O03"
+      ]
+    },
+    {
+      "idea": 16,
+      "surfaces": [
+        "P07",
+        "O04"
+      ]
+    },
+    {
+      "idea": 17,
+      "surfaces": [
+        "P14",
+        "V03"
+      ]
+    },
+    {
+      "idea": 18,
+      "surfaces": [
+        "P11",
+        "P12",
+        "P13"
+      ]
+    },
+    {
+      "idea": 19,
+      "surfaces": [
+        "P12"
+      ]
+    },
+    {
+      "idea": 20,
+      "surfaces": [
+        "P11",
+        "F08"
+      ]
+    },
+    {
+      "idea": 21,
+      "surfaces": [
+        "P14"
+      ]
+    },
+    {
+      "idea": 22,
+      "surfaces": [
+        "P15"
+      ]
+    },
+    {
+      "idea": 23,
+      "surfaces": [
+        "P06",
+        "V07"
+      ]
+    },
+    {
+      "idea": 24,
+      "surfaces": [
+        "P16"
+      ]
+    },
+    {
+      "idea": 25,
+      "surfaces": [
+        "P18",
+        "P19"
+      ]
+    },
+    {
+      "idea": 26,
+      "surfaces": [
+        "P37"
+      ]
+    },
+    {
+      "idea": 27,
+      "surfaces": [
+        "P41",
+        "P42"
+      ]
+    },
+    {
+      "idea": 28,
+      "surfaces": [
+        "F09"
+      ]
+    },
+    {
+      "idea": 29,
+      "surfaces": [
+        "F10"
+      ]
+    },
+    {
+      "idea": 30,
+      "surfaces": [
+        "P22"
+      ]
+    },
+    {
+      "idea": 31,
+      "surfaces": [
+        "P23",
+        "P24"
+      ]
+    },
+    {
+      "idea": 32,
+      "surfaces": [
+        "P01",
+        "E06",
+        "E07"
+      ]
+    },
+    {
+      "idea": 33,
+      "surfaces": [
+        "P02",
+        "E01",
+        "E02",
+        "E03"
+      ]
+    },
+    {
+      "idea": 34,
+      "surfaces": [
+        "E03",
+        "E05"
+      ]
+    },
+    {
+      "idea": 35,
+      "surfaces": [
+        "P03"
+      ]
+    },
+    {
+      "idea": 36,
+      "surfaces": [
+        "P46"
+      ]
+    },
+    {
+      "idea": 37,
+      "surfaces": [
+        "P27"
+      ]
+    },
+    {
+      "idea": 38,
+      "surfaces": [
+        "P43",
+        "P44",
+        "P45"
+      ]
+    },
+    {
+      "idea": 39,
+      "surfaces": [
+        "P32",
+        "P34",
+        "F11"
+      ]
+    },
+    {
+      "idea": 40,
+      "surfaces": [
+        "S01",
+        "S03",
+        "S04",
+        "S05",
+        "S06",
+        "S09"
+      ]
+    }
+  ]
+}

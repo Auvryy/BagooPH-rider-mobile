@@ -179,6 +179,15 @@ exception persistence, complete COD ledgers and the native client still need
 their respective implementation evidence; the sequence is not a whole-system
 readiness claim.
 
+## Complete frontend design
+
+[DESIGN_SPEC.md](DESIGN_SPEC.md) defines the complete responsive screen system
+for these three selected features and every related Rider view. Its
+[page blueprints](design/PAGE_BLUEPRINTS.md) specify control placement,
+color/border rationale, recovery and adaptation; the inventory separates full
+views, overlays, states and unselected future concepts. These designs retain
+the dispatch and capability boundaries in this feature direction.
+
 ## Integration and planning
 
 | Experience | Existing major areas | Additional decisions before implementation |

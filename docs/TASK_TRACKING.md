@@ -110,6 +110,16 @@ storage are reusable adapters under [ARCHITECTURE.md](ARCHITECTURE.md). M06–M0
 can be separate work areas inside `features/tasks/`; a major area does not need
 its own HTTP client, duplicate state machine or empty folder.
 
+## Complete frontend design coverage
+
+[DESIGN_SPEC.md](DESIGN_SPEC.md) and the
+[screen inventory](design/SCREEN_INVENTORY.md) map all 16 major areas and all
+40 earlier ideas to planned views/states or explicitly future concepts.
+The inventory counts 48 native full views, 8 external entry views/panels and
+20 app overlays separately. Page blueprints include navigation, visible hierarchy,
+controls, color/borders, theory and responsive/recovery behavior. The existing
+180-card baseline and implementation evidence remain separate.
+
 ## Selected frontend additions
 
 The user selected **Stop Mode, Parcel Finder and Doorstep Guide** on October 6,

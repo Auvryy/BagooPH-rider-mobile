@@ -44,7 +44,6 @@ flutter build linux --debug
 flutter build web
 flutter build apk --release
 git diff --check
-git check-ignore 'Task Creator.md'
 ```
 
 Run runtime/build commands when code/packages/platform setup change, with tests
@@ -108,7 +107,7 @@ by hiding work or changing measured time.
 | November presentation, realistic short tasks | [DELIVERY_PLAN.md](DELIVERY_PLAN.md) |
 | Detailed future cards, dependency checks and batch prompts | [SUBTASK_BACKLOG.md](SUBTASK_BACKLOG.md) |
 | Optional/uncertain ideas evaluated | [DECISIONS_AND_IDEAS.md](DECISIONS_AND_IDEAS.md) |
-| Private guide used for every work request | Root `AGENTS.md` and ignored local `Task Creator.md` |
+| Private guide used for every work request | Root `AGENTS.md` and the ignored machine-local work guide |
 | Before/after assessment and evidence | This document |
 
 ## Initial documentation verification
@@ -158,3 +157,23 @@ Git whitespace checks passed. Changes cover planning docs and a standard-library
 documentation renderer. Runtime code, Flutter dependencies and the backend were
 not changed, so no new Flutter build or backend suite was needed for this scope.
 Physical Android and cross-role operational checks remain future acceptance work.
+
+## Complete frontend design review: October 6, 2026
+
+The [design specification](DESIGN_SPEC.md) supplies 48 native full-view
+blueprints, 8 external entry views/panels, 20 app overlays, 3 device-owned
+surfaces, 15 shared states and 8 Stop Mode variants. It separately documents
+12 unselected future concepts and maps all 16 major areas and all 40 earlier
+ideas. The selected three features and baseline task catalog retain their
+implementation boundaries.
+
+Documentation validation checks the design schema, references, navigation and
+coverage, generated-page consistency, local links/anchors, solid-color contrast
+and public-file privacy. Illustrative SVG/PNG layouts are reviewed as design
+artifacts with sample values; they do not prove rendered native semantics,
+responsive widgets, camera/picker behavior or task performance.
+
+Native implementation, accepted API integration, screen-reader/keyboard behavior
+and real-device/adverse-case acceptance remain unfulfilled until their feature
+slices pass the existing gates. A more complete visual plan does not raise
+operational readiness or change the November freeze.

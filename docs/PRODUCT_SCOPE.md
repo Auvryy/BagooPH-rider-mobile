@@ -17,7 +17,7 @@ November 21, 2026, with verification and rehearsal completed by November 20.
 | Actor | Responsibility | Rider application boundary |
 |---|---|---|
 | Buyer | Checkout, owned tracking, receipt confirmation | Rider records delivery; only buyer completes an order |
-| Seller | Preparation, waybill, ready state, seller return receipt | Rider collects the assigned ready parcel |
+| Seller | Preparation, waybill, ready state, seller return receipt | Rider claims eligible ready work, then collects the claimed parcel |
 | Pickup courier | Claim, seller handoff, bring parcel to origin hub | Same app and role as final-mile courier, separate assignment |
 | Final-mile courier | Assigned hub departure, recipient handoff, outcome, cash held | No self-assignment to another rider's delivery |
 | Hub Handler | Facility scans, failed-parcel intake, counter release | Rider waits for authenticated hub receipt |
@@ -50,6 +50,19 @@ fully native onboarding demonstration is required.
 Maps enhance the baseline when approved and configured; textual stops and
 external directions must work independently. The web rider map contract needs a
 Flutter implementation decision, not a copied Leaflet component.
+
+## Selected frontend direction
+
+The user selected **Stop Mode, Parcel Finder and Doorstep Guide** on October 6,
+2026 for implementation planning. [FEATURE_DIRECTION.md](FEATURE_DIRECTION.md)
+defines each screen, acceptance and integration dependency. Stop Mode presents
+existing task responsibilities; Parcel Finder adds scoped personal compartment
+labels; Doorstep Guide adds authorized collection/entrance instructions.
+
+These additions do not change pickup claiming, final-mile assignment, custody
+or financial authority. The existing backlog/estimate remains the baseline;
+new tag storage and instruction data need their own breakdown and estimates.
+The Flutter starter does not implement these selected features yet.
 
 ## Screens and states
 

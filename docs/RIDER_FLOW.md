@@ -21,6 +21,28 @@ real birthday proving age 18+, license, vehicle registration/ownership evidence,
 and reviewed platform approval. The app cannot send its own approval or age.
 An unknown eligibility response fails closed for new work and offers refresh.
 
+## Placement, pickup claims and final-mile assignment
+
+Logistics places an approved courier at a company/hub and applicable service
+area. That placement is different from assignment of an individual parcel.
+
+- **Seller pickup:** the eligible rider chooses ready work from the available
+  board. An accepted atomic claim creates the pickup assignment; physical
+  collection happens afterward through the authorized seller handoff.
+- **Final-mile delivery:** the destination hub/logistics operator selects an
+  eligible rider for a sorted doorstep parcel, respecting applicable area and
+  workload policy. The rider works that assignment rather than self-claiming
+  another parcel from the hub.
+- **Barangay:** delivery area helps select eligible final-mile work. It does not
+  mean automatic allocation, one exclusive rider per barangay, or that every
+  seller pickup uses the buyer's destination barangay.
+
+Use [the selected feature and dispatch plan](FEATURE_DIRECTION.md#how-work-reaches-a-rider)
+for the explanation and tradeoffs. Current source limits, including conditional
+barangay checks and final-mile capacity, are dated observations in
+[SOURCES.md](SOURCES.md#october-6-dispatch-and-selected-feature-review); the
+accepted API must resolve any stronger coverage or batch requirement.
+
 ## The custody path
 
 ```mermaid

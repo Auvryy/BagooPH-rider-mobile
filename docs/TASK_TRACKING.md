@@ -110,6 +110,24 @@ storage are reusable adapters under [ARCHITECTURE.md](ARCHITECTURE.md). M06–M0
 can be separate work areas inside `features/tasks/`; a major area does not need
 its own HTTP client, duplicate state machine or empty folder.
 
+## Selected frontend additions
+
+The user selected **Stop Mode, Parcel Finder and Doorstep Guide** on October 6,
+2026. Their [feature direction](FEATURE_DIRECTION.md) defines acceptance and
+preserves the rider-claim pickup / hub-assignment final-mile distinction.
+
+| Selected experience | Major ownership | Current planning state |
+|---|---|---|
+| Stop Mode | M02, M04, M06–M09, M16 | Selected presentation over existing tasks/actions; not implemented |
+| Parcel Finder | M04, M06/M07 scanning, M16 cleanup | Selected extension; tag storage and incremental estimate pending |
+| Doorstep Guide | M01 task-detail contract, M04, M09, M16 | Selected extension; authorized instruction data and incremental estimate pending |
+
+The 180 cards and 63 batches cover the existing baseline. Do not report the new
+extensions complete from that catalog, silently include them in its 315-hour
+estimate, or infer multi-parcel final-mile capacity from a queue layout. Break
+selected extensions into bounded cards after their data and scope decisions;
+requested implementation still checks direct/transitive prerequisites.
+
 ## Detailed major work
 
 ### M01 — Shared API contract and website synchronization

@@ -17,11 +17,28 @@ These are recommendations for implementation, not evidence that the starter
 already has them. User approval for this docs task does not authorize a new
 external service, package installation, or backend rewrite.
 
+## Selected frontend features: October 6, 2026
+
+The user wants **Stop Mode, Parcel Finder and Doorstep Guide** in the Rider app.
+They are selected for implementation planning; their screen behavior, acceptance
+and dispatch explanation live in [FEATURE_DIRECTION.md](FEATURE_DIRECTION.md).
+
+| Selected feature | Intended value | Remaining implementation decision |
+|---|---|---|
+| Stop Mode | Current stop, parcel, instructions, cash and action together | Accepted task-detail/actions; embedded map remains its own M09.07 decision |
+| Parcel Finder | Show where this rider placed the parcel | Account/parcel binding, session-only or private persisted tags, cleanup and estimate |
+| Doorstep Guide | Collection/entrance information visible before it is needed | Authorized instruction fields, update ownership, phase visibility and estimate |
+
+Selection does not enable new dispatch, live GPS, ETA, native onboarding or
+multi-parcel final-mile runs. Keep rider-claimed pickups and hub-assigned
+final-mile work. Existing limits and coverage semantics require current source
+review before each integration slice.
+
 ## Open decisions before coding their feature
 
 | Decision | Recommended starting answer | Why it needs agreement |
 |---|---|---|
-| Exact presentation date and available weekly hours | November 21 target; reserve November 20, compare capacity with 130–204 client hours | Date/availability are unconfirmed; backend work also takes time |
+| Exact presentation date and available weekly hours | November 21 target; reserve November 20, compare capacity with the 315-hour baseline plus selected additions | Date/availability are unconfirmed; backend work also takes time |
 | API origin, staging access and contract owner | Existing first-party HTTPS origin; backend owns spec, both review examples | Do not invent a production hostname or configure another developer's deployment |
 | Native registration/resubmission | Existing first-party web flow for first version, native holding view | Fully native KYC adds substantial validation/private upload work |
 | Token expiry and password/restriction revocation | Explicit expiry, re-login initially, per-device revoke | Security/usability policy; default never-expiring tokens are insufficient |

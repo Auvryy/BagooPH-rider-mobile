@@ -195,6 +195,90 @@ void main() {
     },
   );
 
+  for (final size in [const Size(390, 844), const Size(768, 1024)]) {
+    testWidgets(
+      'registration groups related fields side by side at ${size.width}',
+      (tester) async {
+        await openApp(tester, size: size, route: '/register');
+        expect(find.text('About you'), findsOneWidget);
+        expect(find.text('Contact details'), findsOneWidget);
+        expect(find.text('Your address'), findsOneWidget);
+        final name = tester.getRect(field('Full name'));
+        final birthday = tester.getRect(
+          find.byKey(const ValueKey('birthday-picker')),
+        );
+        final email = tester.getRect(field('Email address'));
+        final phone = tester.getRect(field('Mobile number'));
+        final city = tester.getRect(field('City / municipality'));
+        final barangay = tester.getRect(field('Barangay'));
+        for (final pair in [
+          (name, birthday),
+          (email, phone),
+          (city, barangay),
+        ]) {
+          expect(pair.$1.top, closeTo(pair.$2.top, 1));
+          expect(pair.$2.left, greaterThan(pair.$1.right));
+        }
+        expect(
+          tester.getRect(field('Street address')).width,
+          greaterThan(city.width * 2),
+        );
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
+  for (final config in [
+    (const Size(320, 568), 1.0),
+    (const Size(390, 844), 2.0),
+  ]) {
+    testWidgets(
+      'registration pairs reflow at ${config.$1.width} and ${config.$2}x text',
+      (tester) async {
+        await openApp(
+          tester,
+          size: config.$1,
+          scale: config.$2,
+          route: '/register',
+        );
+        final email = tester.getRect(field('Email address'));
+        final phone = tester.getRect(field('Mobile number'));
+        expect(phone.left, closeTo(email.left, 1));
+        expect(phone.top, greaterThan(email.bottom));
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
+  testWidgets(
+    'step navigation announces the current step and preserves unfinished entries',
+    (tester) async {
+      await openApp(tester, route: '/register');
+      Semantics marker(int index) => tester.widget<Semantics>(
+        find.byKey(ValueKey('registration-step-$index')),
+      );
+      expect(marker(0).properties.selected, isTrue);
+      expect(marker(0).properties.value, 'Current step');
+      await tester.enterText(field('Full name'), 'Unfinished draft');
+      await tapVisible(
+        tester,
+        find.byKey(const ValueKey('registration-step-2')),
+      );
+      expect(marker(0).properties.selected, isFalse);
+      expect(marker(2).properties.selected, isTrue);
+      expect(marker(2).properties.value, 'Current step');
+      await tapVisible(
+        tester,
+        find.byKey(const ValueKey('registration-step-0')),
+      );
+      expect(
+        tester.widget<TextFormField>(field('Full name')).controller!.text,
+        'Unfinished draft',
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   for (final size in [
     const Size(320, 568),
     const Size(390, 844),

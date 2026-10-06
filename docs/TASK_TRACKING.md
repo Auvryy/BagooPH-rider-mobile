@@ -188,8 +188,9 @@ Android launch evidence; desktop layout review does not verify native hardware.
 ### M03 — Authentication and account holding
 
 **Current coverage (October 6):** login and a user-requested native registration
-design preview are implemented. Local navigation, form feedback and document-name
-selection are preview interactions. Token authentication, live application/KYC,
+design preview are implemented, including grouped responsive field pairs and
+numbered circular current-step navigation. Local navigation, form feedback and
+document-name selection are preview interactions. Token authentication, live application/KYC,
 approval holding, recovery and account guards remain unimplemented. The initial
 live onboarding recommendation stays first-party web; this UI preview does not
 approve a native onboarding API or clear any integration gate.

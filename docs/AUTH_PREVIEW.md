@@ -10,7 +10,10 @@ Run `flutter run -d linux` for the debug phone frame, or
 browser layout. The browser hash routes are `/#/login` and `/#/register`.
 
 - Login opens first. **Apply as a rider** opens registration.
-- Registration has **Your details**, **Vehicle** and **Documents** steps.
+- Registration has **Details**, **Vehicle** and **Documents** steps, shown as
+  numbered circles connected by a quiet line. The current circle is red with
+  a white number and rose halo. Other circles retain their numbers; browsing
+  forward does not claim that previous fields or documents are verified.
   Tap a step directly or use **Continue** and **Back**. Empty fields do not
   prevent exploring the screens. Changing steps returns the viewport to the top.
 - **Back to sign in** or the lower **Sign in** link returns to login.
@@ -32,9 +35,19 @@ remains first-party web until a separate API scope is accepted.
 Colors and geometry follow [the design system](design/DESIGN_SYSTEM.md):
 `#E00D42` primary, `#FFFAFB` canvas, `#C20836` small accent text on rose,
 `#64748B` control boundaries, 8-unit corners, 48-unit secondary controls and
-52-unit primary actions. Labels persist above fields. Compact layouts use one
-scrolling column; wide layouts add a brand introduction. At large text the form
-stays in one column and step/action groups reflow. No operational tabs appear.
+52-unit primary actions. Labels persist above fields. Wide layouts add a brand
+introduction while giving the registration form more space than login.
+
+Registration's first stage separates **About you**, **Contact details** and
+**Your address**. Name/birthday, email/mobile and city/barangay pair into two
+columns when at least 320 units of inner form width are available; the street
+address spans the form. This includes regular phone widths such as 390. Below
+that width, or with larger text, pairs stack in reading order. Registration's
+form can reach 720 units on wider screens. Vehicle identifiers and passwords
+pair only with at least 480 units available, keeping longer labels readable.
+The numbered progress circles reflow vertically at large text. No operational
+tabs appear. This grouping is the user's requested refinement of the native
+preview, rather than a change to the existing first-party web registration.
 
 The mark in `assets/branding/bagoo-mark.svg` is extracted from the backend's
 `resources/js/Components/BagooLogo.tsx`, with SVG attribute names normalized.
@@ -67,11 +80,13 @@ password visibility, registration step/draft behavior, local document selection,
 cancellation, size rejection and removal. It loads the bundled font and checks
 both pages and all registration stages at widths 320, 390, 430, 768 and 1440,
 normal/200% text, safe-area padding and simulated keyboard insets. Primary
-actions must remain scroll-reachable above the keyboard.
+actions must remain scroll-reachable above the keyboard. Additional checks prove
+paired field alignment at phone/tablet widths, stacking at narrow/200% text,
+announced current-step state and retained unfinished entries.
 
 Run `flutter analyze`, `flutter test`, `flutter build linux --debug`, and
 `flutter build web --no-web-resources-cdn` to repeat the automated/build checks.
-All four checks passed on October 6, including all 14 widget tests. Fresh browser
+All four checks passed on October 6, including all 19 widget tests. Fresh browser
 visits to both routes were rendered and reviewed at 390px and 1440px, with real
 pointer interaction for the Vehicle, Documents and Back controls. No browser
 runtime exception or external resource request occurred. These checks do not

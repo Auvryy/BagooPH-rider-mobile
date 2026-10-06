@@ -139,23 +139,23 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             _StepNavigation(step: _step, onSelect: _setStep),
-            const SizedBox(height: 28),
+            const SizedBox(height: 24),
             Text(
               headings[_step],
               style: Theme.of(context).textTheme.headlineMedium,
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Text(
               captions[_step],
               style: Theme.of(context).textTheme.bodyMedium,
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 24),
             if (_step == 0) ..._riderFields(),
             if (_step == 1) ..._vehicleFields(),
             if (_step == 2) ..._documentFields(),
-            const SizedBox(height: 30),
+            const SizedBox(height: 24),
             if (_step > 0) ...[
               OutlinedButton(
                 key: const ValueKey('registration-back-step'),
@@ -189,101 +189,123 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   List<Widget> _riderFields() {
-    const gap = SizedBox(height: 20);
+    const gap = SizedBox(height: 24);
     return [
-      AuthField(
-        label: 'Full name',
-        controller: _name,
-        hint: 'Your full name',
-        icon: Icons.person_outline_rounded,
-        autofillHints: const [AutofillHints.name],
-      ),
-      gap,
-      AuthField(
-        label: 'Email address',
-        controller: _email,
-        hint: 'you@example.com',
-        icon: Icons.mail_outline_rounded,
-        keyboardType: TextInputType.emailAddress,
-        autofillHints: const [AutofillHints.email],
-      ),
-      gap,
-      AuthField(
-        label: 'Mobile number',
-        controller: _phone,
-        hint: '09XXXXXXXXX',
-        icon: Icons.phone_outlined,
-        keyboardType: TextInputType.phone,
-        autofillHints: const [AutofillHints.telephoneNumber],
-      ),
-      gap,
-      const Text(
-        'Birthday',
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: RiderColors.ink,
+      _FormSection(
+        title: 'About you',
+        child: _FieldPair(
+          first: AuthField(
+            label: 'Full name',
+            controller: _name,
+            hint: 'Your full name',
+            autofillHints: const [AutofillHints.name],
+          ),
+          second: _birthdayField(),
         ),
       ),
-      const SizedBox(height: 8),
-      OutlinedButton(
-        key: const ValueKey('birthday-picker'),
-        onPressed: _chooseBirthday,
-        style: OutlinedButton.styleFrom(
-          backgroundColor: Colors.white,
-          alignment: Alignment.centerLeft,
+      gap,
+      _FormSection(
+        title: 'Contact details',
+        child: _FieldPair(
+          first: AuthField(
+            label: 'Email address',
+            controller: _email,
+            hint: 'Your email',
+            keyboardType: TextInputType.emailAddress,
+            autofillHints: const [AutofillHints.email],
+          ),
+          second: AuthField(
+            label: 'Mobile number',
+            controller: _phone,
+            hint: '09XXXXXXXXX',
+            keyboardType: TextInputType.phone,
+            autofillHints: const [AutofillHints.telephoneNumber],
+          ),
         ),
-        child: Row(
+      ),
+      gap,
+      _FormSection(
+        title: 'Your address',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Icon(
-              Icons.calendar_today_outlined,
-              size: 20,
-              color: RiderColors.muted,
+            AuthField(
+              label: 'Street address',
+              controller: _address,
+              hint: 'House number, street or subdivision',
+              autofillHints: const [AutofillHints.streetAddressLine1],
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                _birthday == null
-                    ? 'Choose your birthday'
-                    : '${_birthday!.day.toString().padLeft(2, '0')} / '
-                          '${_birthday!.month.toString().padLeft(2, '0')} / '
-                          '${_birthday!.year}',
-                style: const TextStyle(fontSize: 15),
+            const SizedBox(height: 16),
+            _FieldPair(
+              first: AuthField(
+                label: 'City / municipality',
+                controller: _city,
+                hint: 'Your city',
+                autofillHints: const [AutofillHints.addressCity],
+              ),
+              second: AuthField(
+                label: 'Barangay',
+                controller: _barangay,
+                hint: 'Your barangay',
+                textInputAction: TextInputAction.done,
               ),
             ),
           ],
         ),
       ),
-      const SizedBox(height: 7),
-      const Text(
-        'Rider applicants must be 18 or older.',
-        style: TextStyle(fontSize: 12, color: RiderColors.muted),
-      ),
-      gap,
-      AuthField(
-        label: 'Street address',
-        controller: _address,
-        hint: 'House number, street or subdivision',
-        icon: Icons.home_outlined,
-        autofillHints: const [AutofillHints.streetAddressLine1],
-      ),
-      gap,
-      AuthField(
-        label: 'City or municipality',
-        controller: _city,
-        hint: 'Your operating city',
-        icon: Icons.location_city_outlined,
-        autofillHints: const [AutofillHints.addressCity],
-      ),
-      gap,
-      AuthField(
-        label: 'Barangay',
-        controller: _barangay,
-        hint: 'Your barangay',
-        icon: Icons.location_on_outlined,
-        textInputAction: TextInputAction.done,
-      ),
     ];
+  }
+
+  Widget _birthdayField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text(
+          'Birthday',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: RiderColors.ink,
+          ),
+        ),
+        const SizedBox(height: 8),
+        OutlinedButton(
+          key: const ValueKey('birthday-picker'),
+          onPressed: _chooseBirthday,
+          style: OutlinedButton.styleFrom(
+            backgroundColor: Colors.white,
+            alignment: Alignment.centerLeft,
+            minimumSize: const Size(0, 56),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          ),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.calendar_today_outlined,
+                size: 20,
+                color: RiderColors.muted,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  _birthday == null
+                      ? 'Select date'
+                      : '${_birthday!.day.toString().padLeft(2, '0')}/'
+                            '${_birthday!.month.toString().padLeft(2, '0')}/'
+                            '${_birthday!.year}',
+                  style: const TextStyle(fontSize: 15),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          '18 years or older.',
+          style: TextStyle(fontSize: 12, color: RiderColors.muted),
+        ),
+      ],
+    );
   }
 
   List<Widget> _vehicleFields() {
@@ -302,9 +324,12 @@ class _RegisterPageState extends State<RegisterPage> {
           final singleColumn =
               constraints.maxWidth < 300 ||
               MediaQuery.textScalerOf(context).scale(14) > 20;
-          final width = singleColumn
-              ? constraints.maxWidth
-              : (constraints.maxWidth - 12) / 2;
+          final columns = singleColumn
+              ? 1
+              : constraints.maxWidth >= 520
+              ? 3
+              : 2;
+          final width = (constraints.maxWidth - 12 * (columns - 1)) / columns;
           return Wrap(
             spacing: 12,
             runSpacing: 12,
@@ -315,7 +340,9 @@ class _RegisterPageState extends State<RegisterPage> {
                 ('Sedan / Van', Icons.directions_car_outlined),
               ])
                 SizedBox(
-                  width: width,
+                  width: columns == 2 && vehicle.$1 == 'Sedan / Van'
+                      ? constraints.maxWidth
+                      : width,
                   child: Semantics(
                     button: true,
                     selected: _vehicle == vehicle.$1,
@@ -378,19 +405,22 @@ class _RegisterPageState extends State<RegisterPage> {
         },
       ),
       const SizedBox(height: 24),
-      AuthField(
-        label: 'Plate or registration number',
-        controller: _plate,
-        hint: 'Enter the vehicle reference',
-        icon: Icons.pin_outlined,
-      ),
-      const SizedBox(height: 20),
-      AuthField(
-        label: 'Driver’s license number',
-        controller: _license,
-        hint: 'Enter your license number',
-        icon: Icons.badge_outlined,
-        textInputAction: TextInputAction.done,
+      _FormSection(
+        title: 'Vehicle details',
+        child: _FieldPair(
+          minimumWidth: 480,
+          first: AuthField(
+            label: 'Plate or registration number',
+            controller: _plate,
+            hint: 'Enter the vehicle reference',
+          ),
+          second: AuthField(
+            label: 'Driver’s license number',
+            controller: _license,
+            hint: 'Enter your license number',
+            textInputAction: TextInputAction.done,
+          ),
+        ),
       ),
       const SizedBox(height: 20),
       Container(
@@ -438,37 +468,90 @@ class _RegisterPageState extends State<RegisterPage> {
         'Images or PDF, up to 5 MB each. Files stay local in this preview.',
         style: TextStyle(fontSize: 12, color: RiderColors.muted),
       ),
-      const SizedBox(height: 26),
-      AuthField(
-        label: 'Create password',
-        controller: _password,
-        hint: 'Choose a strong password',
-        password: true,
-        icon: Icons.lock_outline_rounded,
-        autofillHints: const [AutofillHints.newPassword],
-        helper: 'Use 12–128 characters.',
-        validator: (value) {
-          if (value == null || value.length < 12 || value.length > 128) {
-            return 'Use between 12 and 128 characters.';
-          }
-          return null;
-        },
-      ),
-      const SizedBox(height: 20),
-      AuthField(
-        label: 'Confirm password',
-        controller: _confirmation,
-        hint: 'Enter your password again',
-        password: true,
-        icon: Icons.lock_outline_rounded,
-        autofillHints: const [AutofillHints.newPassword],
-        textInputAction: TextInputAction.done,
-        validator: (value) => value == _password.text && value!.isNotEmpty
-            ? null
-            : 'Your passwords need to match.',
+      const SizedBox(height: 24),
+      _FormSection(
+        title: 'Secure your account',
+        child: _FieldPair(
+          minimumWidth: 480,
+          first: AuthField(
+            label: 'Create password',
+            controller: _password,
+            hint: 'Choose a strong password',
+            password: true,
+            autofillHints: const [AutofillHints.newPassword],
+            helper: 'Use 12–128 characters.',
+            validator: (value) {
+              if (value == null || value.length < 12 || value.length > 128) {
+                return 'Use between 12 and 128 characters.';
+              }
+              return null;
+            },
+          ),
+          second: AuthField(
+            label: 'Confirm password',
+            controller: _confirmation,
+            hint: 'Enter your password again',
+            password: true,
+            autofillHints: const [AutofillHints.newPassword],
+            textInputAction: TextInputAction.done,
+            validator: (value) => value == _password.text && value!.isNotEmpty
+                ? null
+                : 'Your passwords need to match.',
+          ),
+        ),
       ),
     ];
   }
+}
+
+class _FormSection extends StatelessWidget {
+  const _FormSection({required this.title, required this.child});
+  final String title;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Text(title, style: Theme.of(context).textTheme.titleMedium),
+      const SizedBox(height: 12),
+      child,
+    ],
+  );
+}
+
+class _FieldPair extends StatelessWidget {
+  const _FieldPair({
+    required this.first,
+    required this.second,
+    this.minimumWidth = 320,
+  });
+  final Widget first;
+  final Widget second;
+  final double minimumWidth;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final paired =
+          constraints.maxWidth >= minimumWidth &&
+          MediaQuery.textScalerOf(context).scale(16) <= 20;
+      if (!paired) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [first, const SizedBox(height: 16), second],
+        );
+      }
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: first),
+          const SizedBox(width: 16),
+          Expanded(child: second),
+        ],
+      );
+    },
+  );
 }
 
 class _StepNavigation extends StatelessWidget {
@@ -478,88 +561,113 @@ class _StepNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final stacked = MediaQuery.textScalerOf(context).scale(12) > 18;
-        Widget item(int index, String label) {
-          final active = index == step;
-          return Semantics(
-            button: true,
-            selected: active,
-            label: 'Step ${index + 1}: $label',
-            child: InkWell(
-              key: ValueKey('registration-step-$index'),
-              onTap: () => onSelect(index),
-              borderRadius: BorderRadius.circular(8),
-              child: Container(
-                constraints: const BoxConstraints(minHeight: 58),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: active ? RiderColors.rose : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: active ? RiderColors.accentText : RiderColors.border,
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      '${index + 1}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                        color: active
-                            ? RiderColors.accentText
-                            : RiderColors.muted,
+    final stacked = MediaQuery.textScalerOf(context).scale(12) > 18;
+    const labels = ['Details', 'Vehicle', 'Documents'];
+    Widget item(int index) {
+      final active = index == step;
+      final circle = Container(
+        width: 48,
+        height: 48,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: active ? RiderColors.rose : Colors.transparent,
+        ),
+        child: Container(
+          key: ValueKey('registration-step-circle-$index'),
+          width: 36,
+          height: 36,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: active ? RiderColors.accent : Colors.white,
+            border: Border.all(
+              color: active ? RiderColors.accent : RiderColors.border,
+            ),
+          ),
+          child: Text(
+            '${index + 1}',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: active ? Colors.white : RiderColors.muted,
+            ),
+          ),
+        ),
+      );
+      final label = Text(
+        labels[index],
+        textAlign: stacked ? TextAlign.start : TextAlign.center,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+          color: active ? RiderColors.accentText : RiderColors.muted,
+        ),
+      );
+      return Semantics(
+        key: ValueKey('registration-step-$index'),
+        button: true,
+        selected: active,
+        label:
+            'Step ${index + 1}: ${index == 0 ? 'Your details' : labels[index]}',
+        value: active ? 'Current step' : null,
+        onTap: () => onSelect(index),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          child: InkWell(
+            onTap: () => onSelect(index),
+            excludeFromSemantics: true,
+            borderRadius: BorderRadius.circular(8),
+            child: ExcludeSemantics(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: stacked
+                    ? Row(
+                        children: [
+                          circle,
+                          const SizedBox(width: 12),
+                          Expanded(child: label),
+                        ],
+                      )
+                    : Column(
+                        children: [circle, const SizedBox(height: 8), label],
                       ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      label,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: active
-                            ? RiderColors.accentText
-                            : RiderColors.muted,
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ),
-          );
-        }
+          ),
+        ),
+      );
+    }
 
-        if (stacked) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+    if (stacked) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final index in [0, 1, 2]) item(index),
+        ],
+      );
+    }
+    return LayoutBuilder(
+      builder: (context, constraints) => Stack(
+        children: [
+          Positioned(
+            top: 27,
+            left: constraints.maxWidth / 6 + 24,
+            right: constraints.maxWidth / 6 + 24,
+            child: const SizedBox(
+              height: 2,
+              child: ColoredBox(color: RiderColors.divider),
+            ),
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (final index in [0, 1, 2]) ...[
-                item(index, ['Your details', 'Vehicle', 'Documents'][index]),
-                if (index != 2) const SizedBox(height: 8),
-              ],
+              for (final index in [0, 1, 2]) Expanded(child: item(index)),
             ],
-          );
-        }
-        return Row(
-          children: [
-            for (final index in [0, 1, 2]) ...[
-              Expanded(
-                child: item(
-                  index,
-                  ['Your details', 'Vehicle', 'Documents'][index],
-                ),
-              ),
-              if (index != 2) const SizedBox(width: 8),
-            ],
-          ],
-        );
-      },
+          ),
+        ],
+      ),
     );
   }
 }

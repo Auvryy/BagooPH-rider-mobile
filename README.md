@@ -7,6 +7,7 @@ phases belong to the same rider app and courier account role.
 
 - Login with labelled email/password fields, password visibility and local feedback.
 - Registration with three explorable stages: rider details, vehicle and documents.
+- Grouped registration fields with responsive columns and numbered circular steps.
 - Original Bagoo logo and bundled Plus Jakarta Sans, using the Rider design tokens.
 - Android application scaffold, with Linux and web development targets.
 - Device Preview phone frames and controls on debug Linux/web runs.

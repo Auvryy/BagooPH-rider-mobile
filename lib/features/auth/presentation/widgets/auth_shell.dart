@@ -25,7 +25,7 @@ class AuthShell extends StatelessWidget {
                 MediaQuery.textScalerOf(context).scale(16) <= 23;
             final pagePadding = constraints.maxWidth < 600 ? 16.0 : 24.0;
             final form = ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 520),
+              constraints: BoxConstraints(maxWidth: registering ? 720 : 520),
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -99,10 +99,11 @@ class AuthShell extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Expanded(
+                                flex: registering ? 4 : 1,
                                 child: _BrandStory(registering: registering),
                               ),
-                              const SizedBox(width: 72),
-                              Expanded(child: form),
+                              SizedBox(width: registering ? 48 : 72),
+                              Expanded(flex: registering ? 6 : 1, child: form),
                             ],
                           )
                         else

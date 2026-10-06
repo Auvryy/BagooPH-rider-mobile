@@ -96,6 +96,12 @@ accessible status text. Validate 320–430 logical-pixel layouts, large text up 
 200%, keyboard access on previews, screen-reader labels, and reduced motion.
 Do not copy desktop web breakpoints into native navigation automatically.
 
+The [frontend design specification](DESIGN_SPEC.md) and its
+[counted screen inventory](design/SCREEN_INVENTORY.md) expand these presentation
+rules into all planned pages, external entry, overlays and state variants.
+The 48 native design views include optional/conditional views; their count is
+not a promise of implemented routes or an expanded baseline effort estimate.
+
 ## Outside the baseline
 
 No live GPS, automatic ETA, AI dispatch, route optimization, maritime/air freight,

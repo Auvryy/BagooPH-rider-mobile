@@ -37,6 +37,12 @@ screens, acceptance, dependencies and pickup-versus-final-mile dispatch model.
 These are selected additions for planning, not implemented starter features;
 the detailed catalog and estimate still describe the existing baseline.
 
+The [complete frontend design specification](docs/DESIGN_SPEC.md) now defines
+navigation, the counted screen inventory, page-by-page composition, responsive
+geometry, visual tokens, maps, theory-based rationale and illustrative layouts.
+It covers the current plan plus explicitly optional/conditional/future concepts;
+these are design views, not implemented native routes.
+
 The working presentation target is **November 21, 2026** in Asia/Manila.
 Development and verification should finish by **November 20**. The
 [delivery plan](docs/DELIVERY_PLAN.md) records dependencies and scope decisions;

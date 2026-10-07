@@ -79,6 +79,17 @@ its three step headings to review; **Continue** validates that stage. Registrati
 requires real document selection and email verification. **Back to sign in**
 returns to login. A successful login opens the account home with **Log out**.
 
+To review the Home layout without an account or backend:
+
+```sh
+flutter run -d linux --dart-define=HOME_PREVIEW=true --dart-define=DEVICE_PREVIEW=false
+```
+
+Choose **Demo login**, switch the three sample queue filters, then **Exit demo**.
+This is isolated sample data, not an authenticated session or parcel operation.
+The button and route are excluded from release/profile builds. See
+[Home preview](docs/HOME_PREVIEW.md) for the Chrome command and scope.
+
 For a browser preview:
 
 ```sh

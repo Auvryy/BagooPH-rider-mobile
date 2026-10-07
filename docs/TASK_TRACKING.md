@@ -14,6 +14,12 @@ in [ACCOUNT_ACCESS.md](ACCOUNT_ACCESS.md). Operational queues/actions and deploy
 native acceptance remain unimplemented. Completed UI or local account checks do
 not finish a major area or clear unrelated backend gates.
 
+The opt-in debug [Home preview](HOME_PREVIEW.md) provides M04 layout evidence
+for a greeting, queue filters and parcel cards, with isolated M02 fixtures and
+one-tap demo entry/exit. It requires no account. Live task resources, capabilities,
+duty, queue freshness and the full shell remain unimplemented; their canonical
+backlog cards retain planned status.
+
 ## Always check the Bagoo website project
 
 **You can always reference the Bagoo website project to keep track of its docs,

@@ -16,6 +16,7 @@ they do not authorize changing the backend or implementing every proposed featur
 | [FEATURE_DIRECTION.md](FEATURE_DIRECTION.md) | Which selected frontend features do we want, how will they work, and how do pickup claims differ from final-mile assignment? |
 | [DESIGN_SPEC.md](DESIGN_SPEC.md) | How should every page, overlay, map and state look and behave, with responsive navigation, visual rules and research rationale? |
 | [AUTH_PREVIEW.md](AUTH_PREVIEW.md) | How can I open and review the implemented login and registration design previews? |
+| [ACCOUNT_ACCESS.md](ACCOUNT_ACCESS.md) | How do real Laravel login, verified registration, authenticated home and logout work locally? |
 | [TASK_TRACKING.md](TASK_TRACKING.md) | What are the 16 major work areas, which screens belong to them, and how will later tasks/branches build and verify them? |
 | [SUBTASK_BACKLOG.md](SUBTASK_BACKLOG.md) | Which of the 180 detailed cards or 63 suggested batches can a later prompt select, with what dependencies, steps, checks and effort? |
 | [RIDER_FLOW.md](RIDER_FLOW.md) | What may a rider do at each stage, including failures and cash custody? |
@@ -30,12 +31,13 @@ they do not authorize changing the backend or implementing every proposed featur
 
 ## Current code versus target
 
-The app contains login and three-stage registration design previews, bundled
+The app contains connected login, verified three-stage registration, own-account
+home and logout, bundled
 Bagoo branding and Plus Jakarta Sans, Android/Linux/web runners and debug Device
-Preview. The [preview guide](AUTH_PREVIEW.md) records this presentation slice and
-its checks. It has no connected authentication, repositories, operational rider
-screens, operational fixture data, or backend connection.
-The architecture and `/api/v1` routes described here are **proposed**.
+Preview. [Account access](ACCOUNT_ACCESS.md) records the implementation, local
+backend contract and checks. It has no operational rider queues or parcel actions.
+Only the implemented account endpoints are accepted locally; the wider API and
+feature architecture remain proposals beyond this slice.
 
 The reviewed backend has reusable courier/lifecycle services and existing web
 operations. Its `routes/api.php` exposes public tracking only. Installing Sanctum

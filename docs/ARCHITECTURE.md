@@ -28,10 +28,11 @@ flowchart LR
 
 ## Proposed folder layout
 
-This tree describes the target. The auth preview currently uses `lib/main.dart`,
-`app/theme.dart`, `core/ui/brand_logo.dart` and `features/auth/presentation/`.
-It has no transport, repository or auth controller; its local widget state handles
-only design-preview interactions. See [AUTH_PREVIEW.md](AUTH_PREVIEW.md).
+This tree describes the wider target. The account slice now implements app
+configuration, a secure-token adapter, typed account/repository transport,
+Riverpod auth state and guarded account home. Views do not perform HTTP.
+See [ACCOUNT_ACCESS.md](ACCOUNT_ACCESS.md) for the implemented boundaries;
+operational feature repositories and routes remain planned.
 Create folders when a feature needs them instead of filling empty scaffolds.
 
 ```text

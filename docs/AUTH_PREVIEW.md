@@ -1,5 +1,9 @@
 # Login and registration design preview
 
+This records the earlier presentation slice. Account actions are now connected;
+use [working account access](ACCOUNT_ACCESS.md) for current behavior and setup.
+The historical preview interactions described below are not the current flow.
+
 Implemented October 6, 2026 as a presentation-only slice requested before API
 integration. Start with [the root run instructions](../README.md#run-locally).
 

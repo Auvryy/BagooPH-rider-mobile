@@ -1,8 +1,11 @@
 # Proposed rider API contract
 
-**Status: design proposal, reviewed October 5, 2026. No rider route in this file
-is implemented by the Flutter starter or confirmed in the backend.** Agree and
-test each slice in the backend before connecting its native screen.
+**Status: wider design proposal with the account subset implemented and verified
+locally on October 7, 2026.** [ACCOUNT_ACCESS.md](../ACCOUNT_ACCESS.md) and the
+backend's `docs/RIDER_ACCOUNT_API.md` identify the executable account contract.
+Token login/logout, own-account read and native verified application submission
+are implemented; remaining task/operation routes below remain proposed. Local
+acceptance is not a claim of production deployment.
 
 Use `/api/v1` JSON endpoints in the existing Laravel app. Existing Inertia
 responses, web session forms, and public masked tracking are not substitutes
@@ -93,8 +96,9 @@ Inactive/restricted recovery token issuance is a policy decision, not a shortcut
 Reject unknown eligibility and fail closed for new work.
 
 Browser first-party authentication retains secure session cookies/CSRF under
-the existing web policy. Flutter web is currently a development layout target;
-use synthetic fixtures or a separately approved first-party cookie integration.
+the existing web policy. Flutter web account interaction is limited to an explicitly enabled debug
+loopback build with the synthetic local backend and memory-only bearer state.
+Production first-party web authentication remains cookie/CSRF-based.
 Never persist production bearer tokens in browser local storage to make preview
 login easier. Native clients are not subject to browser CORS, but browser
 previews require explicit allowed origins, credentials policy, and CSRF where

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -50,8 +52,31 @@ class BagooRiderApp extends ConsumerStatefulWidget {
   ConsumerState<BagooRiderApp> createState() => _BagooRiderAppState();
 }
 
-class _BagooRiderAppState extends ConsumerState<BagooRiderApp> {
+class _BagooRiderAppState extends ConsumerState<BagooRiderApp>
+    with WidgetsBindingObserver {
   final _navigator = GlobalKey<NavigatorState>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState lifecycle) {
+    if (lifecycle == AppLifecycleState.resumed && mounted) {
+      final session = ref.read(authControllerProvider);
+      if (session.user != null && !session.busy) {
+        unawaited(ref.read(authControllerProvider.notifier).refresh());
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

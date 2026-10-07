@@ -4,8 +4,9 @@ import 'package:file_selector/file_selector.dart';
 
 class TestAuthRepository implements AuthRepository {
   RiderAccount? account;
-  int loginCalls = 0, logoutCalls = 0, registrationCalls = 0;
+  int loginCalls = 0, logoutCalls = 0, registrationCalls = 0, refreshCalls = 0;
   AccountFailure? loginFailure;
+  AccountFailure? refreshFailure;
   static const approved = RiderAccount(
     id: '7',
     name: 'Test Rider',
@@ -42,7 +43,12 @@ class TestAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<RiderAccount> refresh() async => account!;
+  Future<RiderAccount> refresh() async {
+    refreshCalls++;
+    if (refreshFailure != null) throw refreshFailure!;
+    return account!;
+  }
+
   @override
   Future<void> logout() async {
     logoutCalls++;

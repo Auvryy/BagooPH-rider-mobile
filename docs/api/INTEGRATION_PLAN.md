@@ -36,6 +36,16 @@ and acceptance cards. Its external prerequisite register identifies required
 backend evidence without creating backend implementation tasks or copying its
 running roadmap. Review the current owner-approved contract before each slice.
 
+## Account deployment update — October 7, 2026
+
+The web maintainer integrated the account handoff into backend main `0132562`
+and reported deploying it to Azure. Its `docs/RIDER_ACCOUNT_API.md` is the
+accepted account contract. Actual HTTPS checks confirm token, own-account,
+logout and registration routes. Native Flutter Linux and physical Android
+checks are recorded in [AZURE_ACCOUNT_ACCESS.md](../AZURE_ACCOUNT_ACCESS.md).
+This supersedes the historical absence of account APIs above; task/custody APIs
+and their operational prerequisites remain separate work.
+
 ## Reuse points
 
 | Backend reference | API adapter responsibility |

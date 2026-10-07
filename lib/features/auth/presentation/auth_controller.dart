@@ -18,7 +18,11 @@ final tokenStoreProvider = Provider<TokenStore>((ref) {
     /* Configuration errors are presented by the repository. */
   }
   if (kIsWeb) return _UnavailableBrowserStore();
-  return SecureTokenStore();
+  try {
+    return SecureTokenStore(apiOrigin: config.origin);
+  } on FormatException {
+    return _UnconfiguredTokenStore();
+  }
 });
 final authRepositoryProvider = Provider<AuthRepository>(
   (ref) => ApiAuthRepository(
@@ -152,5 +156,16 @@ class _UnavailableBrowserStore implements TokenStore {
   @override
   Future<void> write(String token) async => throw StateError(
     'Browser sessions require the explicit local development configuration.',
+  );
+}
+
+class _UnconfiguredTokenStore implements TokenStore {
+  @override
+  Future<String?> read() async => null;
+  @override
+  Future<void> clear() async {}
+  @override
+  Future<void> write(String token) async => throw StateError(
+    'Configure the account service before storing a session.',
   );
 }

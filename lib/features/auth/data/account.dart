@@ -20,7 +20,18 @@ class RiderAccount {
         json['status'] is! String ||
         json['kyc_status'] is! String ||
         json['can_access_portal'] is! bool ||
-        json['email_verified'] is! bool) {
+        json['email_verified'] is! bool ||
+        !['active', 'pending_approval'].contains(json['status']) ||
+        ![
+          'approved',
+          'verified',
+          'pending_approval',
+          'rejected',
+        ].contains(json['kyc_status']) ||
+        !['approved', 'holding'].contains(json['access_state']) ||
+        (json['kyc_feedback'] != null && json['kyc_feedback'] is! String) ||
+        (json['access_state'] == 'approved') !=
+            (json['can_access_portal'] == true)) {
       throw const FormatException(
         'The account response could not be verified.',
       );
@@ -33,6 +44,7 @@ class RiderAccount {
       kycStatus: json['kyc_status'],
       approved:
           json['can_access_portal'] == true &&
+          json['access_state'] == 'approved' &&
           json['status'] == 'active' &&
           ['approved', 'verified'].contains(json['kyc_status']),
       emailVerified: json['email_verified'],

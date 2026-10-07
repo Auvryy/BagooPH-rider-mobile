@@ -1,0 +1,7 @@
+{
+  "API_BASE_URL": "https://bagooph.shop/api/v1",
+  "RIDER_WEBSITE_URL": "https://courier.bagooph.shop",
+  "ALLOW_LOCAL_AUTH": "false",
+  "DEVICE_PREVIEW": "false",
+  "HOME_PREVIEW": "false"
+}

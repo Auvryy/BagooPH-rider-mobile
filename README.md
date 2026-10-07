@@ -65,6 +65,16 @@ Studio IDE and an emulator are optional when using command-line tools and a real
 
 ## Run locally
 
+To use the deployed HTTPS account API in the native app:
+
+```sh
+flutter run -d linux --dart-define-from-file=config/azure.json
+```
+
+Use an authorized Android phone instead of `linux` for native phone testing.
+See [Azure account access](docs/AZURE_ACCOUNT_ACCESS.md) for the verified contract,
+secure-session behavior and exact live-versus-local acceptance evidence.
+
 From this repository:
 
 ```sh
@@ -78,6 +88,17 @@ Login opens first. Select **Apply as a rider** to see registration. Tap any of
 its three step headings to review; **Continue** validates that stage. Registration
 requires real document selection and email verification. **Back to sign in**
 returns to login. A successful login opens the account home with **Log out**.
+
+To review the Home layout without an account or backend:
+
+```sh
+flutter run -d linux --dart-define=HOME_PREVIEW=true --dart-define=DEVICE_PREVIEW=false
+```
+
+Choose **Demo login**, switch the three sample queue filters, then **Exit demo**.
+This is isolated sample data, not an authenticated session or parcel operation.
+The button and route are excluded from release/profile builds. See
+[Home preview](docs/HOME_PREVIEW.md) for the Chrome command and scope.
 
 For a browser preview:
 

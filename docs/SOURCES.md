@@ -72,6 +72,23 @@ counts and optional/future labels do not establish native routes or accepted
 APIs. Static visual examples and calculated contrast remain documentation
 proof, without deployed, prototype-interaction or physical-device acceptance.
 
+## October 7 deployed account review
+
+The account slice reviewed backend main `0132562`, including
+`docs/RIDER_ACCOUNT_API.md`, `RiderAccountService`, native auth routes,
+registration services and website login/domain middleware. The web maintainer
+reported deploying this revision to Azure. Live HTTPS checks establish route
+availability and native account behavior, without independently reading the
+VM's Git checkout. The Rider website is on the courier subdomain; root-host
+website login enforces the buyer role. The native API remains under `/api/v1`
+on the root host.
+
+[AZURE_ACCOUNT_ACCESS.md](AZURE_ACCOUNT_ACCESS.md) records exact local, live
+Linux and physical Android checks, their initial failures and remaining gaps.
+Only Rider files were changed for this integration task. This accepted account
+contract does not accept the planned parcel-operation APIs or complete the
+broader authentication/operational backlog.
+
 ## Web authority map
 
 | Source | Authority and use in this repo |

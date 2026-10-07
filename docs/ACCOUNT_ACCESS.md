@@ -5,6 +5,10 @@ The server uses the same account database and courier registration service as
 the Bagoo website. This home is an authenticated scaffold; parcel queues,
 assignment, duty, trips and operational commands remain separate work.
 
+The [deployed HTTPS profile and acceptance record](AZURE_ACCOUNT_ACCESS.md)
+describe Azure account access. The isolated local demo below is a separate
+test environment; its synthetic email inbox is not used for real deployment.
+
 ## Check the local demo
 
 Start the backend demo and local email inbox using the instructions in the
@@ -95,5 +99,6 @@ interaction is checked separately from backend web UI.
 
 The clean backend baseline has 47 existing full-suite failures; comparison found
 the same identities/types/causes after this adapter, with no new failures. These
-remain backend roadmap gates. Physical Android, live HTTPS/email deployment and
-production account acceptance are not certified by desktop/local checks.
+remain backend roadmap gates. These local checks alone do not certify Android
+or production deployment. The subsequent [Azure acceptance record](AZURE_ACCOUNT_ACCESS.md)
+records actual HTTPS, email and physical Android checks with their remaining limits.

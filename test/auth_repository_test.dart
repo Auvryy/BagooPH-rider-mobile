@@ -17,6 +17,7 @@ const profile = {
   'kyc_status': 'approved',
   'email_verified': true,
   'can_access_portal': true,
+  'access_state': 'approved',
 };
 
 class Adapter implements HttpClientAdapter {
@@ -142,5 +143,44 @@ void main() {
       throwsFormatException,
     );
     expect(() => RiderAccount.fromJson({'id': '7'}), throwsFormatException);
+    expect(
+      () => RiderAccount.fromJson({...profile, 'status': 'suspended'}),
+      throwsFormatException,
+    );
+    expect(
+      () => RiderAccount.fromJson({...profile, 'access_state': 'holding'}),
+      throwsFormatException,
+    );
+  });
+
+  test('pending and rejected holding match the server feedback and flags', () {
+    for (final review in ['pending_approval', 'rejected']) {
+      final account = RiderAccount.fromJson({
+        ...profile,
+        'status': 'pending_approval',
+        'kyc_status': review,
+        'access_state': 'holding',
+        'can_access_portal': false,
+        'kyc_feedback': 'Test review feedback',
+      });
+      expect(account.approved, isFalse);
+      expect(account.kycStatus, review);
+      expect(account.feedback, 'Test review feedback');
+    }
+  });
+
+  test('restricted session restoration clears the device token', () async {
+    final store = MemoryTokenStore();
+    await store.write('restricted-test-session');
+    final repo = ApiAuthRepository(
+      const AppConfig('https://bagoo.example.test/api/v1'),
+      store,
+      client: Dio()
+        ..httpClientAdapter = Adapter(
+          (_) => response({'message': 'This account is restricted.'}, 403),
+        ),
+    );
+    expect(await repo.restore(), isNull);
+    expect(await store.read(), isNull);
   });
 }

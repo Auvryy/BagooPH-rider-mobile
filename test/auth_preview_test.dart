@@ -4,6 +4,10 @@ import 'package:file_selector_platform_interface/file_selector_platform_interfac
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:bagoo_rider_mobile/features/auth/presentation/auth_controller.dart';
+
+import 'support/test_auth_repository.dart';
 
 Finder field(String label) => find.descendant(
   of: find.byWidgetPredicate(
@@ -18,6 +22,7 @@ Future<void> openApp(
   double scale = 1,
   double keyboard = 0,
   String route = '/',
+  TestAuthRepository? repository,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -30,7 +35,16 @@ Future<void> openApp(
     tester.view.reset();
     tester.platformDispatcher.clearAllTestValues();
   });
-  await tester.pumpWidget(const BagooRiderApp());
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [
+        authRepositoryProvider.overrideWithValue(
+          repository ?? TestAuthRepository(),
+        ),
+      ],
+      child: const BagooRiderApp(),
+    ),
+  );
   await tester.pumpAndSettle();
 }
 
@@ -69,12 +83,9 @@ void main() {
     await tapVisible(tester, find.byTooltip('Show password'));
     expect(tester.widget<EditableText>(passwordText).obscureText, isFalse);
     await tapVisible(tester, find.byKey(const ValueKey('sign-in-button')));
-    expect(find.text('Sign-in preview'), findsOneWidget);
-    expect(
-      find.textContaining('your details are not sent anywhere'),
-      findsOneWidget,
-    );
-    await tapVisible(tester, find.text('Back to preview'));
+    expect(find.text('Welcome, Test Rider.'), findsOneWidget);
+    expect(find.text('rider@example.com'), findsOneWidget);
+    await tapVisible(tester, find.byKey(const ValueKey('logout-button')));
     expect(find.text('Welcome back.'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
@@ -103,6 +114,12 @@ void main() {
       await openApp(tester, route: '/register');
       expect(find.text('Let’s get to know you.'), findsOneWidget);
       await tester.enterText(field('Full name'), 'Preview Rider');
+      await tester.enterText(field('Email address'), 'applicant@example.test');
+      await tester.enterText(field('Mobile number'), '09173334444');
+      await tester.enterText(field('Street address'), 'Sample Street');
+      await tester.enterText(field('City / municipality'), 'Pasig');
+      await tapVisible(tester, find.byKey(const ValueKey('birthday-picker')));
+      await tapVisible(tester, find.text('OK'));
       await tapVisible(tester, find.byKey(const ValueKey('registration-next')));
       expect(find.text('Your delivery vehicle.'), findsOneWidget);
       // Advancing a long form brings the new step's heading into view.
@@ -115,6 +132,7 @@ void main() {
         field('Plate or registration number'),
         'PREVIEW-123',
       );
+      await tester.enterText(field('Driver’s license number'), 'DEMO-123');
       await tapVisible(tester, find.byKey(const ValueKey('registration-next')));
       expect(find.text('A few final details.'), findsOneWidget);
       expect(find.text('Government ID'), findsOneWidget);
@@ -144,8 +162,7 @@ void main() {
       await tester.enterText(field('Create password'), 'preview-password');
       await tester.enterText(field('Confirm password'), 'preview-password');
       await tapVisible(tester, find.byKey(const ValueKey('registration-next')));
-      expect(find.text('Registration preview'), findsOneWidget);
-      expect(find.textContaining('No account is created'), findsOneWidget);
+      expect(find.textContaining('Choose your ID'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
@@ -227,6 +244,63 @@ void main() {
       },
     );
   }
+
+  testWidgets(
+    'registration verifies email, submits selected files, shows holding home and logs out',
+    (tester) async {
+      final original = FileSelectorPlatform.instance;
+      final picker = _FilePicker();
+      FileSelectorPlatform.instance = picker;
+      addTearDown(() => FileSelectorPlatform.instance = original);
+      final repository = TestAuthRepository();
+      await openApp(tester, route: '/register', repository: repository);
+      await tester.enterText(field('Full name'), 'New Test Rider');
+      await tester.enterText(field('Email address'), 'new@example.test');
+      await tester.enterText(field('Mobile number'), '09173334444');
+      await tester.enterText(field('Street address'), 'Sample Street');
+      await tester.enterText(field('City / municipality'), 'Pasig');
+      await tapVisible(tester, find.byKey(const ValueKey('birthday-picker')));
+      await tapVisible(tester, find.text('OK'));
+      await tapVisible(tester, find.byKey(const ValueKey('registration-next')));
+      await tester.enterText(field('Plate or registration number'), 'DEMO-123');
+      await tester.enterText(field('Driver’s license number'), 'DEMO-123');
+      await tapVisible(tester, find.byKey(const ValueKey('registration-next')));
+      for (final key in [
+        'identity-document',
+        'license-document',
+        'vehicle-document',
+      ]) {
+        picker.nextFile = XFile.fromData(Uint8List(10), path: 'synthetic.pdf');
+        await tapVisible(
+          tester,
+          find.descendant(
+            of: find.byKey(ValueKey(key)),
+            matching: find.widgetWithText(OutlinedButton, 'Choose document'),
+          ),
+        );
+      }
+      await tester.enterText(field('Create password'), 'Password1234');
+      await tester.enterText(field('Confirm password'), 'Password1234');
+      await tapVisible(tester, find.byKey(const ValueKey('registration-next')));
+      expect(find.text('Verify your email'), findsOneWidget);
+      await tester.enterText(
+        find.byKey(const ValueKey('email-code-input')),
+        '123456',
+      );
+      await tapVisible(
+        tester,
+        find.byKey(const ValueKey('verify-email-button')),
+      );
+      expect(repository.registrationCalls, 1);
+      expect(find.text('Welcome, New Test Rider.'), findsOneWidget);
+      expect(find.text('Application under review'), findsOneWidget);
+      await tapVisible(tester, find.byKey(const ValueKey('logout-button')));
+      expect(repository.logoutCalls, 1);
+      expect(find.text('Welcome back.'), findsOneWidget);
+      expect(find.text('Let’s get to know you.'), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   for (final config in [
     (const Size(320, 568), 1.0),

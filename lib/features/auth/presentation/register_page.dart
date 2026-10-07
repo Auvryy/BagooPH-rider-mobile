@@ -1,27 +1,33 @@
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
 import 'widgets/auth_field.dart';
 import 'widgets/auth_shell.dart';
+import 'auth_controller.dart';
+import 'email_verification_dialog.dart';
 
-class RegisterPage extends StatefulWidget {
+class RegisterPage extends ConsumerStatefulWidget {
   const RegisterPage({super.key});
   @override
-  State<RegisterPage> createState() => _RegisterPageState();
+  ConsumerState<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class _RegisterPageState extends ConsumerState<RegisterPage> {
   int _step = 0;
   String _vehicle = 'Motorcycle';
   DateTime? _birthday;
   final _scroll = ScrollController();
-  final _documentNames = <String, String?>{};
+  final _documents = <String, XFile>{};
+  String? _localError;
+  DateTime? _adultMaximum;
   final _form = GlobalKey<FormState>();
   final _name = TextEditingController();
   final _email = TextEditingController();
   final _phone = TextEditingController();
   final _address = TextEditingController();
+  final _province = TextEditingController();
   final _city = TextEditingController();
   final _barangay = TextEditingController();
   final _plate = TextEditingController();
@@ -36,6 +42,7 @@ class _RegisterPageState extends State<RegisterPage> {
       _email,
       _phone,
       _address,
+      _province,
       _city,
       _barangay,
       _plate,
@@ -57,13 +64,46 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() async {
+      try {
+        final options = await ref
+            .read(authRepositoryProvider)
+            .registrationOptions();
+        final limits = options['birth_date_limits'];
+        if (mounted && limits is Map && limits['adult_maximum'] is String) {
+          setState(
+            () => _adultMaximum = DateTime.parse(limits['adult_maximum']),
+          );
+        }
+      } catch (_) {
+        /* Submission still requires authoritative server validation. */
+      }
+    });
+  }
+
+  void _next() {
+    if (!_form.currentState!.validate()) return;
+    if (_step == 0 && _birthday == null) {
+      setState(
+        () => _localError =
+            'Choose your birthday. Rider applicants must be at least 18.',
+      );
+      return;
+    }
+    setState(() => _localError = null);
+    _setStep(_step + 1);
+  }
+
   Future<void> _chooseBirthday() async {
     FocusScope.of(context).unfocus();
     final now = DateTime.now();
-    final latest = DateTime(now.year - 18, now.month, now.day);
+    final latest = _adultMaximum ?? DateTime(now.year - 18, now.month, now.day);
     final result = await showDatePicker(
       context: context,
-      firstDate: DateTime(now.year - 100),
+      firstDate: DateTime(1),
       lastDate: latest,
       initialDate: _birthday ?? latest,
       helpText: 'Choose your birthday',
@@ -71,17 +111,103 @@ class _RegisterPageState extends State<RegisterPage> {
     if (result != null && mounted) setState(() => _birthday = result);
   }
 
-  void _submitPreview() {
+  Future<void> _submitApplication() async {
+    setState(() => _localError = null);
     if (!_form.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
-    showAuthPreviewMessage(
-      context,
-      title: 'Registration preview',
-      message:
-          'This is a preview of your rider application. '
-          'No account is created and no information or documents are submitted.',
+    if (_birthday == null ||
+        [
+          _name,
+          _email,
+          _phone,
+          _address,
+          _city,
+        ].any((field) => field.text.trim().isEmpty)) {
+      setState(() {
+        _localError =
+            'Complete your rider and contact details before applying.';
+        _step = 0;
+      });
+      return;
+    }
+    if (_plate.text.trim().isEmpty || _license.text.trim().isEmpty) {
+      setState(() {
+        _localError = 'Enter your plate and driver’s license references.';
+        _step = 1;
+      });
+      return;
+    }
+    if (_documents.length != 3) {
+      setState(
+        () => _localError = 'Choose your ID, driver’s license and vehicle registration documents.',
+      );
+      return;
+    }
+    final verification = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => EmailVerificationDialog(email: _email.text.trim()),
     );
+    if (verification == null || !mounted) return;
+    final birthday = _birthday!;
+    final ok = await ref
+        .read(authControllerProvider.notifier)
+        .register(
+          {
+            'name': _name.text,
+            'email': _email.text,
+            'phone': _phone.text,
+            'birthday':
+                '${birthday.year}-${birthday.month.toString().padLeft(2, '0')}-${birthday.day.toString().padLeft(2, '0')}',
+            'address': _address.text,
+            'province': _province.text,
+            'city': _city.text,
+            'barangay': _barangay.text,
+            'vehicle_type': _vehicle,
+            'plate_number': _plate.text,
+            'license_number': _license.text,
+            'password': _password.text,
+            'password_confirmation': _confirmation.text,
+            'otp_token': verification,
+          },
+          {
+            'id_document': _documents['identity']!,
+            'driver_license': _documents['license']!,
+            'or_cr_document': _documents['vehicle']!,
+          },
+        );
+    if (!mounted) return;
+    if (ok) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    } else {
+      final errors = ref.read(authControllerProvider).fields.keys;
+      if (errors.any(
+        [
+          'name',
+          'email',
+          'phone',
+          'birthday',
+          'address',
+          'city',
+          'barangay',
+        ].contains,
+      )) {
+        _setStep(0);
+      } else if (errors.any(
+        ['vehicle_type', 'plate_number', 'license_number'].contains,
+      )) {
+        _setStep(1);
+      }
+    }
   }
+
+  void _setDocument(String key, XFile? file) => setState(() {
+    if (file == null) {
+      _documents.remove(key);
+    } else {
+      _documents[key] = file;
+    }
+  });
 
   void _backToLogin() {
     if (Navigator.of(context).canPop()) {
@@ -93,6 +219,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final session = ref.watch(authControllerProvider);
     final headings = [
       'Let’s get to know you.',
       'Your delivery vehicle.',
@@ -108,6 +235,10 @@ class _RegisterPageState extends State<RegisterPage> {
       scrollController: _scroll,
       child: Form(
         key: _form,
+        onChanged: () {
+          if (_localError != null) setState(() => _localError = null);
+          ref.read(authControllerProvider.notifier).clearError();
+        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -155,6 +286,13 @@ class _RegisterPageState extends State<RegisterPage> {
             if (_step == 0) ..._riderFields(),
             if (_step == 1) ..._vehicleFields(),
             if (_step == 2) ..._documentFields(),
+            if (_localError != null || session.error != null) ...[
+              const SizedBox(height: 16),
+              Text(
+                _localError ?? session.error!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ],
             const SizedBox(height: 24),
             if (_step > 0) ...[
               OutlinedButton(
@@ -166,8 +304,18 @@ class _RegisterPageState extends State<RegisterPage> {
             ],
             FilledButton(
               key: const ValueKey('registration-next'),
-              onPressed: _step < 2 ? () => _setStep(_step + 1) : _submitPreview,
-              child: Text(_step == 2 ? 'Submit application' : 'Continue'),
+              onPressed: session.busy
+                  ? null
+                  : _step < 2
+                  ? _next
+                  : _submitApplication,
+              child: Text(
+                session.busy
+                    ? 'Submitting…'
+                    : _step == 2
+                    ? 'Submit application'
+                    : 'Continue',
+              ),
             ),
             const SizedBox(height: 18),
             Wrap(
@@ -196,6 +344,8 @@ class _RegisterPageState extends State<RegisterPage> {
         child: _FieldPair(
           first: AuthField(
             label: 'Full name',
+            validator: (value) => requiredText(value, 'full name'),
+            serverError: ref.watch(authControllerProvider).fields['name'],
             controller: _name,
             hint: 'Your full name',
             autofillHints: const [AutofillHints.name],
@@ -209,6 +359,12 @@ class _RegisterPageState extends State<RegisterPage> {
         child: _FieldPair(
           first: AuthField(
             label: 'Email address',
+            validator: (value) =>
+                value != null &&
+                    RegExp(r'^\S+@\S+\.\S+$').hasMatch(value.trim())
+                ? null
+                : 'Enter a valid email address.',
+            serverError: ref.watch(authControllerProvider).fields['email'],
             controller: _email,
             hint: 'Your email',
             keyboardType: TextInputType.emailAddress,
@@ -216,6 +372,8 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
           second: AuthField(
             label: 'Mobile number',
+            validator: (value) => requiredText(value, 'mobile number'),
+            serverError: ref.watch(authControllerProvider).fields['phone'],
             controller: _phone,
             hint: '09XXXXXXXXX',
             keyboardType: TextInputType.phone,
@@ -231,20 +389,35 @@ class _RegisterPageState extends State<RegisterPage> {
           children: [
             AuthField(
               label: 'Street address',
+              validator: (value) => requiredText(value, 'street address'),
+              serverError: ref.watch(authControllerProvider).fields['address'],
               controller: _address,
               hint: 'House number, street or subdivision',
               autofillHints: const [AutofillHints.streetAddressLine1],
             ),
             const SizedBox(height: 16),
+            AuthField(
+              label: 'Province',
+              controller: _province,
+              hint: 'Your province',
+              serverError: ref.watch(authControllerProvider).fields['province'],
+            ),
+            const SizedBox(height: 16),
             _FieldPair(
               first: AuthField(
                 label: 'City / municipality',
+                validator: (value) =>
+                    requiredText(value, 'city or municipality'),
+                serverError: ref.watch(authControllerProvider).fields['city'],
                 controller: _city,
                 hint: 'Your city',
                 autofillHints: const [AutofillHints.addressCity],
               ),
               second: AuthField(
                 label: 'Barangay',
+                serverError: ref
+                    .watch(authControllerProvider)
+                    .fields['barangay'],
                 controller: _barangay,
                 hint: 'Your barangay',
                 textInputAction: TextInputAction.done,
@@ -411,11 +584,21 @@ class _RegisterPageState extends State<RegisterPage> {
           minimumWidth: 480,
           first: AuthField(
             label: 'Plate or registration number',
+            validator: (value) =>
+                requiredText(value, 'plate or registration number'),
+            serverError: ref
+                .watch(authControllerProvider)
+                .fields['plate_number'],
             controller: _plate,
             hint: 'Enter the vehicle reference',
           ),
           second: AuthField(
             label: 'Driver’s license number',
+            validator: (value) =>
+                requiredText(value, 'driver’s license number'),
+            serverError: ref
+                .watch(authControllerProvider)
+                .fields['license_number'],
             controller: _license,
             hint: 'Enter your license number',
             textInputAction: TextInputAction.done,
@@ -444,28 +627,28 @@ class _RegisterPageState extends State<RegisterPage> {
         key: const ValueKey('identity-document'),
         title: 'Government ID',
         description: 'A clear copy of your valid identification.',
-        selectedName: _documentNames['identity'],
-        onChanged: (name) => setState(() => _documentNames['identity'] = name),
+        selectedName: _documents['identity']?.name,
+        onChanged: (file) => _setDocument('identity', file),
       ),
       const SizedBox(height: 12),
       _DocumentCard(
         key: const ValueKey('license-document'),
         title: 'Driver’s license',
         description: 'Your current driver’s license document.',
-        selectedName: _documentNames['license'],
-        onChanged: (name) => setState(() => _documentNames['license'] = name),
+        selectedName: _documents['license']?.name,
+        onChanged: (file) => _setDocument('license', file),
       ),
       const SizedBox(height: 12),
       _DocumentCard(
         key: const ValueKey('vehicle-document'),
         title: 'Vehicle registration',
         description: 'Your vehicle OR / CR document.',
-        selectedName: _documentNames['vehicle'],
-        onChanged: (name) => setState(() => _documentNames['vehicle'] = name),
+        selectedName: _documents['vehicle']?.name,
+        onChanged: (file) => _setDocument('vehicle', file),
       ),
       const SizedBox(height: 8),
       const Text(
-        'Images or PDF, up to 5 MB each. Files stay local in this preview.',
+        'Images or PDF, up to 5 MB each. Documents are submitted privately for review.',
         style: TextStyle(fontSize: 12, color: RiderColors.muted),
       ),
       const SizedBox(height: 24),
@@ -475,20 +658,24 @@ class _RegisterPageState extends State<RegisterPage> {
           minimumWidth: 480,
           first: AuthField(
             label: 'Create password',
+            serverError: ref.watch(authControllerProvider).fields['password'],
             controller: _password,
             hint: 'Choose a strong password',
             password: true,
             autofillHints: const [AutofillHints.newPassword],
-            helper: 'Use 12–128 characters.',
+            helper: 'Use at least 8 characters.',
             validator: (value) {
-              if (value == null || value.length < 12 || value.length > 128) {
-                return 'Use between 12 and 128 characters.';
+              if (value == null || value.length < 8) {
+                return 'Use at least 8 characters.';
               }
               return null;
             },
           ),
           second: AuthField(
             label: 'Confirm password',
+            serverError: ref
+                .watch(authControllerProvider)
+                .fields['password_confirmation'],
             controller: _confirmation,
             hint: 'Enter your password again',
             password: true,
@@ -683,7 +870,7 @@ class _DocumentCard extends StatefulWidget {
   final String title;
   final String description;
   final String? selectedName;
-  final ValueChanged<String?> onChanged;
+  final ValueChanged<XFile?> onChanged;
 
   @override
   State<_DocumentCard> createState() => _DocumentCardState();
@@ -715,7 +902,7 @@ class _DocumentCardState extends State<_DocumentCard> {
               _error = 'Choose a file up to 5 MB. The previous choice is kept.',
         );
       } else {
-        widget.onChanged(file.name);
+        widget.onChanged(file);
       }
     } catch (_) {
       if (mounted) {

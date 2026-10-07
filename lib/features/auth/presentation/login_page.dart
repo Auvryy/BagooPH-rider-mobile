@@ -1,20 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
 import 'widgets/auth_field.dart';
 import 'widgets/auth_shell.dart';
+import 'auth_controller.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends ConsumerState<LoginPage> {
   final _form = GlobalKey<FormState>();
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _rememberEmail = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final remembered = ref
+        .read(authControllerProvider.notifier)
+        .rememberedEmail;
+    _email.text = remembered ?? '';
+    _rememberEmail = remembered != null;
+  }
 
   @override
   void dispose() {
@@ -23,20 +35,20 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _signIn() {
+  Future<void> _signIn() async {
     if (!_form.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
-    showAuthPreviewMessage(
-      context,
-      title: 'Sign-in preview',
-      message:
-          'You can explore the login and registration screens here. '
-          'Sign-in is not connected, and your details are not sent anywhere.',
-    );
+    ref
+        .read(authControllerProvider.notifier)
+        .rememberEmail(_rememberEmail ? _email.text.trim() : null);
+    await ref
+        .read(authControllerProvider.notifier)
+        .login(_email.text, _password.text);
   }
 
   @override
   Widget build(BuildContext context) {
+    final session = ref.watch(authControllerProvider);
     return AuthShell(
       registering: false,
       child: AutofillGroup(
@@ -116,8 +128,8 @@ class _LoginPageState extends State<LoginPage> {
                       context,
                       title: 'Password recovery',
                       message:
-                          'Password recovery will be available when sign-in '
-                          'is connected. This preview does not send recovery emails.',
+                          'Password recovery is handled by the Bagoo website. '
+                          'Use its Forgot password page to request a reset. This page does not send recovery emails.',
                     ),
                     child: const Text(
                       'Forgot password?',
@@ -141,10 +153,17 @@ class _LoginPageState extends State<LoginPage> {
                 },
               ),
               const SizedBox(height: 20),
+              if (session.error != null) ...[
+                Text(
+                  session.error!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+                const SizedBox(height: 16),
+              ],
               FilledButton(
                 key: const ValueKey('sign-in-button'),
-                onPressed: _signIn,
-                child: const Text('Sign in'),
+                onPressed: session.busy ? null : _signIn,
+                child: Text(session.busy ? 'Signing in…' : 'Sign in'),
               ),
               const SizedBox(height: 24),
               const Divider(),

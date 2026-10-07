@@ -7,13 +7,12 @@ into **180 planned subtasks and 63 suggested batches** for later prompts.
 Creating the planning cards does not create future execution records or
 authorize implementing them now.
 
-The current app has login and three-stage registration design previews and debug
-Device Preview in [lib/main.dart](../lib/main.dart). M02 now has the auth theme,
-bundled font/logo and shared form controls; M03 has entry-page presentation only.
-The [auth preview guide](AUTH_PREVIEW.md) records the implemented slice. The
-architecture and authenticated API remain proposals. No operational feature
-below is implemented in Flutter. A completed planning document or preview does
-not mean the app or its backend dependencies are complete.
+The app now connects login, verified registration, own-account home and logout
+to the local Laravel account adapter. M02 has its account transport, secure-store
+adapter and presentation foundation; M03 has the bounded account slice described
+in [ACCOUNT_ACCESS.md](ACCOUNT_ACCESS.md). Operational queues/actions and deployed
+native acceptance remain unimplemented. Completed UI or local account checks do
+not finish a major area or clear unrelated backend gates.
 
 ## Always check the Bagoo website project
 
@@ -187,13 +186,13 @@ Android launch evidence; desktop layout review does not verify native hardware.
 
 ### M03 — Authentication and account holding
 
-**Current coverage (October 6):** login and a user-requested native registration
-design preview are implemented, including grouped responsive field pairs and
-numbered circular current-step navigation. Local navigation, form feedback and
-document-name selection are preview interactions. Token authentication, live application/KYC,
-approval holding, recovery and account guards remain unimplemented. The initial
-live onboarding recommendation stays first-party web; this UI preview does not
-approve a native onboarding API or clear any integration gate.
+**Account slice update (October 7):** token login, real verified registration with
+private documents, own-account holding/home, refresh and logout are implemented
+against the local Laravel account adapter. Native secure-store and explicit
+debug loopback session adapters are present. Local API, widget, build and
+cross-web account checks are recorded in [ACCOUNT_ACCESS.md](ACCOUNT_ACCESS.md).
+Production deployment and physical Android acceptance remain open; the full M03
+baseline and future operational routes are not marked complete by this slice.
 
 **Outcome:** riders can enter safely and understand exactly why access is limited.
 

@@ -3,18 +3,17 @@
 Flutter application for BagooPH pickup and delivery couriers. Both assignment
 phases belong to the same rider app and courier account role.
 
-## Current preview
+## Current account flow
 
-- Login with labelled email/password fields, password visibility and local feedback.
-- Registration with three explorable stages: rider details, vehicle and documents.
+- Real Laravel account login, own-account home and current-device logout.
+- Registration with rider details, vehicle, private documents and email verification.
 - Grouped registration fields with responsive columns and numbered circular steps.
 - Original Bagoo logo and bundled Plus Jakarta Sans, using the Rider design tokens.
 - Android application scaffold, with Linux and web development targets.
 - Device Preview phone frames and controls on debug Linux/web runs.
-- These are design previews. Sign-in and application submission are not connected;
-  no account is created, no documents are uploaded and no parcel actions exist.
+- New applications remain pending server review. No parcel actions exist yet.
 
-See [the auth preview guide](docs/AUTH_PREVIEW.md) for controls, checks and limits.
+See [working account access](docs/ACCOUNT_ACCESS.md) for setup, controls and limits.
 
 The existing Bagoo Laravel application remains the backend and source of business
 rules. Future API integration must preserve approval, assignment scope, authenticated
@@ -47,8 +46,8 @@ The [complete frontend design specification](docs/DESIGN_SPEC.md) now defines
 navigation, the counted screen inventory, page-by-page composition, responsive
 geometry, visual tokens, maps, theory-based rationale and illustrative layouts.
 It covers the current plan plus explicitly optional/conditional/future concepts;
-the full inventory remains planned. The login and registration previews are the
-first implemented presentation slice.
+the full inventory remains planned. The account access slice is implemented
+locally; the wider operational inventory remains planned.
 
 The working presentation target is **November 21, 2026** in Asia/Manila.
 Development and verification should finish by **November 20**. The
@@ -70,19 +69,20 @@ From this repository:
 
 ```sh
 flutter pub get
-flutter run -d linux
+flutter run -d linux --dart-define=API_BASE_URL=http://127.0.0.1:8089/api/v1 --dart-define=ALLOW_LOCAL_AUTH=true
 ```
 
 Use Device Preview's controls to choose a phone, orientation, and text scale.
 Press `r` in the terminal to hot reload and `q` to quit.
 Login opens first. Select **Apply as a rider** to see registration. Tap any of
-its three step headings or **Continue** to explore; fields need not be completed
-to switch steps. **Back to sign in** returns to login.
+its three step headings to review; **Continue** validates that stage. Registration
+requires real document selection and email verification. **Back to sign in**
+returns to login. A successful login opens the account home with **Log out**.
 
 For a browser preview:
 
 ```sh
-flutter run -d chrome --dart-define=DEVICE_PREVIEW=false
+flutter run -d chrome --dart-define=API_BASE_URL=http://127.0.0.1:8089/api/v1 --dart-define=ALLOW_LOCAL_AUTH=true --dart-define=DEVICE_PREVIEW=false
 ```
 
 To see the normal Linux window without the phone frame:
@@ -98,13 +98,16 @@ verification on a real phone.
 For a fixed browser address with locally bundled rendering resources:
 
 ```sh
-flutter build web --no-web-resources-cdn
+flutter build web --debug --no-web-resources-cdn --dart-define=API_BASE_URL=http://127.0.0.1:8089/api/v1 --dart-define=ALLOW_LOCAL_AUTH=true --dart-define=DEVICE_PREVIEW=false
 python3 -m http.server 4173 --bind 127.0.0.1 --directory build/web
 ```
 
 Open [Login](http://127.0.0.1:4173/#/login) or
 [Registration](http://127.0.0.1:4173/#/register). Resize the browser to check phone
 and desktop layouts. Keep the server terminal running; use Ctrl+C to stop it.
+Start the isolated backend and local email inbox first, as described in the
+account guide. Debug loopback sessions are memory-only; release/native sessions
+require an approved HTTPS origin and platform secure storage.
 
 ## Project files
 
@@ -114,7 +117,7 @@ lib/app/            Rider theme
 lib/core/ui/        Shared Bagoo identity
 lib/features/auth/  Login, registration, and shared form presentation
 assets/             Bagoo mark, Plus Jakarta Sans font and font license
-test/               Auth preview behavior and responsive layout checks
+test/               Account behavior, transport and responsive layout checks
 android/            Android runner
 linux/              Linux preview runner
 web/                Web preview runner

@@ -71,7 +71,7 @@ class AuthShell extends StatelessWidget {
                             children: [
                               const BrandLogo(),
                               Semantics(
-                                label: 'Interface preview',
+                                label: 'Rider account access',
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 10,
@@ -82,7 +82,7 @@ class AuthShell extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: const Text(
-                                    'Preview',
+                                    'Rider access',
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
@@ -110,7 +110,7 @@ class AuthShell extends StatelessWidget {
                           form,
                         const SizedBox(height: 24),
                         const Text(
-                          'Design preview. No information is submitted.',
+                          'Your rider account is reviewed before work becomes available.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 12,

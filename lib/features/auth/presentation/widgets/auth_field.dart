@@ -16,6 +16,7 @@ class AuthField extends StatefulWidget {
     this.textInputAction = TextInputAction.next,
     this.onSubmitted,
     this.helper,
+    this.serverError,
   });
 
   final String label;
@@ -29,6 +30,7 @@ class AuthField extends StatefulWidget {
   final TextInputAction textInputAction;
   final ValueChanged<String>? onSubmitted;
   final String? helper;
+  final String? serverError;
 
   @override
   State<AuthField> createState() => _AuthFieldState();
@@ -72,6 +74,7 @@ class _AuthFieldState extends State<AuthField> {
             onFieldSubmitted: widget.onSubmitted,
             decoration: InputDecoration(
               hintText: widget.hint,
+              errorText: widget.serverError,
               helperText: widget.helper,
               helperMaxLines: 3,
               prefixIcon: widget.icon == null

@@ -2,10 +2,13 @@ import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/theme.dart';
 import 'features/auth/presentation/login_page.dart';
 import 'features/auth/presentation/register_page.dart';
+import 'features/auth/presentation/auth_controller.dart';
+import 'features/home/presentation/home_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,31 +26,70 @@ void main() {
       previewRequested &&
       (kIsWeb || defaultTargetPlatform == TargetPlatform.linux);
   runApp(
-    previewEnabled
-        ? DevicePreview(
-            builder: (_) => const BagooRiderApp(useDevicePreview: true),
-          )
-        : const BagooRiderApp(),
+    ProviderScope(
+      child: previewEnabled
+          ? DevicePreview(
+              builder: (_) => const BagooRiderApp(useDevicePreview: true),
+            )
+          : const BagooRiderApp(),
+    ),
   );
 }
 
-class BagooRiderApp extends StatelessWidget {
+class BagooRiderApp extends ConsumerStatefulWidget {
   const BagooRiderApp({super.key, this.useDevicePreview = false});
   final bool useDevicePreview;
 
   @override
+  ConsumerState<BagooRiderApp> createState() => _BagooRiderAppState();
+}
+
+class _BagooRiderAppState extends ConsumerState<BagooRiderApp> {
+  final _navigator = GlobalKey<NavigatorState>();
+
+  @override
   Widget build(BuildContext context) {
+    ref.listen(authControllerProvider, (previous, next) {
+      if (previous?.user?.id != next.user?.id) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _navigator.currentState?.pushNamedAndRemoveUntil('/', (_) => false);
+          }
+        });
+      }
+    });
     return MaterialApp(
+      navigatorKey: _navigator,
       title: 'BagooPH Rider',
       debugShowCheckedModeBanner: false,
-      locale: useDevicePreview ? DevicePreview.locale(context) : null,
-      builder: useDevicePreview ? DevicePreview.appBuilder : null,
+      locale: widget.useDevicePreview ? DevicePreview.locale(context) : null,
+      builder: widget.useDevicePreview ? DevicePreview.appBuilder : null,
       theme: buildRiderTheme(),
       routes: {
-        '/': (_) => const LoginPage(),
-        '/login': (_) => const LoginPage(),
-        '/register': (_) => const RegisterPage(),
+        '/': (_) => const AccountGate(),
+        '/login': (_) => const AccountGate(),
+        '/register': (_) => const AccountGate(register: true),
       },
     );
+  }
+}
+
+class AccountGate extends ConsumerWidget {
+  const AccountGate({super.key, this.register = false});
+  final bool register;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(authControllerProvider);
+    if (state.initializing) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(
+            semanticsLabel: 'Restoring account session',
+          ),
+        ),
+      );
+    }
+    if (state.user != null) return const HomePage();
+    return register ? const RegisterPage() : const LoginPage();
   }
 }

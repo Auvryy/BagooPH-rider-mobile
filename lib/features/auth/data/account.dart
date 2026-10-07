@@ -1,0 +1,50 @@
+class RiderAccount {
+  const RiderAccount({
+    required this.id,
+    required this.name,
+    required this.email,
+    required this.status,
+    required this.kycStatus,
+    required this.approved,
+    required this.emailVerified,
+    this.feedback,
+  });
+  final String id, name, email, status, kycStatus;
+  final bool approved, emailVerified;
+  final String? feedback;
+  factory RiderAccount.fromJson(Map<String, dynamic> json) {
+    if (json['role'] != 'courier' ||
+        json['id'] is! String ||
+        json['name'] is! String ||
+        json['email'] is! String ||
+        json['status'] is! String ||
+        json['kyc_status'] is! String ||
+        json['can_access_portal'] is! bool ||
+        json['email_verified'] is! bool) {
+      throw const FormatException(
+        'The account response could not be verified.',
+      );
+    }
+    return RiderAccount(
+      id: json['id'],
+      name: json['name'],
+      email: json['email'],
+      status: json['status'],
+      kycStatus: json['kyc_status'],
+      approved:
+          json['can_access_portal'] == true &&
+          json['status'] == 'active' &&
+          ['approved', 'verified'].contains(json['kyc_status']),
+      emailVerified: json['email_verified'],
+      feedback: json['kyc_feedback'],
+    );
+  }
+}
+
+class AccountFailure implements Exception {
+  const AccountFailure(this.message, {this.status, this.fields = const {}});
+  final String message;
+  final int? status;
+  final Map<String, String> fields;
+  bool get invalidSession => status == 401 || status == 403;
+}

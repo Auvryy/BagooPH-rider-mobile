@@ -65,6 +65,16 @@ Studio IDE and an emulator are optional when using command-line tools and a real
 
 ## Run locally
 
+To use the deployed HTTPS account API in the native app:
+
+```sh
+flutter run -d linux --dart-define-from-file=config/azure.json
+```
+
+Use an authorized Android phone instead of `linux` for native phone testing.
+See [Azure account access](docs/AZURE_ACCOUNT_ACCESS.md) for the verified contract,
+secure-session behavior and exact live-versus-local acceptance evidence.
+
 From this repository:
 
 ```sh

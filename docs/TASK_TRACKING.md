@@ -8,17 +8,24 @@ Creating the planning cards does not create future execution records or
 authorize implementing them now.
 
 The app now connects login, verified registration, own-account home and logout
-to the local Laravel account adapter. M02 has its account transport, secure-store
+to the Laravel account adapter. M02 has its account transport, secure-store
 adapter and presentation foundation; M03 has the bounded account slice described
-in [ACCOUNT_ACCESS.md](ACCOUNT_ACCESS.md). Operational queues/actions and deployed
-native acceptance remain unimplemented. Completed UI or local account checks do
-not finish a major area or clear unrelated backend gates.
+in [ACCOUNT_ACCESS.md](ACCOUNT_ACCESS.md). Azure and physical Android account
+checks are recorded in [AZURE_ACCOUNT_ACCESS.md](AZURE_ACCOUNT_ACCESS.md).
+Operational queues/actions remain unimplemented. Account checks do not finish
+a major area or clear unrelated backend gates.
 
 The opt-in debug [Home preview](HOME_PREVIEW.md) provides M04 layout evidence
 for a greeting, queue filters and parcel cards, with isolated M02 fixtures and
 one-tap demo entry/exit. It requires no account. Live task resources, capabilities,
 duty, queue freshness and the full shell remain unimplemented; their canonical
 backlog cards retain planned status.
+
+The [deployed HTTPS account slice](AZURE_ACCOUNT_ACCESS.md) accepts backend
+contract `0132562` and adds an explicit native build profile, API-scoped secure
+sessions, Android network/backup settings and foreground account refresh.
+Physical phone account checks are recorded there separately from local tests.
+This does not clear operational task or custody prerequisites.
 
 ## Always check the Bagoo website project
 
@@ -197,8 +204,12 @@ private documents, own-account holding/home, refresh and logout are implemented
 against the local Laravel account adapter. Native secure-store and explicit
 debug loopback session adapters are present. Local API, widget, build and
 cross-web account checks are recorded in [ACCOUNT_ACCESS.md](ACCOUNT_ACCESS.md).
-Production deployment and physical Android acceptance remain open; the full M03
-baseline and future operational routes are not marked complete by this slice.
+The deployed HTTPS profile now passes existing-account login, secure restoration
+and logout on a physical Android phone. Native Linux verified signup reached
+pending approval with private uploads. The created account's website login,
+Android registration/picker flow and live rejected/restricted/expiry transitions
+remain unverified. The full M03 baseline and future operational routes are not
+marked complete by this slice.
 
 **Outcome:** riders can enter safely and understand exactly why access is limited.
 

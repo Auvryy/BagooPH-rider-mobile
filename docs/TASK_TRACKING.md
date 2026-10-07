@@ -7,11 +7,13 @@ into **180 planned subtasks and 63 suggested batches** for later prompts.
 Creating the planning cards does not create future execution records or
 authorize implementing them now.
 
-The current app has a welcome screen and debug Device Preview in
-[lib/main.dart](../lib/main.dart). The architecture and authenticated API are
-proposals. None of the operational features below is implemented in Flutter;
-M02 has only the starter, and M01 has a proposed contract. A completed planning
-document does not mean the app or its backend dependencies are complete.
+The current app has login and three-stage registration design previews and debug
+Device Preview in [lib/main.dart](../lib/main.dart). M02 now has the auth theme,
+bundled font/logo and shared form controls; M03 has entry-page presentation only.
+The [auth preview guide](AUTH_PREVIEW.md) records the implemented slice. The
+architecture and authenticated API remain proposals. No operational feature
+below is implemented in Flutter. A completed planning document or preview does
+not mean the app or its backend dependencies are complete.
 
 ## Always check the Bagoo website project
 
@@ -162,6 +164,11 @@ web repository. Use [the API proposal](api/CONTRACT.md) as the starting agreemen
 
 **Outcome:** a small reusable app shell that makes later feature work consistent.
 
+**Current coverage (October 6):** auth palette/typeface, bundled logo, safe-area
+scrolling, shared labelled fields, buttons and preview dialogs are implemented.
+This slice does not complete account-aware navigation, transport/repositories,
+operational states or the physical Android baseline. See [AUTH_PREVIEW.md](AUTH_PREVIEW.md).
+
 1. Establish app configuration, theme, navigation and feature/repository
    boundaries. Add proposed packages only when needed and after compatibility
    checks; do not assume they are already installed.
@@ -179,6 +186,14 @@ release success. Foundation checks include meaningful routing/widget checks and
 Android launch evidence; desktop layout review does not verify native hardware.
 
 ### M03 — Authentication and account holding
+
+**Current coverage (October 6):** login and a user-requested native registration
+design preview are implemented, including grouped responsive field pairs and
+numbered circular current-step navigation. Local navigation, form feedback and
+document-name selection are preview interactions. Token authentication, live application/KYC,
+approval holding, recovery and account guards remain unimplemented. The initial
+live onboarding recommendation stays first-party web; this UI preview does not
+approve a native onboarding API or clear any integration gate.
 
 **Outcome:** riders can enter safely and understand exactly why access is limited.
 

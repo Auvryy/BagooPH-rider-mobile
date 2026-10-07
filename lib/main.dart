@@ -1,8 +1,19 @@
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import 'app/theme.dart';
+import 'features/auth/presentation/login_page.dart';
+import 'features/auth/presentation/register_page.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  LicenseRegistry.addLicense(() async* {
+    final license = await rootBundle.loadString('assets/fonts/OFL.txt');
+    yield LicenseEntryWithLineBreaks(['Plus Jakarta Sans'], license);
+  });
+
   const previewRequested = bool.fromEnvironment(
     'DEVICE_PREVIEW',
     defaultValue: true,
@@ -11,7 +22,6 @@ void main() {
       kDebugMode &&
       previewRequested &&
       (kIsWeb || defaultTargetPlatform == TargetPlatform.linux);
-
   runApp(
     previewEnabled
         ? DevicePreview(
@@ -23,53 +33,21 @@ void main() {
 
 class BagooRiderApp extends StatelessWidget {
   const BagooRiderApp({super.key, this.useDevicePreview = false});
-
   final bool useDevicePreview;
 
   @override
   Widget build(BuildContext context) {
-    const bagooRed = Color(0xFFE00D42);
-
     return MaterialApp(
       title: 'BagooPH Rider',
       debugShowCheckedModeBanner: false,
       locale: useDevicePreview ? DevicePreview.locale(context) : null,
       builder: useDevicePreview ? DevicePreview.appBuilder : null,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: bagooRed),
-        scaffoldBackgroundColor: const Color(0xFFFFFAFB),
-        useMaterial3: true,
-      ),
-      home: const Scaffold(
-        body: SafeArea(
-          child: Center(
-            child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.local_shipping_outlined,
-                    color: bagooRed,
-                    size: 48,
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'BagooPH Rider',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Pickup and delivery rider app.',
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+      theme: buildRiderTheme(),
+      routes: {
+        '/': (_) => const LoginPage(),
+        '/login': (_) => const LoginPage(),
+        '/register': (_) => const RegisterPage(),
+      },
     );
   }
 }

@@ -28,7 +28,10 @@ flowchart LR
 
 ## Proposed folder layout
 
-This tree describes the target; the starter currently has `lib/main.dart` only.
+This tree describes the target. The auth preview currently uses `lib/main.dart`,
+`app/theme.dart`, `core/ui/brand_logo.dart` and `features/auth/presentation/`.
+It has no transport, repository or auth controller; its local widget state handles
+only design-preview interactions. See [AUTH_PREVIEW.md](AUTH_PREVIEW.md).
 Create folders when a feature needs them instead of filling empty scaffolds.
 
 ```text

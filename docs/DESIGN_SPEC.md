@@ -2,7 +2,9 @@
 
 Reviewed **October 6, 2026**. This is the desired user-visible design for the
 Rider app, with complete page planning and current research. It specifies
-appearance and interaction; the native starter does not implement these screens.
+appearance and interaction. The [login and registration preview](AUTH_PREVIEW.md)
+is the first implemented presentation slice; the rest of this inventory remains
+planned.
 
 ## Design direction
 

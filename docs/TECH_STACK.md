@@ -19,6 +19,8 @@ on an Android phone. These are design choices, not measured RAM/battery savings.
 | Material widgets, Cupertino icons | Installed | Flutter UI and established icon set |
 | `device_preview` | Installed, debug Linux/web only | Phone layout, orientation, and text-scale preview without an Android emulator |
 | `flutter_test`, `flutter_lints` | Installed development dependencies | Appropriate automated checks as features are added |
+| `file_selector` 1.1.0 | Installed for the auth preview | Platform document picker; filename-only local preview, no upload |
+| `file_selector_platform_interface` 2.7.0 | Installed development dependency | Replace the picker in behavior checks without opening native dialogs |
 | `flutter_riverpod` | Proposed for first auth/task slice | Dependency injection and asynchronous screen/controller state in one tool |
 | `dio` | Proposed for first API slice | Shared request configuration, interceptors, cancellation, timeouts, multipart uploads |
 | `go_router` | Proposed with auth navigation | Explicit holding/auth/task routes and guarded deep links |
@@ -27,13 +29,17 @@ on an Android phone. These are design choices, not measured RAM/battery savings.
 | `image_picker` | Proposed with delivery proof | Capture/select genuine images; handle Android lost-data recovery |
 | `url_launcher` | Proposed with stop/contact actions | System navigation/browser/call actions with validated scheme and destination |
 | `intl` | Proposed when dates/money appear | Locale display; no floating-point money authority or guessed timezone |
-| Bundled Plus Jakarta Sans | Proposed UI asset | Consistent typeface without a runtime font download |
+| Bundled Plus Jakarta Sans | Implemented auth UI asset | Variable font with bundled SIL Open Font License; no runtime font download |
 
 Package versions are deliberately not presented as installed until they enter
 `pubspec.yaml` and resolve in `pubspec.lock`. At each implementation task check
 current maintenance, Flutter/Dart compatibility, minimum Android SDK, native
 configuration, transitive size, and license. Commit the resolved lockfile.
 Do not upgrade all packages merely because a newer release exists.
+
+The [auth preview guide](AUTH_PREVIEW.md) records the bundled font/mark and local
+picker checks. The preview uses Material's named routes; guarded account routing
+and the proposed state/transport packages are still future integrated work.
 
 The package purposes above are supported by their primary docs:
 [Riverpod](https://pub.dev/packages/flutter_riverpod),

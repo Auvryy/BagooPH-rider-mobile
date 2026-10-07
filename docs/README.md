@@ -39,9 +39,10 @@ backend contract and checks. It has no operational rider queues or parcel action
 Only the implemented account endpoints are accepted locally; the wider API and
 feature architecture remain proposals beyond this slice.
 
-The reviewed backend has reusable courier/lifecycle services and existing web
-operations. Its `routes/api.php` exposes public tracking only. Installing Sanctum
-as a Composer dependency does not mean mobile token authentication is configured.
+At the reviewed backend main revision `4e3a66d`, `routes/api.php` exposed public
+tracking only. The account adapter in the separate backend feature branch now
+adds the locally verified login and registration contract described in
+[account access](ACCOUNT_ACCESS.md). Deployment of that branch remains separate.
 The backend's [current roadmap](https://github.com/Auvryy/BagooPH/blob/main/docs/CORE_FLOW_ROADMAP.md)
 owns changing implementation evidence; [the integration plan](api/INTEGRATION_PLAN.md)
 records the dated observations needed to start this client.

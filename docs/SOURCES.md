@@ -184,3 +184,17 @@ backend contract/version; update the mobile flow/schema examples and acceptance
 cases; verify both roles see the same result; record the actual checks and
 remaining limits. Publish only reviewed public references and synthetic examples.
 Local work-guide provisioning belongs outside GitHub documentation.
+
+## October 8 implemented Settings source review
+
+Backend local main was clean at `1dba047937b5f9c864112407586de4d1051f30db` during this scoped read. Reviewed
+`docs/api/RIDER_SETTINGS_API.md`, `routes/api.php`, `RiderSettingsController`,
+`RiderSettingsService`, `RiderAccountService`, `EnsureRiderAccountToken` and the
+Settings feature-test source. The [backend contract](https://github.com/Auvryy/BagooPH/blob/1dba047937b5f9c864112407586de4d1051f30db/docs/api/RIDER_SETTINGS_API.md) is the authority
+for this consumer; the former mobile proposal does not override it.
+
+No website files, branch, database, migrations or tests were changed/executed.
+Flutter checks use a synthetic contract example and its own test transport.
+The user is preparing Azure deployment, so deployed Settings/version/migration
+acceptance and real-account mutations remain outstanding. See
+[the consumer contract](api/SETTINGS_HANDOFF.md) for the exact client scope.

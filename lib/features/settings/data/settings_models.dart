@@ -1,5 +1,13 @@
 import '../../auth/data/account.dart';
 
+bool isSettingsEmailId(String value) =>
+    value.length <= 19 &&
+    RegExp(r'^[1-9][0-9]*$').stringMatch(value) == value &&
+    (value.length < 19 || value.compareTo('9223372036854775807') <= 0);
+
+bool isSettingsRevision(String value) =>
+    value.length == 64 && RegExp(r'^[a-f0-9]{64}$').hasMatch(value);
+
 class SettingsIdentity {
   const SettingsIdentity(this.accountId, {this.preview = false});
   final String accountId;
@@ -63,7 +71,7 @@ class SettingsSnapshot {
     'registration_status': 'Registration review',
   };
 
-  /// Settings v1 remains a proposed contract until the backend advertises it.
+  /// Backend settings v1 is enabled only when the deployed account advertises it.
   factory SettingsSnapshot.decode(
     Map<String, dynamic> response, {
     required String accountId,
@@ -85,14 +93,19 @@ class SettingsSnapshot {
     final details = object(data['managed_details']);
     final owner = text(data['account_id']);
     final email = text(profile['email']);
-    if (owner != accountId || email != originalEmail) invalid();
+    final revision = text(data['revision']);
+    if (owner != accountId ||
+        email != originalEmail ||
+        !isSettingsRevision(revision)) {
+      invalid();
+    }
     if (data['emails'] is! List) invalid();
     final ids = <String>{};
     final emails = <ContactEmail>[];
     for (final entry in data['emails'] as List) {
       final row = object(entry);
       final id = text(row['id']);
-      if (!RegExp(r'^[1-9][0-9]*$').hasMatch(id) || !ids.add(id)) invalid();
+      if (!isSettingsEmailId(id) || !ids.add(id)) invalid();
       emails.add(
         ContactEmail(
           id: id,
@@ -122,7 +135,7 @@ class SettingsSnapshot {
     }
     return SettingsSnapshot(
       accountId: owner,
-      revision: text(data['revision']),
+      revision: revision,
       name: text(profile['name']),
       email: email,
       emailVerified: verified,

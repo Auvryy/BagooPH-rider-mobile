@@ -17,7 +17,8 @@ unassigned rider. Pending/rejected accounts keep their existing holding page
 and feedback. Losing approval or signing out closes private overlays and drops
 workspace state.
 
-The current native backend exposes account APIs only. Production queues, trips
+The accepted operational slice still lacks task/trip/messaging APIs. Native
+Settings source is now implemented, with Azure deployment pending. Production queues, trips
 and conversations therefore show **unavailable** states with a configured
 first-party website link. No fixture data or zero totals are presented as live
 records. No proposed operational URL is called. See the
@@ -59,7 +60,7 @@ The historical Home fixture also runs only in widget tests; see
 
 The later [account-settings preparation](SETTINGS.md) adds contact/password/
 additional-email forms to the test fixtures and a server-version-gated adapter.
-Actual native settings commands still await the owning backend API. The supported
+Actual native Settings acceptance still awaits the backend deployment. The supported
 website management action now opens `/account/settings`.
 
 ## State and verification

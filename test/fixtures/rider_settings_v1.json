@@ -1,0 +1,39 @@
+{
+  "data": {
+    "account_id": "7",
+    "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "profile": {
+      "name": "Example Rider",
+      "email": "rider@example.test",
+      "email_verified": true,
+      "phone": null
+    },
+    "capabilities": {
+      "update_contact": true,
+      "change_password": true,
+      "manage_emails": true
+    },
+    "emails": [
+      {
+        "id": "11",
+        "email": "rider@example.test",
+        "is_original": true,
+        "verified": true,
+        "preferred": true
+      }
+    ],
+    "managed_details": {
+      "available": false,
+      "company": null,
+      "hub": null,
+      "hub_code": null,
+      "barangay": null,
+      "vehicle_type": null,
+      "vehicle_model": null,
+      "plate_number": null,
+      "fleet_status": null,
+      "license_number": null,
+      "registration_status": null
+    }
+  }
+}

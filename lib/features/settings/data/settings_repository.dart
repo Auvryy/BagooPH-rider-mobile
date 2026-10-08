@@ -59,7 +59,7 @@ class UnavailableSettingsRepository implements SettingsRepository {
 }
 
 /// Activated only by the authenticated account's settings_api_version == 1.
-/// No proposed endpoint is requested from an account-only deployment.
+/// No settings endpoint is requested from an account-only deployment.
 class ApiSettingsRepository implements SettingsRepository {
   ApiSettingsRepository(
     this.api, {
@@ -89,15 +89,22 @@ class ApiSettingsRepository implements SettingsRepository {
   Future<SettingsSnapshot> read() async =>
       _decode(await api.authenticatedRequest('rider/settings'));
   @override
-  Future<SettingsSnapshot> updatePhone(String? phone, String revision) async =>
-      _decode(
-        await api.authenticatedRequest(
-          'rider/settings/profile',
-          method: 'PATCH',
-          data: {'phone': phone, 'revision': revision},
-        ),
-        mutation: true,
+  Future<SettingsSnapshot> updatePhone(String? phone, String revision) async {
+    if (!isSettingsRevision(revision)) {
+      throw const AccountFailure(
+        'Reload account settings before saving your contact details.',
       );
+    }
+    return _decode(
+      await api.authenticatedRequest(
+        'rider/settings/profile',
+        method: 'PATCH',
+        data: {'phone': phone, 'revision': revision},
+      ),
+      mutation: true,
+    );
+  }
+
   @override
   Future<void> changePassword(
     String current,
@@ -165,7 +172,7 @@ class ApiSettingsRepository implements SettingsRepository {
     mutation: true,
   );
   String _addressPath(String id) {
-    if (!RegExp(r'^[1-9][0-9]*$').hasMatch(id)) {
+    if (!isSettingsEmailId(id)) {
       throw const AccountFailure(
         'Choose an address from your current account.',
       );

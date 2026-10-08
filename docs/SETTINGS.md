@@ -1,23 +1,25 @@
 # Rider profile and account settings
 
 The Flutter settings implementation follows the courier website at reviewed
-backend main `85121b5`. Website source was read only. Profile leads to Settings,
+backend Settings source `1dba047` (the earlier presentation review was `85121b5`). Website source was read only. Profile leads to Settings,
 then Contact information, Email and recovery, or Privacy and security → Change
 password. Full forms cover the tab bar and return to their originating page.
 
 ## Production status
 
-The existing deployment has native login/registration but no native settings
-commands. Real account changes therefore remain on the supported Rider website.
-An account-only deployment makes no proposed settings request, collects no
-password for an unsupported command, and provides the fixed HTTPS website
-settings action. Browser navigation never includes a native token or credentials.
+Backend main now implements native Settings version 1. Its source was reviewed
+read-only against the backend owner's `docs/api/RIDER_SETTINGS_API.md`; Azure
+deployment is still being prepared. Until the deployed account advertises the
+supported version, real account changes remain on the supported Rider website.
+An account-only deployment makes no Settings request or unsupported password
+collection. Browser navigation never includes a native token or credentials.
 
-The [settings API handoff](api/SETTINGS_HANDOFF.md) is a proposed v1 contract.
-The backend owner must implement, test and deploy it before advertising integer
-`settings_api_version: 1` in the accepted own-account resource. Only then does
-Flutter select its native adapter. Unsupported/absent versions stay unavailable.
-This preparation does **not** prove real profile/password/email updates on Azure.
+The [consumer contract](api/SETTINGS_HANDOFF.md) matches the implemented backend.
+Only eligible accounts advertising integer `settings_api_version: 1` select the
+native adapter. Unsupported/absent versions stay unavailable. Existing
+account-only tokens require a fresh login for the new settings abilities; a
+settings denial clears stale local access and offers reauthentication.
+Source alignment does **not** prove real profile/password/email updates on Azure.
 
 ## Implemented client behavior
 
@@ -35,7 +37,8 @@ This preparation does **not** prove real profile/password/email updates on Azure
   address-bound six-digit verification, choosing a verified contact address and
   confirmed removal. Original email cannot be removed. Capacity and ownership
   remain server controlled; changing an address discards its previous challenge.
-- Snapshot decoding checks own account/original email, capability types, email
+- Snapshot decoding checks own account/original email, exact opaque revision
+  shape, supported address-ID bounds, capability types, email
   identity/verification/preference and explicit managed-resource availability.
   Missing managed data never becomes a fabricated assignment or credential.
 - Duplicate commands are blocked. Lost/malformed mutation replies never become
@@ -87,3 +90,23 @@ actual native phone save reflected on the website, password change and new-passw
 re-login with old native token denial, additional email send/verify/prefer/remove,
 and actual server validation/authorization failures. Keep those gates open until
 the real environments pass; do not mark M13/M14 or this goal complete from fixtures.
+
+## Implemented backend source review — October 8
+
+The reviewed backend `1dba047` preserves the seven proposed routes, snapshot and
+password confirmation fields. It clarifies 64-character lowercase hexadecimal
+contact revisions, signed 64-bit email IDs, schema-dependent version advertising,
+fresh token abilities, shared write throttles and failed-mail 503 responses.
+Flutter preserves server authority and now validates these wire boundaries.
+
+The synthetic fixture in `test/fixtures/rider_settings_v1.json` comes from the
+backend owner's contract example. Its transport tests exercise actual Flutter
+JSON decoding, bearer requests and controller cleanup without a live server.
+The backend test source was inspected but not executed or changed. Deployment,
+real native saves and website/native parity remain unverified.
+
+Validation for this source-alignment slice: static analysis passed, all 78 local
+Flutter tests passed, including six new transport/contract scenarios. The changed
+Markdown links, JSON fixture equality, privacy and whitespace checks passed.
+No live Azure mutation, backend test execution, Android install or physical-phone
+Settings acceptance was performed in this slice.

@@ -27,7 +27,25 @@ sessions, Android network/backup settings and foreground account refresh.
 Physical phone account checks are recorded there separately from local tests.
 This does not clear operational task or custody prerequisites.
 
+**Native login configuration fix (October 8):** ordinary native launches now
+select the deployed HTTPS account API and matching Rider website. Explicit
+custom APIs retain isolated configuration; standalone debug layout previews
+remain unconfigured. This addresses the missing-service error from a normal
+Linux launch and contributes to M02/M03 configuration evidence. See
+[AZURE_ACCOUNT_ACCESS.md](AZURE_ACCOUNT_ACCESS.md) for checks and platform limits.
+
 ## Always check the Bagoo website project
+
+**Rider pages update (October 8):** the approved-account Flutter shell now has
+Tasks, Trips, Messages and Profile navigation with nested Settings. Actual
+account data/holding/logout are preserved. Home cards, trip filters/pagination/
+detail, conversations/drafts/read-only states and settings/help/about have
+explicit development examples; production operational resources remain
+unavailable until their native contracts are accepted. See
+[RIDER_PAGES.md](RIDER_PAGES.md) and the [workspace API handoff](api/WORKSPACE_HANDOFF.md).
+This contributes presentation evidence to M02/M04/M10/M11/M13/M14; it does not
+close TASKS/TRIPS/MESSAGES/PROFILE/PASSWORD or physical Android gates, nor mark
+their full backlog cards done.
 
 **You can always reference the Bagoo website project to keep track of its docs,
 new features and behavior across buyer, seller, courier, logistics and admin.**

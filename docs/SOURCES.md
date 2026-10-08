@@ -91,6 +91,21 @@ broader authentication/operational backlog.
 
 ## Web authority map
 
+### October 8 Rider pages source review
+
+The Flutter Home/Trips/Messages/Settings branch reviewed backend main `fe86abf`,
+its courier layout/sidebar, Deliveries, Earnings (the Trips web route), Messages,
+Profile and courier controller/services. The accepted web message phase values
+are `pickup` and `final_mile`; recipient/read permission is server-owned. The
+current native API routes remain account/registration only. Workspace presentation
+models are not a new accepted wire contract; proposals and remaining ownership
+are recorded in [api/WORKSPACE_HANDOFF.md](api/WORKSPACE_HANDOFF.md).
+
+Another maintainer subsequently switched the shared web checkout to seller work.
+This Rider slice did not switch, edit, commit or reset that repository. Flutter
+uses the documented accent, blush canvas, eight-unit corners, bundled font and
+native four-destination navigation with Settings nested under Profile.
+
 | Source | Authority and use in this repo |
 |---|---|
 | [docs/README.md](https://github.com/Auvryy/BagooPH/blob/main/docs/README.md) | Documentation routing, realistic scope, November 20 backend target |

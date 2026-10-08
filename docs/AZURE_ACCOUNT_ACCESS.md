@@ -7,6 +7,9 @@ HTTP checks do not independently establish the VM's Git checkout hash.
 
 The public build profile is [config/azure.json](../config/azure.json). It contains
 the API origin and preview switches, with no credentials or signing material.
+Normal native launches now select the same deployed API and Rider website even
+without a profile, so `flutter run -d linux` supports real account login inside
+the debug phone frame. The explicit profile below also disables the frame.
 The Rider website uses `https://courier.bagooph.shop`; the root website host
 is reserved for buyer login by its web middleware. Native API calls continue
 using the root host's `/api/v1` contract.
@@ -24,6 +27,11 @@ loopback-only app configuration is explicitly selected.
 The Chrome Home demo remains an isolated layout preview. Azure account access
 uses the native app; browser account sessions and deployment CORS changes remain
 separate work.
+
+Standalone debug Home/workspace previews leave the account service unconfigured
+unless an API is explicitly supplied. Use their demo/preview entry for samples,
+or restart with the normal native launch for login. A custom API override does
+not inherit the production website; set its matching website explicitly.
 
 ## Sessions and approval
 
@@ -80,6 +88,35 @@ Only fields supported by the accepted account contract are displayed. Parcel
 operations, placement/profile expansion and operational task endpoints remain
 separate backend prerequisites.
 
+## Native launch fix verified October 8, 2026
+
+The missing-service error from `flutter run -d linux` was reproduced from its
+unconfigured build settings. Normal native launches now default to the deployed
+HTTPS account API. Standalone debug previews remain isolated, and custom or
+explicitly empty API overrides keep their configured behavior.
+
+Source was read only at backend `af0d182`; its account routes and contract still
+match the accepted adapter. Public HTTPS checks returned JSON 200 for registration
+options and JSON 401 for anonymous own-account access. These checks do not
+identify the deployed Git revision.
+
+Static analysis and all 56 local tests passed (two configuration cases are
+skipped outside their matching build flags). Separate configuration runs passed
+for Home preview, workspace preview, a custom HTTPS API and an explicitly empty
+API. Previews could neither restore nor persist a live token; custom APIs did
+not inherit the production website.
+
+The native Linux integration check passed against Azure with **no API/profile
+flags**: wrong-role denial, existing website Rider login, approved workspace,
+actual secure storage, restoration, environment isolation, logout and revoked
+token denial. The separate website comparison was explicitly disabled for this
+run. It did not use a private user's password or register another account.
+No new physical Android, Chrome-to-Azure or private-account login check is claimed.
+
+```sh
+flutter test integration_test/azure_account_test.dart -d linux --dart-define=LIVE_AZURE_CHECK=true --dart-define=LIVE_WEBSITE_CHECK=false --dart-define=DEVICE_PREVIEW=false
+```
+
 ## Build a device APK
 
 ```sh
@@ -106,6 +143,10 @@ a phone. The earlier Android run covered account login/storage/logout; the added
 website comparison and wrong-role checks require their own recorded run.
 The extended Linux run is recorded above. Its full acceptance result currently
 fails at the website HTTPS-redirect assertion; the preceding native checks pass.
+
+To check only native login/storage/logout, without the separate website
+comparison, use `--dart-define=LIVE_WEBSITE_CHECK=false`. Omitting the Azure
+profile in this check exercises the normal native launch configuration.
 
 ## Website deployment issue
 

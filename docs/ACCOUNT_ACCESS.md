@@ -48,7 +48,13 @@ Real deployments use the existing backend's configured delivery transport.
 
 ## Sessions and environments
 
-`API_BASE_URL` is public configuration and must end in `/api/v1`. Release builds
+Normal native launches default to the deployed Azure HTTPS API and matching
+Rider website. `API_BASE_URL` overrides that default and must end in `/api/v1`;
+custom APIs do not inherit the production website address. Standalone debug
+Home/workspace preview flags leave account access unconfigured unless an API is
+explicitly supplied. An explicitly empty API also stays unconfigured.
+
+`API_BASE_URL` is public configuration. Release builds
 require HTTPS; requests never follow redirects with credentials. Native tokens
 use `flutter_secure_storage` and the platform keyring/keystore. Storage failures
 are surfaced and never fall back to plaintext.

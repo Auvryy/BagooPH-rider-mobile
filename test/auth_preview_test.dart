@@ -84,8 +84,10 @@ void main() {
     expect(tester.widget<EditableText>(passwordText).obscureText, isFalse);
     await tapVisible(tester, find.byKey(const ValueKey('sign-in-button')));
     expect(find.text('Welcome, Test Rider.'), findsOneWidget);
+    await tapVisible(tester, find.byKey(const ValueKey('nav-profile')));
     expect(find.text('rider@example.com'), findsOneWidget);
     await tapVisible(tester, find.byKey(const ValueKey('logout-button')));
+    await tapVisible(tester, find.byKey(const ValueKey('confirm-logout')));
     expect(find.text('Welcome back.'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

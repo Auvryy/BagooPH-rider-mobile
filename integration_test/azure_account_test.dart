@@ -28,6 +28,10 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
   const enabled = bool.fromEnvironment('LIVE_AZURE_CHECK');
+  const checkWebsite = bool.fromEnvironment(
+    'LIVE_WEBSITE_CHECK',
+    defaultValue: true,
+  );
   testWidgets(
     'Azure native account login, secure restore and current-token logout',
     (tester) async {
@@ -119,6 +123,8 @@ void main() {
         await tester.ensureVisible(logout);
         await tester.pumpAndSettle();
         await tester.tap(logout);
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const ValueKey('confirm-logout')));
         await waitFor(
           tester,
           () => find.text('Welcome back.').evaluate().isNotEmpty,
@@ -135,16 +141,18 @@ void main() {
         debugPrint(
           'AZURE_NATIVE_LOGIN_SECURE_RESTORE_WRONG_ROLE_AND_LOGOUT_PASSED',
         );
-        expect(
-          await confirmRiderWebsiteAccount(
-            config.origin,
-            current,
-            'Password1234',
-            report: debugPrint,
-          ),
-          isTrue,
-          reason: 'The Rider website must match the native account and redirect over HTTPS.',
-        );
+        if (checkWebsite) {
+          expect(
+            await confirmRiderWebsiteAccount(
+              config.origin,
+              current,
+              'Password1234',
+              report: debugPrint,
+            ),
+            isTrue,
+            reason: 'The Rider website must match the native account and redirect over HTTPS.',
+          );
+        }
       } finally {
         await repo.logout();
         await tester.pumpWidget(const SizedBox.shrink());

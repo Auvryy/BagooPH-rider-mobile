@@ -18,6 +18,7 @@ they do not authorize changing the backend or implementing every proposed featur
 | [AUTH_PREVIEW.md](AUTH_PREVIEW.md) | How can I open and review the implemented login and registration design previews? |
 | [ACCOUNT_ACCESS.md](ACCOUNT_ACCESS.md) | How do real Laravel login, verified registration, authenticated home and logout work locally? |
 | [HOME_PREVIEW.md](HOME_PREVIEW.md) | How can I open the sample Home layout with Demo login and no backend account? |
+| [RIDER_PAGES.md](RIDER_PAGES.md) | How do Home/Tasks, Trips, Messages and Profile-to-Settings work, with honest live-data availability and an isolated full-page preview? |
 | [AZURE_ACCOUNT_ACCESS.md](AZURE_ACCOUNT_ACCESS.md) | How do I run the native app against the deployed HTTPS account API, and which live/device checks passed? |
 | [TASK_TRACKING.md](TASK_TRACKING.md) | What are the 16 major work areas, which screens belong to them, and how will later tasks/branches build and verify them? |
 | [SUBTASK_BACKLOG.md](SUBTASK_BACKLOG.md) | Which of the 180 detailed cards or 63 suggested batches can a later prompt select, with what dependencies, steps, checks and effort? |
@@ -33,11 +34,11 @@ they do not authorize changing the backend or implementing every proposed featur
 
 ## Current code versus target
 
-The app contains connected login, verified three-stage registration, own-account
-home and logout, bundled
+The app contains connected login, verified three-stage registration, an approved-account
+workspace and approval holding/logout, bundled
 Bagoo branding and Plus Jakarta Sans, Android/Linux/web runners and debug Device
 Preview. [Account access](ACCOUNT_ACCESS.md) records the implementation, local
-backend contract and checks. It has no operational rider queues or parcel actions.
+backend contract and checks. It has no connected native operational queues or parcel actions.
 The account endpoints are available on Azure HTTPS, and native Android login,
 secure-session restoration and logout have passed. See the
 [deployment acceptance record](AZURE_ACCOUNT_ACCESS.md) for signup evidence and
@@ -46,8 +47,13 @@ proposals beyond this slice.
 
 An explicitly enabled debug [Home preview](HOME_PREVIEW.md) now adds three sample
 queue filters and parcel cards without creating an authenticated session. Live
-operational queues, custody actions and the complete navigation shell remain
-separate work.
+operational queues and custody actions remain separate work.
+
+The [Rider page slice](RIDER_PAGES.md) now adds Tasks/Trips/Messages/Profile
+navigation, nested Settings, real own-account information, supported website
+actions and explicit unavailable states for undeployed native resources.
+The full debug preview exercises parcel layouts, trip filters/detail and scoped
+conversation drafts without signing in or reporting a real operation.
 
 At the earlier backend main revision `4e3a66d`, `routes/api.php` exposed public
 tracking only. The web maintainer subsequently integrated the account adapter

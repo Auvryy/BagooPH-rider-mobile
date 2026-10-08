@@ -110,6 +110,7 @@ void main() {
     expect(find.byType(HomePreviewPage), findsNothing);
     expect(repository.loginCalls, 1);
     await tap(tester, 'logout-button');
+    await tap(tester, 'confirm-logout');
     expect(repository.logoutCalls, 1);
     expect(find.text('Welcome back.'), findsOneWidget);
   });

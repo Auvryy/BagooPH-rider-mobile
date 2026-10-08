@@ -13,6 +13,21 @@ phases belong to the same rider app and courier account role.
 - Device Preview phone frames and controls on debug Linux/web runs.
 - New applications remain pending server review. No parcel actions exist yet.
 
+Approved accounts now open **Tasks, Trips, Messages and Profile** navigation,
+with Settings under Profile. Operational native resources remain unavailable;
+the app offers the configured Rider website instead of showing fictional live
+queues, history or messages. See [Rider pages](docs/RIDER_PAGES.md).
+
+To review all four page areas with explicit sample data:
+
+```sh
+flutter run -d linux --dart-define-from-file=config/workspace-preview.json
+```
+
+Choose **Preview Rider pages**. This is separate from real authentication and
+excluded from release/profile builds. The [native API handoff](docs/api/WORKSPACE_HANDOFF.md)
+records the backend prerequisites for live queues, trips and messaging.
+
 See [working account access](docs/ACCOUNT_ACCESS.md) for setup, controls and limits.
 
 The existing Bagoo Laravel application remains the backend and source of business
@@ -65,7 +80,17 @@ Studio IDE and an emulator are optional when using command-line tools and a real
 
 ## Run locally
 
-To use the deployed HTTPS account API in the native app:
+An ordinary native launch uses the deployed Azure HTTPS account API:
+
+```sh
+flutter run -d linux
+```
+
+Sign in with the email and current password from the Rider website. If you reset
+the password there, use the new password here. The phone frame is Device Preview
+around the native Linux app; it still supports real account login.
+
+The explicit deployment profile selects the same server without the phone frame:
 
 ```sh
 flutter run -d linux --dart-define-from-file=config/azure.json
@@ -74,6 +99,12 @@ flutter run -d linux --dart-define-from-file=config/azure.json
 Use an authorized Android phone instead of `linux` for native phone testing.
 See [Azure account access](docs/AZURE_ACCOUNT_ACCESS.md) for the verified contract,
 secure-session behavior and exact live-versus-local acceptance evidence.
+
+Standalone `HOME_PREVIEW` or `WORKSPACE_PREVIEW` debug builds keep account access
+unconfigured unless an API is explicitly supplied. Choose **Demo login** or
+**Preview Rider pages** for sample layouts. Custom API settings override the
+native default, and never inherit the production website address. Chrome remains
+a layout/local-account development target; deployed login uses Linux or Android.
 
 From this repository:
 

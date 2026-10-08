@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme.dart';
 import '../../../core/ui/brand_logo.dart';
 import '../../auth/presentation/auth_controller.dart';
+import '../../workspace/presentation/workspace_shell.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -11,6 +12,12 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(authControllerProvider);
     final user = state.user!;
+    if (user.approved) {
+      return RiderWorkspaceShell(
+        key: ValueKey('workspace-${user.id}'),
+        account: user,
+      );
+    }
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(

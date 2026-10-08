@@ -13,6 +13,21 @@ phases belong to the same rider app and courier account role.
 - Device Preview phone frames and controls on debug Linux/web runs.
 - New applications remain pending server review. No parcel actions exist yet.
 
+Approved accounts now open **Tasks, Trips, Messages and Profile** navigation,
+with Settings under Profile. Operational native resources remain unavailable;
+the app offers the configured Rider website instead of showing fictional live
+queues, history or messages. See [Rider pages](docs/RIDER_PAGES.md).
+
+To review all four page areas with explicit sample data:
+
+```sh
+flutter run -d linux --dart-define-from-file=config/workspace-preview.json
+```
+
+Choose **Preview Rider pages**. This is separate from real authentication and
+excluded from release/profile builds. The [native API handoff](docs/api/WORKSPACE_HANDOFF.md)
+records the backend prerequisites for live queues, trips and messaging.
+
 See [working account access](docs/ACCOUNT_ACCESS.md) for setup, controls and limits.
 
 The existing Bagoo Laravel application remains the backend and source of business

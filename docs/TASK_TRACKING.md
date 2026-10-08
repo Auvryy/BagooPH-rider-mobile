@@ -29,6 +29,17 @@ This does not clear operational task or custody prerequisites.
 
 ## Always check the Bagoo website project
 
+**Rider pages update (October 8):** the approved-account Flutter shell now has
+Tasks, Trips, Messages and Profile navigation with nested Settings. Actual
+account data/holding/logout are preserved. Home cards, trip filters/pagination/
+detail, conversations/drafts/read-only states and settings/help/about have
+explicit development examples; production operational resources remain
+unavailable until their native contracts are accepted. See
+[RIDER_PAGES.md](RIDER_PAGES.md) and the [workspace API handoff](api/WORKSPACE_HANDOFF.md).
+This contributes presentation evidence to M02/M04/M10/M11/M13/M14; it does not
+close TASKS/TRIPS/MESSAGES/PROFILE/PASSWORD or physical Android gates, nor mark
+their full backlog cards done.
+
 **You can always reference the Bagoo website project to keep track of its docs,
 new features and behavior across buyer, seller, courier, logistics and admin.**
 Before every feature branch, read its current docs, roadmap, relevant code and

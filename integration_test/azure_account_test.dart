@@ -119,6 +119,8 @@ void main() {
         await tester.ensureVisible(logout);
         await tester.pumpAndSettle();
         await tester.tap(logout);
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const ValueKey('confirm-logout')));
         await waitFor(
           tester,
           () => find.text('Welcome back.').evaluate().isNotEmpty,

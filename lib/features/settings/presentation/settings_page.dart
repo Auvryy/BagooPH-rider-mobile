@@ -70,8 +70,7 @@ class ProfileSettingsPage extends ConsumerWidget {
       WorkspaceHeading(title, switch (section) {
         ProfileSection.profile => 'Your identity and account information.',
         ProfileSection.settings => 'Account, security and support.',
-        ProfileSection.security =>
-          'Manage verification and your website account.',
+        ProfileSection.security => 'Manage your password and account security.',
         ProfileSection.help => 'A clear handoff, every step of the way.',
         ProfileSection.about =>
           'The mobile workspace for pickup and delivery couriers.',
@@ -153,14 +152,21 @@ class ProfileSettingsPage extends ConsumerWidget {
                   ),
                 )
               else
-                const Text(
-                  'Your logistics team manages working assignments and vehicle records. These details are not available in the mobile account service yet.',
+                Text(
+                  settings.data != null
+                      ? 'Managed assignment and vehicle details were not provided for this account. Your logistics team manages these records.'
+                      : settings.available
+                      ? 'Refresh account details to load your assignment and vehicle information.'
+                      : 'Sign in again to refresh your account access. Your logistics team manages assignment and vehicle records.',
                 ),
-              if (!preview) ...[
+              if (settings.available && settings.data == null) ...[
                 const SizedBox(height: 16),
-                const WebsiteButton(
-                  page: RiderWebsitePage.profile,
-                  label: 'View details on the website',
+                TextButton.icon(
+                  onPressed: settings.loading ? null : settings.load,
+                  icon: const Icon(Icons.refresh_rounded, size: 18),
+                  label: Text(
+                    settings.loading ? 'Loading details…' : 'Refresh details',
+                  ),
                 ),
               ],
             ],
@@ -279,11 +285,6 @@ class ProfileSettingsPage extends ConsumerWidget {
               if (!preview) ...[
                 const SizedBox(height: 20),
                 const WebsiteButton(
-                  page: RiderWebsitePage.settings,
-                  label: 'Manage account on the website',
-                ),
-                const SizedBox(height: 12),
-                const WebsiteButton(
                   page: RiderWebsitePage.recovery,
                   label: 'Forgot password',
                 ),
@@ -338,10 +339,6 @@ class ProfileSettingsPage extends ConsumerWidget {
           'Need help?',
           'For an incorrect assignment, vehicle record or held parcel, contact your logistics team through the existing workflow. Do not use another rider’s account or bypass a hub handoff.',
         ),
-        if (!preview) ...[
-          const SizedBox(height: 20),
-          const WebsiteButton(page: RiderWebsitePage.profile),
-        ],
       ]);
     }
     if (section == ProfileSection.about) {

@@ -141,7 +141,9 @@ class SettingsController extends ChangeNotifier {
     final retry = failure!.retryAfterSeconds;
     if (retry != null) resendAt = DateTime.now().add(Duration(seconds: retry));
     if (failure!.invalidSession) {
-      await onSessionEnd('Your account access changed. Please sign in again.');
+      await onSessionEnd(
+        'Your account access changed. Sign in again to refresh Settings access.',
+      );
     }
   }
 

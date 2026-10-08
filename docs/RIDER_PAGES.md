@@ -18,15 +18,15 @@ and feedback. Losing approval or signing out closes private overlays and drops
 workspace state.
 
 The accepted operational slice still lacks task/trip/messaging APIs. Native
-Settings source is now implemented, with Azure deployment pending. Production queues, trips
+Settings v1 is now deployed for eligible accounts. Production queues, trips
 and conversations therefore show **unavailable** states with a configured
 first-party website link. No fixture data or zero totals are presented as live
 records. No proposed operational URL is called. See the
 [backend handoff](api/WORKSPACE_HANDOFF.md) for the remaining native contracts.
 
 Settings provides real account refresh/sign-out, privacy/security guidance,
-help, actual package version and open-source licenses. Supported web account
-management opens in the system browser. The address must be a matching HTTPS
+help, actual package version and open-source licenses. Native contact/password/email management opens in Flutter. Reviewed identity
+correction and forgotten-password recovery open their specific website workflows. The address must be a matching HTTPS
 courier origin, and browser URLs never include the native token or credentials.
 An unsuccessful browser launch shows feedback. Unsupported native contact,
 password, closure, theme, language and notification mutations are not invented.
@@ -60,8 +60,8 @@ The historical Home fixture also runs only in widget tests; see
 
 The later [account-settings preparation](SETTINGS.md) adds contact/password/
 additional-email forms to the test fixtures and a server-version-gated adapter.
-Actual native Settings acceptance still awaits the backend deployment. The supported
-website management action now opens `/account/settings`.
+Native Settings uses the deployed version 1 contract. Generic website management
+buttons are removed; private password/email acceptance remains outstanding.
 
 ## State and verification
 

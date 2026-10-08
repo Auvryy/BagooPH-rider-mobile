@@ -10,6 +10,8 @@ Future<bool> confirmRiderWebsiteAccount(
   RiderAccount account,
   String password, {
   void Function(String)? report,
+  bool checkContact = false,
+  String? expectedPhone,
 }) async {
   const configured = String.fromEnvironment('RIDER_WEBSITE_URL');
   final website = Uri.parse(
@@ -131,6 +133,30 @@ Future<bool> confirmRiderWebsiteAccount(
         user['kyc_feedback'] == account.feedback &&
         (user['email_verified_at'] != null) == account.emailVerified;
     report?.call('Rider website/native account fields match: $matches.');
+    if (matches && checkContact) {
+      final profile = await request('/profile');
+      final encodedProfile = RegExp('data-page="([^"]+)"')
+          .firstMatch(profile.body)
+          ?.group(1);
+      if (profile.status != 200 || encodedProfile == null) {
+        matches = false;
+      } else {
+        final page = jsonDecode(
+          encodedProfile
+              .replaceAll('&quot;', '"')
+              .replaceAll('&#039;', "'")
+              .replaceAll('&lt;', '<')
+              .replaceAll('&gt;', '>')
+              .replaceAll('&amp;', '&'),
+        ) as Map;
+        final rider = page['props']['rider'];
+        matches =
+            rider is Map &&
+            rider['email'] == account.email &&
+            rider['phone'] == expectedPhone;
+      }
+      report?.call('Rider website/native saved contact matches: $matches.');
+    }
   } catch (error) {
     // The caller gets a failed check without exposing a response or credential.
     matches = false;

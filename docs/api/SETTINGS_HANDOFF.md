@@ -5,8 +5,9 @@ The [backend owner's version 1 contract](https://github.com/Auvryy/BagooPH/blob/
 permissions and errors below. This document began as the mobile proposal and
 now records the matching Flutter consumer contract. Website source was read only.
 
-Azure deployment is still being prepared. Source review and local Flutter tests
-prove consumer alignment, not deployed Settings availability or real saves.
+Azure now advertises version 1, and authenticated Settings reads return the
+accepted snapshot. Source review and local tests remain distinct from live
+mutation, website-parity and physical-phone acceptance.
 Flutter stays on the ordinary Azure account build and enables native Settings
 only after the server advertises the supported version for an eligible account.
 Website cookies/Inertia pages are not used as native APIs.

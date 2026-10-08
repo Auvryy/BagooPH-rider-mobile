@@ -22,7 +22,7 @@ class UnavailableSettingsRepository implements SettingsRepository {
   @override
   bool get available => false;
   Never _unavailable() => throw const AccountFailure(
-    'Account updates are not connected in the app yet. Use the Rider website.',
+    'Settings are unavailable for this session. Sign in again to refresh account access.',
   );
   @override
   Future<SettingsSnapshot> read() async => _unavailable();

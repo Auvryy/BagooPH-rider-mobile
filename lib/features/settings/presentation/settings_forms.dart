@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/data/account.dart';
+import '../../auth/presentation/auth_controller.dart';
 import '../../auth/presentation/widgets/auth_field.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
 import '../../../core/platform/rider_website.dart';
@@ -583,13 +584,18 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
                       ],
                       if (!state.available) ...[
                         const Text(
-                          'Account updates are not connected in the app yet. Use the Rider website.',
+                          'Settings are unavailable for this session. Sign out and sign in again to refresh your account access.',
                         ),
                         const SizedBox(height: 20),
                         if (!widget.identity.preview)
-                          const WebsiteButton(
-                            page: RiderWebsitePage.settings,
-                            label: 'Open website settings',
+                          OutlinedButton(
+                            key: const ValueKey('settings-sign-in-again'),
+                            onPressed: ref.watch(authControllerProvider).busy
+                                ? null
+                                : () => ref
+                                      .read(authControllerProvider.notifier)
+                                      .logout(),
+                            child: const Text('Sign out and sign in again'),
                           ),
                       ] else if (data == null) ...[
                         if (state.loading)

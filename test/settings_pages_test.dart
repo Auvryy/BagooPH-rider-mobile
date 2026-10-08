@@ -1,4 +1,6 @@
 import 'package:bagoo_rider_mobile/app/theme.dart';
+import 'package:bagoo_rider_mobile/core/network/rider_api_client.dart';
+import 'package:bagoo_rider_mobile/features/workspace/presentation/workspace_widgets.dart';
 import 'package:bagoo_rider_mobile/features/auth/data/account.dart';
 import 'package:bagoo_rider_mobile/features/auth/presentation/auth_controller.dart';
 import 'package:bagoo_rider_mobile/features/settings/presentation/settings_controller.dart';
@@ -46,8 +48,118 @@ Future<void> nativeSettings(
   });
 }
 
+class NativeSettingsAuth extends TestAuthRepository implements RiderSessionApi {
+  NativeSettingsAuth() {
+    final original = TestAuthRepository.approved;
+    account = RiderAccount(
+      id: original.id,
+      name: original.name,
+      email: original.email,
+      status: original.status,
+      kycStatus: original.kycStatus,
+      approved: original.approved,
+      emailVerified: original.emailVerified,
+      settingsApiVersion: 1,
+    );
+  }
+  int settingsReads = 0, saves = 0;
+  String? savedPhone;
+  @override
+  Future<Map<String, dynamic>> authenticatedRequest(
+    String path, {
+    String method = 'GET',
+    Object? data,
+  }) async {
+    if (method == 'PATCH') {
+      saves++;
+      savedPhone = '+639171234567';
+    } else {
+      settingsReads++;
+    }
+    return settingsWire(phone: savedPhone);
+  }
+}
+
 void main() {
   WidgetController.hitTestWarningShouldBeFatal = true;
+  testWidgets(
+    'advertised native Settings render, save and reload without generic website links',
+    (tester) async {
+      final auth = NativeSettingsAuth();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [authRepositoryProvider.overrideWithValue(auth)],
+          child: const BagooRiderApp(),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tap(tester, 'nav-profile');
+      expect(find.text('View details on the website'), findsNothing);
+      expect(
+        find.textContaining(
+          'Managed assignment and vehicle details were not provided',
+        ),
+        findsOneWidget,
+      );
+      await tap(tester, 'open-settings');
+      await tap(tester, 'settings-contact');
+      expect(find.text('Open website settings'), findsNothing);
+      expect(field('Mobile number'), findsOneWidget);
+      await tester.enterText(field('Mobile number'), '0917 123 4567');
+      await tap(tester, 'save-contact');
+      expect(auth.saves, 1);
+      expect(
+        tester.widget<TextFormField>(field('Mobile number')).controller!.text,
+        '+639171234567',
+      );
+      expect(find.text('Contact details saved.'), findsOneWidget);
+      await tester.tap(find.byTooltip('Back'));
+      await tester.pumpAndSettle();
+      await tap(tester, 'open-security');
+      expect(find.text('Manage account on the website'), findsNothing);
+      await tap(tester, 'open-password');
+      expect(field('Current password'), findsOneWidget);
+      expect(field('New password'), findsOneWidget);
+      await tester.tap(find.byTooltip('Back'));
+      await tester.pumpAndSettle();
+      await tap(tester, 'settings-back');
+      await tap(tester, 'settings-emails');
+      expect(field('Additional email'), findsOneWidget);
+      expect(find.text('Open website settings'), findsNothing);
+      await tester.tap(find.byTooltip('Back'));
+      await tester.pumpAndSettle();
+      await tap(tester, 'open-help');
+      expect(find.byType(WebsiteButton), findsNothing);
+      expect(auth.settingsReads, greaterThan(0));
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'unsupported Settings use native reauthentication instead of a website fallback',
+    (tester) async {
+      final auth = TestAuthRepository()..account = TestAuthRepository.approved;
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [authRepositoryProvider.overrideWithValue(auth)],
+          child: const BagooRiderApp(),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tap(tester, 'nav-profile');
+      await tap(tester, 'open-contact');
+      expect(find.text('Open website settings'), findsNothing);
+      expect(find.byType(WebsiteButton), findsNothing);
+      expect(
+        find.byKey(const ValueKey('settings-sign-in-again')),
+        findsOneWidget,
+      );
+      await tap(tester, 'settings-sign-in-again');
+      expect(auth.logoutCalls, 1);
+      expect(find.text('Welcome back.'), findsOneWidget);
+    },
+  );
+
   testWidgets(
     'contact rejects preserve typed input and confirmed save shows actual value',
     (tester) async {

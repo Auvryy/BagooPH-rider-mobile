@@ -80,7 +80,17 @@ Studio IDE and an emulator are optional when using command-line tools and a real
 
 ## Run locally
 
-To use the deployed HTTPS account API in the native app:
+An ordinary native launch uses the deployed Azure HTTPS account API:
+
+```sh
+flutter run -d linux
+```
+
+Sign in with the email and current password from the Rider website. If you reset
+the password there, use the new password here. The phone frame is Device Preview
+around the native Linux app; it still supports real account login.
+
+The explicit deployment profile selects the same server without the phone frame:
 
 ```sh
 flutter run -d linux --dart-define-from-file=config/azure.json
@@ -89,6 +99,12 @@ flutter run -d linux --dart-define-from-file=config/azure.json
 Use an authorized Android phone instead of `linux` for native phone testing.
 See [Azure account access](docs/AZURE_ACCOUNT_ACCESS.md) for the verified contract,
 secure-session behavior and exact live-versus-local acceptance evidence.
+
+Standalone `HOME_PREVIEW` or `WORKSPACE_PREVIEW` debug builds keep account access
+unconfigured unless an API is explicitly supplied. Choose **Demo login** or
+**Preview Rider pages** for sample layouts. Custom API settings override the
+native default, and never inherit the production website address. Chrome remains
+a layout/local-account development target; deployed login uses Linux or Android.
 
 From this repository:
 

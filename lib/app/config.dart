@@ -9,11 +9,28 @@ class AppConfig {
   final String apiBase;
   final bool localAuth;
   final String riderWebsite;
-  factory AppConfig.environment() => const AppConfig(
-    String.fromEnvironment('API_BASE_URL'),
-    localAuth: bool.fromEnvironment('ALLOW_LOCAL_AUTH'),
-    riderWebsite: String.fromEnvironment('RIDER_WEBSITE_URL'),
-  );
+  factory AppConfig.environment() {
+    const deployedApi = 'https://bagooph.shop/api/v1';
+    const deployedWebsite = 'https://courier.bagooph.shop';
+    // Standalone layout previews must not restore a real account session.
+    const layoutPreview =
+        kDebugMode &&
+        (bool.fromEnvironment('HOME_PREVIEW') ||
+            bool.fromEnvironment('WORKSPACE_PREVIEW'));
+    const api = String.fromEnvironment(
+      'API_BASE_URL',
+      defaultValue: kIsWeb || layoutPreview ? '' : deployedApi,
+    );
+    const website = String.fromEnvironment(
+      'RIDER_WEBSITE_URL',
+      defaultValue: api == deployedApi ? deployedWebsite : '',
+    );
+    return const AppConfig(
+      api,
+      localAuth: bool.fromEnvironment('ALLOW_LOCAL_AUTH'),
+      riderWebsite: website,
+    );
+  }
   Uri get origin {
     final uri = Uri.tryParse(apiBase);
     if (uri == null ||

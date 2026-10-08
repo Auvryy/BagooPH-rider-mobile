@@ -27,6 +27,13 @@ sessions, Android network/backup settings and foreground account refresh.
 Physical phone account checks are recorded there separately from local tests.
 This does not clear operational task or custody prerequisites.
 
+**Native login configuration fix (October 8):** ordinary native launches now
+select the deployed HTTPS account API and matching Rider website. Explicit
+custom APIs retain isolated configuration; standalone debug layout previews
+remain unconfigured. This addresses the missing-service error from a normal
+Linux launch and contributes to M02/M03 configuration evidence. See
+[AZURE_ACCOUNT_ACCESS.md](AZURE_ACCOUNT_ACCESS.md) for checks and platform limits.
+
 ## Always check the Bagoo website project
 
 **Rider pages update (October 8):** the approved-account Flutter shell now has

@@ -8,7 +8,8 @@ phases belong to the same rider app and courier account role.
 - Real Laravel account login, own-account home and current-device logout.
 - Registration with rider details, vehicle, private documents and email verification.
 - Grouped registration fields with responsive columns and numbered circular steps.
-- Original Bagoo logo and bundled Plus Jakarta Sans, using the Rider design tokens.
+- User-supplied GooRiders logo for Flutter headers and Android/web launcher icons,
+  with bundled Plus Jakarta Sans and the Rider design tokens.
 - Android application scaffold, with Linux and web development targets.
 - Device Preview phone frames and controls on debug Linux/web runs.
 - New applications remain pending server review. No parcel actions exist yet.
@@ -168,6 +169,9 @@ account guide. Debug loopback sessions are memory-only; release/native sessions
 require an approved HTTPS origin and platform secure storage.
 
 ## Project files
+
+See [branding and icon generation](docs/BRANDING.md) for the active logo,
+provenance and reproducible launcher resources.
 
 ```text
 lib/main.dart       App entry point, preview setup, and login/register routes

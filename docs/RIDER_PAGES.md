@@ -77,7 +77,7 @@ sign-out confirmation and 320–1440 widths including 200% text and a simulated
 keyboard. These checks do not certify a physical Android keyboard or live
 operational API integration. The user deferred phone checks to a later session.
 
-Recorded checks on October 8: static analysis and all 54 local tests passed;
+Recorded checks on October 8: static analysis and all 55 local tests passed;
 the Android release and Linux debug builds passed. The release APK was built
 with the workspace preview flag deliberately enabled: sample parcel/trip/
 message identifiers and `/workspace-preview` were absent from its native
@@ -90,3 +90,8 @@ The actual native Linux preview completed navigation and rendered review at
 Messages, conversation and Settings. Initial screenshot-boundary/scroll test
 failures were corrected before that passing run. This is native desktop layout
 evidence, with no real account, Android-device or operational API claim.
+
+Message read requests carry the rendered phase/message boundary. An older
+render cannot acknowledge a newly arrived message; a completed read does not
+clear newer unread data. Offstage and paused-app checks verify that read requests
+resume only when the selected conversation is visible in the foreground.

@@ -148,15 +148,42 @@ void main() {
       addTearDown(controller.dispose);
       await settleController();
       controller.selectConversation('parcel-1');
-      await controller.acknowledgeVisibleConversation('parcel-1');
+      await controller.acknowledgeVisibleConversation(
+        'parcel-1',
+        phase: 'pickup',
+        throughMessageId: 'message-1',
+      );
       expect(repository.reads.single, ('parcel-1', 'pickup', 'message-1'));
       expect(controller.selectedConversation!.unreadCount, 2);
       expect(controller.readError, isNotNull);
       repository.failRead = false;
-      await controller.acknowledgeVisibleConversation('parcel-1');
+      await controller.acknowledgeVisibleConversation(
+        'parcel-1',
+        phase: 'pickup',
+        throughMessageId: 'message-1',
+      );
       expect(controller.selectedConversation!.unreadCount, 0);
     },
   );
+  test('an obsolete rendered message boundary cannot acknowledge newer data or another phase', () async {
+    final repository = ControlledRepository();
+    final controller = WorkspaceController(repository);
+    addTearDown(controller.dispose);
+    await settleController();
+    controller.selectConversation('parcel-1');
+    await controller.acknowledgeVisibleConversation(
+      'parcel-1',
+      phase: 'pickup',
+      throughMessageId: 'message-old',
+    );
+    await controller.acknowledgeVisibleConversation(
+      'parcel-1',
+      phase: 'final_mile',
+      throughMessageId: 'message-1',
+    );
+    expect(repository.reads, isEmpty);
+    expect(controller.selectedConversation!.unreadCount, 2);
+  });
   test(
     'disposing a session clears its draft and ignores a later send result',
     () async {

@@ -321,6 +321,24 @@ void main() {
       controller.selectConversation('preview-delivery');
       await tester.pumpAndSettle();
       expect(repo.reads.length, 1);
+      for (final state in [
+        AppLifecycleState.inactive,
+        AppLifecycleState.hidden,
+        AppLifecycleState.paused,
+      ]) {
+        tester.binding.handleAppLifecycleStateChanged(state);
+      }
+      await tap(tester, 'nav-messages');
+      expect(repo.reads.length, 1);
+      for (final state in [
+        AppLifecycleState.hidden,
+        AppLifecycleState.inactive,
+        AppLifecycleState.resumed,
+      ]) {
+        tester.binding.handleAppLifecycleStateChanged(state);
+      }
+      await tester.pumpAndSettle();
+      expect(repo.reads.last, 'preview-delivery:final_mile:preview-m3');
     },
   );
   testWidgets(

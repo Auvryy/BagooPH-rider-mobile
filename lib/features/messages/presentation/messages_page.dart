@@ -266,6 +266,7 @@ class _ConversationThreadState extends State<_ConversationThread> {
     final thread = widget.thread;
     if (!widget.active ||
         thread.unreadCount == 0 ||
+        widget.controller.acknowledging ||
         widget.controller.conversationData.status != FeatureStatus.ready) {
       return;
     }
@@ -274,11 +275,18 @@ class _ConversationThreadState extends State<_ConversationThread> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted &&
           widget.active &&
+          !widget.controller.acknowledging &&
           scroll.hasClients &&
           scroll.position.maxScrollExtent - scroll.offset < 32 &&
           _readAttempt != latest) {
         _readAttempt = latest;
-        unawaited(widget.controller.acknowledgeVisibleConversation(thread.id));
+        unawaited(
+          widget.controller.acknowledgeVisibleConversation(
+            thread.id,
+            phase: thread.phase,
+            throughMessageId: latest,
+          ),
+        );
       }
     });
   }
@@ -463,8 +471,11 @@ class _ConversationThreadState extends State<_ConversationThread> {
                   if (c.readError != null) ...[
                     Text(c.readError!),
                     TextButton(
-                      onPressed: () =>
-                          c.acknowledgeVisibleConversation(thread.id),
+                      onPressed: () => c.acknowledgeVisibleConversation(
+                        thread.id,
+                        phase: thread.phase,
+                        throughMessageId: thread.messages.last.id,
+                      ),
                       child: const Text('Retry read status'),
                     ),
                   ],

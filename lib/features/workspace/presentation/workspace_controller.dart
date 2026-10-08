@@ -246,18 +246,24 @@ class WorkspaceController extends ChangeNotifier {
     _changed();
   }
 
-  Future<void> acknowledgeVisibleConversation(String id) async {
+  Future<void> acknowledgeVisibleConversation(
+    String id, {
+    required String phase,
+    required String throughMessageId,
+  }) async {
     final thread = selectedConversation;
     if (acknowledging ||
         thread?.id != id ||
         thread!.unreadCount == 0 ||
         thread.messages.isEmpty ||
+        thread.phase != phase ||
+        thread.messages.last.id != throughMessageId ||
         conversationData.status != FeatureStatus.ready) {
       return;
     }
     final generation = _conversationGeneration;
     final scope = _scope(thread);
-    final latest = thread.messages.last.id;
+    final latest = throughMessageId;
     acknowledging = true;
     readError = null;
     _changed();
@@ -266,6 +272,8 @@ class WorkspaceController extends ChangeNotifier {
       if (!_disposed &&
           generation == _conversationGeneration &&
           selectedConversation != null &&
+          selectedConversation!.messages.isNotEmpty &&
+          selectedConversation!.messages.last.id == latest &&
           _scope(selectedConversation!) == scope) {
         conversationData = FeatureData.ready(
           List.unmodifiable(

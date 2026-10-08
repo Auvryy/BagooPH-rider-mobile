@@ -4,7 +4,7 @@ import '../../auth/data/account.dart';
 import '../data/settings_models.dart';
 import '../data/settings_repository.dart';
 
-/// In-memory example only, installed by the explicit debug workspace route.
+/// In-memory fixture mounted only by automated layout tests.
 class PreviewSettingsRepository implements SettingsRepository {
   PreviewSettingsRepository(this.accountId);
   final String accountId;
@@ -29,7 +29,7 @@ class PreviewSettingsRepository implements SettingsRepository {
 
   SettingsSnapshot get _snapshot => SettingsSnapshot(
     accountId: accountId,
-    revision: 'preview-settings-$_revision',
+    revision: _revision.toRadixString(16).padLeft(64, '0'),
     name: 'Demo Rider',
     email: 'rider@example.test',
     emailVerified: true,

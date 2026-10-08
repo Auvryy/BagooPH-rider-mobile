@@ -63,6 +63,11 @@ The backend's [current roadmap](https://github.com/Auvryy/BagooPH/blob/main/docs
 owns changing implementation evidence; [the integration plan](api/INTEGRATION_PLAN.md)
 records the dated observations needed to start this client.
 
+Settings API source is now merged into backend main `1dba047`; its Azure
+deployment is still being prepared. Flutter's version-gated consumer is aligned
+and checked locally against the owner's contract. This does not establish live
+Settings writes; see [account settings](SETTINGS.md).
+
 Use three distinct labels in future reviews: **implemented and verified**,
 **implemented but awaiting verification**, and **proposed or blocked**. A screen,
 package, or endpoint name in a document is not implementation evidence.

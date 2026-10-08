@@ -4,9 +4,14 @@ import 'package:bagoo_rider_mobile/features/auth/data/account.dart';
 import 'package:bagoo_rider_mobile/features/settings/data/settings_models.dart';
 import 'package:bagoo_rider_mobile/features/settings/data/settings_repository.dart';
 
+const initialSettingsRevision =
+    'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+const savedSettingsRevision =
+    'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+
 Map<String, dynamic> settingsWire({
   String? phone,
-  String revision = 'revision-1',
+  String revision = initialSettingsRevision,
   bool verified = true,
 }) => {
   'data': {
@@ -53,7 +58,7 @@ class TestSettingsRepository implements SettingsRepository {
       confirmCalls = 0,
       manageCalls = 0;
   String? phone;
-  String revision = 'revision-1';
+  String revision = initialSettingsRevision;
   AccountFailure? readFailure, mutationFailure;
   Completer<SettingsSnapshot>? pendingPhone;
   Completer<void>? pendingPassword;
@@ -71,7 +76,7 @@ class TestSettingsRepository implements SettingsRepository {
     if (pendingPhone != null) return pendingPhone!.future;
     if (mutationFailure != null) throw mutationFailure!;
     this.phone = phone;
-    this.revision = 'revision-2';
+    this.revision = savedSettingsRevision;
     return read();
   }
 

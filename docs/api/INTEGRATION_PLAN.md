@@ -46,6 +46,19 @@ checks are recorded in [AZURE_ACCOUNT_ACCESS.md](../AZURE_ACCOUNT_ACCESS.md).
 This supersedes the historical absence of account APIs above; task/custody APIs
 and their operational prerequisites remain separate work.
 
+## Settings source update — October 8, 2026
+
+Backend main `1dba047937b5f9c864112407586de4d1051f30db` implements the [owner's native Settings v1 contract](https://github.com/Auvryy/BagooPH/blob/1dba047937b5f9c864112407586de4d1051f30db/docs/api/RIDER_SETTINGS_API.md).
+The source routes, response service, token/schema gates and backend test cases were
+read without modifying or executing the website project. Flutter's
+[consumer summary](SETTINGS_HANDOFF.md) and wire tests now follow that implementation.
+
+Azure deployment is still being prepared. No new Settings command or live
+account mutation was performed in this alignment slice. Keep settings activation
+behind the server version, current account eligibility and snapshot capabilities.
+After deployment, use a fresh native login to obtain the new token abilities and
+complete the live phone/password/email and website-parity acceptance sequence.
+
 ## Reuse points
 
 | Backend reference | API adapter responsibility |

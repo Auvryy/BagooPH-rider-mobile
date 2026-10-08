@@ -103,10 +103,13 @@ void main() {
       accountId: '7',
       originalEmail: 'rider@example.com',
     );
-    await repo.updatePhone(null, 'revision-1');
+    await repo.updatePhone(null, initialSettingsRevision);
     expect(api.requests.single.path, 'rider/settings/profile');
     expect(api.requests.single.method, 'PATCH');
-    expect(api.requests.single.data, {'phone': null, 'revision': 'revision-1'});
+    expect(api.requests.single.data, {
+      'phone': null,
+      'revision': initialSettingsRevision,
+    });
     await expectLater(
       repo.changePassword(
         'current-secret',
@@ -137,7 +140,7 @@ void main() {
       'data': {'account_id': 'foreign'},
     };
     await expectLater(
-      repo.updatePhone('09171234567', 'revision-1'),
+      repo.updatePhone('09171234567', initialSettingsRevision),
       throwsA(
         isA<AccountFailure>().having(
           (e) => e.unconfirmed,
@@ -166,19 +169,19 @@ void main() {
       status: 422,
       fields: {'phone': 'Invalid number'},
     );
-    expect(await c.savePhone('letters', 'revision-1'), isFalse);
+    expect(await c.savePhone('letters', initialSettingsRevision), isFalse);
     expect(c.data, same(original));
     expect(c.result, isNull);
     expect(c.failure!.fields['phone'], 'Invalid number');
     repo.mutationFailure = const AccountFailure('Stale revision', status: 409);
-    await c.savePhone('09171234567', 'revision-1');
+    await c.savePhone('09171234567', initialSettingsRevision);
     expect(c.needsRefresh, isTrue);
-    expect(await c.savePhone('09171234567', 'revision-1'), isFalse);
+    expect(await c.savePhone('09171234567', initialSettingsRevision), isFalse);
     expect(repo.phoneCalls, 2);
     repo.mutationFailure = null;
     await c.load();
     expect(c.needsRefresh, isFalse);
-    expect(await c.savePhone('09171234567', 'revision-1'), isTrue);
+    expect(await c.savePhone('09171234567', initialSettingsRevision), isTrue);
     expect(c.data!.phone, '09171234567');
   });
   test('duplicate and disposed saves cannot alter another session', () async {
@@ -193,8 +196,8 @@ void main() {
       },
     );
     await Future<void>.delayed(Duration.zero);
-    final pending = c.savePhone('09171234567', 'revision-1');
-    expect(await c.savePhone('09171234567', 'revision-1'), isFalse);
+    final pending = c.savePhone('09171234567', initialSettingsRevision);
+    expect(await c.savePhone('09171234567', initialSettingsRevision), isFalse);
     expect(repo.phoneCalls, 1);
     c.dispose();
     repo.pendingPhone!.complete(

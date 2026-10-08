@@ -1,11 +1,15 @@
 # Rider account settings API handoff
 
-Reviewed website main: `85121b5`. Flutter branch: `feat/rider-account-settings`.
-The website implements contact edits, password updates and verified additional
-emails. Its native API still exposes account access/registration only.
-The following contract is a **proposal for the backend owner**, pending their
-implementation, contract tests and deployment evidence. Flutter must not use
-website cookies/Inertia pages as a native account API.
+Backend source reviewed at `1dba047937b5f9c864112407586de4d1051f30db` (Settings API merged into main).
+The [backend owner's version 1 contract](https://github.com/Auvryy/BagooPH/blob/1dba047937b5f9c864112407586de4d1051f30db/docs/api/RIDER_SETTINGS_API.md) governs the paths, JSON,
+permissions and errors below. This document began as the mobile proposal and
+now records the matching Flutter consumer contract. Website source was read only.
+
+Azure deployment is still being prepared. Source review and local Flutter tests
+prove consumer alignment, not deployed Settings availability or real saves.
+Flutter stays on the ordinary Azure account build and enables native Settings
+only after the server advertises the supported version for an eligible account.
+Website cookies/Inertia pages are not used as native APIs.
 
 ## Required website behavior
 
@@ -27,10 +31,12 @@ website cookies/Inertia pages as a native account API.
   Native current-password validation must check the authenticated token owner;
   a browser-only `current_password` guard cannot be assumed to work with bearer auth.
 
-## Proposed version and routes
+## Accepted version and routes
 
 Advertise `settings_api_version: 1` in accepted `/rider/me` and login account JSON
-**only when this entire version is deployed**. Flutter keeps native mutations
+**only when this entire version is deployed**. Version advertising also requires
+the contact-revision migration and email registry to be installed; missing schema
+returns 503 and does not advertise the version. Flutter keeps native mutations
 unavailable when this field is absent or unsupported. Add narrow settings token
 abilities; older account-only tokens must sign in again rather than gain authority
 silently. Preserve password-fingerprint, expiry and restriction invalidation.
@@ -48,7 +54,8 @@ private `no-store` JSON with no redirects.
 | PATCH `rider/settings/emails/{id}/preferred` | `current_password` | Fresh settings snapshot |
 | DELETE `rider/settings/emails/{id}` | `current_password` | Fresh settings snapshot |
 
-The profile revision is an opaque value for this account's contact settings.
+The profile revision is an opaque 64-character lowercase hexadecimal value for
+this account's contact settings. Store and return it unchanged; never calculate it.
 Reject stale contact edits with 409 and preserve the current values; never let a
 stale form overwrite a newer website edit. Email mutations reuse atomic ownership,
 password and current capacity checks from the shared service.
@@ -59,7 +66,7 @@ Settings snapshot (synthetic example; no private document URLs):
 {
   "data": {
     "account_id": "7",
-    "revision": "opaque-settings-revision",
+    "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     "profile": {
       "name": "Example Rider",
       "email": "rider@example.test",
@@ -97,7 +104,9 @@ Settings snapshot (synthetic example; no private document URLs):
 }
 ```
 
-IDs are positive decimal strings. Settings must match the authenticated account
+Email IDs are positive decimal strings up to `9223372036854775807`, the database's
+signed 64-bit maximum. Flutter rejects malformed/out-of-range address IDs before
+a request and rejects malformed snapshot revisions before allowing contact edits. Settings must match the authenticated account
 ID and original email. Return exactly one original address and one preferred
 address. An additional preferred address must be verified; the original may
 still show verification pending. `available: false` means the managed resource is unavailable;
@@ -119,9 +128,10 @@ Do not infer assignment or verification from absent data.
   clears secure storage/private routes. Never return the new password or put it
   in a URL. A lost response is an unknown result; clients must not auto-retry it.
 
-## Backend proof needed for live Flutter integration
+## Deployment and live Flutter proof still needed
 
-Supply the agreed schema and source/deployment revision, then verify own/foreign
+The schema and source contract are now available. Supply the actual deployment
+revision and migration evidence, then verify own/foreign
 scope, wrong roles, pending/restricted accounts, narrow token abilities, original
 email immutability, reviewed identity, canonical phone validation, stale edits,
 wrong current password, password lengths, unverified email, post-password old-token
@@ -132,3 +142,13 @@ website changes. Keep backend implementation and migrations in the website repo.
 Flutter acceptance additionally needs real native profile save and refresh,
 password change/re-login and email send/verify/prefer/remove against the deployed
 HTTPS API. Local fake repository results do not complete this goal.
+
+## Source-aligned client checks
+
+The Flutter transport tests use the backend owner's synthetic version 1 JSON
+example and accepted routes through the existing bearer-aware account repository.
+They cover canonical phone/revision saves, exact permitted request fields, email
+ID bounds, stale edits and field errors, old-token denial, failed mail and confirmed
+password reauthentication. These are local contract/error-handling checks, not
+real backend requests, website parity or Android acceptance. No sample app mode
+or embedded real credentials are introduced.

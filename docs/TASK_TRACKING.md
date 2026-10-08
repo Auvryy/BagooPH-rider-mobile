@@ -59,6 +59,13 @@ saved-state checks and physical Android acceptance remain open. See
 [SETTINGS.md](SETTINGS.md) and [the backend handoff](api/SETTINGS_HANDOFF.md).
 No full major area or canonical live-API gate is marked complete by this slice.
 
+**Settings API source alignment (October 8):** M13/M14 consumer code now follows
+backend main `1dba047` and the owner's version 1 contract. Contact revision format
+and address-ID bounds are validated; synthetic wire tests cover actual bearer
+transport and error cleanup. Azure deployment is in progress. No live Settings
+writes, website parity, backend test execution or Android acceptance is claimed;
+full live-API gates and the existing Settings work remain unfinished.
+
 **Rider pages update (October 8):** the approved-account Flutter shell now has
 Tasks, Trips, Messages and Profile navigation with nested Settings. Actual
 account data/holding/logout are preserved. Home cards, trip filters/pagination/

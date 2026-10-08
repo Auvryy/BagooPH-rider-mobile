@@ -12,14 +12,11 @@ class AppConfig {
   factory AppConfig.environment() {
     const deployedApi = 'https://bagooph.shop/api/v1';
     const deployedWebsite = 'https://courier.bagooph.shop';
-    // Standalone layout previews must not restore a real account session.
-    const layoutPreview =
-        kDebugMode &&
-        (bool.fromEnvironment('HOME_PREVIEW') ||
-            bool.fromEnvironment('WORKSPACE_PREVIEW'));
+    // Every app launch targets Azure unless a developer explicitly selects
+    // another API. Historical sample flags never disable account access.
     const api = String.fromEnvironment(
       'API_BASE_URL',
-      defaultValue: kIsWeb || layoutPreview ? '' : deployedApi,
+      defaultValue: deployedApi,
     );
     const website = String.fromEnvironment(
       'RIDER_WEBSITE_URL',

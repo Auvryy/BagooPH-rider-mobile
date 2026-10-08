@@ -79,11 +79,19 @@ Future<TestAuthRepository> preview(
   await tester.pumpWidget(
     ProviderScope(
       overrides: [authRepositoryProvider.overrideWithValue(auth)],
-      child: BagooRiderApp(enableWorkspacePreview: enabled),
+      child: enabled
+          ? MaterialApp(
+              theme: buildRiderTheme(),
+              routes: {
+                '/': (_) => const AccountGate(),
+                '/test-workspace': (_) => const WorkspacePreviewPage(),
+              },
+              initialRoute: '/test-workspace',
+            )
+          : const BagooRiderApp(),
     ),
   );
   await tester.pumpAndSettle();
-  if (enabled) await tap(tester, 'workspace-preview-entry');
   return auth;
 }
 
@@ -98,28 +106,24 @@ void main() {
       buildSignature: 'test',
     ),
   );
-  testWidgets(
-    'workspace examples require opt-in and never authenticate a user',
-    (tester) async {
-      await preview(tester, enabled: false);
-      expect(
-        find.byKey(const ValueKey('workspace-preview-entry')),
-        findsNothing,
-      );
-      await tester.pumpWidget(const SizedBox.shrink());
-      final auth = await preview(tester);
-      expect(find.text('Demo · sample data'), findsOneWidget);
-      for (final tab in ['trips', 'messages', 'profile', 'tasks']) {
-        await tap(tester, 'nav-$tab');
-      }
-      await tap(tester, 'logout-button');
-      expect(find.text('Welcome back.'), findsOneWidget);
-      expect(auth.account, isNull);
-      expect(auth.loginCalls, 0);
-      expect(auth.logoutCalls, 0);
-      expect(auth.registrationCalls, 0);
-    },
-  );
+  testWidgets('test-only workspace fixtures never authenticate a user', (
+    tester,
+  ) async {
+    await preview(tester, enabled: false);
+    expect(find.byKey(const ValueKey('workspace-preview-entry')), findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
+    final auth = await preview(tester);
+    expect(find.text('Demo · sample data'), findsOneWidget);
+    for (final tab in ['trips', 'messages', 'profile', 'tasks']) {
+      await tap(tester, 'nav-$tab');
+    }
+    await tap(tester, 'logout-button');
+    expect(find.text('Welcome back.'), findsOneWidget);
+    expect(auth.account, isNull);
+    expect(auth.loginCalls, 0);
+    expect(auth.logoutCalls, 0);
+    expect(auth.registrationCalls, 0);
+  });
   testWidgets(
     'authenticated pages show unavailable services instead of sample or empty live queues',
     (tester) async {

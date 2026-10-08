@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,13 +7,7 @@ import 'widgets/auth_shell.dart';
 import 'auth_controller.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
-  const LoginPage({
-    super.key,
-    this.onOpenHomePreview,
-    this.onOpenWorkspacePreview,
-  });
-  final VoidCallback? onOpenHomePreview;
-  final VoidCallback? onOpenWorkspacePreview;
+  const LoginPage({super.key});
   @override
   ConsumerState<LoginPage> createState() => _LoginPageState();
 }
@@ -176,46 +169,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 onPressed: session.busy ? null : _signIn,
                 child: Text(session.busy ? 'Signing in…' : 'Sign in'),
               ),
-              if (kDebugMode && widget.onOpenHomePreview != null) ...[
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  key: const ValueKey('demo-login'),
-                  onPressed: session.busy
-                      ? null
-                      : () {
-                          FocusScope.of(context).unfocus();
-                          _password.clear();
-                          widget.onOpenHomePreview!();
-                        },
-                  icon: const Icon(Icons.science_outlined),
-                  label: const Text('Demo login'),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Preview Home with sample tasks. No account needed.',
-                  textAlign: TextAlign.center,
-                ),
-              ],
-              if (kDebugMode && widget.onOpenWorkspacePreview != null) ...[
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  key: const ValueKey('workspace-preview-entry'),
-                  onPressed: session.busy
-                      ? null
-                      : () {
-                          FocusScope.of(context).unfocus();
-                          _password.clear();
-                          widget.onOpenWorkspacePreview!();
-                        },
-                  icon: const Icon(Icons.science_outlined),
-                  label: const Text('Preview Rider pages'),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Home, Trips, Messages and Settings with sample data.',
-                  textAlign: TextAlign.center,
-                ),
-              ],
               const SizedBox(height: 24),
               const Divider(),
               const SizedBox(height: 12),

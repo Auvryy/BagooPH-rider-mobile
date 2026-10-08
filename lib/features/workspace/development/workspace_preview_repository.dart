@@ -11,7 +11,7 @@ import '../data/workspace_repository.dart';
 import '../presentation/workspace_controller.dart';
 import '../presentation/workspace_shell.dart';
 
-/// Explicit debug route only; does not override authentication or token storage.
+/// Test-only layout fixture; never routed by the main app.
 class WorkspacePreviewPage extends StatelessWidget {
   const WorkspacePreviewPage({super.key});
   @override

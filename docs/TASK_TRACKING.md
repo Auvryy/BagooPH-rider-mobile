@@ -15,11 +15,10 @@ checks are recorded in [AZURE_ACCOUNT_ACCESS.md](AZURE_ACCOUNT_ACCESS.md).
 Operational queues/actions remain unimplemented. Account checks do not finish
 a major area or clear unrelated backend gates.
 
-The opt-in debug [Home preview](HOME_PREVIEW.md) provides M04 layout evidence
-for a greeting, queue filters and parcel cards, with isolated M02 fixtures and
-one-tap demo entry/exit. It requires no account. Live task resources, capabilities,
-duty, queue freshness and the full shell remain unimplemented; their canonical
-backlog cards retain planned status.
+The [Home layout fixtures](HOME_PREVIEW.md) provide M04 greeting, queue-filter and
+parcel-card test evidence with isolated M02 fixtures. They now run only in
+widget tests: the app has no standalone sample entry. Live task resources,
+capabilities, duty and queue freshness remain backend-dependent.
 
 The [deployed HTTPS account slice](AZURE_ACCOUNT_ACCESS.md) accepts backend
 contract `0132562` and adds an explicit native build profile, API-scoped secure
@@ -29,10 +28,18 @@ This does not clear operational task or custody prerequisites.
 
 **Native login configuration fix (October 8):** ordinary native launches now
 select the deployed HTTPS account API and matching Rider website. Explicit
-custom APIs retain isolated configuration; standalone debug layout previews
-remain unconfigured. This addresses the missing-service error from a normal
+custom APIs retain isolated configuration; historical layout-preview flags
+no longer disable account access. This addresses the missing-service error from a normal
 Linux launch and contributes to M02/M03 configuration evidence. See
 [AZURE_ACCOUNT_ACCESS.md](AZURE_ACCOUNT_ACCESS.md) for checks and platform limits.
+
+**Everyday Azure workflow (October 8):** ordinary native runs and debug APKs use
+real Azure account access. Sample Home/workspace buttons and routes are removed;
+historical preview flags no longer disable login. Sample repositories remain
+isolated in automated tests. Device Preview is optional and disabled by default.
+This M02/M03 usability correction does not clear pending settings or parcel APIs.
+The backend owner is independently implementing settings on its own branch;
+mobile configuration changes do not edit or prove that implementation.
 
 ## Always check the Bagoo website project
 

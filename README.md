@@ -11,7 +11,7 @@ phases belong to the same rider app and courier account role.
 - User-supplied GooRiders logo for Flutter headers and Android/web launcher icons,
   with bundled Plus Jakarta Sans and the Rider design tokens.
 - Android application scaffold, with Linux and web development targets.
-- Device Preview phone frames and controls on debug Linux/web runs.
+- Direct Azure account access on ordinary Android/Linux runs; optional layout frame.
 - New applications remain pending server review. No parcel actions exist yet.
 
 Approved accounts now open **Tasks, Trips, Messages and Profile** navigation,
@@ -19,20 +19,15 @@ with Settings under Profile. Operational native resources remain unavailable;
 the app offers the configured Rider website instead of showing fictional live
 queues, history or messages. See [Rider pages](docs/RIDER_PAGES.md).
 
-To review all four page areas with explicit sample data:
-
-```sh
-flutter run -d linux --dart-define-from-file=config/workspace-preview.json
-```
-
-Choose **Preview Rider pages**. This is separate from real authentication and
-excluded from release/profile builds. The [native API handoff](docs/api/WORKSPACE_HANDOFF.md)
-records the backend prerequisites for live queues, trips and messaging.
+Everyday builds use real Azure account access. Sample pages are confined to
+widget tests and have no app button or route. The
+[native API handoff](docs/api/WORKSPACE_HANDOFF.md) records backend prerequisites
+for live queues, trips and messaging.
 
 See [working account access](docs/ACCOUNT_ACCESS.md) for setup, controls and limits.
 
 Profile now includes website-aligned contact, password and additional-email
-forms in the explicit preview. Native settings integration is prepared and
+forms prepared for the native app. Native settings integration is prepared and
 gated by the server's supported version; the current deployment still needs
 the [settings API handoff](docs/api/SETTINGS_HANDOFF.md). See
 [account settings](docs/SETTINGS.md) for the exact behavior and remaining live checks.
@@ -87,86 +82,50 @@ Studio IDE and an emulator are optional when using command-line tools and a real
 
 ## Run locally
 
-An ordinary native launch uses the deployed Azure HTTPS account API:
-
-```sh
-flutter run -d linux
-```
-
-Sign in with the email and current password from the Rider website. If you reset
-the password there, use the new password here. The phone frame is Device Preview
-around the native Linux app; it still supports real account login.
-
-The explicit deployment profile selects the same server without the phone frame:
-
-```sh
-flutter run -d linux --dart-define-from-file=config/azure.json
-```
-
-Use an authorized Android phone instead of `linux` for native phone testing.
-See [Azure account access](docs/AZURE_ACCOUNT_ACCESS.md) for the verified contract,
-secure-session behavior and exact live-versus-local acceptance evidence.
-
-Standalone `HOME_PREVIEW` or `WORKSPACE_PREVIEW` debug builds keep account access
-unconfigured unless an API is explicitly supplied. Choose **Demo login** or
-**Preview Rider pages** for sample layouts. Custom API settings override the
-native default, and never inherit the production website address. Chrome remains
-a layout/local-account development target; deployed login uses Linux or Android.
-
-From this repository:
+Ordinary native launches connect directly to the deployed Azure HTTPS API:
 
 ```sh
 flutter pub get
-flutter run -d linux --dart-define=API_BASE_URL=http://127.0.0.1:8089/api/v1 --dart-define=ALLOW_LOCAL_AUTH=true
+flutter run -d linux
 ```
 
-Use Device Preview's controls to choose a phone, orientation, and text scale.
-Press `r` in the terminal to hot reload and `q` to quit.
-Login opens first. Select **Apply as a rider** to see registration. Tap any of
-its three step headings to review; **Continue** validates that stage. Registration
-requires real document selection and email verification. **Back to sign in**
-returns to login. A successful login opens the account home with **Log out**.
+Sign in with your current Rider website credentials. Your account's real server
+approval/restriction state decides which pages are available. Passwords are never
+bundled or automatically filled. No Home/workspace sample entry is available.
 
-To review the Home layout without an account or backend:
+For an authorized connected Android phone:
 
 ```sh
-flutter run -d linux --dart-define=HOME_PREVIEW=true --dart-define=DEVICE_PREVIEW=false
+flutter run --dart-define-from-file=config/azure.json
 ```
 
-Choose **Demo login**, switch the three sample queue filters, then **Exit demo**.
-This is isolated sample data, not an authenticated session or parcel operation.
-The button and route are excluded from release/profile builds. See
-[Home preview](docs/HOME_PREVIEW.md) for the Chrome command and scope.
-
-For a browser preview:
+Select the Android device if Flutter offers multiple targets. For an installable
+APK, build the same connected app:
 
 ```sh
-flutter run -d chrome --dart-define=API_BASE_URL=http://127.0.0.1:8089/api/v1 --dart-define=ALLOW_LOCAL_AUTH=true --dart-define=DEVICE_PREVIEW=false
+flutter build apk --debug
 ```
 
-To see the normal Linux window without the phone frame:
+The APK is `build/app/outputs/flutter-apk/app-debug.apk`. Replacement installation
+is needed after rebuilding a phone package, but changing between a sample app
+and a live app is no longer part of the workflow. With a connected phone,
+`flutter run` installs and launches the app for you.
 
-```sh
-flutter run -d linux --dart-define=DEVICE_PREVIEW=false
-```
+`config/azure.json` makes the same server choice explicit. The historical
+`config/workspace-preview.json` is now a compatibility alias for that live
+configuration; old HOME_PREVIEW/WORKSPACE_PREVIEW flags are ignored by app routing
+and never clear the API address. Device Preview is disabled by default. Developers
+can explicitly enable its layout frame with `--dart-define=DEVICE_PREVIEW=true`;
+this still uses real Azure account access on Linux.
 
-Device Preview is disabled on physical Android devices and in release builds. It
-previews layouts; camera scanning, permissions, and device behavior still need
-verification on a real phone.
+Use Linux/Android for deployed account checks. Chrome does not implement the
+accepted native secure-session workflow and is not the everyday login target.
+Explicit custom/local API configurations remain available for isolated developer
+checks; follow [account access](docs/ACCOUNT_ACCESS.md). Never put real credentials
+in source, documentation, command-line build defines or logs.
 
-For a fixed browser address with locally bundled rendering resources:
-
-```sh
-flutter build web --debug --no-web-resources-cdn --dart-define=API_BASE_URL=http://127.0.0.1:8089/api/v1 --dart-define=ALLOW_LOCAL_AUTH=true --dart-define=DEVICE_PREVIEW=false
-python3 -m http.server 4173 --bind 127.0.0.1 --directory build/web
-```
-
-Open [Login](http://127.0.0.1:4173/#/login) or
-[Registration](http://127.0.0.1:4173/#/register). Resize the browser to check phone
-and desktop layouts. Keep the server terminal running; use Ctrl+C to stop it.
-Start the isolated backend and local email inbox first, as described in the
-account guide. Debug loopback sessions are memory-only; release/native sessions
-require an approved HTTPS origin and platform secure storage.
+See [Azure account access](docs/AZURE_ACCOUNT_ACCESS.md) for the accepted contract,
+secure-session behavior and the precise live-versus-local evidence.
 
 ## Project files
 
@@ -174,7 +133,7 @@ See [branding and icon generation](docs/BRANDING.md) for the active logo,
 provenance and reproducible launcher resources.
 
 ```text
-lib/main.dart       App entry point, preview setup, and login/register routes
+lib/main.dart       App entry point and live login/register routes
 lib/app/            Rider theme
 lib/core/ui/        Shared Bagoo identity
 lib/features/auth/  Login, registration, and shared form presentation

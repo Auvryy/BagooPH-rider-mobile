@@ -37,4 +37,5 @@ on an authorized Android phone and the new Flutter logo was visually confirmed.
 The device denied ADB tap injection, and later screen-control commands timed out;
 automated navigation/keyboard and a launcher-screen visual check are not claimed.
 The installed package includes the generated legacy/adaptive launcher resources.
-Manual preview checks can use **Preview Rider pages → Profile → Settings**.
+Current phone checks use the ordinary Azure build and **Profile → Settings**;
+the earlier sample-only app entry has been retired.

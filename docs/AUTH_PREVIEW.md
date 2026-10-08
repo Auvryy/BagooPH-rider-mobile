@@ -9,7 +9,9 @@ integration. Start with [the root run instructions](../README.md#run-locally).
 
 ## Open and explore
 
-Run `flutter run -d linux` for the debug phone frame, or
+The commands below describe the historical layout review. Current everyday
+usage is `flutter run -d linux` against Azure; sample modes are retired.
+Historically, `flutter run -d linux` used the debug phone frame, or
 `flutter run -d chrome --dart-define=DEVICE_PREVIEW=false` for the responsive
 browser layout. The browser hash routes are `/#/login` and `/#/register`.
 

@@ -81,6 +81,26 @@ service names, credentials, CLI paths, or remote task IDs.
   totals. Reasoning effort, API prices and subscription quota are different
   measures. Recheck current official model guidance when needed.
 
+## Everyday app and account testing
+
+- Ordinary Rider development, debug APKs and release builds connect directly
+  to the deployed Azure HTTPS account service. Do not deliver sample-only APKs
+  or ask the user to switch builds to regain real login.
+- Keep sample repositories in automated tests. The main application has no
+  Demo login or Preview Rider pages buttons/routes. Historical HOME_PREVIEW and
+  WORKSPACE_PREVIEW flags must never disable account access or add sample pages.
+- Use Linux or an authorized Android phone for live-account testing. Device
+  Preview is an optional layout frame, disabled by default, not a separate app.
+  Chrome is not an accepted native secure-session test target.
+- Reuse the account authorized in the current session for necessary live checks;
+  do not create substitute accounts or require fresh credentials for each check.
+  Never put real emails, passwords or verification codes in docs, fixtures,
+  source, build
+  defines, logs or commits. Never hardcode automatic login. Keep secrets in
+  memory for the requested checks; preserve server approval and restrictions.
+- Missing backend features stay unavailable until their real API is deployed
+  and verified. Never substitute fixture success for a live operation.
+
 ## Implementation rules
 
 - Keep server-owned approval, assignment, capacity, custody, prices, COD,

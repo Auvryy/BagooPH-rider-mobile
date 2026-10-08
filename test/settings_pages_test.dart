@@ -1,7 +1,9 @@
+import 'package:bagoo_rider_mobile/app/theme.dart';
 import 'package:bagoo_rider_mobile/features/auth/data/account.dart';
 import 'package:bagoo_rider_mobile/features/auth/presentation/auth_controller.dart';
 import 'package:bagoo_rider_mobile/features/settings/presentation/settings_controller.dart';
 import 'package:bagoo_rider_mobile/main.dart';
+import 'package:bagoo_rider_mobile/features/workspace/development/workspace_preview_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -148,7 +150,10 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [authRepositoryProvider.overrideWithValue(auth)],
-          child: const BagooRiderApp(enableWorkspacePreview: true),
+          child: MaterialApp(
+            theme: buildRiderTheme(),
+            home: const WorkspacePreviewPage(),
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -156,7 +161,6 @@ void main() {
         await tester.pumpWidget(const SizedBox.shrink());
         await tester.pump();
       });
-      await tap(tester, 'workspace-preview-entry');
       await tap(tester, 'nav-profile');
       await tap(tester, 'open-settings');
       await tap(tester, 'settings-emails');

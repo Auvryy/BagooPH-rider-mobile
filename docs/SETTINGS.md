@@ -57,6 +57,25 @@ in that preview; no mail, account, native token or real password is changed.
 The preview does not override authentication and is excluded from release entry
 points. Normal native launches still connect to the deployed account API.
 
+For Android preview testing, enable USB debugging, connect and unlock the phone,
+and accept its debugging permission prompt. From this repository:
+
+```sh
+flutter build apk --debug --dart-define-from-file=config/workspace-preview.json
+adb install -r build/app/outputs/flutter-apk/app-debug.apk
+```
+
+Open BagooPH Rider and choose **Preview Rider pages → Profile → Settings**.
+This APK uses sample settings and does not configure real login. Existing
+production account data is retained by replacement installation and is not
+restored by the isolated preview. Use sample values to test typing, visibility,
+back/discard and the displayed sample email code. Website API work can proceed
+while the user checks these phone interactions.
+
+After the native settings API is implemented and deployed, build/run with
+`config/azure.json` for actual account acceptance. Installing the preview alone
+does not make production settings updates available.
+
 ## Verification and remaining acceptance
 
 Run `flutter analyze` and `flutter test`. Local checks cover typed snapshots,

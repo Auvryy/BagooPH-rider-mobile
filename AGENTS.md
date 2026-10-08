@@ -55,6 +55,32 @@ service names, credentials, CLI paths, or remote task IDs.
   latest development deadline. Read [docs/DELIVERY_PLAN.md](docs/DELIVERY_PLAN.md)
   before changing scope or delivery commitments.
 
+## Model recommendations and next steps
+
+- At the start of each development task, briefly recommend a model available
+  to the user and a supported reasoning effort: Low, Medium, High, Extra High
+  or Max. Give one task-specific reason based on complexity, ambiguity, risk
+  and token efficiency. Treat this as advice and continue authorized work;
+  do not require confirmation or claim the runtime model changed automatically.
+- Start with GPT-6.1 Sol at Medium for ordinary Flutter features and integration.
+  For small layout, text or documentation edits, suggest GPT-6 Luna at Low or
+  Medium if available. Use Sol at High for difficult debugging, authentication
+  or a focused security review. Recommend Extra High or Max only when the task
+  demonstrates a need that justifies the additional reasoning and latency.
+  These are starting recommendations, not guarantees of equivalent results.
+- Check required backend contracts and deployment evidence early. If they are
+  missing, finish useful authorized preparation and provide a concrete handoff.
+  Avoid speculative scope expansion or repeated passed checks that cannot
+  resolve the dependency. Preserve the full objective and its unfinished status.
+- After every completed task or milestone, and when handing off blocked work,
+  recommend the next concrete development step with a model, reasoning effort
+  and how to use it efficiently. Prefer one bounded task with explicit finish
+  evidence; use a separate High-effort review when it is warranted.
+- Report actual token/time usage only when available and distinguish it from
+  estimates. Do not invent token savings, costs, plan availability or billing
+  totals. Reasoning effort, API prices and subscription quota are different
+  measures. Recheck current official model guidance when needed.
+
 ## Implementation rules
 
 - Keep server-owned approval, assignment, capacity, custody, prices, COD,

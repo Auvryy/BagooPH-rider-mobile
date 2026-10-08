@@ -160,6 +160,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 },
               ),
               const SizedBox(height: 20),
+              if (session.notice != null) ...[
+                Semantics(liveRegion: true, child: Text(session.notice!)),
+                const SizedBox(height: 16),
+              ],
               if (session.error != null) ...[
                 Text(
                   session.error!,

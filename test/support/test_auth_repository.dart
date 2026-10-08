@@ -56,6 +56,9 @@ class TestAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<void> discardSession() async => account = null;
+
+  @override
   Future<void> sendCode(String email) async {}
   @override
   Future<String> verifyCode(String email, String code) async =>

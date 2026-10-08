@@ -40,11 +40,12 @@ class AuthState {
     this.initializing = false,
     this.busy = false,
     this.error,
+    this.notice,
     this.fields = const {},
   });
   final RiderAccount? user;
   final bool initializing, busy;
-  final String? error;
+  final String? error, notice;
   final Map<String, String> fields;
 }
 
@@ -103,7 +104,25 @@ class AuthController extends Notifier<AuthState> {
 
   void clearError() {
     if (!state.busy && (state.error != null || state.fields.isNotEmpty)) {
-      state = AuthState(user: state.user);
+      state = AuthState(user: state.user, notice: state.notice);
+    }
+  }
+
+  /// Server-confirmed revocation (or an uncertain password result) must remove
+  /// local access without depending on another authenticated network request.
+  Future<void> discardSession(String notice) async {
+    final generation = ++_generation;
+    state = const AuthState(busy: true);
+    try {
+      await _repository.discardSession();
+      if (generation == _generation) state = AuthState(notice: notice);
+    } catch (_) {
+      if (generation == _generation) {
+        state = const AuthState(
+          error:
+              'Local session cleanup was not confirmed. Please sign in again.',
+        );
+      }
     }
   }
 

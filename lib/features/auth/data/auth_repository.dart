@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:file_selector/file_selector.dart';
 
 import '../../../app/config.dart';
+import '../../../core/network/rider_api_client.dart';
 import '../../../core/security/token_store.dart';
 import 'account.dart';
 
@@ -14,19 +15,18 @@ abstract interface class AuthRepository {
   );
   Future<RiderAccount> refresh();
   Future<void> logout();
+  Future<void> discardSession();
   Future<void> sendCode(String email);
   Future<String> verifyCode(String email, String code);
   Future<Map<String, dynamic>> registrationOptions();
 }
 
-class ApiAuthRepository implements AuthRepository {
+class ApiAuthRepository implements AuthRepository, RiderSessionApi {
   ApiAuthRepository(this.config, this.store, {Dio? client})
-    : _client = client ?? Dio() {
-    _client.options.connectTimeout = const Duration(seconds: 15);
-  }
+    : _api = RiderApiClient(config, client: client);
   final AppConfig config;
   final TokenStore store;
-  final Dio _client;
+  final RiderApiClient _api;
   String? _token;
 
   Future<Map<String, dynamic>> _request(
@@ -34,52 +34,25 @@ class ApiAuthRepository implements AuthRepository {
     String method = 'GET',
     Object? data,
     String? token,
-  }) async {
-    try {
-      final base = config.origin;
-      final response = await _client.request(
-        '${base.toString()}/$path',
-        data: data,
-        options: Options(
-          method: method,
-          headers: {
-            'Accept': 'application/json',
-            if (token != null) 'Authorization': 'Bearer $token',
-          },
-          followRedirects: false,
-          receiveTimeout: const Duration(seconds: 30),
-          sendTimeout: const Duration(seconds: 30),
-        ),
-      );
-      if (response.data is! Map<String, dynamic>) {
-        throw const AccountFailure(
-          'The account service returned an unexpected response.',
-        );
-      }
-      return response.data as Map<String, dynamic>;
-    } on FormatException catch (error) {
-      throw AccountFailure(error.message);
-    } on DioException catch (error) {
-      final body = error.response?.data;
-      final fields = <String, String>{};
-      if (body is Map && body['errors'] is Map) {
-        for (final entry in (body['errors'] as Map).entries) {
-          if (entry.value is List && (entry.value as List).isNotEmpty) {
-            fields[entry.key.toString()] = entry.value.first.toString();
-          }
-        }
-      }
-      final message = body is Map && body['message'] is String
-          ? body['message'] as String
-          : error.response == null
-          ? 'Could not confirm the request. Check your connection and try again.'
-          : 'The account request could not be completed.';
-      throw AccountFailure(
-        message,
-        status: error.response?.statusCode,
-        fields: fields,
-      );
+  }) => _api.request(path, method: method, data: data, token: token);
+
+  @override
+  Future<Map<String, dynamic>> authenticatedRequest(
+    String path, {
+    String method = 'GET',
+    Object? data,
+  }) {
+    final token = _token;
+    if (token == null) {
+      throw const AccountFailure('Please sign in again.', status: 401);
     }
+    return _request(path, method: method, data: data, token: token);
+  }
+
+  @override
+  Future<void> discardSession() async {
+    _token = null;
+    await store.clear();
   }
 
   Future<RiderAccount> _accept(Map<String, dynamic> response) async {

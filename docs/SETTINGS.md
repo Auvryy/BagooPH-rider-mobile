@@ -45,36 +45,23 @@ This preparation does **not** prove real profile/password/email updates on Azure
   reset visibility. Discard confirmation protects typed drafts; session/account
   changes ignore late responses and discard scoped settings data.
 
-## Review without changing a real account
+## Everyday live-account review
 
 ```sh
-flutter run -d linux --dart-define-from-file=config/workspace-preview.json
+flutter run -d linux
 ```
 
-Choose **Preview Rider pages**, then **Profile → Settings**. Contact, password
-and email forms use an isolated memory repository. Sample email code is displayed
-in that preview; no mail, account, native token or real password is changed.
-The preview does not override authentication and is excluded from release entry
-points. Normal native launches still connect to the deployed account API.
+For a connected Android phone, run Flutter with that device selected. Ordinary
+runs and debug APKs use Azure, and the main login screen has no sample-page
+button. Sign in privately, then open **Profile → Settings**. Native changes stay
+unavailable until the server advertises the accepted settings version. Existing
+website-management actions remain available where supported.
 
-For Android preview testing, enable USB debugging, connect and unlock the phone,
-and accept its debugging permission prompt. From this repository:
-
-```sh
-flutter build apk --debug --dart-define-from-file=config/workspace-preview.json
-adb install -r build/app/outputs/flutter-apk/app-debug.apk
-```
-
-Open BagooPH Rider and choose **Preview Rider pages → Profile → Settings**.
-This APK uses sample settings and does not configure real login. Existing
-production account data is retained by replacement installation and is not
-restored by the isolated preview. Use sample values to test typing, visibility,
-back/discard and the displayed sample email code. Website API work can proceed
-while the user checks these phone interactions.
-
-After the native settings API is implemented and deployed, build/run with
-`config/azure.json` for actual account acceptance. Installing the preview alone
-does not make production settings updates available.
+Contact/password/email sample repositories are used only by widget/controller
+tests. These checks never send mail or change a real account. The historical
+workspace-preview profile now selects Azure and no longer opens sample pages.
+For real settings acceptance, wait for the backend contract to be deployed and
+then verify live save/refresh, password reauthentication and email management.
 
 ## Verification and remaining acceptance
 

@@ -11,8 +11,6 @@ import 'features/auth/presentation/login_page.dart';
 import 'features/auth/presentation/register_page.dart';
 import 'features/auth/presentation/auth_controller.dart';
 import 'features/home/presentation/home_page.dart';
-import 'features/home/development/home_preview_page.dart';
-import 'features/workspace/development/workspace_preview_repository.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +21,7 @@ void main() {
 
   const previewRequested = bool.fromEnvironment(
     'DEVICE_PREVIEW',
-    defaultValue: true,
+    defaultValue: false,
   );
   final previewEnabled =
       kDebugMode &&
@@ -41,17 +39,8 @@ void main() {
 }
 
 class BagooRiderApp extends ConsumerStatefulWidget {
-  const BagooRiderApp({
-    super.key,
-    this.useDevicePreview = false,
-    this.enableHomePreview = const bool.fromEnvironment('HOME_PREVIEW'),
-    this.enableWorkspacePreview = const bool.fromEnvironment(
-      'WORKSPACE_PREVIEW',
-    ),
-  });
+  const BagooRiderApp({super.key, this.useDevicePreview = false});
   final bool useDevicePreview;
-  final bool enableHomePreview;
-  final bool enableWorkspacePreview;
 
   @override
   ConsumerState<BagooRiderApp> createState() => _BagooRiderAppState();
@@ -85,9 +74,6 @@ class _BagooRiderAppState extends ConsumerState<BagooRiderApp>
 
   @override
   Widget build(BuildContext context) {
-    final homePreviewAvailable = kDebugMode && widget.enableHomePreview;
-    final workspacePreviewAvailable =
-        kDebugMode && widget.enableWorkspacePreview;
     ref.listen(authControllerProvider, (previous, next) {
       if (previous?.user?.id != next.user?.id ||
           (previous?.user?.approved == true && next.user?.approved != true)) {
@@ -106,34 +92,17 @@ class _BagooRiderAppState extends ConsumerState<BagooRiderApp>
       builder: widget.useDevicePreview ? DevicePreview.appBuilder : null,
       theme: buildRiderTheme(),
       routes: {
-        '/': (_) => AccountGate(
-          allowHomePreview: homePreviewAvailable,
-          allowWorkspacePreview: workspacePreviewAvailable,
-        ),
-        '/login': (_) => AccountGate(
-          allowHomePreview: homePreviewAvailable,
-          allowWorkspacePreview: workspacePreviewAvailable,
-        ),
+        '/': (_) => const AccountGate(),
+        '/login': (_) => const AccountGate(),
         '/register': (_) => const AccountGate(register: true),
-        if (homePreviewAvailable)
-          '/home-preview': (_) => const HomePreviewPage(),
-        if (workspacePreviewAvailable)
-          '/workspace-preview': (_) => const WorkspacePreviewPage(),
       },
     );
   }
 }
 
 class AccountGate extends ConsumerWidget {
-  const AccountGate({
-    super.key,
-    this.register = false,
-    this.allowHomePreview = false,
-    this.allowWorkspacePreview = false,
-  });
+  const AccountGate({super.key, this.register = false});
   final bool register;
-  final bool allowHomePreview;
-  final bool allowWorkspacePreview;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(authControllerProvider);
@@ -147,15 +116,6 @@ class AccountGate extends ConsumerWidget {
       );
     }
     if (state.user != null) return const HomePage();
-    return register
-        ? const RegisterPage()
-        : LoginPage(
-            onOpenHomePreview: kDebugMode && allowHomePreview
-                ? () => Navigator.of(context).pushNamed('/home-preview')
-                : null,
-            onOpenWorkspacePreview: kDebugMode && allowWorkspacePreview
-                ? () => Navigator.of(context).pushNamed('/workspace-preview')
-                : null,
-          );
+    return register ? const RegisterPage() : const LoginPage();
   }
 }

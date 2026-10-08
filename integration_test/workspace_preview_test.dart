@@ -2,6 +2,8 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:bagoo_rider_mobile/main.dart' as app;
+import 'package:bagoo_rider_mobile/app/theme.dart';
+import 'package:bagoo_rider_mobile/features/workspace/development/workspace_preview_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -45,18 +47,22 @@ void main() {
   ) async {
     await binding.setSurfaceSize(const Size(430, 900));
     addTearDown(() => binding.setSurfaceSize(null));
-    app.main();
-    await tester.pumpAndSettle();
     await tester.pumpWidget(
-      const ProviderScope(
-        child: RepaintBoundary(
-          key: ValueKey('workspace-capture'),
-          child: app.BagooRiderApp(),
+      ProviderScope(
+        child: MaterialApp(
+          theme: buildRiderTheme(),
+          initialRoute: '/test-workspace',
+          routes: {
+            '/': (_) => const app.AccountGate(),
+            '/test-workspace': (_) => const RepaintBoundary(
+              key: ValueKey('workspace-capture'),
+              child: WorkspacePreviewPage(),
+            ),
+          },
         ),
       ),
     );
     await tester.pumpAndSettle();
-    await tap(tester, 'workspace-preview-entry');
     await capture(tester, 'tasks');
     await tap(tester, 'nav-trips');
     await capture(tester, 'trips');

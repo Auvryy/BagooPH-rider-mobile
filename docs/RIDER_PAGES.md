@@ -30,19 +30,15 @@ courier origin, and browser URLs never include the native token or credentials.
 An unsuccessful browser launch shows feedback. Unsupported native contact,
 password, closure, theme, language and notification mutations are not invented.
 
-## Review all page interactions without an account
+## Isolated automated layout checks
 
-```sh
-flutter run -d linux --dart-define-from-file=config/workspace-preview.json
-```
+The standalone sample workspace was retired from the app. Ordinary builds use
+Azure and require real account access; there is no Preview Rider pages button
+or route. Historical WORKSPACE_PREVIEW flags do not change this behavior.
 
-Choose **Preview Rider pages**. For a connected Android phone, select its Flutter
-device instead of `linux`. Chrome also supports this layout-only profile.
-
-The full preview is gated by both debug mode and `WORKSPACE_PREVIEW=true`.
-Release/profile builds exclude its entry and route even if the flag is supplied.
-The profile does not configure a backend, and preview navigation never signs
-in, changes the auth provider or persists a token.
+Widget tests mount sample repositories directly in a test harness. They never
+sign in a real user or persist a real token. The following interactions describe
+fixture coverage, not an app mode available for phone installation:
 
 - Home: switch three separate sample queue scenarios, search parcels and open
   read-only parcel details. Claim, scan, custody and delivery operations are not
@@ -58,11 +54,11 @@ in, changes the auth provider or persists a token.
 - Profile/Settings: inspect sample identity, nested security/help/about views
   and Exit preview. No real account or server preference is changed.
 
-The older `HOME_PREVIEW` demo remains available separately; its behavior is
-recorded in [HOME_PREVIEW.md](HOME_PREVIEW.md).
+The historical Home fixture also runs only in widget tests; see
+[HOME_PREVIEW.md](HOME_PREVIEW.md).
 
 The later [account-settings preparation](SETTINGS.md) adds contact/password/
-additional-email forms to this preview and a server-version-gated adapter.
+additional-email forms to the test fixtures and a server-version-gated adapter.
 Actual native settings commands still await the owning backend API. The supported
 website management action now opens `/account/settings`.
 

@@ -3,5 +3,6 @@
   "RIDER_WEBSITE_URL": "https://courier.bagooph.shop",
   "ALLOW_LOCAL_AUTH": "false",
   "DEVICE_PREVIEW": "false",
-  "HOME_PREVIEW": "false"
+  "HOME_PREVIEW": "false",
+  "WORKSPACE_PREVIEW": "false"
 }

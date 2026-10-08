@@ -17,7 +17,7 @@ they do not authorize changing the backend or implementing every proposed featur
 | [DESIGN_SPEC.md](DESIGN_SPEC.md) | How should every page, overlay, map and state look and behave, with responsive navigation, visual rules and research rationale? |
 | [AUTH_PREVIEW.md](AUTH_PREVIEW.md) | How can I open and review the implemented login and registration design previews? |
 | [ACCOUNT_ACCESS.md](ACCOUNT_ACCESS.md) | How do real Laravel login, verified registration, authenticated home and logout work locally? |
-| [HOME_PREVIEW.md](HOME_PREVIEW.md) | How can I open the sample Home layout with Demo login and no backend account? |
+| [HOME_PREVIEW.md](HOME_PREVIEW.md) | Which historical Home fixtures remain covered by automated layout tests? |
 | [RIDER_PAGES.md](RIDER_PAGES.md) | How do Home/Tasks, Trips, Messages and Profile-to-Settings work, with honest live-data availability and an isolated full-page preview? |
 | [SETTINGS.md](SETTINGS.md) | How are profile contact, password and additional-email forms prepared, and which backend/live checks remain? |
 | [AZURE_ACCOUNT_ACCESS.md](AZURE_ACCOUNT_ACCESS.md) | How do I run the native app against the deployed HTTPS account API, and which live/device checks passed? |
@@ -37,8 +37,8 @@ they do not authorize changing the backend or implementing every proposed featur
 
 The app contains connected login, verified three-stage registration, an approved-account
 workspace and approval holding/logout, bundled
-Bagoo branding and Plus Jakarta Sans, Android/Linux/web runners and debug Device
-Preview. [Account access](ACCOUNT_ACCESS.md) records the implementation, local
+Bagoo branding and Plus Jakarta Sans, Android/Linux/web runners and an optional
+layout frame. Ordinary native runs connect directly to Azure. [Account access](ACCOUNT_ACCESS.md) records the implementation, local
 backend contract and checks. It has no connected native operational queues or parcel actions.
 The account endpoints are available on Azure HTTPS, and native Android login,
 secure-session restoration and logout have passed. See the
@@ -46,15 +46,14 @@ secure-session restoration and logout have passed. See the
 remaining website/device checks. The wider API and feature architecture remain
 proposals beyond this slice.
 
-An explicitly enabled debug [Home preview](HOME_PREVIEW.md) now adds three sample
-queue filters and parcel cards without creating an authenticated session. Live
-operational queues and custody actions remain separate work.
+The earlier [Home fixtures](HOME_PREVIEW.md) and workspace examples now run only
+inside automated tests. The app has no Demo login or Preview Rider pages route.
+Ordinary APKs and Linux runs use real Azure account access. Live operational
+queues and custody actions remain separate work.
 
-The [Rider page slice](RIDER_PAGES.md) now adds Tasks/Trips/Messages/Profile
-navigation, nested Settings, real own-account information, supported website
-actions and explicit unavailable states for undeployed native resources.
-The full debug preview exercises parcel layouts, trip filters/detail and scoped
-conversation drafts without signing in or reporting a real operation.
+The [Rider page slice](RIDER_PAGES.md) adds Tasks/Trips/Messages/Profile navigation,
+nested Settings, real own-account information and truthful unavailable states
+for undeployed native resources. Sample checks do not establish live integration.
 
 At the earlier backend main revision `4e3a66d`, `routes/api.php` exposed public
 tracking only. The web maintainer subsequently integrated the account adapter

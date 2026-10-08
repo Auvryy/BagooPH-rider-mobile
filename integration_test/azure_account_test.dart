@@ -57,7 +57,7 @@ void main() {
               appConfigProvider.overrideWithValue(config),
               authRepositoryProvider.overrideWithValue(repo),
             ],
-            child: const BagooRiderApp(enableHomePreview: false),
+            child: const BagooRiderApp(),
           ),
         );
         await waitFor(

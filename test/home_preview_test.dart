@@ -1,6 +1,7 @@
 import 'package:bagoo_rider_mobile/features/auth/presentation/auth_controller.dart';
 import 'package:bagoo_rider_mobile/features/home/development/home_preview_page.dart';
 import 'package:bagoo_rider_mobile/main.dart';
+import 'package:bagoo_rider_mobile/app/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,7 +28,22 @@ Future<TestAuthRepository> openApp(
   await tester.pumpWidget(
     ProviderScope(
       overrides: [authRepositoryProvider.overrideWithValue(repository)],
-      child: BagooRiderApp(enableHomePreview: preview),
+      child: preview
+          ? MaterialApp(
+              theme: buildRiderTheme(),
+              routes: {
+                '/': (context) => Scaffold(
+                  body: TextButton(
+                    key: const ValueKey('demo-login'),
+                    onPressed: () =>
+                        Navigator.of(context).pushNamed('/test-home'),
+                    child: const Text('Open test fixture'),
+                  ),
+                ),
+                '/test-home': (_) => const HomePreviewPage(),
+              },
+            )
+          : const BagooRiderApp(),
     ),
   );
   await tester.pumpAndSettle();
@@ -49,24 +65,19 @@ void main() {
     await font.load();
   });
 
-  testWidgets('preview is opt-in and has no default navigation route', (
-    tester,
-  ) async {
+  testWidgets('ordinary app has no sample navigation routes', (tester) async {
     await openApp(tester, preview: false);
     expect(find.byKey(const ValueKey('demo-login')), findsNothing);
     final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
     expect(app.routes!.containsKey('/home-preview'), isFalse);
+    expect(app.routes!.containsKey('/workspace-preview'), isFalse);
+    expect(find.byKey(const ValueKey('workspace-preview-entry')), findsNothing);
   });
 
   testWidgets('demo entry, filters and exit never authenticate an account', (
     tester,
   ) async {
     final repository = await openApp(tester);
-    await tester.enterText(
-      find.byType(TextFormField).at(0),
-      'demo@example.test',
-    );
-    await tester.enterText(find.byType(TextFormField).at(1), 'never-sent');
     await tap(tester, 'demo-login');
     expect(find.text('Demo mode · sample data'), findsOneWidget);
     expect(find.text('DEMO-P1001'), findsOneWidget);
@@ -81,15 +92,11 @@ void main() {
     expect(find.text('DEMO-D2001'), findsOneWidget);
     expect(find.text('DEMO-P1003'), findsNothing);
     await tap(tester, 'exit-home-preview');
-    expect(find.text('Welcome back.'), findsOneWidget);
+    expect(find.text('Open test fixture'), findsOneWidget);
     expect(repository.account, isNull);
     expect(repository.loginCalls, 0);
     expect(repository.logoutCalls, 0);
     expect(repository.registrationCalls, 0);
-    final password = tester.widget<TextFormField>(
-      find.byType(TextFormField).at(1),
-    );
-    expect(password.controller!.text, isEmpty);
     await tap(tester, 'demo-login');
     expect(find.text('DEMO-P1001'), findsOneWidget);
     expect(find.text('DEMO-D2001'), findsNothing);
@@ -99,7 +106,7 @@ void main() {
   testWidgets('normal sign-in still opens the actual account scaffold', (
     tester,
   ) async {
-    final repository = await openApp(tester);
+    final repository = await openApp(tester, preview: false);
     await tester.enterText(
       find.byType(TextFormField).at(0),
       'rider@example.test',
@@ -124,7 +131,7 @@ void main() {
       await tap(tester, 'preview-queue-pickups');
       await tap(tester, 'preview-queue-deliveries');
       await tap(tester, 'exit-home-preview');
-      expect(find.text('Welcome back.'), findsOneWidget);
+      expect(find.text('Open test fixture'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }

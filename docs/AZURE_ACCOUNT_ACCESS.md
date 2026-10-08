@@ -8,8 +8,8 @@ HTTP checks do not independently establish the VM's Git checkout hash.
 The public build profile is [config/azure.json](../config/azure.json). It contains
 the API origin and preview switches, with no credentials or signing material.
 Normal native launches now select the same deployed API and Rider website even
-without a profile, so `flutter run -d linux` supports real account login inside
-the debug phone frame. The explicit profile below also disables the frame.
+without a profile, so `flutter run -d linux` supports real account login.
+The optional debug phone frame is disabled by default.
 The Rider website uses `https://courier.bagooph.shop`; the root website host
 is reserved for buyer login by its web middleware. Native API calls continue
 using the root host's `/api/v1` contract.
@@ -24,14 +24,13 @@ permission, disables application backup and requires encrypted network traffic
 in release/profile. Debug builds permit local HTTP only when the existing
 loopback-only app configuration is explicitly selected.
 
-The Chrome Home demo remains an isolated layout preview. Azure account access
-uses the native app; browser account sessions and deployment CORS changes remain
-separate work.
+Ordinary Android/Linux builds have no sample login or workspace route. Historical
+Home/workspace flags never disable the account API; the old workspace profile
+now selects Azure. Explicit custom API overrides retain environment isolation
+and must supply their own matching website address.
 
-Standalone debug Home/workspace previews leave the account service unconfigured
-unless an API is explicitly supplied. Use their demo/preview entry for samples,
-or restart with the normal native launch for login. A custom API override does
-not inherit the production website; set its matching website explicitly.
+Use native Linux or Android for live account access. Browser secure sessions and
+deployment CORS remain separate work; Chrome is not a native login test target.
 
 ## Sessions and approval
 
@@ -172,3 +171,26 @@ The user enters the delivered code privately in the native verification dialog;
 neither code nor password is printed or committed. File selection is a test
 adapter, while multipart upload and the backend account are real. This check
 does not certify a physical camera or native picker interaction.
+
+## Everyday Azure correction — October 8
+
+Ordinary application builds now keep Azure account access regardless of historical
+Home/workspace preview flags. Sample app routes/buttons are retired, while layout
+fixtures remain in isolated widget tests. Device Preview is off by default.
+
+The updated local suite passed 72 checks; six focused checks also passed with both
+retired preview flags explicitly enabled. A private user-authorized Rider account
+successfully logged in through the native Linux Flutter account controller using
+the default Azure configuration. The server returned approved access. Real platform
+secure storage and restoration passed; logout cleared the check's isolated session.
+No real credentials were compiled into the checker, saved in project files or
+added to fixtures. This check does not prove native Settings mutations or parcel
+operations, whose deployed contracts remain separate prerequisites.
+
+The ordinary Android debug APK built successfully with no sample or API flags.
+Its packaged kernel contains the Azure account/website origins and excludes the
+retired sample routes, login buttons and Home parcel fixture. Internet permission
+is present. Replacement installation succeeded on the connected phone; its
+installed APK hash matched the verified build and the main activity launched.
+This phone check confirms installation/launch; the private account login and
+secure-restoration check above ran on native Linux, not by typing on Android.

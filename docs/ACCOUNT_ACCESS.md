@@ -50,9 +50,11 @@ Real deployments use the existing backend's configured delivery transport.
 
 Normal native launches default to the deployed Azure HTTPS API and matching
 Rider website. `API_BASE_URL` overrides that default and must end in `/api/v1`;
-custom APIs do not inherit the production website address. Standalone debug
-Home/workspace preview flags leave account access unconfigured unless an API is
-explicitly supplied. An explicitly empty API also stays unconfigured.
+custom APIs do not inherit the production website address. Historical Home/workspace
+preview flags are ignored by application routing and never disable account access.
+An explicitly empty API remains a developer configuration error. Sample layouts
+are confined to automated tests; ordinary APKs always target Azure unless an API
+override is deliberately supplied.
 
 `API_BASE_URL` is public configuration. Release builds
 require HTTPS; requests never follow redirects with credentials. Native tokens

@@ -113,7 +113,7 @@ void main() {
         await tester.pumpWidget(
           ProviderScope(
             overrides: [authRepositoryProvider.overrideWithValue(repo)],
-            child: const BagooRiderApp(enableHomePreview: false),
+            child: const BagooRiderApp(),
           ),
         );
         await tester.pumpAndSettle();

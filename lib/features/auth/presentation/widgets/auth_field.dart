@@ -17,6 +17,9 @@ class AuthField extends StatefulWidget {
     this.onSubmitted,
     this.helper,
     this.serverError,
+    this.enabled = true,
+    this.onChanged,
+    this.visibilityVersion = 0,
   });
 
   final String label;
@@ -31,6 +34,9 @@ class AuthField extends StatefulWidget {
   final ValueChanged<String>? onSubmitted;
   final String? helper;
   final String? serverError;
+  final bool enabled;
+  final ValueChanged<String>? onChanged;
+  final int visibilityVersion;
 
   @override
   State<AuthField> createState() => _AuthFieldState();
@@ -42,7 +48,10 @@ class _AuthFieldState extends State<AuthField> {
   @override
   void didUpdateWidget(covariant AuthField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.controller != widget.controller) _visible = false;
+    if (oldWidget.controller != widget.controller ||
+        oldWidget.visibilityVersion != widget.visibilityVersion) {
+      _visible = false;
+    }
   }
 
   @override
@@ -63,6 +72,8 @@ class _AuthFieldState extends State<AuthField> {
           label: widget.label,
           child: TextFormField(
             controller: widget.controller,
+            enabled: widget.enabled,
+            onChanged: widget.onChanged,
             style: const TextStyle(fontSize: 16, color: RiderColors.body),
             obscureText: widget.password && !_visible,
             enableSuggestions: !widget.password,

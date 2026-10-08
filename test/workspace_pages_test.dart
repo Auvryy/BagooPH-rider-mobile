@@ -165,7 +165,7 @@ void main() {
         find.widgetWithText(OutlinedButton, 'Manage account on the website'),
       );
       await tester.pumpAndSettle();
-      expect(launcher.urls.last.path, '/profile');
+      expect(launcher.urls.last.path, '/account/settings');
       expect(
         launcher.urls.every((uri) => uri.query.isEmpty && uri.userInfo.isEmpty),
         isTrue,

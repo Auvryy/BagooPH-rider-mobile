@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/data/account.dart';
 import '../../home/development/home_preview_data.dart';
+import '../../settings/development/settings_preview_repository.dart';
+import '../../settings/data/settings_repository.dart';
+import '../../settings/presentation/settings_controller.dart';
 import '../data/workspace_models.dart';
 import '../data/workspace_repository.dart';
 import '../presentation/workspace_controller.dart';
@@ -14,6 +17,11 @@ class WorkspacePreviewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ProviderScope(
     overrides: [
+      settingsRepositoryProvider.overrideWith(
+        (ref, identity) => identity.preview
+            ? PreviewSettingsRepository(identity.accountId)
+            : const UnavailableSettingsRepository(),
+      ),
       workspaceRepositoryProvider.overrideWith(
         (ref) => PreviewWorkspaceRepository(),
       ),

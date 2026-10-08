@@ -30,6 +30,12 @@ records the backend prerequisites for live queues, trips and messaging.
 
 See [working account access](docs/ACCOUNT_ACCESS.md) for setup, controls and limits.
 
+Profile now includes website-aligned contact, password and additional-email
+forms in the explicit preview. Native settings integration is prepared and
+gated by the server's supported version; the current deployment still needs
+the [settings API handoff](docs/api/SETTINGS_HANDOFF.md). See
+[account settings](docs/SETTINGS.md) for the exact behavior and remaining live checks.
+
 The existing Bagoo Laravel application remains the backend and source of business
 rules. Future API integration must preserve approval, assignment scope, authenticated
 custody, buyer-only completion, and separate COD reconciliation. This repository

@@ -8,6 +8,7 @@ enum RiderWebsitePage {
   trips('/earnings'),
   messages('/messages'),
   profile('/profile'),
+  settings('/account/settings'),
   recovery('/forgot-password');
 
   const RiderWebsitePage(this.path);

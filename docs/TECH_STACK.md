@@ -27,9 +27,11 @@ on an Android phone. These are design choices, not measured RAM/battery savings.
 | `flutter_secure_storage` | Installed for native account sessions | Small per-device token storage; requires native platform setup |
 | `mobile_scanner` | Proposed with custody scan feature | Device camera barcode/QR decoding; server still validates the submitted waybill |
 | `image_picker` | Proposed with delivery proof | Capture/select genuine images; handle Android lost-data recovery |
-| `url_launcher` | Proposed with stop/contact actions | System navigation/browser/call actions with validated scheme and destination |
+| `url_launcher` 6.3.3 | Installed for Rider website actions | Fixed allowlisted HTTPS destinations in the system browser; native bearer never enters a URL |
+| `package_info_plus` 10.2.2 | Installed for About Rider | Actual app version/build information; no invented release/version label |
+| `integration_test` | Installed development SDK dependency | Opt-in native account checks and Linux-rendered workspace preview checks |
 | `intl` | Proposed when dates/money appear | Locale display; no floating-point money authority or guessed timezone |
-| Bundled Plus Jakarta Sans | Implemented auth UI asset | Variable font with bundled SIL Open Font License; no runtime font download |
+| Bundled Plus Jakarta Sans | Implemented app UI asset | Variable font with bundled SIL Open Font License; no runtime font download |
 
 Package versions are deliberately not presented as installed until they enter
 `pubspec.yaml` and resolve in `pubspec.lock`. At each implementation task check

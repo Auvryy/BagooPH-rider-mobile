@@ -1,3 +1,5 @@
+export '../../../core/network/api_failure.dart';
+
 class RiderAccount {
   const RiderAccount({
     required this.id,
@@ -8,10 +10,12 @@ class RiderAccount {
     required this.approved,
     required this.emailVerified,
     this.feedback,
+    this.settingsApiVersion,
   });
   final String id, name, email, status, kycStatus;
   final bool approved, emailVerified;
   final String? feedback;
+  final int? settingsApiVersion;
   factory RiderAccount.fromJson(Map<String, dynamic> json) {
     if (json['role'] != 'courier' ||
         json['id'] is! String ||
@@ -49,14 +53,11 @@ class RiderAccount {
           ['approved', 'verified'].contains(json['kyc_status']),
       emailVerified: json['email_verified'],
       feedback: json['kyc_feedback'],
+      settingsApiVersion:
+          json['settings_api_version'] is int &&
+              json['settings_api_version'] == 1
+          ? 1
+          : null,
     );
   }
-}
-
-class AccountFailure implements Exception {
-  const AccountFailure(this.message, {this.status, this.fields = const {}});
-  final String message;
-  final int? status;
-  final Map<String, String> fields;
-  bool get invalidSession => status == 401 || status == 403;
 }

@@ -18,7 +18,7 @@ class BrandLogo extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.asset(
-                'assets/branding/bagoo-mark.png',
+                'assets/branding/gooriders-icon.png',
                 width: size,
                 height: size,
                 filterQuality: FilterQuality.high,

@@ -49,6 +49,45 @@ ResponseBody response(Object data, [int status = 200]) =>
 
 void main() {
   test(
+    'only an explicit supported integer settings version enables the API',
+    () {
+      expect(
+        RiderAccount.fromJson({...profile, 'settings_api_version': 1})
+            .settingsApiVersion,
+        1,
+      );
+      for (final version in [null, '1', 1.0, 2]) {
+        expect(
+          RiderAccount.fromJson({...profile, 'settings_api_version': version})
+              .settingsApiVersion,
+          isNull,
+        );
+      }
+    },
+  );
+  test(
+    'known revoked sessions clear locally without a second network request',
+    () async {
+      final store = MemoryTokenStore();
+      await store.write('revoked-session');
+      final adapter = Adapter((_) => response({'data': profile}));
+      final repo = ApiAuthRepository(
+        const AppConfig('https://bagoo.example.test/api/v1'),
+        store,
+        client: Dio()..httpClientAdapter = adapter,
+      );
+      await repo.restore();
+      final requestCount = adapter.requests.length;
+      await repo.discardSession();
+      expect(await store.read(), isNull);
+      expect(adapter.requests.length, requestCount);
+      expect(
+        () => repo.authenticatedRequest('rider/settings'),
+        throwsA(isA<AccountFailure>().having((e) => e.status, 'status', 401)),
+      );
+    },
+  );
+  test(
     'login confirms own account; logout revokes before clearing local state',
     () async {
       final store = MemoryTokenStore();

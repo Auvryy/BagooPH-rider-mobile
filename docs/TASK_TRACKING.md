@@ -36,6 +36,22 @@ Linux launch and contributes to M02/M03 configuration evidence. See
 
 ## Always check the Bagoo website project
 
+**Rider branding update (October 8):** the supplied GooRiders artwork now feeds
+Flutter headers and reproducible legacy/adaptive Android and web launcher icons.
+See [BRANDING.md](BRANDING.md). This is M02 branding and M16 package/device
+review evidence; it does not change backend authority, native settings gates
+or the existing development application identifier/signing setup.
+
+**Account settings preparation (October 8):** M13/M14 now have contact editing,
+password change, verified additional-email management and managed profile
+presentation prepared in Flutter, based on website main `85121b5`. The adapter
+requires the server's supported native settings version; the current account-only
+deployment makes no proposed request. Local state/validation/cleanup and isolated
+preview checks are client evidence only. Native settings API deployment, cross-web
+saved-state checks and physical Android acceptance remain open. See
+[SETTINGS.md](SETTINGS.md) and [the backend handoff](api/SETTINGS_HANDOFF.md).
+No full major area or canonical live-API gate is marked complete by this slice.
+
 **Rider pages update (October 8):** the approved-account Flutter shell now has
 Tasks, Trips, Messages and Profile navigation with nested Settings. Actual
 account data/holding/logout are preserved. Home cards, trip filters/pagination/

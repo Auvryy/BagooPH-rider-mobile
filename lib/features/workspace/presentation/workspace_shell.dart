@@ -251,7 +251,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Image.asset(
-                        'assets/branding/bagoo-mark.png',
+                        'assets/branding/gooriders-icon.png',
                         width: 32,
                         height: 32,
                       ),

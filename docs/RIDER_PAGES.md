@@ -61,6 +61,11 @@ in, changes the auth provider or persists a token.
 The older `HOME_PREVIEW` demo remains available separately; its behavior is
 recorded in [HOME_PREVIEW.md](HOME_PREVIEW.md).
 
+The later [account-settings preparation](SETTINGS.md) adds contact/password/
+additional-email forms to this preview and a server-version-gated adapter.
+Actual native settings commands still await the owning backend API. The supported
+website management action now opens `/account/settings`.
+
 ## State and verification
 
 Page controllers/repositories separate presentation from data access. Workspace

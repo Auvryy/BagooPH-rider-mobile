@@ -7,6 +7,9 @@ import '../../../core/platform/rider_website.dart';
 import '../../../core/ui/brand_logo.dart';
 import '../../auth/data/account.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
+import '../data/settings_models.dart';
+import 'settings_controller.dart';
+import 'settings_forms.dart';
 
 enum ProfileSection { profile, settings, security, help, about }
 
@@ -31,6 +34,11 @@ class ProfileSettingsPage extends ConsumerWidget {
   final bool preview;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(
+      settingsControllerProvider(
+        SettingsIdentity(account.id, preview: preview),
+      ),
+    );
     final title = switch (section) {
       ProfileSection.profile => 'Profile',
       ProfileSection.settings => 'Settings',
@@ -99,8 +107,28 @@ class ProfileSettingsPage extends ConsumerWidget {
                 'Email',
                 account.emailVerified ? 'Verified' : 'Verification pending',
               ),
+              if (settings.data != null)
+                _Information(
+                  'Mobile number',
+                  settings.data!.phone ?? 'Not provided',
+                ),
               TextButton.icon(
-                onPressed: onRefresh,
+                key: const ValueKey('open-contact'),
+                onPressed: () => openSettingsForm(
+                  context,
+                  ref,
+                  account,
+                  preview,
+                  SettingsFlow.contact,
+                ),
+                icon: const Icon(Icons.edit_outlined, size: 18),
+                label: const Text('Contact information'),
+              ),
+              TextButton.icon(
+                onPressed: () {
+                  onRefresh();
+                  settings.load();
+                },
                 icon: const Icon(Icons.refresh_rounded, size: 18),
                 label: const Text('Refresh account status'),
               ),
@@ -117,9 +145,17 @@ class ProfileSettingsPage extends ConsumerWidget {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Your logistics team manages working assignments and vehicle records. These details are not available in the mobile account service yet.',
-              ),
+              if (settings.data?.managedAvailable == true)
+                ...SettingsSnapshot.managedLabels.entries.map(
+                  (entry) => _Information(
+                    entry.value,
+                    settings.data!.managed[entry.key] ?? 'Not provided',
+                  ),
+                )
+              else
+                const Text(
+                  'Your logistics team manages working assignments and vehicle records. These details are not available in the mobile account service yet.',
+                ),
               if (!preview) ...[
                 const SizedBox(height: 16),
                 const WebsiteButton(
@@ -149,6 +185,34 @@ class ProfileSettingsPage extends ConsumerWidget {
           padding: EdgeInsets.zero,
           child: Column(
             children: [
+              _SettingsRow(
+                key: const ValueKey('settings-contact'),
+                icon: Icons.contact_phone_outlined,
+                title: 'Contact information',
+                description: 'Mobile number and reviewed identity',
+                onTap: () => openSettingsForm(
+                  context,
+                  ref,
+                  account,
+                  preview,
+                  SettingsFlow.contact,
+                ),
+              ),
+              const Divider(height: 1, indent: 20, endIndent: 20),
+              _SettingsRow(
+                key: const ValueKey('settings-emails'),
+                icon: Icons.alternate_email_rounded,
+                title: 'Email and recovery',
+                description: 'Verified additional and contact addresses',
+                onTap: () => openSettingsForm(
+                  context,
+                  ref,
+                  account,
+                  preview,
+                  SettingsFlow.emails,
+                ),
+              ),
+              const Divider(height: 1, indent: 20, endIndent: 20),
               _SettingsRow(
                 key: const ValueKey('open-security'),
                 icon: Icons.lock_outline_rounded,
@@ -197,12 +261,25 @@ class ProfileSettingsPage extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               const Text(
-                'Password and contact changes are managed on the Rider website. Your browser may ask you to sign in separately.',
+                'Password changes require your current password and verified email. Your original sign-in email stays with your account.',
+              ),
+              const SizedBox(height: 20),
+              OutlinedButton.icon(
+                key: const ValueKey('open-password'),
+                onPressed: () => openSettingsForm(
+                  context,
+                  ref,
+                  account,
+                  preview,
+                  SettingsFlow.password,
+                ),
+                icon: const Icon(Icons.password_rounded),
+                label: const Text('Change password'),
               ),
               if (!preview) ...[
                 const SizedBox(height: 20),
                 const WebsiteButton(
-                  page: RiderWebsitePage.profile,
+                  page: RiderWebsitePage.settings,
                   label: 'Manage account on the website',
                 ),
                 const SizedBox(height: 12),

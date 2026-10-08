@@ -19,6 +19,7 @@ on an Android phone. These are design choices, not measured RAM/battery savings.
 | Material widgets, Cupertino icons | Installed | Flutter UI and established icon set |
 | `device_preview` | Installed, debug Linux/web only | Phone layout, orientation, and text-scale preview without an Android emulator |
 | `flutter_test`, `flutter_lints` | Installed development dependencies | Appropriate automated checks as features are added |
+| `flutter_launcher_icons` 0.14.4 | Installed development dependency | Reproduce legacy/adaptive Android and web launcher resources from the supplied Rider logo; MIT licence |
 | `file_selector` 1.1.0 | Installed for registration | Real local document selection and private API submission |
 | `file_selector_platform_interface` 2.7.0 | Installed development dependency | Replace the picker in behavior checks without opening native dialogs |
 | `flutter_riverpod` | Installed for account state | Dependency injection and asynchronous screen/controller state in one tool |

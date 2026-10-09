@@ -29,8 +29,9 @@ See [working account access](docs/ACCOUNT_ACCESS.md) for setup, controls and lim
 Profile now includes website-aligned contact, password and additional-email
 forms prepared for the native app. Native settings integration is prepared and
 gated by the server's supported version. Backend main now implements the
-[Settings contract](docs/api/SETTINGS_HANDOFF.md); Azure deployment and live
-acceptance are still being prepared. See
+[Settings contract](docs/api/SETTINGS_HANDOFF.md), and Azure now advertises native
+Settings version 1. Generic Settings website links are removed; private password
+and email acceptance checks remain outstanding. See
 [account settings](docs/SETTINGS.md) for the exact behavior and remaining live checks.
 
 The existing Bagoo Laravel application remains the backend and source of business

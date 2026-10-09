@@ -1,25 +1,32 @@
 # Rider profile and account settings
 
 The Flutter settings implementation follows the courier website at reviewed
-backend Settings source `1dba047` (the earlier presentation review was `85121b5`). Website source was read only. Profile leads to Settings,
+backend source `9fe5ce5`, including the Settings API introduced in `1dba047`.
+Website source and courier profile/email UI were read only. Profile leads to Settings,
 then Contact information, Email and recovery, or Privacy and security → Change
 password. Full forms cover the tab bar and return to their originating page.
 
 ## Production status
 
-Backend main now implements native Settings version 1. Its source was reviewed
-read-only against the backend owner's `docs/api/RIDER_SETTINGS_API.md`; Azure
-deployment is still being prepared. Until the deployed account advertises the
-supported version, real account changes remain on the supported Rider website.
-An account-only deployment makes no Settings request or unsupported password
-collection. Browser navigation never includes a native token or credentials.
+Azure now advertises native Settings version 1 after a fresh eligible Rider login.
+Own-account and Settings reads return the accepted JSON, including native phone,
+password and email capabilities. Flutter uses its existing bearer-aware adapter;
+no manual feature flag, browser session or sample build is needed.
 
-The [consumer contract](api/SETTINGS_HANDOFF.md) matches the implemented backend.
-Only eligible accounts advertising integer `settings_api_version: 1` select the
-native adapter. Unsupported/absent versions stay unavailable. Existing
-account-only tokens require a fresh login for the new settings abilities; a
-settings denial clears stale local access and offers reauthentication.
-Source alignment does **not** prove real profile/password/email updates on Azure.
+Profile → Settings opens Contact information, Email and recovery, and Privacy and
+security → Change password directly in the app. Generic website-account, profile
+and Help buttons are removed. Assignment/vehicle facts come from the native
+snapshot; missing facts remain explicit rather than inferring an assignment.
+
+The specific links for reviewed identity corrections and forgotten-password
+recovery remain because those workflows have no native API in Settings v1.
+Older/unsupported sessions get a native sign-out/re-login action, not a generic
+website Settings fallback. A Settings 401/403 clears stale local access and asks
+for a fresh sign-in; server restrictions and capabilities still decide access.
+
+Live password changes and email verification are deferred to the user's private
+app checks. They remain outstanding acceptance checks; this UI update does not
+silently change credentials or add an address.
 
 ## Implemented client behavior
 
@@ -57,8 +64,8 @@ flutter run -d linux
 For a connected Android phone, run Flutter with that device selected. Ordinary
 runs and debug APKs use Azure, and the main login screen has no sample-page
 button. Sign in privately, then open **Profile → Settings**. Native changes stay
-unavailable until the server advertises the accepted settings version. Existing
-website-management actions remain available where supported.
+unavailable until the server advertises the accepted settings version. Only reviewed identity correction and forgotten-password recovery retain their
+specific website actions.
 
 Contact/password/email sample repositories are used only by widget/controller
 tests. These checks never send mail or change a real account. The historical
@@ -110,3 +117,30 @@ Flutter tests passed, including six new transport/contract scenarios. The change
 Markdown links, JSON fixture equality, privacy and whitespace checks passed.
 No live Azure mutation, backend test execution, Android install or physical-phone
 Settings acceptance was performed in this slice.
+
+## Native Settings actions and deployed checks — October 9
+
+The live native Linux app logged in with a privately authorized eligible account,
+loaded Settings v1 through the normal provider/controller and opened contact,
+password and email forms. Contact saving round-tripped the account's existing
+value unchanged through the real form, received confirmation, then reloaded the
+server snapshot. A separate read-only website session confirmed the same account
+and saved phone, a valid HTTPS redirect and successful website logout. The check's
+native session was revoked afterward; ordinary device sessions were preserved.
+
+The profile, security and Help checks confirmed that generic website buttons are
+absent. Native password fields and email controls rendered against the actual
+snapshot, but password changes and email send/verify/prefer/remove are explicitly
+deferred to the user's private app checks. No password or email address was
+changed. These results are native Linux evidence; no Android phone was connected.
+
+The remaining web links are specific reviewed-identity correction and forgotten
+password workflows. Contact/password/email management itself stays inside Flutter.
+Home queues, seller-pickup claims and Trips still have no native API in the reviewed
+backend routes; [the workspace handoff](api/WORKSPACE_HANDOFF.md) defines the next
+bounded backend request.
+
+Final checks: all 80 local Flutter tests passed, analysis was clean, and ordinary
+Linux/debug Android builds passed. The Android package uses Azure and excludes
+the retired Settings links, sample routes and temporary live checker. No Android
+phone was connected, so physical Settings interaction is not claimed.

@@ -66,6 +66,18 @@ transport and error cleanup. Azure deployment is in progress. No live Settings
 writes, website parity, backend test execution or Android acceptance is claimed;
 full live-API gates and the existing Settings work remain unfinished.
 
+**Native Settings actions (October 9):** Azure now advertises Settings v1. Flutter
+opens native contact/password/email forms without generic profile/account/help
+website redirects. Managed facts use the Settings snapshot; old sessions get a
+native reauthentication action. Reviewed identity corrections and forgotten
+passwords retain specific website workflows. Live contact and private acceptance
+are tracked separately; no full M13/M14 completion follows from local UI checks.
+
+Rechecked `routes/api.php` at backend `9fe5ce5`: there are still no native Home
+queues, pickup-claim or Trip endpoints. The next backend slice should publish
+scoped queues and atomic seller-pickup claims, followed by scoped Trip list/detail.
+See [workspace handoff](api/WORKSPACE_HANDOFF.md); these remain backend-owned work.
+
 **Rider pages update (October 8):** the approved-account Flutter shell now has
 Tasks, Trips, Messages and Profile navigation with nested Settings. Actual
 account data/holding/logout are preserved. Home cards, trip filters/pagination/

@@ -194,3 +194,15 @@ is present. Replacement installation succeeded on the connected phone; its
 installed APK hash matched the verified build and the main activity launched.
 This phone check confirms installation/launch; the private account login and
 secure-restoration check above ran on native Linux, not by typing on Android.
+
+## Settings deployment recheck — October 9
+
+Azure fresh login and own-account reads now advertise Settings v1; authenticated
+Settings read returns 200. The live native Linux UI loaded its actual snapshot,
+saved/reloaded the existing contact value and opened native password/email forms.
+The matching Rider website account/contact reads and HTTPS sign-in redirect
+passed in the same check. This supersedes the earlier HTTP-redirect failure for
+this recheck; extended account transitions and private Settings mutations remain
+separate acceptance work. No independently verified VM Git hash is claimed.
+See [Settings verification](SETTINGS.md#native-settings-actions-and-deployed-checks--october-9)
+for exact evidence and deferred password/email/Android checks.

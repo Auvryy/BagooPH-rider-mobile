@@ -164,12 +164,7 @@ void main() {
       expect(find.text('rider@example.com'), findsOneWidget);
       await tap(tester, 'open-settings');
       await tap(tester, 'open-security');
-      await tapFinder(
-        tester,
-        find.widgetWithText(OutlinedButton, 'Manage account on the website'),
-      );
-      await tester.pumpAndSettle();
-      expect(launcher.urls.last.path, '/account/settings');
+      expect(find.text('Manage account on the website'), findsNothing);
       expect(
         launcher.urls.every((uri) => uri.query.isEmpty && uri.userInfo.isEmpty),
         isTrue,

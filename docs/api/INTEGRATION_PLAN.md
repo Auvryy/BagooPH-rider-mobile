@@ -59,6 +59,16 @@ behind the server version, current account eligibility and snapshot capabilities
 After deployment, use a fresh native login to obtain the new token abilities and
 complete the live phone/password/email and website-parity acceptance sequence.
 
+## Deployed Settings update — October 9, 2026
+
+Fresh Azure login/own-account responses advertise Settings v1. Actual native Linux
+Settings loading, unchanged-contact save/reload and read-only website contact
+parity now pass. Generic Settings website links are retired; reviewed-identity
+correction and forgotten-password recovery keep their specific web workflows.
+The user deferred private password/email mutations, and no Android phone was
+connected for this slice. These gates remain open. The web source review at
+`9fe5ce5` still finds no native queue, pickup-claim or Trip routes.
+
 ## Reuse points
 
 | Backend reference | API adapter responsibility |

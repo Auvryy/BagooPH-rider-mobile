@@ -2,6 +2,8 @@
 
 These are original editable documentation illustrations with synthetic values.
 They are not screenshots of a running app or proof of device usability.
+The October 9 illustrations follow the target neutral canvas and rounded mobile
+geometry in `tokens.json`; current runtime styling is a separate implementation.
 
 - [storyboard.png](storyboard.png) shows eight full compositions.
 - [storyboard.svg](storyboard.svg) is its editable vector source.

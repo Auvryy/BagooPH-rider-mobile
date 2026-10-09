@@ -34,6 +34,14 @@ they do not authorize changing the backend or implementing every proposed featur
 | [DECISIONS_AND_IDEAS.md](DECISIONS_AND_IDEAS.md) | Which choices are recommended, open, or deliberately deferred? |
 | [SOURCES.md](SOURCES.md) | Which web contracts and official technical references support the plan? |
 
+## Mobile visual direction
+
+The current design documents define an independent modern mobile presentation:
+neutral `#F7F7FA`, white rounded inset groups, crisp type, minimal chrome and
+primary red `#E00D42`. The website supplies business rules and shared branding;
+its CSS/layout does not govern mobile screens. This target revision does not
+modify runtime styling. See [the design specification](DESIGN_SPEC.md).
+
 ## Current code versus target
 
 The app contains connected login, verified three-stage registration, an approved-account

@@ -72,3 +72,18 @@ composition; it is not evidence that the operational flow is usable.
 The [source register](SOURCE_REGISTER.md) distinguishes current guidance,
 historical research, abstract-only evidence and product decisions. No trend,
 law or platform example changes the parcel/financial contract.
+
+## Independent mobile target — October 9
+
+The reference research informs behavior, not a named imitation or copied portal
+style. The Rider target uses neutral canvas, white inset groups, role-specific
+rounding and red emphasis. Grouping/recognition support short labelled menus;
+progressive disclosure keeps managed records and operation-specific credentials
+off the everyday screen. Reduced choice and larger touch regions support clarity
+without claiming a measured task-time improvement. Existing business constraints
+remain authoritative regardless of the visual layer.
+
+Restrained layering can distinguish navigation/overlays, but addresses, amounts,
+proof and forms keep opaque surfaces. Contrast, safe areas and reduced-effects
+fallbacks take precedence over a visual material. Planned target, illustration,
+implemented screen and physical device result remain different evidence.

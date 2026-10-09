@@ -84,11 +84,11 @@ be loaded. Missing hub data means unassigned/unknown, never a default city.
 
 ## Presentation and accessibility
 
-Carry over the latest rider direction: `#E00D42` accent, `#FFFAFB` canvas, white
-working surfaces, restrained shadows/outlines, and 8 logical-pixel corners.
-Circle/pill shapes remain appropriate for avatars, dots, and the duty switch.
-Use Plus Jakarta Sans, bundled as a licensed font asset when implemented; the
-starter currently uses Flutter's default font.
+The mobile target keeps primary red `#E00D42` and the bundled Plus Jakarta Sans,
+with neutral `#F7F7FA` canvas, white inset groups and component-specific rounded
+shapes. The mobile app has an independent presentation while sharing the web's
+business rules and branding. See [the design system](design/DESIGN_SYSTEM.md)
+for target tokens; this documentation revision does not change runtime styling.
 
 Use labelled Tasks/Trips/Messages/Profile navigation, 48 logical-pixel minimum
 standalone touch areas, wrapping addresses, safe areas, visible focus, and

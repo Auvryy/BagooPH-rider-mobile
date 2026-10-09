@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed_on": "2026-10-06",
+  "reviewed_on": "2026-10-09",
   "project": "BagooPH Rider",
   "selection": [
     "Stop Mode",
@@ -351,7 +351,7 @@
       ],
       "primary": "Directions: neutral control in the lower address shelf; custody action remains in Stop Mode.",
       "secondary": "Show stop, zoom, Copy address and Open instructions.",
-      "why": "One bounded 8-unit map frame contains visual complexity. Opaque controls protect contrast; a stationary pin means a saved destination, never live rider location.",
+      "why": "One bounded 16-unit map frame contains visual complexity. Opaque controls protect contrast; a stationary pin means a saved destination, never live rider location.",
       "special_states": "Missing coordinates use the address layout; tile error preserves text and manual retry; no predicted route line, ETA, geofence enforcement or offline bulk tiles.",
       "dependency": "Embedded-map M09.07 decision and provider policy; expanded layout is conditional until the renderer/data are accepted.",
       "native_implemented": false

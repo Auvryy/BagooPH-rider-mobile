@@ -252,8 +252,9 @@ operational states or the physical Android baseline. See [AUTH_PREVIEW.md](AUTH_
    boundaries. Add proposed packages only when needed and after compatibility
    checks; do not assume they are already installed.
 2. Build reusable fields, buttons, status/error panels and accessible sheets.
-   Use the Rider accent `#E00D42`, canvas `#FFFAFB`, 8 logical-pixel corners and
-   licensed bundled Plus Jakarta Sans when implemented.
+   Use the mobile design target: primary `#E00D42`, neutral `#F7F7FA`, role-specific
+   rounded shapes and bundled Plus Jakarta Sans. Apply target tokens only in the
+   selected implementation slice, with explicit checks against existing runtime.
 3. Wire explicit development fixtures behind replaceable repositories; retain
    debug Linux Device Preview and establish the physical Android baseline.
 

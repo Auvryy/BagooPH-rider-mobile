@@ -1,6 +1,6 @@
 # Rider screen inventory
 
-Reviewed 2026-10-06. This is a counted design proposal, not a native route implementation.
+Reviewed 2026-10-09. This is a counted design proposal, not a native route implementation.
 
 ## What counts as a page
 

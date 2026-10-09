@@ -43,12 +43,14 @@ removed from the everyday Settings path.
   [NN/G's progressive-disclosure guidance](https://www.nngroup.com/articles/progressive-disclosure/).
 - **Grouping and recognition:** related options share an inset group; text labels
   and chevrons show their purpose and destination. The pattern is inspired by
-  [Apple's lists and tables guidance](https://developer.apple.com/design/human-interface-guidelines/lists-and-tables).
+  [native list-and-table guidance](https://developer.apple.com/design/human-interface-guidelines/lists-and-tables).
 - **Touch and text:** entire rows are interactive, with at least 48-unit targets.
   Compact spacing does not reduce text to fit. Large text may scroll vertically;
   fields, long values and keyboard paths must remain accessible.
-- **Consistency:** preserve Bagoo red, the pale canvas, 8-unit corners and bundled
-  Plus Jakarta Sans. Detail pages share the same navigation and row structure.
+- **Consistency:** preserve Bagoo red and the bundled Plus Jakarta Sans. Detail
+  pages share navigation and row structure. This implemented slice uses the
+  previous pale canvas and 8-unit surfaces; the newer target neutral canvas and
+  role-specific shapes in the design system are a separate implementation step.
 
 ## Verification scope
 

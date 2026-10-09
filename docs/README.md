@@ -25,6 +25,8 @@ they do not authorize changing the backend or implementing every proposed featur
 | [AZURE_ACCOUNT_ACCESS.md](AZURE_ACCOUNT_ACCESS.md) | How do I run the native app against the deployed HTTPS account API, and which live/device checks passed? |
 | [TASK_TRACKING.md](TASK_TRACKING.md) | What are the 16 major work areas, which screens belong to them, and how will later tasks/branches build and verify them? |
 | [SUBTASK_BACKLOG.md](SUBTASK_BACKLOG.md) | Which of the 180 detailed cards or 63 suggested batches can a later prompt select, with what dependencies, steps, checks and effort? |
+| [Plan registry](plans/README.md) | Where do separate implementation plans live, with their own files and ownership? |
+| [Native operations plan](plans/native-operations/README.md) | How will the completed backend handoff be integrated in five selected Flutter batches? |
 | [RIDER_FLOW.md](RIDER_FLOW.md) | What may a rider do at each stage, including failures and cash custody? |
 | [TECH_STACK.md](TECH_STACK.md) | Which tools are installed, which are proposed, and why choose them? |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Where does Flutter code belong and how does data reach the screens? |
@@ -74,10 +76,16 @@ The backend's [current roadmap](https://github.com/Auvryy/BagooPH/blob/main/docs
 owns changing implementation evidence; [the integration plan](api/INTEGRATION_PLAN.md)
 records the dated observations needed to start this client.
 
-Settings API source is now merged into backend main `1dba047`; its Azure
-deployment is still being prepared. Flutter's version-gated consumer is aligned
-and checked locally against the owner's contract. This does not establish live
-Settings writes; see [account settings](SETTINGS.md).
+**October 9 handoff:** backend native operations are now present in clean main
+`1d785aa`, with an executable operations specification. Flutter still selects its
+unavailable operations repository. The [isolated five-batch plan](plans/native-operations/README.md)
+records the source, deployment/session gate and client acceptance. Azure rollout
+and actual Android operational behavior remain unverified by this planning task.
+
+Settings API source is merged into backend main `1dba047`; subsequent native/live
+checks and remaining private/device acceptance are recorded in
+[account settings](SETTINGS.md). Preserve that consumer during operations work;
+the new handoff does not complete deferred password/email acceptance.
 
 Use three distinct labels in future reviews: **implemented and verified**,
 **implemented but awaiting verification**, and **proposed or blocked**. A screen,

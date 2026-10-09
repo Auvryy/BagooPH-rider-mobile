@@ -1,11 +1,13 @@
 # Proposed rider API contract
 
-**Status: wider design proposal with the account subset implemented and verified
-locally on October 7, 2026.** [ACCOUNT_ACCESS.md](../ACCOUNT_ACCESS.md) and the
-backend's `docs/RIDER_ACCOUNT_API.md` identify the executable account contract.
-Token login/logout, own-account read and native verified application submission
-are implemented; remaining task/operation routes below remain proposed. Local
-acceptance is not a claim of production deployment.
+**Status: historical/general design proposals, with accepted contracts now owned
+by the backend.** Account and Settings references identify their existing native
+consumers. The completed core operations source at `1d785aa` has its own executable
+OpenAPI and [integration plan/source review](../plans/native-operations/README.md).
+Its exact routes, string money, versions, pagination and command semantics take
+precedence over generic examples below. Do not implement accepted operations from
+this proposal table or duplicate the owner's schema. Source availability does not
+establish Azure, Flutter or physical-device acceptance.
 
 Use `/api/v1` JSON endpoints in the existing Laravel app. Existing Inertia
 responses, web session forms, and public masked tracking are not substitutes
@@ -13,7 +15,7 @@ for an authenticated rider API. Reuse shared policies, validation, and services.
 
 ## Common conventions to freeze first
 
-| Topic | Proposed contract |
+| Topic | Historical/general proposal; not the accepted core operations schema |
 |---|---|
 | Transport | HTTPS in release; `Accept: application/json`; UTF-8 JSON except multipart proof |
 | Native auth | `Authorization: Bearer <per-device-token>` on authorized first-party requests only |

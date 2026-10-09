@@ -28,6 +28,7 @@ they do not authorize changing the backend or implementing every proposed featur
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Where does Flutter code belong and how does data reach the screens? |
 | [api/CONTRACT.md](api/CONTRACT.md) | What JSON, commands, errors, authentication, and retry behavior should both repos agree on? |
 | [api/INTEGRATION_PLAN.md](api/INTEGRATION_PLAN.md) | How do backend and mobile changes progress together without duplicating rules? |
+| [api/BACKEND_API_BUILD_PROMPT.md](api/BACKEND_API_BUILD_PROMPT.md) | What complete roadmap and phased implementation brief should the web maintainer receive? |
 | [DELIVERY_PLAN.md](DELIVERY_PLAN.md) | What can fit before November 21, and which prerequisites can block it? |
 | [VERIFICATION_AND_READINESS.md](VERIFICATION_AND_READINESS.md) | What proves readiness, and how do the before/after documentation ratings compare? |
 | [DECISIONS_AND_IDEAS.md](DECISIONS_AND_IDEAS.md) | Which choices are recommended, open, or deliberately deferred? |

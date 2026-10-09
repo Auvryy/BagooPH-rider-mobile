@@ -70,3 +70,11 @@ Before integration, supply sanitized success/empty/denied/stale/error examples,
 the accepted source/deployment revision and isolated contract tests. Flutter then
 adds a real shared-transport adapter and verifies cross-role outcomes. Current
 preview behavior cannot clear these operational acceptance gates.
+
+## Complete backend implementation brief
+
+The [backend API build prompt](BACKEND_API_BUILD_PROMPT.md) covers the complete
+Rider capability roadmap, shared conventions, prerequisites, implementation
+batches and test/deployment handoff. Its source references and planned routes
+require the backend owner's current audit; it does not authorize inventing
+unsupported operations or declare the future API catalogue implemented.

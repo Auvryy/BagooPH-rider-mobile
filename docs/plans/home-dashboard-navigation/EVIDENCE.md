@@ -19,7 +19,8 @@ account gates, claim body and fresh owned detail. Full existing/local Flutter su
 - Fresh approved rider bearer/version/Home/queues/detail and denied access checks.
 - Authorized duty/claim reflected in the owning website, stale/competing claim
   and uncertain-response recovery through the native client.
-- Dedicated Geoapify client key and real-provider route/quota checks.
+- Real-provider quota/cooldown acceptance beyond the successful tile/route checks
+  recorded below.
 - Physical Android precise/notification denial, screen-off/minimized updates,
   stop/resume, permission removal, reassignment and authorization revocation.
 
@@ -61,3 +62,26 @@ Provider/controller mocks are test-only and do not establish real road/GPS behav
 Ordinary `flutter build linux` and `flutter build apk --debug` pass on the final source. The debug APK is generated without a provider key or operational-write activation. A plugin deprecation notice is not a build failure. No Android phone was connected. Plan links/fences, fixture JSON, scope/privacy and Git whitespace checks pass. Local commits are reported with the handoff; no push was performed.
 The backend worktree was read only. No deployment, real-provider request, live
 operational mutation, physical Android test or travelled-location upload occurred.
+
+
+## Live provider configuration follow-up
+
+A dedicated Geoapify key is now supplied through ignored project-local JSON.
+Both direct HTTPS smoke requests returned 200: the map endpoint returned a valid
+PNG and motorcycle routing returned GeoJSON MultiLineString road geometry.
+An additional real-network Flutter smoke check passed using the actual
+GeoapifyClient and RoadRoute parser: one PNG tile and a route between two public
+sample points. It sent no Bagoo bearer or rider location. The smoke-test source
+and build inputs remain ignored; no actual key enters tracked files or logs.
+
+Current backend reference `a1eb08b20bab8afb2a109f8c8e84ea0bba5dd600` was read only.
+The selected task/command controllers/services and accepted OpenAPI are unchanged
+from `1d785aa`; the contract fingerprint remains
+`8b09acf2e933441ee766820c94f65eafe1240c6c343b659e89487c6ab1e507eb`.
+This source comparison does not establish Azure deployment or authorized reads.
+A backend verification handoff was prepared separately from tracked documentation.
+
+The debug APK rebuilt successfully with the private provider configuration and
+writes still disabled. The real-network smoke test and native build logs were
+checked for accidental key disclosure; no key appeared in either log. Provider checks do not establish authorized task selection,
+physical Android GPS/background behavior or real quota-exhaustion handling.

@@ -5,9 +5,10 @@ There is no fixture account, automatic login or production sample dashboard.
 
 ## Provider configuration
 
-Create a dedicated Geoapify project/client key. Put `GEOAPIFY_API_KEY` in a
-private JSON file outside Git and supply it using Flutter's
-`--dart-define-from-file` option on run/build. Example file contents:
+The selected project-local file is `.env.geoapify.json` in the Rider project
+root. It is private, ignored by the existing `.env.*` rule and must remain
+untracked. Supply it with `--dart-define-from-file=.env.geoapify.json` on run/build.
+Example file contents:
 
 ```json
 {
@@ -18,7 +19,8 @@ private JSON file outside Git and supply it using Flutter's
 
 Keep real keys out of source, screenshots, logs and commits. This key remains
 extractable from an installed application and is not a protected server secret.
-No key was provided for this implementation. Missing configuration keeps task
+A dedicated key has now been supplied privately and verified against real tiles
+and routing through the Flutter client. Missing configuration still keeps task
 addresses and real account access usable; the app does not invent tiles/routes.
 
 The client shares one conservative four-request/second scheduler across map tiles
@@ -55,6 +57,20 @@ The app defaults to disabled production duty/claim writes until these checks are
 accepted. Read-only Home connects when the approved account discovers version 1.
 The flag is a release acceptance gate, never a substitute for server authorization.
 It does not change account approval, placement, capability or capacity checks.
+
+For a Linux launch with the saved key:
+
+```sh
+flutter run -d linux --dart-define-from-file=.env.geoapify.json
+```
+
+For an Android debug build with the saved key:
+
+```sh
+flutter build apk --debug --dart-define-from-file=.env.geoapify.json
+```
+
+Existing builds must be rebuilt to receive changed compile-time configuration.
 
 Current task source returns coordinates only for buyer stops. Seller and hub
 stops remain address-first. Backend ownership must decide any future coordinate

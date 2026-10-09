@@ -42,7 +42,7 @@ Unavailable resources remain unavailable. Scope and screen counts describe
 planning coverage, not completed routes or guaranteed delivery effort.
 
 Record specified, illustrated, implemented and physically verified states
-separately. The October 9 direction is a documentation target; the current
-runtime's earlier palette/geometry is not silently changed by this review.
+separately. Core colors/shapes now apply to existing screens; future views and optional
+candidates remain planned. Styling does not add their data or permission APIs.
 Validation includes token consistency/contrast, references, generated documents,
 visual artifact inspection and privacy checks. Illustrations use synthetic data.

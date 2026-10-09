@@ -48,6 +48,12 @@ forms only for selected operations. See [Settings UX](SETTINGS_UX.md). This M13/
 presentation slice preserves the deployed API and its outstanding private/Android
 acceptance gates; it does not implement other backend or parcel capabilities.
 
+**Shared mobile styling (October 9):** existing entry/registration/holding and
+Tasks/Trips/Messages/Profile/Settings surfaces now use the modern neutral/red theme,
+role-specific shapes, inset navigation and reduced-effects-aware transitions.
+No new operational API, page, account permission or sample app mode is introduced.
+Future design inventory entries remain planned and backend acceptance stays separate.
+
 ## Always check the Bagoo website project
 
 **Rider branding update (October 8):** the supplied GooRiders artwork now feeds

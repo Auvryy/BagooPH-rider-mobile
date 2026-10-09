@@ -9,6 +9,7 @@ import '../../auth/presentation/auth_controller.dart';
 import '../../auth/presentation/widgets/auth_field.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
 import '../../../core/platform/rider_website.dart';
+import '../../../app/theme.dart';
 import '../data/settings_models.dart';
 import 'settings_controller.dart';
 
@@ -421,7 +422,7 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
   List<Widget> _emailsOverview(SettingsSnapshot data) => [
     Material(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(RiderRadii.group),
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: [

@@ -116,13 +116,13 @@ class _MessagesPageState extends State<MessagesPage> {
                   color: thread.id == c.selectedConversationId
                       ? Colors.white
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(RiderRadii.surface),
                   child: InkWell(
                     key: ValueKey('conversation-${thread.id}'),
                     onTap: c.sending
                         ? null
                         : () => c.selectConversation(thread.id),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(RiderRadii.surface),
                     child: Padding(
                       padding: const EdgeInsets.all(14),
                       child: Row(
@@ -447,7 +447,9 @@ class _ConversationThreadState extends State<_ConversationThread> {
                             color: message.fromRider
                                 ? RiderColors.rose
                                 : Colors.white,
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(
+                              RiderRadii.surface,
+                            ),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

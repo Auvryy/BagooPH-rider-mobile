@@ -18,7 +18,7 @@ class WorkspacePanel extends StatelessWidget {
     padding: padding,
     decoration: BoxDecoration(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(RiderRadii.surface),
       boxShadow: const [
         BoxShadow(
           color: Color(0x060F172A),
@@ -70,7 +70,7 @@ class WorkspaceBadge extends StatelessWidget {
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
     decoration: BoxDecoration(
       color: accent ? RiderColors.rose : const Color(0xFFF1F5F9),
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(RiderRadii.selection),
     ),
     child: Text(
       label,
@@ -109,8 +109,10 @@ class WorkspaceHeading extends StatelessWidget {
           if (action != null) ...[const SizedBox(width: 8), action!],
         ],
       ),
-      const SizedBox(height: 8),
-      Text(description),
+      if (description.isNotEmpty) ...[
+        const SizedBox(height: 8),
+        Text(description),
+      ],
       const SizedBox(height: 24),
     ],
   );
@@ -226,7 +228,7 @@ class FeatureStateView<T> extends StatelessWidget {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: RiderColors.rose,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(RiderRadii.surface),
             ),
             child: Icon(icon, color: RiderColors.accentText, size: 28),
           ),

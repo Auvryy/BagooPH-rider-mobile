@@ -245,7 +245,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                   label: 'BagooPH Rider',
                   child: ExcludeSemantics(
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(RiderRadii.brand),
                       child: Image.asset(
                         'assets/branding/gooriders-icon.png',
                         width: 32,
@@ -305,8 +305,11 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
               child: InkWell(
                 key: ValueKey('nav-${labels[index].toLowerCase()}'),
                 onTap: () => select(index),
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
+                borderRadius: BorderRadius.circular(RiderRadii.selection),
+                child: AnimatedContainer(
+                  duration: MediaQuery.disableAnimationsOf(context)
+                      ? Duration.zero
+                      : RiderMotion.pressed,
                   constraints: const BoxConstraints(minHeight: 64),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 6,
@@ -316,7 +319,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                     color: destination == index
                         ? RiderColors.rose
                         : Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(RiderRadii.selection),
                   ),
                   child: ExcludeSemantics(
                     child: wide && vertical
@@ -375,25 +378,30 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
           ),
         ),
     ];
-    return Material(
+    final navigation = Material(
       color: Colors.white,
+      borderRadius: BorderRadius.circular(RiderRadii.group),
+      clipBehavior: Clip.antiAlias,
       child: vertical
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: children,
             )
-          : Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Divider(height: 1, color: RiderColors.divider),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (final child in children) Expanded(child: child),
-                  ],
-                ),
-              ],
+          : Padding(
+              padding: const EdgeInsets.all(4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (final child in children) Expanded(child: child),
+                ],
+              ),
             ),
+    );
+    return Padding(
+      padding: vertical
+          ? const EdgeInsets.all(8)
+          : const EdgeInsets.fromLTRB(12, 6, 12, 8),
+      child: navigation,
     );
   }
 }

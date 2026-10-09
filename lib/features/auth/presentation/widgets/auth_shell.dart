@@ -29,7 +29,7 @@ class AuthShell extends StatelessWidget {
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(RiderRadii.surface),
                   boxShadow: const [
                     BoxShadow(
                       color: Color(0x070F172A),
@@ -79,7 +79,9 @@ class AuthShell extends StatelessWidget {
                                   ),
                                   decoration: BoxDecoration(
                                     color: RiderColors.rose,
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.circular(
+                                      RiderRadii.selection,
+                                    ),
                                   ),
                                   child: const Text(
                                     'Rider access',
@@ -145,7 +147,7 @@ class _BrandStory extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: RiderColors.rose,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(RiderRadii.surface),
             ),
             child: Icon(
               registering ? Icons.route_outlined : Icons.inventory_2_outlined,

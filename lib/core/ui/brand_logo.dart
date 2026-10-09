@@ -16,7 +16,7 @@ class BrandLogo extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(RiderRadii.brand),
               child: Image.asset(
                 'assets/branding/gooriders-icon.png',
                 width: size,

@@ -312,4 +312,21 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+  testWidgets(
+    'modern shared styling renders existing workspace and entry screens',
+    (tester) async {
+      await openApp(tester);
+      for (final tab in ['tasks', 'trips', 'messages']) {
+        await tap(tester, 'nav-$tab');
+        await capture(tester, 'modern-$tab');
+        expect(tester.takeException(), isNull);
+      }
+      await tap(tester, 'logout-button');
+      await tap(tester, 'confirm-logout');
+      await capture(tester, 'modern-login');
+      await tap(tester, 'open-register');
+      await capture(tester, 'modern-register');
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

@@ -3,9 +3,9 @@
 Reviewed **October 9, 2026**. This is the target appearance and interaction system
 for the Rider app. The account flow and compact Settings hierarchy are already
 implemented; the wider counted page catalogue remains planning coverage.
-This revision changes design documentation and illustrative assets only. The
-current runtime theme retains its previously implemented colors and shapes until
-a separately requested implementation slice adopts the new tokens.
+The shared colors, shapes and basic motion are now applied to existing runtime
+screens. The wider screen catalogue and optional dark/material candidates remain
+planning coverage; styling does not implement new backend features or views.
 
 ## Design direction
 

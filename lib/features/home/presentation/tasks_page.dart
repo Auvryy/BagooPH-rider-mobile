@@ -23,7 +23,7 @@ class TasksPage extends StatelessWidget {
     children: [
       WorkspaceHeading(
         'Welcome, ${account.name}.',
-        'A clear handoff, every step of the way.',
+        '',
         action: IconButton(
           onPressed: controller.refreshTasks,
           tooltip: 'Refresh tasks',
@@ -42,33 +42,64 @@ class TasksPage extends StatelessWidget {
       const SizedBox(height: 28),
       Text('Your tasks', style: Theme.of(context).textTheme.titleLarge),
       const SizedBox(height: 16),
-      Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          for (final queue in TaskQueue.values)
-            Semantics(
-              selected: controller.queue == queue,
-              child: OutlinedButton(
-                key: ValueKey('task-queue-${queue.name}'),
-                onPressed: () => controller.selectQueue(queue),
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: controller.queue == queue
-                      ? RiderColors.rose
-                      : Colors.white,
-                  foregroundColor: controller.queue == queue
-                      ? RiderColors.accentText
-                      : RiderColors.muted,
-                  side: BorderSide(
-                    color: controller.queue == queue
-                        ? RiderColors.accentText
-                        : RiderColors.divider,
-                  ),
+      LayoutBuilder(
+        builder: (context, constraints) {
+          final compact =
+              constraints.maxWidth >= 340 &&
+              MediaQuery.textScalerOf(context).scale(14) < 20;
+          Widget choice(TaskQueue queue) => Semantics(
+            selected: controller.queue == queue,
+            label: queue.label,
+            child: TextButton(
+              key: ValueKey('task-queue-${queue.name}'),
+              onPressed: () => controller.selectQueue(queue),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 12,
                 ),
-                child: Text(queue.label, textAlign: TextAlign.center),
+                foregroundColor: controller.queue == queue
+                    ? RiderColors.accentText
+                    : RiderColors.muted,
+                backgroundColor: controller.queue == queue
+                    ? RiderColors.rose
+                    : Colors.transparent,
+              ),
+              child: Text(
+                compact
+                    ? switch (queue) {
+                        TaskQueue.available => 'Available',
+                        TaskQueue.pickups => 'My pickups',
+                        TaskQueue.delivery => 'Delivery',
+                      }
+                    : queue.label,
+                textAlign: TextAlign.center,
               ),
             ),
-        ],
+          );
+          return Material(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(RiderRadii.group),
+            clipBehavior: Clip.antiAlias,
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: compact
+                  ? Row(
+                      children: [
+                        for (final queue in TaskQueue.values)
+                          Expanded(child: choice(queue)),
+                      ],
+                    )
+                  : Wrap(
+                      spacing: 4,
+                      runSpacing: 4,
+                      children: [
+                        for (final queue in TaskQueue.values) choice(queue),
+                      ],
+                    ),
+            ),
+          );
+        },
       ),
       const SizedBox(height: 12),
       Text(controller.queue.description),
@@ -112,6 +143,7 @@ class TasksPage extends StatelessWidget {
                       : 'Next responsibility',
                   onOpen: () => showModalBottomSheet<void>(
                     context: context,
+                    sheetAnimationStyle: RiderMotion.sheetStyle(context),
                     isScrollControlled: true,
                     showDragHandle: true,
                     backgroundColor: RiderColors.canvas,

@@ -100,7 +100,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               LayoutBuilder(
                 builder: (context, constraints) {
                   final remember = InkWell(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(RiderRadii.control),
                     onTap: () =>
                         setState(() => _rememberEmail = !_rememberEmail),
                     child: Row(

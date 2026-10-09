@@ -44,7 +44,7 @@ class HomePage extends ConsumerWidget {
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(RiderRadii.surface),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

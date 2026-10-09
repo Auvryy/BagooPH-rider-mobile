@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 abstract final class RiderColors {
   static const accent = Color(0xFFE00D42);
+  static const accentPressed = Color(0xFFA1052B);
   static const accentText = Color(0xFFC20836);
-  static const canvas = Color(0xFFFFFAFB);
+  static const canvas = Color(0xFFF7F7FA);
   static const rose = Color(0xFFFFF2F4);
   static const ink = Color(0xFF0F172A);
   static const body = Color(0xFF1E293B);
@@ -12,9 +13,57 @@ abstract final class RiderColors {
   static const divider = Color(0xFFE2E8F0);
 }
 
+abstract final class RiderRadii {
+  static const surface = 20.0;
+  static const group = 20.0;
+  static const control = 12.0;
+  static const media = 16.0;
+  static const dialog = 24.0;
+  static const sheet = 28.0;
+  static const selection = 12.0;
+  static const brand = 8.0;
+}
+
+abstract final class RiderMotion {
+  static const pressed = Duration(milliseconds: 120);
+  static const navigation = Duration(milliseconds: 200);
+  static const sheet = Duration(milliseconds: 240);
+  static AnimationStyle sheetStyle(BuildContext context) =>
+      MediaQuery.disableAnimationsOf(context)
+      ? AnimationStyle.noAnimation
+      : const AnimationStyle(duration: sheet, reverseDuration: sheet);
+}
+
+class RiderPageTransitionsBuilder extends PageTransitionsBuilder {
+  const RiderPageTransitionsBuilder();
+  @override
+  Duration get transitionDuration => RiderMotion.navigation;
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    if (MediaQuery.disableAnimationsOf(context) || route.isFirst) return child;
+    final curve = animation.drive(CurveTween(curve: Curves.easeOutCubic));
+    return FadeTransition(
+      opacity: curve,
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0, .015),
+          end: Offset.zero,
+        ).animate(curve),
+        child: child,
+      ),
+    );
+  }
+}
+
 ThemeData buildRiderTheme() {
   const shape = RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(8)),
+    borderRadius: BorderRadius.all(Radius.circular(RiderRadii.control)),
   );
   final scheme = ColorScheme.fromSeed(
     seedColor: RiderColors.accent,
@@ -30,6 +79,41 @@ ThemeData buildRiderTheme() {
     fontFamily: 'Plus Jakarta Sans',
     colorScheme: scheme,
     scaffoldBackgroundColor: RiderColors.canvas,
+    dividerTheme: const DividerThemeData(
+      color: RiderColors.divider,
+      thickness: 1,
+      space: 1,
+    ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: RiderColors.canvas,
+      foregroundColor: RiderColors.ink,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      titleTextStyle: TextStyle(
+        fontFamily: 'Plus Jakarta Sans',
+        fontSize: 20,
+        height: 1.35,
+        fontWeight: FontWeight.w600,
+        color: RiderColors.ink,
+      ),
+    ),
+    pageTransitionsTheme: PageTransitionsTheme(
+      builders: {
+        for (final platform in TargetPlatform.values)
+          platform: const RiderPageTransitionsBuilder(),
+      },
+    ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(RiderRadii.sheet),
+        ),
+      ),
+      showDragHandle: true,
+    ),
     textTheme: const TextTheme(
       headlineLarge: TextStyle(
         fontSize: 38,
@@ -46,8 +130,8 @@ ThemeData buildRiderTheme() {
         color: RiderColors.ink,
       ),
       titleLarge: TextStyle(
-        fontSize: 20,
-        height: 1.35,
+        fontSize: 18,
+        height: 26 / 18,
         fontWeight: FontWeight.w600,
         color: RiderColors.ink,
       ),
@@ -64,7 +148,11 @@ ThemeData buildRiderTheme() {
         fontWeight: FontWeight.w500,
         color: RiderColors.muted,
       ),
-      bodySmall: TextStyle(fontSize: 12, height: 1.5, color: RiderColors.muted),
+      bodySmall: TextStyle(
+        fontSize: 13,
+        height: 18 / 13,
+        color: RiderColors.muted,
+      ),
       labelLarge: TextStyle(
         fontSize: 15,
         height: 1.3,
@@ -77,15 +165,15 @@ ThemeData buildRiderTheme() {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       hintStyle: const TextStyle(fontSize: 15, color: RiderColors.muted),
       border: const OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8)),
+        borderRadius: BorderRadius.all(Radius.circular(RiderRadii.control)),
         borderSide: BorderSide(color: RiderColors.border),
       ),
       enabledBorder: const OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8)),
+        borderRadius: BorderRadius.all(Radius.circular(RiderRadii.control)),
         borderSide: BorderSide(color: RiderColors.border),
       ),
       focusedBorder: const OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8)),
+        borderRadius: BorderRadius.all(Radius.circular(RiderRadii.control)),
         borderSide: BorderSide(color: RiderColors.accentText, width: 2),
       ),
       errorMaxLines: 3,
@@ -124,15 +212,22 @@ ThemeData buildRiderTheme() {
       ),
     ),
     checkboxTheme: CheckboxThemeData(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(RiderRadii.control),
+      ),
       side: const BorderSide(color: RiderColors.border, width: 1.5),
     ),
     dialogTheme: const DialogThemeData(
-      shape: shape,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(RiderRadii.dialog)),
+      ),
       backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
     ),
     datePickerTheme: const DatePickerThemeData(
-      shape: shape,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(RiderRadii.dialog)),
+      ),
       backgroundColor: Colors.white,
     ),
     snackBarTheme: const SnackBarThemeData(

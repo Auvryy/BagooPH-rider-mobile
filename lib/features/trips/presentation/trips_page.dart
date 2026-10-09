@@ -163,9 +163,10 @@ class _TripsPageState extends State<TripsPage> {
                     padding: EdgeInsets.zero,
                     child: InkWell(
                       key: ValueKey('trip-${records[i].id}'),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(RiderRadii.media),
                       onTap: () => showModalBottomSheet<void>(
                         context: context,
+                        sheetAnimationStyle: RiderMotion.sheetStyle(context),
                         isScrollControlled: true,
                         showDragHandle: true,
                         backgroundColor: RiderColors.canvas,

@@ -2,8 +2,8 @@
 
 These October 9 target tokens define the Rider app's independent modern mobile
 presentation. Shared red branding and business behavior remain aligned with the
-website; portal component styling does not govern this layout. This is a design
-revision, not a runtime theme change or rendered accessibility claim. All sizing
+website; portal component styling does not govern this layout. Core target tokens now style existing app screens;
+future views and optional candidates remain proposals, not accessibility claims. All sizing
 uses native logical units, not copied CSS measurements.
 
 ## Color roles
@@ -111,8 +111,9 @@ a 56-unit minimum height and full-row interaction; large text may increase it.
 Avoid a blanket radius applied to every element. Group surfaces remain opaque
 white; thin neutral separators establish relationships. Decorative elevation is
 small and consistent, while overlays alone receive enough depth to show layering.
-These are target specifications. Historical 8-unit surfaces in the current app
-remain accurate implementation evidence until the corresponding UI is updated.
+These core shapes now apply to the existing app. The supplied brand-artwork tile
+keeps its own contour; historical implementation records retain their original
+measurements. Planned map/overlay views are not made functional by a shape token.
 
 ## Buttons and bottom geometry
 

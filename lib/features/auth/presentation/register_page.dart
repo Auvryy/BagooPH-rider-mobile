@@ -521,7 +521,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     selected: _vehicle == vehicle.$1,
                     child: InkWell(
                       onTap: () => setState(() => _vehicle = vehicle.$1),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(RiderRadii.control),
                       child: Container(
                         constraints: const BoxConstraints(minHeight: 96),
                         padding: const EdgeInsets.all(16),
@@ -529,7 +529,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                           color: _vehicle == vehicle.$1
                               ? RiderColors.rose
                               : Colors.white,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(
+                            RiderRadii.control,
+                          ),
                           border: Border.all(
                             color: _vehicle == vehicle.$1
                                 ? RiderColors.accentText
@@ -610,7 +612,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: RiderColors.rose,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(RiderRadii.control),
         ),
         child: const Text(
           'Your company, hub and work assignment are managed separately '
@@ -801,11 +803,11 @@ class _StepNavigation extends StatelessWidget {
         onTap: () => onSelect(index),
         child: Material(
           color: Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(RiderRadii.control),
           child: InkWell(
             onTap: () => onSelect(index),
             excludeFromSemantics: true,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(RiderRadii.control),
             child: ExcludeSemantics(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
@@ -918,7 +920,7 @@ class _DocumentCardState extends State<_DocumentCard> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(RiderRadii.control),
         border: Border.all(color: RiderColors.border),
       ),
       child: Column(
@@ -930,7 +932,7 @@ class _DocumentCardState extends State<_DocumentCard> {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: RiderColors.rose,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(RiderRadii.control),
                 ),
                 child: const Icon(
                   Icons.description_outlined,

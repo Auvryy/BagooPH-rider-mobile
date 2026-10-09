@@ -423,7 +423,7 @@ class _SettingsGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Material(
     color: Colors.white,
-    borderRadius: BorderRadius.circular(8),
+    borderRadius: BorderRadius.circular(RiderRadii.group),
     clipBehavior: Clip.antiAlias,
     child: Column(
       children: [

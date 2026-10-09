@@ -48,9 +48,9 @@ removed from the everyday Settings path.
   Compact spacing does not reduce text to fit. Large text may scroll vertically;
   fields, long values and keyboard paths must remain accessible.
 - **Consistency:** preserve Bagoo red and the bundled Plus Jakarta Sans. Detail
-  pages share navigation and row structure. This implemented slice uses the
-  previous pale canvas and 8-unit surfaces; the newer target neutral canvas and
-  role-specific shapes in the design system are a separate implementation step.
+  pages share navigation and row structure. The follow-up shared-theme update
+  applies neutral canvas, 20-unit groups and 12-unit controls to existing screens.
+  The supplied brand artwork retains its contour.
 
 ## Verification scope
 

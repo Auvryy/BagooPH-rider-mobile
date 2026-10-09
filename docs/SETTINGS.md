@@ -3,8 +3,7 @@
 The Flutter settings implementation follows the courier website at reviewed
 backend source `9fe5ce5`, including the Settings API introduced in `1dba047`.
 Website source and courier profile/email UI were read only. Profile leads to Settings,
-then Contact information, Email and recovery, or Privacy and security → Change
-password. Full forms cover the tab bar and return to their originating page.
+then Contact information, Email and recovery, or Change password directly. Full forms cover the tab bar and return to their originating page.
 
 ## Production status
 
@@ -144,3 +143,11 @@ Final checks: all 80 local Flutter tests passed, analysis was clean, and ordinar
 Linux/debug Android builds passed. The Android package uses Azure and excludes
 the retired Settings links, sample routes and temporary live checker. No Android
 phone was connected, so physical Settings interaction is not claimed.
+
+## Compact mobile presentation — October 9
+
+[The mobile layout](SETTINGS_UX.md) groups everyday Settings actions, moves account/
+assignment/vehicle details to named pages, and puts editable form controls first.
+Email address lists and credential/code entry are separate steps. Server rules,
+Azure configuration, capability/owner checks, session cleanup and immutable identity
+remain unchanged. Layout renders and tests use synthetic data only.

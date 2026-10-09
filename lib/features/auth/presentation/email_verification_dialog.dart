@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/account.dart';
 import 'auth_controller.dart';
 
+import '../../../core/ui/rider_surfaces.dart';
+
 class EmailVerificationDialog extends ConsumerStatefulWidget {
   const EmailVerificationDialog({super.key, required this.email});
   final String email;
@@ -117,23 +119,29 @@ class _EmailVerificationDialogState
             style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),
         ],
-        TextButton(
-          onPressed: _busy || _cooldown > 0 ? null : _send,
-          child: Text(
-            _cooldown > 0 ? 'Resend in $_cooldown seconds' : 'Resend code',
+        RiderPressFeedback(
+          child: TextButton(
+            onPressed: _busy || _cooldown > 0 ? null : _send,
+            child: Text(
+              _cooldown > 0 ? 'Resend in $_cooldown seconds' : 'Resend code',
+            ),
           ),
         ),
       ],
     ),
     actions: [
-      TextButton(
-        onPressed: _busy ? null : () => Navigator.of(context).pop(),
-        child: const Text('Cancel'),
+      RiderPressFeedback(
+        child: TextButton(
+          onPressed: _busy ? null : () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
       ),
-      FilledButton(
-        key: const ValueKey('verify-email-button'),
-        onPressed: _busy ? null : _verify,
-        child: Text(_busy ? 'Please wait…' : 'Verify email'),
+      RiderPressFeedback(
+        child: FilledButton(
+          key: const ValueKey('verify-email-button'),
+          onPressed: _busy ? null : _verify,
+          child: Text(_busy ? 'Please wait…' : 'Verify email'),
+        ),
       ),
     ],
   );

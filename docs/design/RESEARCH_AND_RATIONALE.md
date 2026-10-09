@@ -72,3 +72,35 @@ composition; it is not evidence that the operational flow is usable.
 The [source register](SOURCE_REGISTER.md) distinguishes current guidance,
 historical research, abstract-only evidence and product decisions. No trend,
 law or platform example changes the parcel/financial contract.
+
+## Independent mobile target — October 9
+
+The reference research informs behavior, not a named imitation or copied portal
+style. The Rider target uses neutral canvas, white inset groups, role-specific
+rounding and red emphasis. Grouping/recognition support short labelled menus;
+progressive disclosure keeps managed records and operation-specific credentials
+off the everyday screen. Reduced choice and larger touch regions support clarity
+without claiming a measured task-time improvement. Existing business constraints
+remain authoritative regardless of the visual layer.
+
+Restrained layering can distinguish navigation/overlays, but addresses, amounts,
+proof and forms keep opaque surfaces. Contrast, safe areas and reduced-effects
+fallbacks take precedence over a visual material. Planned target, illustration,
+implemented screen and physical device result remain different evidence.
+
+
+## Tactile and layered revision — October 9
+
+The review rejected dark framed controls and a visually flat dock. Existing
+screens now use borderless filled inputs, native sans-serif type, continuous
+contours and physical press feedback. Reading remains the dominant layer;
+frosted floating controls establish depth without making every card transparent.
+The dock reserves its measured safe-area footprint at enlarged text.
+
+Reference motion guidance informs finite spring/scroll behavior; exact values
+are Rider design choices, not platform defaults or usability measurements.
+Typography follows available platform families rather than distributing a
+proprietary font. Reduced effects, accessible navigation and high contrast have
+readable opaque fallbacks. Physical device performance and preference mapping
+remain acceptance checks. [R17](SOURCE_REGISTER.md#r17),
+[R18](SOURCE_REGISTER.md#r18), [R19](SOURCE_REGISTER.md#r19)

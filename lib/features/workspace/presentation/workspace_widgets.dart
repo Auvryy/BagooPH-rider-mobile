@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/ui/rider_surfaces.dart';
 import '../../../core/platform/rider_website.dart';
 import '../data/workspace_models.dart';
 
@@ -14,21 +15,8 @@ class WorkspacePanel extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
   @override
-  Widget build(BuildContext context) => Container(
-    padding: padding,
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(8),
-      boxShadow: const [
-        BoxShadow(
-          color: Color(0x060F172A),
-          blurRadius: 18,
-          offset: Offset(0, 4),
-        ),
-      ],
-    ),
-    child: child,
-  );
+  Widget build(BuildContext context) =>
+      RiderSurface(padding: padding, child: child);
 }
 
 class WorkspaceAvatar extends StatelessWidget {
@@ -50,8 +38,8 @@ class WorkspaceAvatar extends StatelessWidget {
     return ExcludeSemantics(
       child: CircleAvatar(
         radius: size / 2,
-        backgroundColor: RiderColors.rose,
-        foregroundColor: RiderColors.accentText,
+        backgroundColor: RiderColors.controlFill,
+        foregroundColor: RiderColors.ink,
         child: Text(
           initials.isEmpty ? 'R' : initials,
           style: TextStyle(fontSize: size * .34, fontWeight: FontWeight.w700),
@@ -68,9 +56,11 @@ class WorkspaceBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-    decoration: BoxDecoration(
+    decoration: ShapeDecoration(
       color: accent ? RiderColors.rose : const Color(0xFFF1F5F9),
-      borderRadius: BorderRadius.circular(8),
+      shape: RoundedSuperellipseBorder(
+        borderRadius: BorderRadius.circular(RiderRadii.selection),
+      ),
     ),
     child: Text(
       label,
@@ -109,8 +99,10 @@ class WorkspaceHeading extends StatelessWidget {
           if (action != null) ...[const SizedBox(width: 8), action!],
         ],
       ),
-      const SizedBox(height: 8),
-      Text(description),
+      if (description.isNotEmpty) ...[
+        const SizedBox(height: 8),
+        Text(description),
+      ],
       const SizedBox(height: 24),
     ],
   );
@@ -123,7 +115,12 @@ class WorkspaceBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SingleChildScrollView(
     key: storageKey == null ? null : PageStorageKey(storageKey),
-    padding: EdgeInsets.all(MediaQuery.sizeOf(context).width < 360 ? 16 : 24),
+    padding: EdgeInsets.fromLTRB(
+      MediaQuery.sizeOf(context).width < 360 ? 16 : 24,
+      24,
+      MediaQuery.sizeOf(context).width < 360 ? 16 : 24,
+      24 + MediaQuery.paddingOf(context).bottom,
+    ),
     child: Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1100),
@@ -149,19 +146,21 @@ class WebsiteButton extends ConsumerWidget {
     if (ref.watch(websiteOriginProvider) == null) {
       return const SizedBox.shrink();
     }
-    return OutlinedButton.icon(
-      onPressed: () async {
-        final messenger = ScaffoldMessenger.of(context);
-        if (!await openRiderWebsite(ref, page)) {
-          messenger.showSnackBar(
-            const SnackBar(
-              content: Text('Could not open the Rider website. Try again.'),
-            ),
-          );
-        }
-      },
-      icon: const Icon(Icons.open_in_new_rounded, size: 18),
-      label: Text(label),
+    return RiderPressFeedback(
+      child: OutlinedButton.icon(
+        onPressed: () async {
+          final messenger = ScaffoldMessenger.of(context);
+          if (!await openRiderWebsite(ref, page)) {
+            messenger.showSnackBar(
+              const SnackBar(
+                content: Text('Could not open the Rider website. Try again.'),
+              ),
+            );
+          }
+        },
+        icon: const Icon(Icons.open_in_new_rounded, size: 18),
+        label: Text(label),
+      ),
     );
   }
 }
@@ -201,7 +200,12 @@ class FeatureStateView<T> extends StatelessWidget {
                 '${data.message} Showing the last loaded information.',
               ),
             ),
-            TextButton(onPressed: onRetry, child: const Text('Try again')),
+            RiderPressFeedback(
+              child: TextButton(
+                onPressed: onRetry,
+                child: const Text('Try again'),
+              ),
+            ),
             const SizedBox(height: 12),
           ],
           ready(data.data as T),
@@ -224,11 +228,13 @@ class FeatureStateView<T> extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: RiderColors.rose,
-              borderRadius: BorderRadius.circular(8),
+            decoration: ShapeDecoration(
+              color: RiderColors.controlFill,
+              shape: RoundedSuperellipseBorder(
+                borderRadius: BorderRadius.circular(RiderRadii.surface),
+              ),
             ),
-            child: Icon(icon, color: RiderColors.accentText, size: 28),
+            child: Icon(icon, color: RiderColors.muted, size: 28),
           ),
           const SizedBox(height: 20),
           Text(
@@ -241,10 +247,12 @@ class FeatureStateView<T> extends StatelessWidget {
           Text(data.message ?? 'Try again.'),
           const SizedBox(height: 20),
           if (data.status == FeatureStatus.failed)
-            OutlinedButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Try again'),
+            RiderPressFeedback(
+              child: OutlinedButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Try again'),
+              ),
             )
           else if (website != null)
             WebsiteButton(page: website!),
@@ -268,7 +276,12 @@ class WorkspaceEmpty extends StatelessWidget {
         Text(description),
         if (onClear != null) ...[
           const SizedBox(height: 12),
-          TextButton(onPressed: onClear, child: const Text('Clear filters')),
+          RiderPressFeedback(
+            child: TextButton(
+              onPressed: onClear,
+              child: const Text('Clear filters'),
+            ),
+          ),
         ],
       ],
     ),

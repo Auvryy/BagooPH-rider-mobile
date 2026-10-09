@@ -41,6 +41,19 @@ This M02/M03 usability correction does not clear pending settings or parcel APIs
 The backend owner is independently implementing settings on its own branch;
 mobile configuration changes do not edit or prove that implementation.
 
+**Settings mobile UX (October 9):** Profile details now use named secondary pages;
+Settings has compact grouped actions with direct password navigation. Contact
+repetition and duplicate toolbar actions are removed; email lists reveal credential
+forms only for selected operations. See [Settings UX](SETTINGS_UX.md). This M13/M14
+presentation slice preserves the deployed API and its outstanding private/Android
+acceptance gates; it does not implement other backend or parcel capabilities.
+
+**Shared mobile styling (October 9):** existing entry/registration/holding and
+Tasks/Trips/Messages/Profile/Settings surfaces now use the modern neutral/red theme,
+role-specific shapes, inset navigation and reduced-effects-aware transitions.
+No new operational API, page, account permission or sample app mode is introduced.
+Future design inventory entries remain planned and backend acceptance stays separate.
+
 ## Always check the Bagoo website project
 
 **Rider branding update (October 8):** the supplied GooRiders artwork now feeds
@@ -245,8 +258,10 @@ operational states or the physical Android baseline. See [AUTH_PREVIEW.md](AUTH_
    boundaries. Add proposed packages only when needed and after compatibility
    checks; do not assume they are already installed.
 2. Build reusable fields, buttons, status/error panels and accessible sheets.
-   Use the Rider accent `#E00D42`, canvas `#FFFAFB`, 8 logical-pixel corners and
-   licensed bundled Plus Jakarta Sans when implemented.
+   Use the mobile design target: primary `#E00D42`, neutral `#F7F7FA`, role-specific
+   continuous superellipse shapes, platform sans-serif typography, borderless
+   filled controls and accessible frosted chrome. Apply target tokens only in the
+   selected implementation slice, with explicit checks against existing runtime.
 3. Wire explicit development fixtures behind replaceable repositories; retain
    debug Linux Device Preview and establish the physical Android baseline.
 
@@ -256,6 +271,12 @@ have labelled 48 logical-pixel touch targets, visible focus and usable contrast.
 Fixtures are visibly a development configuration and cannot produce operational
 release success. Foundation checks include meaningful routing/widget checks and
 Android launch evidence; desktop layout review does not verify native hardware.
+
+**October 9 appearance revision:** existing entry/workspace/Settings screens now
+use borderless filled controls, continuous contours, platform type, frosted
+floating chrome and finite spring feedback. Fresh local tests, render review and
+ordinary builds passed; physical-device and operational API gates remain separate.
+See [the implementation record](MOBILE_STYLE_IMPLEMENTATION.md).
 
 ### M03 — Authentication and account holding
 

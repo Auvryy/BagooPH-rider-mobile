@@ -20,6 +20,8 @@ they do not authorize changing the backend or implementing every proposed featur
 | [HOME_PREVIEW.md](HOME_PREVIEW.md) | Which historical Home fixtures remain covered by automated layout tests? |
 | [RIDER_PAGES.md](RIDER_PAGES.md) | How do Home/Tasks, Trips, Messages and Profile-to-Settings work, with honest live-data availability and an isolated full-page preview? |
 | [SETTINGS.md](SETTINGS.md) | How are profile contact, password and additional-email forms prepared, and which backend/live checks remain? |
+| [SETTINGS_UX.md](SETTINGS_UX.md) | How does the compact mobile Settings hierarchy reduce scrolling and preserve readable actions? |
+| [MOBILE_STYLE_IMPLEMENTATION.md](MOBILE_STYLE_IMPLEMENTATION.md) | Which new visual tokens now style existing app screens, with what verification limits? |
 | [AZURE_ACCOUNT_ACCESS.md](AZURE_ACCOUNT_ACCESS.md) | How do I run the native app against the deployed HTTPS account API, and which live/device checks passed? |
 | [TASK_TRACKING.md](TASK_TRACKING.md) | What are the 16 major work areas, which screens belong to them, and how will later tasks/branches build and verify them? |
 | [SUBTASK_BACKLOG.md](SUBTASK_BACKLOG.md) | Which of the 180 detailed cards or 63 suggested batches can a later prompt select, with what dependencies, steps, checks and effort? |
@@ -32,6 +34,15 @@ they do not authorize changing the backend or implementing every proposed featur
 | [VERIFICATION_AND_READINESS.md](VERIFICATION_AND_READINESS.md) | What proves readiness, and how do the before/after documentation ratings compare? |
 | [DECISIONS_AND_IDEAS.md](DECISIONS_AND_IDEAS.md) | Which choices are recommended, open, or deliberately deferred? |
 | [SOURCES.md](SOURCES.md) | Which web contracts and official technical references support the plan? |
+
+## Mobile visual direction
+
+The current design documents define an independent modern mobile presentation:
+neutral `#F7F7FA`, borderless filled controls, continuous inset groups, system type, frosted floating
+chrome, spring feedback and
+primary red `#E00D42`. The website supplies business rules and shared branding;
+its CSS/layout does not govern mobile screens. Core visual tokens now apply to
+existing runtime screens; the wider design inventory remains planned. See [the design specification](DESIGN_SPEC.md).
 
 ## Current code versus target
 

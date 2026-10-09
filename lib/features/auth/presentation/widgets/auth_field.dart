@@ -2,7 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/theme.dart';
 
+import '../../../../core/ui/rider_surfaces.dart';
+
 class AuthField extends StatefulWidget {
+  static const labelStyle = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w600,
+    color: RiderColors.ink,
+  );
   const AuthField({
     super.key,
     required this.label,
@@ -59,13 +66,11 @@ class _AuthFieldState extends State<AuthField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          widget.label,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: RiderColors.ink,
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: AuthFieldLabels.heightOf(context),
           ),
+          child: Text(widget.label, style: AuthField.labelStyle),
         ),
         const SizedBox(height: 8),
         Semantics(
@@ -92,16 +97,18 @@ class _AuthFieldState extends State<AuthField> {
                   ? null
                   : Icon(widget.icon, size: 20),
               suffixIcon: widget.password
-                  ? IconButton(
-                      tooltip: _visible
-                          ? 'Hide ${widget.label.toLowerCase()}'
-                          : 'Show ${widget.label.toLowerCase()}',
-                      onPressed: () => setState(() => _visible = !_visible),
-                      icon: Icon(
-                        _visible
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        size: 20,
+                  ? RiderPressFeedback(
+                      child: IconButton(
+                        tooltip: _visible
+                            ? 'Hide ${widget.label.toLowerCase()}'
+                            : 'Show ${widget.label.toLowerCase()}',
+                        onPressed: () => setState(() => _visible = !_visible),
+                        icon: Icon(
+                          _visible
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          size: 20,
+                        ),
                       ),
                     )
                   : null,
@@ -111,6 +118,22 @@ class _AuthFieldState extends State<AuthField> {
       ],
     );
   }
+}
+
+/// Paired fields align their inputs even when one persistent label wraps.
+class AuthFieldLabels extends InheritedWidget {
+  const AuthFieldLabels({
+    super.key,
+    required this.height,
+    required super.child,
+  });
+  final double height;
+  static double heightOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<AuthFieldLabels>()?.height ??
+      0;
+  @override
+  bool updateShouldNotify(AuthFieldLabels oldWidget) =>
+      height != oldWidget.height;
 }
 
 String? requiredText(String? value, String label) {
@@ -123,16 +146,18 @@ void showAuthPreviewMessage(
   required String title,
   required String message,
 }) {
-  showDialog<void>(
+  showRiderDialog<void>(
     context: context,
     builder: (context) => AlertDialog(
       scrollable: true,
       title: Text(title),
       content: Text(message),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Back to preview'),
+        RiderPressFeedback(
+          child: TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Back to preview'),
+          ),
         ),
       ],
     ),

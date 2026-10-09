@@ -3,15 +3,29 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../app/theme.dart';
-import '../../../core/platform/rider_website.dart';
-import '../../../core/ui/brand_logo.dart';
+import '../../../core/ui/rider_surfaces.dart';
 import '../../auth/data/account.dart';
+import '../../auth/presentation/auth_controller.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
 import '../data/settings_models.dart';
 import 'settings_controller.dart';
 import 'settings_forms.dart';
 
-enum ProfileSection { profile, settings, security, help, about }
+enum ProfileSection {
+  profile,
+  settings,
+  account,
+  assignment,
+  vehicle,
+  help,
+  about;
+
+  ProfileSection get parent => switch (this) {
+    settings || account || assignment || vehicle => profile,
+    help || about => settings,
+    profile => profile,
+  };
+}
 
 final appPackageProvider = FutureProvider<PackageInfo>(
   (ref) => PackageInfo.fromPlatform(),
@@ -32,6 +46,7 @@ class ProfileSettingsPage extends ConsumerWidget {
   final ValueChanged<ProfileSection> onSection;
   final VoidCallback onLogout, onRefresh;
   final bool preview;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(
@@ -39,361 +54,390 @@ class ProfileSettingsPage extends ConsumerWidget {
         SettingsIdentity(account.id, preview: preview),
       ),
     );
+    final signingOut = ref.watch(authControllerProvider.select((s) => s.busy));
+    void form(SettingsFlow flow) =>
+        openSettingsForm(context, ref, account, preview, flow);
     final title = switch (section) {
       ProfileSection.profile => 'Profile',
       ProfileSection.settings => 'Settings',
-      ProfileSection.security => 'Privacy and security',
+      ProfileSection.account => 'Account details',
+      ProfileSection.assignment => 'Assignment',
+      ProfileSection.vehicle => 'Vehicle and credentials',
       ProfileSection.help => 'Help',
       ProfileSection.about => 'About Rider',
     };
-    final back = section == ProfileSection.profile
-        ? null
-        : TextButton.icon(
-            key: const ValueKey('settings-back'),
-            onPressed: () => onSection(
-              section == ProfileSection.settings
-                  ? ProfileSection.profile
-                  : ProfileSection.settings,
+    final content = <Widget>[
+      if (section != ProfileSection.profile)
+        Row(
+          children: [
+            RiderPressFeedback(
+              child: IconButton(
+                key: const ValueKey('settings-back'),
+                tooltip: section.parent == ProfileSection.profile
+                    ? 'Back to Profile'
+                    : 'Back to Settings',
+                onPressed: () => onSection(section.parent),
+                icon: const Icon(Icons.arrow_back_rounded),
+              ),
             ),
-            icon: const Icon(Icons.arrow_back_rounded, size: 18),
-            label: Text(
-              section == ProfileSection.settings
-                  ? 'Back to Profile'
-                  : 'Back to Settings',
+            const SizedBox(width: 4),
+            Expanded(
+              child: Text(title, style: Theme.of(context).textTheme.titleLarge),
             ),
-          );
-    final content = <Widget>[];
-    if (back != null) {
-      content.add(Align(alignment: Alignment.centerLeft, child: back));
-    }
-    content.add(
-      WorkspaceHeading(title, switch (section) {
-        ProfileSection.profile => 'Your identity and account information.',
-        ProfileSection.settings => 'Account, security and support.',
-        ProfileSection.security => 'Manage your password and account security.',
-        ProfileSection.help => 'A clear handoff, every step of the way.',
-        ProfileSection.about =>
-          'The mobile workspace for pickup and delivery couriers.',
-      }),
-    );
-    if (section == ProfileSection.profile) {
-      content.addAll([
-        WorkspacePanel(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          ],
+        )
+      else
+        Text(title, style: Theme.of(context).textTheme.headlineMedium),
+      const SizedBox(height: 16),
+    ];
+
+    switch (section) {
+      case ProfileSection.profile:
+        content.addAll([
+          _SettingsGroup(
             children: [
-              WorkspaceAvatar(account.name, size: 68),
-              const SizedBox(height: 20),
-              Text(
-                account.name,
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(account.email),
-              const SizedBox(height: 16),
-              const WorkspaceBadge('Reviewed account', accent: true),
-              const SizedBox(height: 24),
-              _Information('Account reference', account.id),
-              _Information(
-                'Account status',
-                account.status == 'active' ? 'Active' : account.status,
-              ),
-              _Information(
-                'Identity review',
-                account.kycStatus == 'verified' ? 'Verified' : 'Approved',
-              ),
-              _Information(
-                'Email',
-                account.emailVerified ? 'Verified' : 'Verification pending',
-              ),
-              if (settings.data != null)
-                _Information(
-                  'Mobile number',
-                  settings.data!.phone ?? 'Not provided',
+              RiderPressFeedback(
+                child: InkWell(
+                  key: const ValueKey('open-account'),
+                  onTap: () => onSection(ProfileSection.account),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        WorkspaceAvatar(account.name, size: 48),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                account.name,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                account.email,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Account details',
+                                style: Theme.of(context).textTheme.labelMedium
+                                    ?.copyWith(color: RiderColors.accentText),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Icon(
+                          Icons.chevron_right_rounded,
+                          color: RiderColors.muted,
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              TextButton.icon(
-                key: const ValueKey('open-contact'),
-                onPressed: () => openSettingsForm(
-                  context,
-                  ref,
-                  account,
-                  preview,
-                  SettingsFlow.contact,
-                ),
-                icon: const Icon(Icons.edit_outlined, size: 18),
-                label: const Text('Contact information'),
-              ),
-              TextButton.icon(
-                onPressed: () {
-                  onRefresh();
-                  settings.load();
-                },
-                icon: const Icon(Icons.refresh_rounded, size: 18),
-                label: const Text('Refresh account status'),
               ),
             ],
           ),
-        ),
-        const SizedBox(height: 20),
-        WorkspacePanel(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          const SizedBox(height: 16),
+          _SettingsGroup(
             children: [
-              Text(
-                'Assignment and vehicle',
-                style: Theme.of(context).textTheme.titleLarge,
+              _SettingsRow(
+                key: const ValueKey('open-settings'),
+                icon: Icons.settings_outlined,
+                title: 'Settings',
+                onTap: () => onSection(ProfileSection.settings),
               ),
-              const SizedBox(height: 8),
-              if (settings.data?.managedAvailable == true)
-                ...SettingsSnapshot.managedLabels.entries.map(
-                  (entry) => _Information(
-                    entry.value,
-                    settings.data!.managed[entry.key] ?? 'Not provided',
-                  ),
-                )
-              else
-                Text(
-                  settings.data != null
-                      ? 'Managed assignment and vehicle details were not provided for this account. Your logistics team manages these records.'
-                      : settings.available
-                      ? 'Refresh account details to load your assignment and vehicle information.'
-                      : 'Sign in again to refresh your account access. Your logistics team manages assignment and vehicle records.',
-                ),
-              if (settings.available && settings.data == null) ...[
-                const SizedBox(height: 16),
-                TextButton.icon(
-                  onPressed: settings.loading ? null : settings.load,
-                  icon: const Icon(Icons.refresh_rounded, size: 18),
-                  label: Text(
-                    settings.loading ? 'Loading details…' : 'Refresh details',
-                  ),
-                ),
-              ],
             ],
           ),
-        ),
-        const SizedBox(height: 20),
-        WorkspacePanel(
-          padding: EdgeInsets.zero,
-          child: _SettingsRow(
-            key: const ValueKey('open-settings'),
-            icon: Icons.settings_outlined,
-            title: 'Settings',
-            description: 'Security, help and sign out',
-            onTap: () => onSection(ProfileSection.settings),
+          const _GroupTitle('Work information'),
+          _SettingsGroup(
+            children: [
+              _SettingsRow(
+                key: const ValueKey('open-assignment'),
+                icon: Icons.location_on_outlined,
+                title: 'Assignment',
+                onTap: () => onSection(ProfileSection.assignment),
+              ),
+              _SettingsRow(
+                key: const ValueKey('open-vehicle'),
+                icon: Icons.two_wheeler_outlined,
+                title: 'Vehicle and credentials',
+                onTap: () => onSection(ProfileSection.vehicle),
+              ),
+            ],
           ),
-        ),
-      ]);
-    }
-    if (section == ProfileSection.settings) {
-      content.addAll([
-        WorkspacePanel(
-          padding: EdgeInsets.zero,
-          child: Column(
+        ]);
+      case ProfileSection.settings:
+        content.addAll([
+          const _GroupTitle('Account', top: 0),
+          _SettingsGroup(
             children: [
               _SettingsRow(
                 key: const ValueKey('settings-contact'),
                 icon: Icons.contact_phone_outlined,
                 title: 'Contact information',
-                description: 'Mobile number and reviewed identity',
-                onTap: () => openSettingsForm(
-                  context,
-                  ref,
-                  account,
-                  preview,
-                  SettingsFlow.contact,
-                ),
+                onTap: () => form(SettingsFlow.contact),
               ),
-              const Divider(height: 1, indent: 20, endIndent: 20),
               _SettingsRow(
                 key: const ValueKey('settings-emails'),
                 icon: Icons.alternate_email_rounded,
                 title: 'Email and recovery',
-                description: 'Verified additional and contact addresses',
-                onTap: () => openSettingsForm(
-                  context,
-                  ref,
-                  account,
-                  preview,
-                  SettingsFlow.emails,
-                ),
+                onTap: () => form(SettingsFlow.emails),
               ),
-              const Divider(height: 1, indent: 20, endIndent: 20),
               _SettingsRow(
-                key: const ValueKey('open-security'),
+                key: const ValueKey('open-password'),
                 icon: Icons.lock_outline_rounded,
-                title: 'Privacy and security',
-                description: 'Email verification and account management',
-                onTap: () => onSection(ProfileSection.security),
+                title: 'Change password',
+                onTap: () => form(SettingsFlow.password),
               ),
-              const Divider(height: 1, indent: 20, endIndent: 20),
+            ],
+          ),
+          const _GroupTitle('Support'),
+          _SettingsGroup(
+            children: [
               _SettingsRow(
                 key: const ValueKey('open-help'),
                 icon: Icons.help_outline_rounded,
                 title: 'Help',
-                description: 'Pickup, delivery and cash responsibilities',
                 onTap: () => onSection(ProfileSection.help),
               ),
-              const Divider(height: 1, indent: 20, endIndent: 20),
               _SettingsRow(
                 key: const ValueKey('open-about'),
                 icon: Icons.info_outline_rounded,
                 title: 'About Rider',
-                description: 'App information and licenses',
                 onTap: () => onSection(ProfileSection.about),
               ),
             ],
           ),
-        ),
-        const SizedBox(height: 28),
-        OutlinedButton.icon(
-          key: const ValueKey('settings-logout'),
-          onPressed: onLogout,
-          icon: const Icon(Icons.logout_rounded, size: 18),
-          label: Text(preview ? 'Exit preview' : 'Sign out'),
-        ),
-      ]);
-    }
-    if (section == ProfileSection.security) {
-      content.addAll([
-        WorkspacePanel(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          const SizedBox(height: 20),
+          _SettingsGroup(
             children: [
-              _Information('Email address', account.email),
+              _SettingsRow(
+                key: const ValueKey('settings-logout'),
+                icon: Icons.logout_rounded,
+                title: preview
+                    ? 'Exit preview'
+                    : signingOut
+                    ? 'Signing out…'
+                    : 'Sign out',
+                destructive: true,
+                disclosure: false,
+                onTap: signingOut && !preview ? null : onLogout,
+              ),
+            ],
+          ),
+        ]);
+      case ProfileSection.account:
+        content.addAll([
+          _SettingsGroup(
+            children: [
+              _Information('Name', account.name),
+              _Information('Sign-in email', account.email),
+              _Information('Account status', _readable(account.status)),
+              _Information('Identity review', _readable(account.kycStatus)),
               _Information(
-                'Verification',
-                account.emailVerified ? 'Verified' : 'Verification pending',
+                'Email verification',
+                account.emailVerified ? 'Verified' : 'Pending',
               ),
-              const SizedBox(height: 8),
-              const Text(
-                'Password changes require your current password and verified email. Your original sign-in email stays with your account.',
-              ),
-              const SizedBox(height: 20),
-              OutlinedButton.icon(
-                key: const ValueKey('open-password'),
-                onPressed: () => openSettingsForm(
-                  context,
-                  ref,
-                  account,
-                  preview,
-                  SettingsFlow.password,
-                ),
-                icon: const Icon(Icons.password_rounded),
-                label: const Text('Change password'),
-              ),
-              if (!preview) ...[
-                const SizedBox(height: 20),
-                const WebsiteButton(
-                  page: RiderWebsitePage.recovery,
-                  label: 'Forgot password',
-                ),
+              _Information('Account reference', account.id),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Your reviewed name and original sign-in email stay with your account.',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 12),
+          RiderPressFeedback(
+            child: TextButton.icon(
+              key: const ValueKey('refresh-account'),
+              onPressed: () {
+                onRefresh();
+                settings.load();
+              },
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              label: const Text('Refresh details'),
+            ),
+          ),
+        ]);
+      case ProfileSection.assignment:
+      case ProfileSection.vehicle:
+        if (settings.data?.managedAvailable == true) {
+          final keys = section == ProfileSection.assignment
+              ? ['company', 'hub', 'hub_code', 'barangay']
+              : [
+                  'vehicle_type',
+                  'vehicle_model',
+                  'plate_number',
+                  'fleet_status',
+                  'license_number',
+                  'registration_status',
+                ];
+          content.add(
+            _SettingsGroup(
+              children: [
+                for (final key in keys)
+                  _Information(
+                    SettingsSnapshot.managedLabels[key]!,
+                    [
+                          'vehicle_type',
+                          'fleet_status',
+                          'registration_status',
+                        ].contains(key)
+                        ? _readable(settings.data!.managed[key])
+                        : settings.data!.managed[key] ?? 'Not provided',
+                  ),
               ],
+            ),
+          );
+          content.addAll([
+            const SizedBox(height: 12),
+            Text(
+              'Managed by your logistics team.',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ]);
+        } else {
+          content.add(
+            WorkspacePanel(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (settings.loading) const LinearProgressIndicator(),
+                  Text(
+                    settings.data != null
+                        ? 'These details were not provided for your account. Your logistics team manages these records.'
+                        : settings.available
+                        ? 'Could not load these details. Try refreshing.'
+                        : 'Sign in again to refresh your account access.',
+                  ),
+                  if (settings.available) ...[
+                    const SizedBox(height: 12),
+                    RiderPressFeedback(
+                      child: TextButton.icon(
+                        onPressed: settings.loading ? null : settings.load,
+                        icon: const Icon(Icons.refresh_rounded, size: 18),
+                        label: const Text('Refresh details'),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
+        }
+      case ProfileSection.help:
+        content.add(
+          _SettingsGroup(
+            children: const [
+              _HelpItem(
+                Icons.storefront_outlined,
+                'Seller pickup',
+                'Claim an eligible pickup, verify the parcel and take it to its assigned origin Bayan Hub. The hub records intake.',
+              ),
+              _HelpItem(
+                Icons.local_shipping_outlined,
+                'Assigned delivery',
+                'Your destination hub assigns final-mile work. Follow its handoff and record the outcome. Buyer receipt is a separate step.',
+              ),
+              _HelpItem(
+                Icons.account_balance_wallet_outlined,
+                'Cash responsibility',
+                'Collected cash is separate from earnings. Keep collection, hub remittance and platform reconciliation separate. Signing out does not release parcels or cash.',
+              ),
+              _HelpItem(
+                Icons.support_agent_rounded,
+                'Contact your logistics team',
+                'Ask your logistics team about an incorrect assignment, vehicle record or held parcel. Use your own account and the recorded hub handoff.',
+              ),
             ],
           ),
-        ),
-        const SizedBox(height: 24),
-        WorkspacePanel(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        );
+      case ProfileSection.about:
+        final info = ref.watch(appPackageProvider);
+        content.addAll([
+          _SettingsGroup(
             children: [
-              Text(
-                'Your mobile session',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Your sign-in token uses secure device storage. The server checks expiry, approval and account restrictions.',
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Signing out ends this device session. It does not release parcels, cash or other responsibilities assigned to you.',
-              ),
-            ],
-          ),
-        ),
-      ]);
-    }
-    if (section == ProfileSection.help) {
-      content.addAll([
-        const _HelpCard(
-          Icons.storefront_outlined,
-          'Seller pickup',
-          'Claim only an available pickup permitted for you. Check the correct parcel, then bring it to its origin Bayan Hub. The hub records receipt.',
-        ),
-        const SizedBox(height: 16),
-        const _HelpCard(
-          Icons.local_shipping_outlined,
-          'Assigned delivery',
-          'The destination hub assigns final-mile work. Collect only the assigned parcel and follow the recorded handoff. Buyer receipt is separate from delivery.',
-        ),
-        const SizedBox(height: 16),
-        const _HelpCard(
-          Icons.account_balance_wallet_outlined,
-          'Cash responsibility',
-          'Cash collected is not earnings. Keep collection, hub remittance and platform reconciliation separate. Sign out does not surrender cash or parcels.',
-        ),
-        const SizedBox(height: 16),
-        const _HelpCard(
-          Icons.support_agent_rounded,
-          'Need help?',
-          'For an incorrect assignment, vehicle record or held parcel, contact your logistics team through the existing workflow. Do not use another rider’s account or bypass a hub handoff.',
-        ),
-      ]);
-    }
-    if (section == ProfileSection.about) {
-      final info = ref.watch(appPackageProvider);
-      content.addAll([
-        WorkspacePanel(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const BrandLogo(),
-              const SizedBox(height: 24),
+              const _Information('App', 'BagooPH Rider'),
               info.when(
                 data: (p) =>
-                    Text('Version ${p.version} · Build ${p.buildNumber}'),
-                error: (_, _) =>
-                    const Text('Version information is unavailable.'),
-                loading: () => const Text('Reading app version…'),
+                    _Information('Version', '${p.version} (${p.buildNumber})'),
+                error: (_, _) => const _Information('Version', 'Unavailable'),
+                loading: () => const _Information('Version', 'Loading…'),
               ),
-              const SizedBox(height: 16),
-              const Text(
-                'BagooPH Rider supports one courier role across seller pickup and final-mile delivery. Assignment, approval, custody and cash remain controlled by Bagoo.',
-              ),
-              const SizedBox(height: 16),
-              TextButton(
-                onPressed: () => showLicensePage(
+              _SettingsRow(
+                icon: Icons.description_outlined,
+                title: 'Open-source licenses',
+                onTap: () => showLicensePage(
                   context: context,
                   applicationName: 'BagooPH Rider',
                   applicationVersion: info.value?.version,
                 ),
-                child: const Text('Open-source licenses'),
               ),
             ],
           ),
-        ),
-      ]);
+        ]);
     }
-    return WorkspaceBody(
-      storageKey: 'profile-${section.name}',
-      children: content,
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        key: PageStorageKey('profile-${section.name}'),
+        padding: EdgeInsets.fromLTRB(
+          constraints.maxWidth < 600 ? 16 : 24,
+          16,
+          constraints.maxWidth < 600 ? 16 : 24,
+          24,
+        ),
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 620),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: content,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
 
-class _Information extends StatelessWidget {
-  const _Information(this.label, this.value);
-  final String label, value;
+String _readable(String? value) {
+  if (value == null || value.isEmpty) return 'Not provided';
+  final text = value.replaceAll('_', ' ');
+  return '${text[0].toUpperCase()}${text.substring(1)}';
+}
+
+class _GroupTitle extends StatelessWidget {
+  const _GroupTitle(this.text, {this.top = 20});
+  final String text;
+  final double top;
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 18),
+    padding: EdgeInsets.fromLTRB(4, top, 4, 8),
+    child: Text(
+      text,
+      style: Theme.of(context).textTheme.labelLarge
+          ?.copyWith(color: RiderColors.muted),
+    ),
+  );
+}
+
+class _SettingsGroup extends StatelessWidget {
+  const _SettingsGroup({required this.children});
+  final List<Widget> children;
+  @override
+  Widget build(BuildContext context) => RiderSurface(
+    radius: RiderRadii.group,
     child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: Theme.of(context).textTheme.bodySmall),
-        const SizedBox(height: 6),
-        SelectableText(value, style: Theme.of(context).textTheme.titleMedium),
+        for (var i = 0; i < children.length; i++) ...[
+          if (i > 0) const Divider(height: 1, indent: 52, endIndent: 16),
+          children[i],
+        ],
       ],
     ),
   );
@@ -404,56 +448,95 @@ class _SettingsRow extends StatelessWidget {
     super.key,
     required this.icon,
     required this.title,
-    required this.description,
     required this.onTap,
+    this.destructive = false,
+    this.disclosure = true,
   });
   final IconData icon;
-  final String title, description;
-  final VoidCallback onTap;
+  final String title;
+  final VoidCallback? onTap;
+  final bool destructive, disclosure;
   @override
-  Widget build(BuildContext context) => InkWell(
-    onTap: onTap,
-    borderRadius: BorderRadius.circular(8),
-    child: Padding(
-      padding: const EdgeInsets.all(20),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: RiderColors.accentText),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 4),
-                Text(description),
+  Widget build(BuildContext context) => RiderPressFeedback(
+    child: InkWell(
+      onTap: onTap,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 56),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                size: 22,
+                color: destructive ? RiderColors.accentText : RiderColors.muted,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: destructive
+                        ? RiderColors.accentText
+                        : RiderColors.ink,
+                  ),
+                ),
+              ),
+              if (disclosure) ...[
+                const SizedBox(width: 8),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  size: 20,
+                  color: RiderColors.muted,
+                ),
               ],
-            ),
+            ],
           ),
-          const SizedBox(width: 8),
-          const Icon(Icons.chevron_right_rounded),
-        ],
+        ),
       ),
     ),
   );
 }
 
-class _HelpCard extends StatelessWidget {
-  const _HelpCard(this.icon, this.title, this.text);
+class _Information extends StatelessWidget {
+  const _Information(this.label, this.value);
+  final String label, value;
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
+        const SizedBox(height: 4),
+        SelectableText(value, style: Theme.of(context).textTheme.bodyLarge),
+      ],
+    ),
+  );
+}
+
+class _HelpItem extends StatelessWidget {
+  const _HelpItem(this.icon, this.title, this.text);
   final IconData icon;
   final String title, text;
   @override
-  Widget build(BuildContext context) => WorkspacePanel(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, color: RiderColors.accentText),
-        const SizedBox(height: 16),
-        Text(title, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 10),
-        Text(text),
-      ],
+  Widget build(BuildContext context) => ExpansionTile(
+    shape: const Border(),
+    collapsedShape: const Border(),
+    tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+    childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+    leading: Icon(icon, size: 22, color: RiderColors.muted),
+    title: Text(
+      title,
+      style: Theme.of(context).textTheme.titleMedium
+          ?.copyWith(fontWeight: FontWeight.w500),
     ),
+    children: [
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Text(text, style: Theme.of(context).textTheme.bodyLarge),
+      ),
+    ],
   );
 }

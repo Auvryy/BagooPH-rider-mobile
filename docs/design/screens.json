@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed_on": "2026-10-06",
+  "reviewed_on": "2026-10-09",
   "project": "BagooPH Rider",
   "selection": [
     "Stop Mode",
@@ -54,7 +54,7 @@
       ],
       "primary": "Sign in: full-width after the fields; stays above the keyboard when needed.",
       "secondary": "Forgot password under password; Apply as a rider below the main action.",
-      "why": "One red submit button makes the next action distinct; neutral outlined fields make editing recognizable. Recovery links use dark accent text rather than rival filled buttons.",
+      "why": "One red submit button makes the next action distinct; softly filled labelled fields make editing recognizable. Recovery links use dark accent text rather than rival filled buttons.",
       "special_states": "Bad credentials remain beside the correct field; expired session explains re-entry; unknown or wrong-role access does not open Tasks.",
       "dependency": "Accepted sign-in and own-account contract; no browser-to-native session assumption.",
       "native_implemented": false
@@ -287,7 +287,7 @@
       ],
       "primary": "Set parcel location: opens O05 for the selected owned parcel.",
       "secondary": "Find by tracking reference; return to Stop Mode; scan identity through P07.",
-      "why": "Rose highlights one selected slot; other slots have visible outlines and text labels. A diagram is a personal memory aid, so it has no verified/custody badge.",
+      "why": "Rose highlights one selected slot; other slots have filled surfaces, visible selection indicators and text labels. A diagram is a personal memory aid, so it has no verified/custody badge.",
       "special_states": "Unset location stays explicit; refresh preserves authorized local tags; account change clears scoped private state; final-mile multi-parcel load is not implied.",
       "dependency": "Selected tag model, session-only versus private persistence and cleanup decision; current multi-pickup capacity only.",
       "native_implemented": false
@@ -351,7 +351,7 @@
       ],
       "primary": "Directions: neutral control in the lower address shelf; custody action remains in Stop Mode.",
       "secondary": "Show stop, zoom, Copy address and Open instructions.",
-      "why": "One bounded 8-unit map frame contains visual complexity. Opaque controls protect contrast; a stationary pin means a saved destination, never live rider location.",
+      "why": "One bounded 16-unit map frame contains visual complexity. Opaque controls protect contrast; a stationary pin means a saved destination, never live rider location.",
       "special_states": "Missing coordinates use the address layout; tile error preserves text and manual retry; no predicted route line, ETA, geofence enforcement or offline bulk tiles.",
       "dependency": "Embedded-map M09.07 decision and provider policy; expanded layout is conditional until the renderer/data are accepted.",
       "native_implemented": false
@@ -385,7 +385,7 @@
       ],
       "primary": "Continue: full-width lower action after required evidence is ready.",
       "secondary": "Replace/remove photo near the thumbnail; cancel via discard-draft O08.",
-      "why": "Fields have visible outlines; photo is grouped in one white surface. One red continuation avoids competing Capture, Retake and Submit colors.",
+      "why": "Fields have persistent labels and soft fills; photo is grouped in one white surface. One red continuation avoids competing Capture, Retake and Submit colors.",
       "special_states": "Camera/picker interruption recovers only the authorized draft; rejected upload keeps safe input; photo selection does not record delivery.",
       "dependency": "Accepted evidence fields/limits, private media handling and real-device lifecycle verification.",
       "native_implemented": false
@@ -1027,7 +1027,7 @@
       ],
       "primary": "Update password: lower red submit with pending feedback.",
       "secondary": "Back/discard through O08; recovery via approved entry if necessary.",
-      "why": "Clear outlined fields and a single submit focus on the task; requirements are text, not a misleading strength gauge unsupported by policy.",
+      "why": "Clear filled fields and a single submit focus on the task; requirements are text, not a misleading strength gauge unsupported by policy.",
       "special_states": "Field failure retains permitted state but success clears sensitive values; revocation/expiry follows the real session policy.",
       "dependency": "Accepted password/session policy; actual length constraints from the server.",
       "native_implemented": false
@@ -1125,7 +1125,7 @@
       ],
       "primary": "Open supported contact channel: lower labelled neutral action.",
       "secondary": "Choose another owned parcel using O19; keep sensitive proof out of copied context.",
-      "why": "Read-only context is unboxed; any editable summary has a visible outline. No fake ticket number or claim that a safety agent is monitoring.",
+      "why": "Read-only context is unboxed; any editable summary has a soft fill and accent focus indicator. No fake ticket number or claim that a safety agent is monitoring.",
       "special_states": "No configured channel means guidance rather than a dead button; submitted reports are not implied by copying or opening contact.",
       "dependency": "Real contacts/approved help path; ticketing or incident persistence is outside this baseline.",
       "native_implemented": false
@@ -1572,7 +1572,7 @@
       ],
       "primary": "Continue to vehicle: after the form.",
       "secondary": "Back to sign in; inline help near the field.",
-      "why": "One red continuation and outlined fields clarify the sequence; the stepper is navigation context rather than verification.",
+      "why": "One red continuation and softly filled fields clarify the sequence; the stepper is navigation context rather than verification.",
       "special_states": "Field errors focus the first issue and preserve safe data; birth date cannot be replaced by a self-declared adult checkbox.",
       "entry": [
         "P02"
@@ -1814,7 +1814,7 @@
       "owner": "M04",
       "parent": "P05",
       "content": "Show applicable phase/date/payment filters, Apply and Clear with current selection.",
-      "treatment": "Neutral outlined choices; rose radio selection; lower Apply reachable.",
+      "treatment": "Neutral filled choices; rose radio selection; lower Apply reachable.",
       "recovery": "Cancel restores prior filters; count/result is updated only by the real query.",
       "native_implemented": false
     },
@@ -1847,7 +1847,7 @@
       "owner": "M04",
       "parent": "P08",
       "content": "Pick a labelled bag/compartment; Save location or Clear for this parcel only.",
-      "treatment": "Rose selection plus radio/text and outlined 48-unit targets.",
+      "treatment": "Rose selection plus radio/text and filled 48-unit targets.",
       "recovery": "Tag save does not prove a scan, physical load or server custody.",
       "native_implemented": false
     },
@@ -1979,7 +1979,7 @@
       "owner": "M11",
       "parent": "P18",
       "content": "Choose a supported Philippine-date period with Apply/Clear.",
-      "treatment": "Readable outlined date controls; rose selected range, one primary Apply.",
+      "treatment": "Readable filled date controls; rose selected range, one primary Apply.",
       "recovery": "Invalid range is inline; unsupported historical scope is not silently expanded.",
       "native_implemented": false
     },

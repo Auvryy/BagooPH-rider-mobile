@@ -1,12 +1,16 @@
 # Rider design system
 
-These tokens are product proposals carrying the existing Rider visual direction. They do not change global web styling or prove rendered accessibility. All sizing is in native logical units; the web preview uses CSS pixels with separately verified behavior.
+These October 9 target tokens define the Rider app's independent modern mobile
+presentation. Shared red branding and business behavior remain aligned with the
+website; portal component styling does not govern this layout. Core target tokens now style existing app screens;
+future views and optional candidates remain proposals, not accessibility claims. All sizing
+uses native logical units, not copied CSS measurements.
 
 ## Color roles
 
 | Role | Value | Why used |
 |---|---|---|
-| canvas | #FFFAFB | Quiet almost-white blush gives warmth while content remains prominent. |
+| canvas | #F7F7FA | A quiet neutral background separates content from white inset groups. |
 | surface | #FFFFFF | Opaque work/form/receipt background. |
 | ink | #0F172A | Heading, destination and primary amount. |
 | body | #1E293B | Readable address and instructions. |
@@ -16,7 +20,8 @@ These tokens are product proposals carrying the existing Rider visual direction.
 | accent pressed | #A1052B | Finite pressed state with a readable white label. |
 | selection | #FFF2F4 | Selected task/choice without flooding the screen. |
 | divider | #E2E8F0 | Quiet structural separation; not the only identifying boundary of a control. |
-| control border | #64748B | Identifiable input/neutral button/choice boundary. |
+| control fill | #EEF0F4 | Filled, labelled resting field or neutral secondary action; no dark outline. |
+| quiet edge | #E3E5EB | Optional structural separation, never a required dark control frame. |
 | focus | #C20836 | Visible 2-unit or stronger focus outline with offset. |
 | waiting surface | #FFF4DF | Relevant waiting/caution group. |
 | waiting text | #92400E | Readable responsible actor/reason. |
@@ -37,10 +42,10 @@ The solid-color proposal uses at least 4.5:1 for all normal text and 3:1 for req
 |---|---|---|---:|---:|
 | White label on primary | #FFFFFF | #E00D42 | 4.877:1 | 4.5:1 |
 | Small accent text on rose | #C20836 | #FFF2F4 | 5.695:1 | 4.5:1 |
-| Heading on canvas | #0F172A | #FFFAFB | 17.274:1 | 4.5:1 |
+| Heading on canvas | #0F172A | #F7F7FA | 16.696:1 | 4.5:1 |
 | Body on surface | #1E293B | #FFFFFF | 14.629:1 | 4.5:1 |
-| Secondary on canvas | #475569 | #FFFAFB | 7.332:1 | 4.5:1 |
-| Control boundary on white | #64748B | #FFFFFF | 4.759:1 | 3:1 |
+| Secondary on canvas | #475569 | #F7F7FA | 7.087:1 | 4.5:1 |
+| Focus indication on white | #C20836 | #FFFFFF | 6.210:1 | 3:1 |
 | Waiting text on sand | #92400E | #FFF4DF | 6.502:1 | 4.5:1 |
 | Confirmed text on mint | #047857 | #ECFDF5 | 5.206:1 | 4.5:1 |
 | Error text on pale rose | #BE123C | #FFF1F2 | 5.721:1 | 4.5:1 |
@@ -61,10 +66,10 @@ Dark colors are a complete candidate palette for the optional Appearance view, n
 
 | Element | Border/surface treatment | Why |
 |---|---|---|
-| Current task | White surface, subtle finite shadow or quiet outline, small current marker, explicit labelled action | Groups the work and supports hierarchy without turning every row into a box |
+| Current task | Opaque white surface, soft finite shadow and continuous contour, small current marker, explicit labelled action | Groups the work and supports hierarchy without turning every row into a box |
 | Supporting information | Borderless content with a heading and enough spacing | Reading material needs relationships, not repeated control-looking outlines |
 | Task/history/conversation row | Quiet separator and explicit text/chevron/focus state | Reduces clutter while remaining recognizable as a row action |
-| Text field, select, radio choice | Visible control boundary; 8-unit corners | Users must recognize where input is possible; pale structural dividers alone are inadequate |
+| Text field, select, radio choice | Persistent label, gray fill, 16-unit continuous corners; accent focus/selection | Editing stays recognizable without a dark frame; focus and validation remain explicit |
 | Selected choice/slot | Rose tint plus radio/check/text and a clear selected marker | Selection stays understandable without color vision |
 | Read-only managed facts | Definition rows, no input-shaped border | Visual appearance must not invite edits the rider cannot make |
 | Waiting/exception instruction | One sand inset with dark reason and responsible actor | Highlights the useful next responsibility, without coloring the whole page |
@@ -77,25 +82,49 @@ Borderless is a grouping decision, not a requirement to remove focus or control 
 
 ## Type and spacing
 
-Use Plus Jakarta Sans throughout. Bundle the licensed typeface when implementation starts. Use aligned numeral features for amounts, not a second monospace/display family.
+Use platform system sans-serif typography: the native mobile family, Linux
+sans-serif or the desktop system family, as specified in `tokens.json`. The
+already bundled Plus Jakarta Sans is a fallback, not the primary styling choice.
+No proprietary font is copied into the package. Use aligned numerals for amounts
+and scale text with the user preference. [R18](SOURCE_REGISTER.md#r18)
 
 | Role | Size / line height / weight |
 |---|---|
-| page title | 24 / 32 / 600 |
+| page title | 28 / 34 / 700 |
 | section | 18 / 26 / 600 |
 | body | 16 / 24 / 400 |
-| secondary | 14 / 20 / 500 |
+| secondary | 14 / 20 / 400 |
 | metadata | 13 / 18 / 500 |
 | amount | 28 / 36 / 600 |
 
 Sizes are starting tokens and scale with the device preference. Labels persist above input; placeholders supplement rather than replace them. Avoid all-caps prose, very thin text and truncating a destination's distinguishing words. At 200% text, content reflows rather than shrinking.
 
-Use a 4/8/12/16/24/32 spacing rhythm. Default page inset is 16 on compact and 24 on wider layouts. Use 16–24 between related sections and 8–12 within a group. Keep cards, fields, maps, dialogs, navigation and badges at 8-unit corners. Avatars, dots, timeline markers, progress tracks and duty switches may use circular/pill geometry.
+Use a 4/8/12/16/24/32 spacing rhythm. Compact page inset is 16; wider layouts use
+24. Keep 8–12 within related content and 20–24 between groups. Grouped rows have
+a 56-unit minimum height and full-row interaction; large text may increase it.
+
+| Component | Target corner radius | Treatment |
+|---|---:|---|
+| Task/card surface and inset list group | 24 | Continuous superellipse contour; nested rows share the group, not separate boxes |
+| Field and primary/secondary control | 16 | Filled resting state, accent focus, continuous contour |
+| Saved-stop map/media frame | 20 | Bounded content with opaque controls |
+| Dialog | 28 | One temporary intent with explicit dismissal |
+| Bottom sheet upper corners | 32 | Soft contour, clear title and accessible close/action area |
+| Navigation selection / compact tint | 18 | Restrained active marker; no decorative oversizing |
+| Floating navigation shell | 32 | Clipped frosted material with an opaque fallback |
+| Avatar, duty switch, dot / track | Circle or pill | Only where the control's meaning benefits |
+
+Avoid a blanket radius applied to every element. Group surfaces remain opaque
+white; thin neutral separators establish relationships. Decorative elevation is
+small and consistent, while overlays alone receive enough depth to show layering.
+These core shapes now apply to the existing app. The supplied brand-artwork tile
+keeps its own contour; historical implementation records retain their original
+measurements. Planned map/overlay views are not made functional by a shape token.
 
 ## Buttons and bottom geometry
 
 - Primary: one filled accent action for the current permitted intent, 52-unit minimum height and full width on compact forms/work shelves.
-- Secondary: neutral labelled control with a visible boundary, 48-unit minimum target. Directions, Call, Message and Retake are not competing saturated primary buttons.
+- Secondary: softly filled, borderless labelled control with visible focus, 48-unit minimum target. Directions, Call, Message and Retake are not competing saturated primary buttons.
 - Tertiary: readable text action with a 48-unit standalone interaction region; inline links retain their text semantics.
 - Destructive local action: explicit outcome wording and separation from Keep editing. It cannot cancel an assignment merely by dismissing a local draft.
 - Disabled/unavailable: useful readable reason via O20 when appropriate; no hover-only tooltip, invisible hit target or guessed explanation.
@@ -113,7 +142,31 @@ The 48-unit target and 8-unit separation are Bagoo field-use choices. The web AA
 
 ## Motion and feedback
 
-Proposed finite timing: 120–180ms pressed/selection response, 180–240ms sheet/navigation transition. These are design timings, not measured performance claims. No infinite bouncing, loading delays added for appearance, racing countdown or continuous heavy blur. Reduced motion keeps immediate state feedback while removing nonessential displacement.
+Controls use **direct touch feedback**: compress to 0.975 without changing
+layout/hit size, then settle with a spring (mass 1, stiffness 380, damping 26).
+Native gestures and disabled-state guards retain ownership of actions. Cancelled
+presses return to rest; no delayed dispatch or animation-produced success.
+[R17](SOURCE_REGISTER.md#r17)
+
+Finite navigation uses 320ms and sheets 380ms with a restrained easing overshoot;
+selection feedback uses 160ms. Scroll physics preserve momentum and elastic
+edges. These are authored motion parameters, not measured device performance.
+Reduced motion/accessible navigation removes scaling/travel and uses clamped
+scrolling. System reduced-motion signals are read where Flutter exposes them.
+
+Frosted floating navigation/header/sheet chrome uses a **clipped 18-unit blur**,
+a translucent white layer (approximately 94% to 72%) and a small soft shadow.
+Reading content and fields remain opaque. High contrast, accessible navigation
+and reduced effects use opaque white without blur; focus remains an accent
+indicator. Never claim an OS transparency preference was detected where the
+platform exposes no such signal. No infinite bounce or continuous decorative
+blur. [R19](SOURCE_REGISTER.md#r19)
+
+**No solid black/dark outlines in ordinary UI.** Cards/groups use fill and spacing;
+resting fields and neutral buttons have no stroke. Accent focus and error/selected
+state indicators are deliberate exceptions for identification. Pale fills and
+translucency are not a claim of accessibility conformance: review rendered
+contrast and control discoverability under the actual system preferences.
 
 Pending state names the actual intent promptly. An upload selection, scan preview or spinner never becomes a successful handoff. Rejection points to the affected field; uncertain results reconcile before repeating an intent. A small result animation follows server acceptance only.
 

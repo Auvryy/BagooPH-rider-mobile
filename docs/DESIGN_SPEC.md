@@ -1,32 +1,96 @@
 # Rider frontend design specification
 
-Reviewed **October 6, 2026**. This is the desired user-visible design for the
-Rider app, with complete page planning and current research. It specifies
-appearance and interaction. The [login and registration preview](AUTH_PREVIEW.md)
-is the first implemented presentation slice; the rest of this inventory remains
-planned.
+Reviewed **October 9, 2026**. This is the target appearance and interaction system
+for the Rider app. The account flow and compact Settings hierarchy are already
+implemented; the wider counted page catalogue remains planning coverage.
+Existing screens now use borderless filled controls, continuous contours,
+frosted floating chrome, system sans-serif typography and spring touch feedback.
+The wider screen catalogue and dark candidate remain planning coverage; styling
+does not implement new backend features or views.
 
 ## Design direction
 
-Use a **calm, precise work interface**: warm blush canvas, crisp dark type,
-white working surfaces, restrained crimson emphasis, a small original parcel
-motif and clear spatial grouping. The rider should see the current responsibility
-before decoration. Polish comes from alignment, spacing, useful feedback,
-readable data and consistent interaction.
+Use a **content-first, tactile mobile interface**: neutral white/light-gray
+reading space, strong readable text, smooth continuous contours and translucent
+floating controls. **Solid black or dark outlines are not an accepted default**
+for cards, fields, secondary buttons or navigation. Use fill, spacing, subtle
+shadow and labels to establish structure; keep an accent focus indicator and
+explicit error/selection feedback when needed.
 
-The selected flagship experience is **Stop Mode + Parcel Finder + Doorstep
-Guide**. Show the correct stop, parcel position, authorized entrance instructions,
-exact cash and one permitted action together. Preserve the latest Rider choices:
-accent `#E00D42`, canvas `#FFFAFB`, Plus Jakarta Sans and **8 logical-pixel corners**.
+The four design principles are:
 
-Current mobile guidance separates navigation controls from content, adapts to
-available window space and respects device safe areas. Apply that through
-restrained navigation elevation and opaque, legible task surfaces. A visual
-material is optional; addresses, amounts and proof stay clear over any
-background. The reasoning is documented in
+1. **Direct touch and physics.** Pressed controls compress gently and return
+   with a finite spring. Scrolling carries momentum; sheets move from their
+   origin and remain draggable. Touch must not delay a request, obscure its
+   actual result or require a gesture without a labelled alternative.
+2. **Translucency and layering.** Frosted navigation/header chrome and temporary
+   sheets sit above a neutral background. Use clipped backdrop blur, light
+   translucent fill and soft depth rather than heavy framed boxes. Reading
+   surfaces stay opaque. Glass has an opaque fallback under reduced effects,
+   accessible navigation or high contrast. [R02](design/SOURCE_REGISTER.md#r02),
+   [R19](design/SOURCE_REGISTER.md#r19)
+3. **Content first.** Text, field labels, current responsibility and the next
+   action earn attention. Red primarily marks an actionable control or active
+   selection; semantic errors/waiting/results retain their labelled meanings.
+   Avoid decorative accent panels and repeated branding.
+4. **System typography and continuous corners.** Prefer each platform's native
+   sans-serif family; the bundled typeface is a fallback. Use continuous
+   superellipse contours, not an ordinary circular corner on every component.
+   Larger page titles and stable body sizes preserve hierarchy at enlarged text.
+   [R18](design/SOURCE_REGISTER.md#r18)
+
+Primary red stays **`#E00D42`**; small accent text uses `#C20836`. The canvas is
+**`#F7F7FA`**, reading surfaces are white and resting fields use **`#EEF0F4`**.
+Continuous contours use **24-unit surfaces/groups, 16-unit controls, 20-unit
+media, 28-unit dialogs and 32-unit sheets/navigation**. Selection contours use
+18 units. The supplied brand artwork keeps its own contour. The design system
+and `tokens.json` provide canonical values and platform-family choices.
+
+The mobile app shares the website's business meanings, data, branding and
+permissions. It owns its own presentation: do not copy portal CSS, desktop
+panels, uniform corner geometry, breakpoints or long information stacks.
+Website source remains the authority for approval, assignment, custody and cash;
+its visual style is not the mobile layout specification.
+
+Keep all design prose, example UI and artwork vendor-neutral. Describe the
+native mobile patterns and behavior directly, without naming a reference handset
+or claiming compatibility with a proprietary visual material. Verified source
+URLs can remain in the neutral source register for research traceability.
+
+The selected experience stays **Stop Mode + Parcel Finder + Doorstep Guide**.
+The rider must see the current responsibility, authorized stop and clear action
+before decoration. Group everyday choices into short labelled rows. Reveal
+account/vehicle records, identity guidance and operation-specific fields only
+when needed; this does not hide essential task or safety information.
+
+Navigation chrome uses bounded translucency only
+where contrast, performance and reduced-effects preferences support it. Proof,
+addresses, amounts, fields and task content stay opaque. Every enhanced material
+has a readable flat fallback. The reasoning is documented in
 [RESEARCH_AND_RATIONALE.md](design/RESEARCH_AND_RATIONALE.md).
-Source names in the design prose are neutral; original URLs remain in the
-[source register](design/SOURCE_REGISTER.md) for verification.
+
+## Mobile composition rules
+
+- Use a compact, legible header and one clear page title. Avoid repeating the
+  same brand, identity, status and explanation in several panels on one screen.
+- Prefer white inset list groups with thin neutral separators, labelled icons,
+  complete-row targets and consistent disclosure indicators. Groups share a
+  relationship; cards are reserved for a bounded task or selected responsibility.
+- Put common actions within the first normal-size phone viewport. Longer managed
+  records open through named rows. Preserve full readable values and vertical
+  reflow at large text instead of shrinking labels or hiding controls.
+- A short form starts with the editable fields and its action. Password, code and
+  other sensitive inputs appear only for the chosen operation. Rare guidance can
+  expand in place; avoid an extra page containing only one navigation button.
+- Keep the four labelled destinations stable. A restrained continuous selection
+  shape and small accent are enough; navigation is distinct from content, reserves its measured safe footprint and
+  never covers the main action, keyboard, system gesture area or focused field.
+- Sheets use a clear title, explicit dismissal and visible intent, with a soft
+  upper contour. Use finite transitions that preserve origin and focus; provide
+  reduced-motion and opaque fallbacks. Do not add blur or animation to evidence
+  that must remain readable.
+- Use shape, hierarchy and whitespace for polish while preserving 48-unit touch
+  targets, 56-unit grouped rows, labelled feedback and the actual server state.
 
 ## Read the design in this order
 
@@ -36,7 +100,7 @@ Source names in the design prose are neutral; original URLs remain in the
 | [SCREEN_INVENTORY.md](design/SCREEN_INVENTORY.md) | Exact theoretical counts, every view/overlay/state and coverage |
 | [PAGE_BLUEPRINTS.md](design/PAGE_BLUEPRINTS.md) | Composition, navigation, button placement, color/borders, responsiveness and recovery for every page |
 | [RESEARCH_AND_RATIONALE.md](design/RESEARCH_AND_RATIONALE.md) | Jakob, Hick, Fitts, von Restorff, grouping, memory and thumb-reach application with limits |
-| [IMPROVED_DESIGN_BRIEF.md](design/IMPROVED_DESIGN_BRIEF.md) | An improved reusable prompt and the missing requirements made explicit |
+| [IMPROVED_DESIGN_BRIEF.md](design/IMPROVED_DESIGN_BRIEF.md) | Review requirements for the mobile visual direction and honest implementation status |
 | [Storyboard](design/visuals/storyboard.png) | Eight illustrative visual compositions with sample values |
 | [SOURCE_REGISTER.md](design/SOURCE_REGISTER.md) | Dated evidence and original references |
 
@@ -145,7 +209,7 @@ the focused field. Test both hands and a two-handed grip while stopped.
 
 Top to bottom: compact identity/hub/duty → Your tasks → phase filters →
 prominent current/continuing task → remaining queue → small recorded activity.
-The current task gets a white raised surface with stage, destination, parcel
+The current task gets a white softly rounded surface with stage, destination, parcel
 identity and one Open Stop Mode action. Less urgent rows stay unboxed with
 clear spacing/dividers. Operational counts appear once where useful.
 
@@ -178,9 +242,10 @@ large labelled touch targets and opaque backplates. Attribution stays visible.
   sand for relevant waiting and mint for a recorded result. Pair every state
   color with text/icon.
 - Use borderless information groups when spacing, headings and dividers are
-  enough. Use visible control outlines for inputs, choices and neutral buttons.
+  enough. Use filled, labelled inputs/choices and borderless neutral buttons; focus and
+  explicit errors/selected choices use accent indicators.
   Read-only managed values are definition rows, not disabled-looking inputs.
-- A task card can use a subtle shadow/outline because its nested explicit action
+- A task card can use a subtle shadow and continuous contour because its nested explicit action
   is discoverable. A fully clickable row needs text/chevron, focus and semantics.
   A shadow alone does not identify a control.
 - Align labels and values predictably; use one typeface and a compact type scale.

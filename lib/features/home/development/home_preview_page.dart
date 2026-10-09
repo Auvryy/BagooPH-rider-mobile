@@ -4,6 +4,8 @@ import '../../../app/theme.dart';
 import '../../../core/ui/brand_logo.dart';
 import 'home_preview_data.dart';
 
+import '../../../core/ui/rider_surfaces.dart';
+
 /// An isolated layout preview: no auth provider, token store or API client.
 class HomePreviewPage extends StatefulWidget {
   const HomePreviewPage({super.key});
@@ -34,11 +36,13 @@ class _HomePreviewPageState extends State<HomePreviewPage> {
                   const SizedBox(height: 12),
                   Align(
                     alignment: Alignment.centerRight,
-                    child: TextButton.icon(
-                      key: const ValueKey('exit-home-preview'),
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.logout_rounded),
-                      label: const Text('Exit demo'),
+                    child: RiderPressFeedback(
+                      child: TextButton.icon(
+                        key: const ValueKey('exit-home-preview'),
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: const Icon(Icons.logout_rounded),
+                        label: const Text('Exit demo'),
+                      ),
                     ),
                   ),
                   Container(
@@ -81,25 +85,27 @@ class _HomePreviewPageState extends State<HomePreviewPage> {
                       for (final queue in HomePreviewQueue.values)
                         Semantics(
                           selected: queue == _queue,
-                          child: OutlinedButton(
-                            key: ValueKey('preview-queue-${queue.name}'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: queue == _queue
-                                  ? RiderColors.accentText
-                                  : RiderColors.ink,
-                              backgroundColor: queue == _queue
-                                  ? RiderColors.rose
-                                  : Colors.white,
-                              side: BorderSide(
-                                color: queue == _queue
+                          child: RiderPressFeedback(
+                            child: OutlinedButton(
+                              key: ValueKey('preview-queue-${queue.name}'),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: queue == _queue
                                     ? RiderColors.accentText
-                                    : RiderColors.border,
+                                    : RiderColors.ink,
+                                backgroundColor: queue == _queue
+                                    ? RiderColors.rose
+                                    : Colors.white,
+                                side: BorderSide(
+                                  color: queue == _queue
+                                      ? RiderColors.accentText
+                                      : RiderColors.border,
+                                ),
                               ),
-                            ),
-                            onPressed: () => setState(() => _queue = queue),
-                            child: Text(
-                              queue.label,
-                              textAlign: TextAlign.center,
+                              onPressed: () => setState(() => _queue = queue),
+                              child: Text(
+                                queue.label,
+                                textAlign: TextAlign.center,
+                              ),
                             ),
                           ),
                         ),

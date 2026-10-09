@@ -6,6 +6,8 @@ import 'widgets/auth_field.dart';
 import 'widgets/auth_shell.dart';
 import 'auth_controller.dart';
 
+import '../../../core/ui/rider_surfaces.dart';
+
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
   @override
@@ -99,41 +101,45 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               const SizedBox(height: 12),
               LayoutBuilder(
                 builder: (context, constraints) {
-                  final remember = InkWell(
-                    borderRadius: BorderRadius.circular(8),
-                    onTap: () =>
-                        setState(() => _rememberEmail = !_rememberEmail),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Checkbox(
-                          value: _rememberEmail,
-                          onChanged: (value) =>
-                              setState(() => _rememberEmail = value ?? false),
-                        ),
-                        const Flexible(
-                          child: Text(
-                            'Remember email',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: RiderColors.muted,
+                  final remember = RiderPressFeedback(
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(RiderRadii.control),
+                      onTap: () =>
+                          setState(() => _rememberEmail = !_rememberEmail),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Checkbox(
+                            value: _rememberEmail,
+                            onChanged: (value) =>
+                                setState(() => _rememberEmail = value ?? false),
+                          ),
+                          const Flexible(
+                            child: Text(
+                              'Remember email',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: RiderColors.muted,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   );
-                  final recovery = TextButton(
-                    onPressed: () => showAuthPreviewMessage(
-                      context,
-                      title: 'Password recovery',
-                      message:
-                          'Password recovery is handled by the Bagoo website. '
-                          'Use its Forgot password page to request a reset. This page does not send recovery emails.',
-                    ),
-                    child: const Text(
-                      'Forgot password?',
-                      style: TextStyle(fontSize: 13),
+                  final recovery = RiderPressFeedback(
+                    child: TextButton(
+                      onPressed: () => showAuthPreviewMessage(
+                        context,
+                        title: 'Password recovery',
+                        message:
+                            'Password recovery is handled by the Bagoo website. '
+                            'Use its Forgot password page to request a reset. This page does not send recovery emails.',
+                      ),
+                      child: const Text(
+                        'Forgot password?',
+                        style: TextStyle(fontSize: 13),
+                      ),
                     ),
                   );
                   if (constraints.maxWidth < 340 ||
@@ -164,20 +170,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 ),
                 const SizedBox(height: 16),
               ],
-              FilledButton(
-                key: const ValueKey('sign-in-button'),
-                onPressed: session.busy ? null : _signIn,
-                child: Text(session.busy ? 'Signing in…' : 'Sign in'),
+              RiderPressFeedback(
+                child: FilledButton(
+                  key: const ValueKey('sign-in-button'),
+                  onPressed: session.busy ? null : _signIn,
+                  child: Text(session.busy ? 'Signing in…' : 'Sign in'),
+                ),
               ),
               const SizedBox(height: 24),
               const Divider(),
               const SizedBox(height: 12),
               const Text('New to BagooPH Rider?', textAlign: TextAlign.center),
               const SizedBox(height: 4),
-              TextButton(
-                key: const ValueKey('open-register'),
-                onPressed: () => Navigator.of(context).pushNamed('/register'),
-                child: const Text('Apply as a rider'),
+              RiderPressFeedback(
+                child: TextButton(
+                  key: const ValueKey('open-register'),
+                  onPressed: () => Navigator.of(context).pushNamed('/register'),
+                  child: const Text('Apply as a rider'),
+                ),
               ),
             ],
           ),

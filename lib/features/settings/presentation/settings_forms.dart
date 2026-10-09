@@ -9,18 +9,22 @@ import '../../auth/presentation/auth_controller.dart';
 import '../../auth/presentation/widgets/auth_field.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
 import '../../../core/platform/rider_website.dart';
+import '../../../app/theme.dart';
 import '../data/settings_models.dart';
 import 'settings_controller.dart';
 
-enum SettingsFlow { contact, password, emails }
+import '../../../core/ui/rider_surfaces.dart';
+
+enum SettingsFlow { contact, password, emails, addEmail, manageEmail }
 
 void openSettingsForm(
   BuildContext context,
   WidgetRef ref,
   RiderAccount account,
   bool preview,
-  SettingsFlow flow,
-) {
+  SettingsFlow flow, {
+  String? emailId,
+}) {
   final identity = SettingsIdentity(account.id, preview: preview);
   ref.read(settingsControllerProvider(identity)).clearFeedback();
   final container = ProviderScope.containerOf(context);
@@ -28,7 +32,11 @@ void openSettingsForm(
     MaterialPageRoute<void>(
       builder: (_) => UncontrolledProviderScope(
         container: container,
-        child: AccountSettingsForm(identity: identity, flow: flow),
+        child: AccountSettingsForm(
+          identity: identity,
+          flow: flow,
+          emailId: emailId,
+        ),
       ),
     ),
   );
@@ -39,9 +47,11 @@ class AccountSettingsForm extends ConsumerStatefulWidget {
     super.key,
     required this.identity,
     required this.flow,
+    this.emailId,
   });
   final SettingsIdentity identity;
   final SettingsFlow flow;
+  final String? emailId;
   @override
   ConsumerState<AccountSettingsForm> createState() =>
       _AccountSettingsFormState();
@@ -67,8 +77,12 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _addingEmail = widget.flow == SettingsFlow.addEmail;
+    if (_addingEmail && controller.challengeEmail != null) {
+      _email.text = controller.challengeEmail!;
+    }
     _email.addListener(_changedEmail);
-    if (widget.flow == SettingsFlow.emails) {
+    if (widget.flow == SettingsFlow.addEmail) {
       _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
         if (mounted) setState(() {});
       });
@@ -131,7 +145,7 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
   Future<void> _close() async {
     if (controller.busy) return;
     if (dirty && !_discardApproved) {
-      final discard = await showDialog<bool>(
+      final discard = await showRiderDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Discard unsaved changes?'),
@@ -139,13 +153,17 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
             'Your typed changes will be cleared. Saved account details stay as they are.',
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Keep editing'),
+            RiderPressFeedback(
+              child: TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Keep editing'),
+              ),
             ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Discard'),
+            RiderPressFeedback(
+              child: FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Discard'),
+              ),
             ),
           ],
         ),
@@ -217,7 +235,7 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
     } else if (action == 'prefer') {
       saved = await controller.preferEmail(address!.id, _current.text);
     } else {
-      final confirmed = await showDialog<bool>(
+      final confirmed = await showRiderDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Remove additional email?'),
@@ -225,13 +243,17 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
             '${address!.email} will no longer be used for contact or password recovery.',
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+            RiderPressFeedback(
+              child: TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
             ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Remove email'),
+            RiderPressFeedback(
+              child: FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Remove email'),
+              ),
             ),
           ],
         ),
@@ -242,7 +264,13 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
     if (saved && mounted) {
       _clearSecrets();
       _email.clear();
-      setState(() {});
+      if (widget.flow == SettingsFlow.addEmail ||
+          widget.flow == SettingsFlow.manageEmail) {
+        _discardApproved = true;
+        Navigator.pop(context);
+      } else {
+        setState(() {});
+      }
     }
   }
 
@@ -282,32 +310,7 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
     return null;
   }
 
-  Widget _value(String title, String text) => Padding(
-    padding: const EdgeInsets.only(bottom: 16),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: Theme.of(context).textTheme.labelLarge),
-        const SizedBox(height: 6),
-        Text(text),
-      ],
-    ),
-  );
   List<Widget> _contact(SettingsSnapshot data) => [
-    _value('Reviewed name', data.name),
-    _value('Original sign-in email', data.email),
-    _value('Saved mobile number', data.phone ?? 'Not provided'),
-    const Text(
-      'Your approved identity stays with your account. Use the identity review process for a name or identity correction.',
-    ),
-    if (!widget.identity.preview) ...[
-      const SizedBox(height: 12),
-      const WebsiteButton(
-        page: RiderWebsitePage.settings,
-        label: 'Request identity correction on the website',
-      ),
-    ],
-    const SizedBox(height: 24),
     _field(
       'Mobile number',
       _phone,
@@ -321,12 +324,34 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
       'Use your Philippine mobile number, or leave it empty to remove it.',
     ),
     const SizedBox(height: 24),
-    FilledButton(
-      key: const ValueKey('save-contact'),
-      onPressed: controller.editable && data.canUpdateContact
-          ? _saveContact
-          : null,
-      child: Text(controller.busy ? 'Saving…' : 'Save contact details'),
+    RiderPressFeedback(
+      child: FilledButton(
+        key: const ValueKey('save-contact'),
+        onPressed: controller.editable && data.canUpdateContact
+            ? _saveContact
+            : null,
+        child: Text(controller.busy ? 'Saving…' : 'Save contact details'),
+      ),
+    ),
+    const SizedBox(height: 16),
+    ExpansionTile(
+      key: const ValueKey('identity-correction-info'),
+      title: const Text('Need to correct your name?'),
+      tilePadding: EdgeInsets.zero,
+      shape: const Border(),
+      collapsedShape: const Border(),
+      children: [
+        const Text(
+          'Your reviewed name and sign-in email are managed through identity review.',
+        ),
+        if (!widget.identity.preview) ...[
+          const SizedBox(height: 12),
+          const WebsiteButton(
+            page: RiderWebsitePage.settings,
+            label: 'Request identity correction on the website',
+          ),
+        ],
+      ],
     ),
     if (!data.canUpdateContact) ...[
       const SizedBox(height: 12),
@@ -336,15 +361,6 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
     ],
   ];
   List<Widget> _password(SettingsSnapshot data) => [
-    _value('Original sign-in email', data.email),
-    _value(
-      'Email verification',
-      data.emailVerified ? 'Verified' : 'Verification pending',
-    ),
-    const Text(
-      'Use a unique password between 12 and 128 characters. A confirmed change signs you out; use the new password to sign in again.',
-    ),
-    const SizedBox(height: 24),
     if (!data.canChangePassword)
       const Text(
         'Password changes require verified email and current account access.',
@@ -383,10 +399,12 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
             value != _next.text ? 'The passwords must match.' : null,
       ),
       const SizedBox(height: 24),
-      FilledButton(
-        key: const ValueKey('save-password'),
-        onPressed: controller.editable ? _savePassword : null,
-        child: Text(controller.busy ? 'Updating…' : 'Update password'),
+      RiderPressFeedback(
+        child: FilledButton(
+          key: const ValueKey('save-password'),
+          onPressed: controller.editable ? _savePassword : null,
+          child: Text(controller.busy ? 'Updating…' : 'Update password'),
+        ),
       ),
     ],
     if (!widget.identity.preview) ...[
@@ -397,59 +415,146 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
       ),
     ],
   ];
-  List<Widget> _emails(SettingsSnapshot data) {
+  void _openEmailFlow(SettingsFlow flow, {String? emailId}) {
+    FocusScope.of(context).unfocus();
+    controller.clearFeedback();
+    final container = ProviderScope.containerOf(context);
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => UncontrolledProviderScope(
+          container: container,
+          child: AccountSettingsForm(
+            identity: widget.identity,
+            flow: flow,
+            emailId: emailId,
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _emailsOverview(SettingsSnapshot data) => [
+    RiderSurface(
+      radius: RiderRadii.group,
+      child: Column(
+        children: [
+          for (final address in data.emails) ...[
+            ListTile(
+              key: ValueKey('manage-email-${address.id}'),
+              minVerticalPadding: 12,
+              title: Text(
+                address.email,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              subtitle: Text(
+                [
+                  if (address.original) 'Sign-in email',
+                  if (address.preferred) 'Contact email',
+                  if (!address.verified) 'Unverified',
+                ].join(' · '),
+              ),
+              trailing: const Icon(Icons.chevron_right_rounded, size: 20),
+              onTap: () =>
+                  _openEmailFlow(SettingsFlow.manageEmail, emailId: address.id),
+            ),
+            if (address != data.emails.last)
+              const Divider(height: 1, indent: 16, endIndent: 16),
+          ],
+        ],
+      ),
+    ),
+    const SizedBox(height: 16),
+    if (data.canManageEmails &&
+        data.emails.where((e) => !e.original).length < 5)
+      RiderPressFeedback(
+        child: FilledButton.icon(
+          key: const ValueKey('add-email'),
+          onPressed: controller.editable
+              ? () => _openEmailFlow(SettingsFlow.addEmail)
+              : null,
+          icon: const Icon(Icons.add_rounded),
+          label: const Text('Add email'),
+        ),
+      )
+    else
+      Text(
+        data.canManageEmails
+            ? 'Five additional addresses saved. Remove one to add another.'
+            : 'Email management is unavailable for this account.',
+      ),
+    const SizedBox(height: 12),
+    const Text('Your original email remains your sign-in address.'),
+  ];
+
+  List<Widget> _manageEmail(SettingsSnapshot data) {
+    final address = data.emails
+        .where((e) => e.id == widget.emailId)
+        .firstOrNull;
+    if (address == null) {
+      return [
+        const Text(
+          'This address is no longer available. Refresh your saved emails.',
+        ),
+      ];
+    }
+    final canPrefer =
+        data.canManageEmails && address.verified && !address.preferred;
+    final canRemove = data.canManageEmails && !address.original;
+    return [
+      Text(address.email, style: Theme.of(context).textTheme.titleMedium),
+      const SizedBox(height: 8),
+      Text(
+        address.original
+            ? 'Your sign-in email cannot be removed.'
+            : 'Additional contact and recovery address.',
+      ),
+      if (address.preferred) ...[
+        const SizedBox(height: 8),
+        const Text('Currently used for contact.'),
+      ],
+      if (canPrefer || canRemove) ...[
+        const SizedBox(height: 24),
+        _field(
+          'Current password',
+          _current,
+          secret: true,
+          errorKey: 'current_password',
+          validator: _requiredPassword,
+          hints: [AutofillHints.password],
+        ),
+        const SizedBox(height: 20),
+        if (canPrefer)
+          RiderPressFeedback(
+            child: FilledButton(
+              onPressed: controller.editable
+                  ? () => _emailAction('prefer', address)
+                  : null,
+              child: const Text('Use for contact'),
+            ),
+          ),
+        if (canRemove) ...[
+          const SizedBox(height: 12),
+          RiderPressFeedback(
+            child: OutlinedButton(
+              onPressed: controller.editable
+                  ? () => _emailAction('remove', address)
+                  : null,
+              child: const Text('Remove email'),
+            ),
+          ),
+        ],
+      ],
+    ];
+  }
+
+  List<Widget> _addEmail(SettingsSnapshot data) {
     final sent = controller.challengeEmail == _email.text.trim().toLowerCase();
     final capacity = data.emails.where((e) => !e.original).length < 5;
     return [
-      const Text(
-        'Keep your original sign-in email. Verify up to five additional addresses for contact and password recovery.',
-      ),
-      const SizedBox(height: 20),
-      if (kDebugMode && widget.identity.preview) ...[
+      if (kDebugMode && widget.identity.preview)
         const Text(
           'Sample verification code: 123456. No email is sent in this preview.',
         ),
-        const SizedBox(height: 16),
-      ],
-      for (final address in data.emails) ...[
-        WorkspacePanel(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                address.email,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '${address.original ? 'Original sign-in email' : 'Additional email'} · ${address.verified ? 'Verified' : 'Verification pending'}${address.preferred ? ' · Contact email' : ''}',
-              ),
-              if (data.canManageEmails)
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 8,
-                  children: [
-                    if (address.verified && !address.preferred)
-                      TextButton(
-                        onPressed: controller.editable
-                            ? () => _emailAction('prefer', address)
-                            : null,
-                        child: const Text('Use for contact'),
-                      ),
-                    if (!address.original)
-                      TextButton(
-                        onPressed: controller.editable
-                            ? () => _emailAction('remove', address)
-                            : null,
-                        child: const Text('Remove'),
-                      ),
-                  ],
-                ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-      ],
       if (data.canManageEmails) ...[
         const SizedBox(height: 8),
         _field(
@@ -461,9 +566,7 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
           hints: [AutofillHints.password],
         ),
         const SizedBox(height: 8),
-        const Text(
-          'Confirm your password to add, remove or choose a contact email.',
-        ),
+        const Text('Confirm your current password to add this address.'),
         if (capacity) ...[
           const SizedBox(height: 20),
           _field(
@@ -494,32 +597,38 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
             ),
           ],
           const SizedBox(height: 24),
-          FilledButton(
-            key: const ValueKey('email-submit'),
-            onPressed:
-                controller.editable && (sent || controller.cooldownSeconds == 0)
-                ? () => _emailAction(sent ? 'confirm' : 'send')
-                : null,
-            child: Text(
-              controller.busy
-                  ? 'Updating…'
-                  : sent
-                  ? 'Verify and add email'
-                  : controller.cooldownSeconds > 0
-                  ? 'Send code in ${controller.cooldownSeconds}s'
-                  : 'Send verification code',
+          RiderPressFeedback(
+            child: FilledButton(
+              key: const ValueKey('email-submit'),
+              onPressed:
+                  controller.editable &&
+                      (sent || controller.cooldownSeconds == 0)
+                  ? () => _emailAction(sent ? 'confirm' : 'send')
+                  : null,
+              child: Text(
+                controller.busy
+                    ? 'Updating…'
+                    : sent
+                    ? 'Verify and add email'
+                    : controller.cooldownSeconds > 0
+                    ? 'Send code in ${controller.cooldownSeconds}s'
+                    : 'Send verification code',
+              ),
             ),
           ),
           if (sent) ...[
             const SizedBox(height: 12),
-            OutlinedButton(
-              onPressed: controller.editable && controller.cooldownSeconds == 0
-                  ? () => _emailAction('send')
-                  : null,
-              child: Text(
-                controller.cooldownSeconds > 0
-                    ? 'Resend in ${controller.cooldownSeconds}s'
-                    : 'Resend code',
+            RiderPressFeedback(
+              child: OutlinedButton(
+                onPressed:
+                    controller.editable && controller.cooldownSeconds == 0
+                    ? () => _emailAction('send')
+                    : null,
+                child: Text(
+                  controller.cooldownSeconds > 0
+                      ? 'Resend in ${controller.cooldownSeconds}s'
+                      : 'Resend code',
+                ),
               ),
             ),
           ],
@@ -549,6 +658,8 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
       SettingsFlow.contact => 'Contact information',
       SettingsFlow.password => 'Change password',
       SettingsFlow.emails => 'Email and recovery',
+      SettingsFlow.addEmail => 'Add email',
+      SettingsFlow.manageEmail => 'Email details',
     };
     return PopScope(
       canPop: _discardApproved || (!dirty && !state.busy),
@@ -558,14 +669,16 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
       child: Scaffold(
         appBar: AppBar(
           title: Text(title),
-          leading: IconButton(
-            tooltip: 'Back',
-            onPressed: state.busy ? null : _close,
-            icon: const Icon(Icons.arrow_back_rounded),
+          leading: RiderPressFeedback(
+            child: IconButton(
+              tooltip: 'Back',
+              onPressed: state.busy ? null : _close,
+              icon: const Icon(Icons.arrow_back_rounded),
+            ),
           ),
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(16),
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 560),
@@ -588,28 +701,34 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
                         ),
                         const SizedBox(height: 20),
                         if (!widget.identity.preview)
-                          OutlinedButton(
-                            key: const ValueKey('settings-sign-in-again'),
-                            onPressed: ref.watch(authControllerProvider).busy
-                                ? null
-                                : () => ref
-                                      .read(authControllerProvider.notifier)
-                                      .logout(),
-                            child: const Text('Sign out and sign in again'),
+                          RiderPressFeedback(
+                            child: OutlinedButton(
+                              key: const ValueKey('settings-sign-in-again'),
+                              onPressed: ref.watch(authControllerProvider).busy
+                                  ? null
+                                  : () => ref
+                                        .read(authControllerProvider.notifier)
+                                        .logout(),
+                              child: const Text('Sign out and sign in again'),
+                            ),
                           ),
                       ] else if (data == null) ...[
                         if (state.loading)
                           const Center(child: CircularProgressIndicator()),
                         if (!state.loading)
-                          OutlinedButton(
-                            onPressed: state.load,
-                            child: const Text('Retry account settings'),
+                          RiderPressFeedback(
+                            child: OutlinedButton(
+                              onPressed: state.load,
+                              child: const Text('Retry account settings'),
+                            ),
                           ),
                       ] else
                         ...switch (widget.flow) {
                           SettingsFlow.contact => _contact(data),
                           SettingsFlow.password => _password(data),
-                          SettingsFlow.emails => _emails(data),
+                          SettingsFlow.emails => _emailsOverview(data),
+                          SettingsFlow.addEmail => _addEmail(data),
+                          SettingsFlow.manageEmail => _manageEmail(data),
                         },
                       if (state.failure != null) ...[
                         const SizedBox(height: 20),
@@ -628,19 +747,21 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
                         const Text(
                           'Refresh saved details before trying again. The previous update was not confirmed.',
                         ),
-                        OutlinedButton(
-                          onPressed: state.busy
-                              ? null
-                              : () async {
-                                  final loaded = await state.load();
-                                  if (loaded && mounted) {
-                                    setState(() {
-                                      _revision = state.data!.revision;
-                                      _initialPhone = state.data!.phone ?? '';
-                                    });
-                                  }
-                                },
-                          child: const Text('Refresh saved details'),
+                        RiderPressFeedback(
+                          child: OutlinedButton(
+                            onPressed: state.busy
+                                ? null
+                                : () async {
+                                    final loaded = await state.load();
+                                    if (loaded && mounted) {
+                                      setState(() {
+                                        _revision = state.data!.revision;
+                                        _initialPhone = state.data!.phone ?? '';
+                                      });
+                                    }
+                                  },
+                            child: const Text('Refresh saved details'),
+                          ),
                         ),
                       ],
                       if (state.result != null) ...[

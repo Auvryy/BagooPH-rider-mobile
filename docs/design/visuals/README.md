@@ -2,6 +2,8 @@
 
 These are original editable documentation illustrations with synthetic values.
 They are not screenshots of a running app or proof of device usability.
+The October 9 illustrations follow the target neutral canvas, borderless controls and continuous mobile
+geometry in `tokens.json`; current runtime styling is a separate implementation.
 
 - [storyboard.png](storyboard.png) shows eight full compositions.
 - [storyboard.svg](storyboard.svg) is its editable vector source.
@@ -11,8 +13,8 @@ They are not screenshots of a running app or proof of device usability.
 - [action-placement.png](action-placement.png) and its SVG show inset-aware
   symmetric action placement to test with both hands.
 
-The storyboard can be regenerated using the included drawing tool. For accurate
-PNG type, pass a local licensed Plus Jakarta Sans font to its font-file option.
+The storyboard can be regenerated using the included drawing tool. The SVG uses generic sans-serif type; the portable PNG renderer loads the
+bundled fallback font explicitly. Native screenshot review uses host system type.
 The font used for documentation rendering is not a newly bundled app dependency.
 Editable SVG text can fall back to a local font when that family is unavailable;
 the PNG is the portable visual reference.

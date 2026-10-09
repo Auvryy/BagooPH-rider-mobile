@@ -7,6 +7,8 @@ import '../../workspace/data/workspace_models.dart';
 import '../../workspace/presentation/workspace_controller.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
 
+import '../../../core/ui/rider_surfaces.dart';
+
 class TasksPage extends StatelessWidget {
   const TasksPage({
     super.key,
@@ -23,11 +25,13 @@ class TasksPage extends StatelessWidget {
     children: [
       WorkspaceHeading(
         'Welcome, ${account.name}.',
-        'A clear handoff, every step of the way.',
-        action: IconButton(
-          onPressed: controller.refreshTasks,
-          tooltip: 'Refresh tasks',
-          icon: const Icon(Icons.refresh_rounded),
+        '',
+        action: RiderPressFeedback(
+          child: IconButton(
+            onPressed: controller.refreshTasks,
+            tooltip: 'Refresh tasks',
+            icon: const Icon(Icons.refresh_rounded),
+          ),
         ),
       ),
       Wrap(
@@ -42,33 +46,64 @@ class TasksPage extends StatelessWidget {
       const SizedBox(height: 28),
       Text('Your tasks', style: Theme.of(context).textTheme.titleLarge),
       const SizedBox(height: 16),
-      Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          for (final queue in TaskQueue.values)
-            Semantics(
-              selected: controller.queue == queue,
-              child: OutlinedButton(
+      LayoutBuilder(
+        builder: (context, constraints) {
+          final compact =
+              constraints.maxWidth >= 340 &&
+              MediaQuery.textScalerOf(context).scale(14) < 20;
+          Widget choice(TaskQueue queue) => Semantics(
+            selected: controller.queue == queue,
+            label: queue.label,
+            child: RiderPressFeedback(
+              child: TextButton(
                 key: ValueKey('task-queue-${queue.name}'),
                 onPressed: () => controller.selectQueue(queue),
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: controller.queue == queue
-                      ? RiderColors.rose
-                      : Colors.white,
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 12,
+                  ),
                   foregroundColor: controller.queue == queue
                       ? RiderColors.accentText
                       : RiderColors.muted,
-                  side: BorderSide(
-                    color: controller.queue == queue
-                        ? RiderColors.accentText
-                        : RiderColors.divider,
-                  ),
+                  backgroundColor: controller.queue == queue
+                      ? RiderColors.rose
+                      : Colors.transparent,
                 ),
-                child: Text(queue.label, textAlign: TextAlign.center),
+                child: Text(
+                  compact
+                      ? switch (queue) {
+                          TaskQueue.available => 'Available',
+                          TaskQueue.pickups => 'My pickups',
+                          TaskQueue.delivery => 'Delivery',
+                        }
+                      : queue.label,
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
-        ],
+          );
+          return RiderSurface(
+            radius: RiderRadii.group,
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: compact
+                  ? Row(
+                      children: [
+                        for (final queue in TaskQueue.values)
+                          Expanded(child: choice(queue)),
+                      ],
+                    )
+                  : Wrap(
+                      spacing: 4,
+                      runSpacing: 4,
+                      children: [
+                        for (final queue in TaskQueue.values) choice(queue),
+                      ],
+                    ),
+            ),
+          );
+        },
       ),
       const SizedBox(height: 12),
       Text(controller.queue.description),
@@ -110,12 +145,11 @@ class TasksPage extends StatelessWidget {
                   prominentLabel: controller.queue == TaskQueue.available
                       ? 'Available pickup'
                       : 'Next responsibility',
-                  onOpen: () => showModalBottomSheet<void>(
+                  onOpen: () => showRiderSheet<void>(
                     context: context,
+                    sheetAnimationStyle: RiderMotion.sheetStyle(context),
                     isScrollControlled: true,
-                    showDragHandle: true,
-                    backgroundColor: RiderColors.canvas,
-                    builder: (_) => SafeArea(
+                    builder: (context) => SafeArea(
                       child: SingleChildScrollView(
                         padding: const EdgeInsets.all(24),
                         child: Column(
@@ -141,9 +175,11 @@ class TasksPage extends StatelessWidget {
                                   : 'Parcel actions become available only after the work service confirms your permission.',
                             ),
                             const SizedBox(height: 20),
-                            OutlinedButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('Back to tasks'),
+                            RiderPressFeedback(
+                              child: OutlinedButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Back to tasks'),
+                              ),
                             ),
                           ],
                         ),
@@ -246,10 +282,12 @@ class TaskCard extends StatelessWidget {
         Text(task.nextStep, style: Theme.of(context).textTheme.titleMedium),
         if (onOpen != null) ...[
           const SizedBox(height: 18),
-          OutlinedButton.icon(
-            onPressed: onOpen,
-            icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-            label: const Text('View parcel'),
+          RiderPressFeedback(
+            child: OutlinedButton.icon(
+              onPressed: onOpen,
+              icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+              label: const Text('View parcel'),
+            ),
           ),
         ],
       ],

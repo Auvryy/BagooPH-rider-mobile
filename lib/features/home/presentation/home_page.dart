@@ -6,6 +6,8 @@ import '../../../core/ui/brand_logo.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../workspace/presentation/workspace_shell.dart';
 
+import '../../../core/ui/rider_surfaces.dart';
+
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
   @override
@@ -40,12 +42,8 @@ class HomePage extends ConsumerWidget {
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   const SizedBox(height: 24),
-                  Container(
+                  RiderSurface(
                     padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -102,23 +100,27 @@ class HomePage extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                   ],
-                  OutlinedButton(
-                    onPressed: state.busy
-                        ? null
-                        : () => ref
-                              .read(authControllerProvider.notifier)
-                              .refresh(),
-                    child: const Text('Refresh account status'),
+                  RiderPressFeedback(
+                    child: OutlinedButton(
+                      onPressed: state.busy
+                          ? null
+                          : () => ref
+                                .read(authControllerProvider.notifier)
+                                .refresh(),
+                      child: const Text('Refresh account status'),
+                    ),
                   ),
                   const SizedBox(height: 12),
-                  FilledButton(
-                    key: const ValueKey('logout-button'),
-                    onPressed: state.busy
-                        ? null
-                        : () => ref
-                              .read(authControllerProvider.notifier)
-                              .logout(),
-                    child: Text(state.busy ? 'Please wait…' : 'Log out'),
+                  RiderPressFeedback(
+                    child: FilledButton(
+                      key: const ValueKey('logout-button'),
+                      onPressed: state.busy
+                          ? null
+                          : () => ref
+                                .read(authControllerProvider.notifier)
+                                .logout(),
+                      child: Text(state.busy ? 'Please wait…' : 'Log out'),
+                    ),
                   ),
                 ],
               ),

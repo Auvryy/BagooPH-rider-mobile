@@ -8,6 +8,8 @@ import 'widgets/auth_shell.dart';
 import 'auth_controller.dart';
 import 'email_verification_dialog.dart';
 
+import '../../../core/ui/rider_surfaces.dart';
+
 class RegisterPage extends ConsumerStatefulWidget {
   const RegisterPage({super.key});
   @override
@@ -143,7 +145,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       );
       return;
     }
-    final verification = await showDialog<String>(
+    final verification = await showRiderDialog<String>(
       context: context,
       barrierDismissible: false,
       builder: (_) => EmailVerificationDialog(email: _email.text.trim()),
@@ -244,10 +246,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           children: [
             Row(
               children: [
-                IconButton(
-                  tooltip: 'Back to sign in',
-                  onPressed: _backToLogin,
-                  icon: const Icon(Icons.arrow_back_rounded, size: 20),
+                RiderPressFeedback(
+                  child: IconButton(
+                    tooltip: 'Back to sign in',
+                    onPressed: _backToLogin,
+                    icon: const Icon(Icons.arrow_back_rounded, size: 20),
+                  ),
                 ),
                 const SizedBox(width: 4),
                 const Expanded(
@@ -295,26 +299,30 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             ],
             const SizedBox(height: 24),
             if (_step > 0) ...[
-              OutlinedButton(
-                key: const ValueKey('registration-back-step'),
-                onPressed: () => _setStep(_step - 1),
-                child: const Text('Back'),
+              RiderPressFeedback(
+                child: OutlinedButton(
+                  key: const ValueKey('registration-back-step'),
+                  onPressed: () => _setStep(_step - 1),
+                  child: const Text('Back'),
+                ),
               ),
               const SizedBox(height: 12),
             ],
-            FilledButton(
-              key: const ValueKey('registration-next'),
-              onPressed: session.busy
-                  ? null
-                  : _step < 2
-                  ? _next
-                  : _submitApplication,
-              child: Text(
-                session.busy
-                    ? 'Submitting…'
-                    : _step == 2
-                    ? 'Submit application'
-                    : 'Continue',
+            RiderPressFeedback(
+              child: FilledButton(
+                key: const ValueKey('registration-next'),
+                onPressed: session.busy
+                    ? null
+                    : _step < 2
+                    ? _next
+                    : _submitApplication,
+                child: Text(
+                  session.busy
+                      ? 'Submitting…'
+                      : _step == 2
+                      ? 'Submit application'
+                      : 'Continue',
+                ),
               ),
             ),
             const SizedBox(height: 18),
@@ -323,10 +331,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 const Text('Already have an account?'),
-                TextButton(
-                  key: const ValueKey('register-sign-in-link'),
-                  onPressed: _backToLogin,
-                  child: const Text('Sign in'),
+                RiderPressFeedback(
+                  child: TextButton(
+                    key: const ValueKey('register-sign-in-link'),
+                    onPressed: _backToLogin,
+                    child: const Text('Sign in'),
+                  ),
                 ),
               ],
             ),
@@ -442,34 +452,36 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           ),
         ),
         const SizedBox(height: 8),
-        OutlinedButton(
-          key: const ValueKey('birthday-picker'),
-          onPressed: _chooseBirthday,
-          style: OutlinedButton.styleFrom(
-            backgroundColor: Colors.white,
-            alignment: Alignment.centerLeft,
-            minimumSize: const Size(0, 56),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          ),
-          child: Row(
-            children: [
-              const Icon(
-                Icons.calendar_today_outlined,
-                size: 20,
-                color: RiderColors.muted,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  _birthday == null
-                      ? 'Select date'
-                      : '${_birthday!.day.toString().padLeft(2, '0')}/'
-                            '${_birthday!.month.toString().padLeft(2, '0')}/'
-                            '${_birthday!.year}',
-                  style: const TextStyle(fontSize: 15),
+        RiderPressFeedback(
+          child: OutlinedButton(
+            key: const ValueKey('birthday-picker'),
+            onPressed: _chooseBirthday,
+            style: OutlinedButton.styleFrom(
+              backgroundColor: RiderColors.controlFill,
+              alignment: Alignment.centerLeft,
+              minimumSize: const Size(0, 56),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.calendar_today_outlined,
+                  size: 20,
+                  color: RiderColors.muted,
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    _birthday == null
+                        ? 'Select date'
+                        : '${_birthday!.day.toString().padLeft(2, '0')}/'
+                              '${_birthday!.month.toString().padLeft(2, '0')}/'
+                              '${_birthday!.year}',
+                    style: const TextStyle(fontSize: 15),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         const SizedBox(height: 8),
@@ -519,55 +531,62 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   child: Semantics(
                     button: true,
                     selected: _vehicle == vehicle.$1,
-                    child: InkWell(
-                      onTap: () => setState(() => _vehicle = vehicle.$1),
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        constraints: const BoxConstraints(minHeight: 96),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: _vehicle == vehicle.$1
-                              ? RiderColors.rose
-                              : Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
+                    child: RiderPressFeedback(
+                      child: InkWell(
+                        onTap: () => setState(() => _vehicle = vehicle.$1),
+                        borderRadius: BorderRadius.circular(RiderRadii.control),
+                        child: Container(
+                          constraints: const BoxConstraints(minHeight: 96),
+                          padding: const EdgeInsets.all(16),
+                          decoration: ShapeDecoration(
                             color: _vehicle == vehicle.$1
-                                ? RiderColors.accentText
-                                : RiderColors.border,
+                                ? RiderColors.rose
+                                : RiderColors.controlFill,
+                            shape: RoundedSuperellipseBorder(
+                              borderRadius: BorderRadius.circular(
+                                RiderRadii.control,
+                              ),
+                              side: _vehicle == vehicle.$1
+                                  ? const BorderSide(
+                                      color: RiderColors.accentText,
+                                    )
+                                  : BorderSide.none,
+                            ),
                           ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Icon(
-                                  vehicle.$2,
-                                  size: 26,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Icon(
+                                    vehicle.$2,
+                                    size: 26,
+                                    color: _vehicle == vehicle.$1
+                                        ? RiderColors.accentText
+                                        : RiderColors.muted,
+                                  ),
+                                  if (_vehicle == vehicle.$1)
+                                    const Icon(
+                                      Icons.check_circle_outline_rounded,
+                                      size: 20,
+                                      color: RiderColors.accentText,
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                vehicle.$1,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
                                   color: _vehicle == vehicle.$1
                                       ? RiderColors.accentText
-                                      : RiderColors.muted,
+                                      : RiderColors.ink,
                                 ),
-                                if (_vehicle == vehicle.$1)
-                                  const Icon(
-                                    Icons.check_circle_outline_rounded,
-                                    size: 20,
-                                    color: RiderColors.accentText,
-                                  ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              vehicle.$1,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: _vehicle == vehicle.$1
-                                    ? RiderColors.accentText
-                                    : RiderColors.ink,
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -609,8 +628,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: RiderColors.rose,
-          borderRadius: BorderRadius.circular(8),
+          color: RiderColors.controlFill,
+          borderRadius: BorderRadius.circular(RiderRadii.control),
         ),
         child: const Text(
           'Your company, hub and work assignment are managed separately '
@@ -729,13 +748,37 @@ class _FieldPair extends StatelessWidget {
           children: [first, const SizedBox(height: 16), second],
         );
       }
-      return Row(
+      final row = Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(child: first),
           const SizedBox(width: 16),
           Expanded(child: second),
         ],
+      );
+      if (first is! AuthField || second is! AuthField) return row;
+      double labelHeight(AuthField field) {
+        final painter = TextPainter(
+          text: TextSpan(
+            text: field.label,
+            style: DefaultTextStyle.of(context).style
+                .merge(AuthField.labelStyle),
+          ),
+          textDirection: Directionality.of(context),
+          textScaler: MediaQuery.textScalerOf(context),
+        )..layout(maxWidth: (constraints.maxWidth - 16) / 2);
+        final height = painter.height;
+        painter.dispose();
+        return height;
+      }
+
+      final heights = [
+        labelHeight(first as AuthField),
+        labelHeight(second as AuthField),
+      ];
+      return AuthFieldLabels(
+        height: heights.reduce((a, b) => a > b ? a : b),
+        child: row,
       );
     },
   );
@@ -767,10 +810,7 @@ class _StepNavigation extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: active ? RiderColors.accent : Colors.white,
-            border: Border.all(
-              color: active ? RiderColors.accent : RiderColors.border,
-            ),
+            color: active ? RiderColors.accent : RiderColors.controlFill,
           ),
           child: Text(
             '${index + 1}',
@@ -801,25 +841,27 @@ class _StepNavigation extends StatelessWidget {
         onTap: () => onSelect(index),
         child: Material(
           color: Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-          child: InkWell(
-            onTap: () => onSelect(index),
-            excludeFromSemantics: true,
-            borderRadius: BorderRadius.circular(8),
-            child: ExcludeSemantics(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: stacked
-                    ? Row(
-                        children: [
-                          circle,
-                          const SizedBox(width: 12),
-                          Expanded(child: label),
-                        ],
-                      )
-                    : Column(
-                        children: [circle, const SizedBox(height: 8), label],
-                      ),
+          borderRadius: BorderRadius.circular(RiderRadii.control),
+          child: RiderPressFeedback(
+            child: InkWell(
+              onTap: () => onSelect(index),
+              excludeFromSemantics: true,
+              borderRadius: BorderRadius.circular(RiderRadii.control),
+              child: ExcludeSemantics(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: stacked
+                      ? Row(
+                          children: [
+                            circle,
+                            const SizedBox(width: 12),
+                            Expanded(child: label),
+                          ],
+                        )
+                      : Column(
+                          children: [circle, const SizedBox(height: 8), label],
+                        ),
+                ),
               ),
             ),
           ),
@@ -915,12 +957,10 @@ class _DocumentCardState extends State<_DocumentCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return RiderSurface(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: RiderColors.border),
-      ),
+      radius: RiderRadii.control,
+      color: RiderColors.controlFill,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -930,7 +970,7 @@ class _DocumentCardState extends State<_DocumentCard> {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: RiderColors.rose,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(RiderRadii.control),
                 ),
                 child: const Icon(
                   Icons.description_outlined,
@@ -967,24 +1007,28 @@ class _DocumentCardState extends State<_DocumentCard> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              OutlinedButton.icon(
-                onPressed: _choosing ? null : _choose,
-                icon: const Icon(Icons.add_rounded, size: 18),
-                label: Text(
-                  _choosing
-                      ? 'Choosing…'
-                      : widget.selectedName == null
-                      ? 'Choose document'
-                      : 'Replace document',
+              RiderPressFeedback(
+                child: OutlinedButton.icon(
+                  onPressed: _choosing ? null : _choose,
+                  icon: const Icon(Icons.add_rounded, size: 18),
+                  label: Text(
+                    _choosing
+                        ? 'Choosing…'
+                        : widget.selectedName == null
+                        ? 'Choose document'
+                        : 'Replace document',
+                  ),
                 ),
               ),
               if (widget.selectedName != null)
-                TextButton(
-                  onPressed: () {
-                    widget.onChanged(null);
-                    setState(() => _error = null);
-                  },
-                  child: const Text('Remove'),
+                RiderPressFeedback(
+                  child: TextButton(
+                    onPressed: () {
+                      widget.onChanged(null);
+                      setState(() => _error = null);
+                    },
+                    child: const Text('Remove'),
+                  ),
                 ),
             ],
           ),

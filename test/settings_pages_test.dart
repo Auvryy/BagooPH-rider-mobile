@@ -95,12 +95,7 @@ void main() {
       await tester.pumpAndSettle();
       await tap(tester, 'nav-profile');
       expect(find.text('View details on the website'), findsNothing);
-      expect(
-        find.textContaining(
-          'Managed assignment and vehicle details were not provided',
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('Assignment'), findsOneWidget);
       await tap(tester, 'open-settings');
       await tap(tester, 'settings-contact');
       expect(find.text('Open website settings'), findsNothing);
@@ -115,16 +110,14 @@ void main() {
       expect(find.text('Contact details saved.'), findsOneWidget);
       await tester.tap(find.byTooltip('Back'));
       await tester.pumpAndSettle();
-      await tap(tester, 'open-security');
       expect(find.text('Manage account on the website'), findsNothing);
       await tap(tester, 'open-password');
       expect(field('Current password'), findsOneWidget);
       expect(field('New password'), findsOneWidget);
       await tester.tap(find.byTooltip('Back'));
       await tester.pumpAndSettle();
-      await tap(tester, 'settings-back');
       await tap(tester, 'settings-emails');
-      expect(field('Additional email'), findsOneWidget);
+      expect(find.byKey(const ValueKey('add-email')), findsOneWidget);
       expect(find.text('Open website settings'), findsNothing);
       await tester.tap(find.byTooltip('Back'));
       await tester.pumpAndSettle();
@@ -147,7 +140,8 @@ void main() {
       );
       await tester.pumpAndSettle();
       await tap(tester, 'nav-profile');
-      await tap(tester, 'open-contact');
+      await tap(tester, 'open-settings');
+      await tap(tester, 'settings-contact');
       expect(find.text('Open website settings'), findsNothing);
       expect(find.byType(WebsiteButton), findsNothing);
       expect(
@@ -190,7 +184,6 @@ void main() {
     (tester) async {
       final repo = TestSettingsRepository();
       await nativeSettings(tester, repo);
-      await tap(tester, 'open-security');
       await tap(tester, 'open-password');
       for (final label in [
         'Current password',
@@ -228,7 +221,6 @@ void main() {
     'paused password form clears secrets and user can discard draft',
     (tester) async {
       await nativeSettings(tester, TestSettingsRepository());
-      await tap(tester, 'open-security');
       await tap(tester, 'open-password');
       await tester.enterText(field('Current password'), 'current-secret');
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
@@ -252,7 +244,7 @@ void main() {
       expect(find.text('Discard unsaved changes?'), findsOneWidget);
       await tester.tap(find.text('Discard'));
       await tester.pumpAndSettle();
-      expect(find.text('Privacy and security'), findsWidgets);
+      expect(find.text('Settings'), findsWidgets);
     },
   );
   testWidgets(
@@ -276,6 +268,7 @@ void main() {
       await tap(tester, 'nav-profile');
       await tap(tester, 'open-settings');
       await tap(tester, 'settings-emails');
+      await tap(tester, 'add-email');
       await tester.enterText(field('Current password'), 'sample-secret');
       await tester.enterText(field('Additional email'), 'contact@example.test');
       await tap(tester, 'email-submit');
@@ -299,7 +292,6 @@ void main() {
         tester.platformDispatcher.textScaleFactorTestValue = 2;
         addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
         await nativeSettings(tester, TestSettingsRepository());
-        await tap(tester, 'open-security');
         await tap(tester, 'open-password');
         tester.view.viewInsets = const FakeViewPadding(bottom: 260);
         addTearDown(tester.view.resetViewInsets);

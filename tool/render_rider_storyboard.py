@@ -1,29 +1,35 @@
 #!/usr/bin/env python3
 """Draw a documentation storyboard with clearly labelled synthetic values."""
 from pathlib import Path
-import argparse,html,subprocess
+import argparse,html,subprocess,json
 
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'docs/design/visuals'
-INK='#0F172A';MUTED='#475569';RED='#E00D42';DARK='#C20836';ROSE='#FFF2F4';BG='#FFFAFB'
+TOKENS=json.loads((ROOT/'docs/design/tokens.json').read_text())
+PALETTE=TOKENS['light'];RADII=TOKENS['geometry']['radii']
+INK=PALETTE['ink'];MUTED=PALETTE['muted'];RED=PALETTE['accent'];DARK=PALETTE['accent_text'];ROSE=PALETTE['selection'];BG=PALETTE['canvas']
 def text(x,y,s,size=16,weight=400,color=INK,anchor='start'):
- return f'<text x="{x}" y="{y}" font-family="Plus Jakarta Sans, sans-serif" font-size="{size}" font-weight="{weight}" fill="{color}" text-anchor="{anchor}">{html.escape(s)}</text>'
-def rect(x,y,w,h,fill='#FFFFFF',stroke='none',r=8):
- return f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{r}" fill="{fill}" stroke="{stroke}"/>'
+ return f'<text x="{x}" y="{y}" font-family="sans-serif" font-size="{size}" font-weight="{weight}" fill="{color}" text-anchor="{anchor}">{html.escape(s)}</text>'
+def rect(x,y,w,h,fill='#FFFFFF',stroke='none',r=RADII['surface'],opacity=1):
+ r=min(r,w/2,h/2);c=r*.18
+ if not r:return f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="{fill}" stroke="{stroke}" fill-opacity="{opacity}"/>'
+ # Illustrative continuous contour; runtime uses the framework's superellipse.
+ d=f'M{x+r} {y} H{x+w-r} C{x+w-c} {y} {x+w} {y+c} {x+w} {y+r} V{y+h-r} C{x+w} {y+h-c} {x+w-c} {y+h} {x+w-r} {y+h} H{x+r} C{x+c} {y+h} {x} {y+h-c} {x} {y+h-r} V{y+r} C{x} {y+c} {x+c} {y} {x+r} {y} Z'
+ return f'<path d="{d}" fill="{fill}" stroke="{stroke}" fill-opacity="{opacity}"/>'
 def line(x,y,X,Y,c='#E2E8F0',width=1):
  return f'<path d="M{x} {y} L{X} {Y}" stroke="{c}" stroke-width="{width}" fill="none"/>'
 def button(x,y,w,label,primary=False):
- return rect(x,y,w,52,RED if primary else '#FFFFFF','none' if primary else '#64748B')+text(x+w/2,y+32,label,14,600,'#FFFFFF' if primary else INK,'middle')
+ return rect(x,y,w,52,RED if primary else PALETTE['control_fill'],'none',r=RADII['control'])+text(x+w/2,y+32,label,14,600,'#FFFFFF' if primary else INK,'middle')
 def badge(x,y,label,fill=ROSE,color=DARK,w=114):
  return rect(x,y,w,28,fill)+text(x+12,y+19,label,12,600,color)
 def cube(x,y,scale=1):
  return f'<g transform="translate({x} {y}) scale({scale})"><path d="M0 10 20 0 40 10 20 21Z M0 10v24l20 11 20-11V10 M20 21v24 M10 5l20 10" stroke="{DARK}" stroke-width="2" fill="none" stroke-linejoin="round"/></g>'
 def nav(active=0):
- s=rect(8,676,336,76,'#FFFFFF','#E2E8F0')
+ s=rect(8,676,336,76,'#FFFFFF',r=RADII['navigation'],opacity=.82)
  labels=['Tasks','Trips','Messages','Profile']
  for i,label in enumerate(labels):
   x=50+i*84;c=DARK if i==active else MUTED
-  if i==active:s+=rect(x-31,684,62,36,ROSE)
+  if i==active:s+=rect(x-31,684,62,36,'#FFFFFF',r=RADII['selection'])
   if i==0:s+=f'<path d="M{x-9} 698h18v12h-18z M{x-9} 698l9-5 9 5 M{x} 698v12" fill="none" stroke="{c}" stroke-width="1.8"/>'
   elif i==1:s+=f'<path d="M{x-9} 699h18 M{x-9} 705h18 M{x-9} 711h12" fill="none" stroke="{c}" stroke-width="1.8"/>'
   elif i==2:s+=f'<path d="M{x-10} 697h20v13h-13l-7 5z" fill="none" stroke="{c}" stroke-width="1.8"/>'
@@ -39,15 +45,15 @@ def header(title,sub=None,back=False):
  if sub:s+=text(22,149,sub,13,500,MUTED)
  return s
 def field(y,label,value='',password=False):
- return text(22,y,label,14,600)+rect(22,y+12,308,52,'#FFFFFF','#64748B')+text(36,y+45,'••••••••••••' if password else value,16,400,MUTED)
+ return text(22,y,label,14,600)+rect(22,y+12,308,52,PALETTE['control_fill'],r=RADII['control'])+text(36,y+45,'••••••••••••' if password else value,16,400,MUTED)
 def map_block(y,h=148):
- s=rect(22,y,308,h,'#F3F1EC','#CBD5E1')
+ s=rect(22,y,308,h,'#F3F1EC','#CBD5E1',r=RADII['map'])
  s+=f'<g clip-path="url(#mapclip-{y})">'
  for x in range(38,340,58):s+=line(x,y-10,x+40,y+h+10,'#FFFFFF',11)+line(x,y-10,x+40,y+h+10,'#D3DADD',1)
  for k in [40,91,131]:s+=line(10,y+k,350,y+k-20,'#FFFFFF',12)+line(10,y+k,350,y+k-20,'#D3DADD',1)
  s+=rect(254,y+65,40,32,'#DDE7DA',r=3)
  s+='</g>'
- s+=f'<defs><clipPath id="mapclip-{y}">{rect(22,y,308,h,r=8)}</clipPath></defs>'
+ s+=f'<defs><clipPath id="mapclip-{y}">{rect(22,y,308,h,r=RADII['map'])}</clipPath></defs>'
  s+=f'<path d="M176 {y+92}c-20-25-24-37-24-48a24 24 0 1 1 48 0c0 11-4 23-24 48Z" fill="{RED}" stroke="white" stroke-width="2"/><circle cx="176" cy="{y+43}" r="7" fill="white"/>'
  s+=rect(35,y+12,94,25,'#FFFFFF')+text(47,y+29,'Saved stop',11,600)
  s+=text(314,y+h-9,'Map attribution',9,400,MUTED,'end')
@@ -56,9 +62,9 @@ def build(kind):
  s=rect(0,0,352,760,BG,'#CBD5E1',28)+rect(123,7,106,10,INK,r=5)
  if kind=='login':
   s+=header('Sign in','Your rider workspace')
-  s+=rect(22,184,308,110,ROSE)+cube(246,203,1.25)+text(38,215,'One parcel.',18,600)+text(38,243,'A clear next step.',18,600)+text(38,272,'Pickup and delivery in one app.',12,500,MUTED)
+  s+=rect(22,184,308,110,PALETTE['control_fill'])+cube(246,203,1.25)+text(38,215,'One parcel.',18,600)+text(38,243,'A clear next step.',18,600)+text(38,272,'Pickup and delivery in one app.',12,500,MUTED)
   s+=field(337,'Email address','rider@example.test')+field(435,'Password',password=True)
-  s+=rect(23,523,18,18,'#FFFFFF','#64748B',4)+text(52,537,'Remember email',13,500)+text(330,575,'Forgot password?',14,600,DARK,'end')
+  s+=rect(23,523,18,18,PALETTE['control_fill'],r=4)+text(52,537,'Remember email',13,500)+text(330,575,'Forgot password?',14,600,DARK,'end')
   s+=button(22,603,308,'Sign in',True)+text(176,695,'Apply as a rider',14,600,DARK,'middle')
  elif kind=='home':
   s+=header('Your tasks','Assigned hub')
@@ -113,13 +119,16 @@ def build(kind):
   s+=text(176,469,'Sample conversation',12,500,MUTED,'middle')
   s+=rect(22,620,308,100,'#FFFFFF','#64748B')+text(36,650,'Write a message…',15,400,MUTED)+rect(214,668,102,48,RED)+text(265,697,'Send',13,600,'#FFFFFF','middle')
  elif kind=='profile':
-  s+=header('Your profile','Rider workspace')
-  s+=rect(22,174,308,170,ROSE)+f'<circle cx="67" cy="219" r="25" fill="#FFFFFF"/>'+text(67,225,'DR',15,600,DARK,'middle')+cube(266,191,.9)
-  s+=text(38,281,'Demo rider',23,600)+text(38,310,'rider@example.test',13,500,MUTED)
-  rows=[('Contact details','Edit permitted information'),('Assignment','Company and assigned hub'),('Vehicle','Managed records'),('Settings','Security, preferences and help')]
-  for i,(label,sub) in enumerate(rows):
-   y=387+i*69;s+=text(22,y,label,16,600)+text(22,y+23,sub,12,500,MUTED)+text(320,y+8,'›',25,400,MUTED)+line(22,y+37,330,y+37)
-  s+=nav(3)
+  s+=header('Profile')
+  s+=rect(22,160,308,104)+f'<circle cx="61" cy="210" r="24" fill="{ROSE}"/>'+text(61,216,'DR',15,600,DARK,'middle')
+  s+=text(102,194,'Demo rider',17,600)+text(102,217,'rider@example.test',12,500,MUTED)
+  s+=text(102,241,'Account details',12,600,DARK)+text(309,216,'›',24,400,MUTED)
+  s+=rect(22,284,308,58)+text(42,319,'Settings',16,500)+text(309,319,'›',24,400,MUTED)
+  s+=text(24,378,'Work information',13,500,MUTED)+rect(22,394,308,116)
+  for y,label in [(429,'Assignment'),(487,'Vehicle and credentials')]:
+   s+=text(42,y,label,16,500)+text(309,y,'›',24,400,MUTED)
+  s+=line(42,452,312,452)+nav(3)
+
  return s
 
 SCENES=[('P01','Sign in','login'),('P05','Home / Tasks','home'),('P06','Stop Mode','stop'),('P08','Parcel Finder','finder'),('P11','Evidence review','proof'),('P12','Cash review','cash'),('P22','Conversation','chat'),('P25','Profile','profile')]
@@ -127,7 +136,7 @@ def main():
  parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--font-file');parser.add_argument('--png',action='store_true');args=parser.parse_args()
  OUT.mkdir(parents=True,exist_ok=True)
  head='<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="1910" viewBox="0 0 1760 1910"><title>BagooPH Rider design storyboard</title><desc>Eight illustrative compositions with synthetic values. This is design documentation, not a running app or recorded operational result.</desc>'
- s=head+rect(0,0,1760,1910,'#F8F5F4',r=0)+text(64,68,'BagooPH Rider',34,700)+text(64,111,'A clear next step, wherever the work takes you.',19,400,MUTED)+text(64,147,'Illustrative compositions · Sample values · Planned frontend design',13,600,MUTED)
+ s=head+rect(0,0,1760,1910,'#F1F2F5',r=0)+text(64,68,'BagooPH Rider',34,700)+text(64,111,'A clear next step, wherever the work takes you.',19,400,MUTED)+text(64,147,'Illustrative compositions · Sample values · Planned frontend design',13,600,MUTED)
  for idx,(ident,title,kind) in enumerate(SCENES):
   x=64+(idx%4)*420;y=206+(idx//4)*841
   s+=text(x,y-20,ident+'  /  '+title,16,600)+f'<g transform="translate({x},{y})">'+build(kind)+'</g>'
@@ -136,7 +145,7 @@ def main():
  s+=text(64,1872,'48 full native views · 8 external views · 20 app overlays · 4 stable destinations',14,600,MUTED)+'</svg>'
  (OUT/'storyboard.svg').write_text(s)
  if args.png:
-  cmd=['resvg']
+  cmd=['resvg','--sans-serif-family',TOKENS['fallback_typeface'],'--use-font-file',str(ROOT/'assets/fonts/PlusJakartaSans.ttf')]
   if args.font_file:cmd+=['--use-font-file',args.font_file]
   cmd+=[str(OUT/'storyboard.svg'),str(OUT/'storyboard.png')]
   subprocess.run(cmd,check=True)

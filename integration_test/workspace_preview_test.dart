@@ -81,13 +81,11 @@ void main() {
     await capture(tester, 'email-settings');
     await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
-    await tap(tester, 'open-security');
     await tap(tester, 'open-password');
     await capture(tester, 'password-settings');
     await tester.tap(find.byTooltip('Back'));
     await tester.pumpAndSettle();
-    await tap(tester, 'settings-back');
-    await tap(tester, 'logout-button');
+    await tap(tester, 'settings-logout');
     expect(find.text('Welcome back.'), findsOneWidget);
     expect(tester.takeException(), isNull);
   }, skip: !enabled);

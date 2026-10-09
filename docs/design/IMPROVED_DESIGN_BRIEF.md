@@ -1,66 +1,55 @@
-# Improved Rider design brief
+# Mobile design review requirements
 
-Use this prompt for a later design/prototype request:
+This is a technical review checklist for the Rider visual system, not a copyable
+agent prompt. Keep external handoff prompts outside the repository. The current
+target is described in [the design specification](../DESIGN_SPEC.md) and
+[the token system](DESIGN_SYSTEM.md).
 
-> Act as a product designer and frontend developer for BagooPH Rider. Produce
-> a coherent mobile-first design for the current courier scope and the selected
-> Stop Mode, Parcel Finder and text-first Doorstep Guide.
->
-> First inspect the current flow, accepted data/actions and screen inventory.
-> Preserve rider-claimed seller pickup, hub-assigned final-mile delivery,
-> company/hub/area eligibility, real scans/proof, buyer-only completion and
-> separate cash collection/remittance/reconciliation. Label unavailable or
-> conditional features clearly.
->
-> Research current primary mobile/accessibility guidance and credible behavior
-> research. Use neutral source labels with original citations. Explain Jakob,
-> Hick–Hyman, Fitts, von Restorff, grouping, recognition, progressive disclosure
-> and thumb reach as contextual design reasoning, not universal formulas.
-> Keep third-party company names out of design prose, example UI and imagery.
->
-> Define navigation, Back, restored selection/scroll/drafts, exact counted full
-> views versus sheets/system surfaces/state variants, and all application,
-> recovery, work, scan, map, evidence, cash, failure, history, chat, activity,
-> account, settings and help views. Include first-party web entry as external
-> until native onboarding is explicitly selected.
->
-> For every page specify purpose, entry/exit, above-fold hierarchy, app bar,
-> ordered sections, primary/secondary control labels and positions, why colors
-> and borders differ, typography, spacing, safe areas, keyboard behavior,
-> responsive composition, data/permission dependency and recovery states.
->
-> Preserve the Rider accent #E00D42, canvas #FFFAFB, Plus Jakarta Sans and
-> 8-unit corners. Propose measurable tokens, actual contrast pairs, 48-unit
-> minimum standalone targets, readable long addresses and 200% text handling.
-> Keep field boundaries discoverable and avoid relying on color or shadows
-> alone to identify a control.
->
-> Use meaningful native available-width/height adaptation and preserve the
-> existing web project's separate navigation rules. Plan both-handed reach,
-> landscape, split windows, camera/picker returns, device cutouts, screen readers,
-> reduced motion and honest network/permission states.
->
-> Show editable visual examples using synthetic labelled data. Maps represent
-> saved authorized destinations, with address fallback, attribution and large
-> controls; live tracking, routing/ETA and final-mile batching remain separate
-> future capabilities.
->
-> Supply a page inventory, per-page blueprints, design system, evidence register,
-> visual storyboard and acceptance tasks. Distinguish specified, prototyped,
-> implemented and device-verified. Check coverage, references and consistency.
-> Do not report a theory name, screenshot or green build as proof of usability.
+## Visual direction
 
-## Requirements added to the original request
+- Reject solid black/dark control or card frames. Use softly filled fields,
+  borderless secondary actions, accent focus/error indicators and smooth
+  continuous superellipse contours.
+- Use system sans-serif type, spring touch feedback and momentum scrolling.
+  Frosted floating chrome sits above neutral reading space; data stays opaque.
+  Reduced effects/high contrast remove blur and nonessential motion.
 
-- A finite screen taxonomy, with all 40 earlier ideas mapped and future scope
-  separate from selected implementation.
-- Explicit action/data meaning, state and authorization changes after refresh.
-- Keyboard/safe-area geometry and focus restoration, not only attractive phone
-  pictures.
-- Both hands and actual grip variation rather than one universal thumb zone.
-- Complete empty/error/read-only/stale/denied/uncertain/permission states.
-- Field-size and color calculations, meaningful border rules and copy rationale.
-- Accessible authentication, long text, localization candidates and reduced
-  motion without unsupported preference switches.
-- Private image cleanup and map-data limits visible in the interaction plan.
-- Honest count/effort separation and a reproducible documentation check.
+- Independent modern mobile presentation with calm neutral canvas, white inset
+  groups, smooth component-specific shapes, crisp type and minimal chrome.
+- Primary red `#E00D42` and bundled Plus Jakarta Sans retained. Role-specific
+  radii, spacing, feedback and focus behavior follow `tokens.json`.
+- Neutral reference language in prose, example UI and artwork. Original research
+  URLs remain in the source register; the design is described through its own
+  native patterns, not by another product name.
+- A distinct layout from the web portal while sharing business rules and brand.
+  Portal CSS, desktop navigation and long panels do not dictate phone composition.
+
+## Per-view review
+
+- Purpose, entry/exit, readable title and common action are clear.
+- Main actions and current responsibility precede rare record details. Grouped
+  rows have labels, consistent destinations and 56-unit starting heights.
+- No duplicate page heading, identity dump, technical session prose or pointless
+  intermediate view containing only one navigation button.
+- Read-only account/placement/vehicle values use named detail pages. Sensitive
+  fields appear only for a selected operation; existing guards remain intact.
+- Color, control boundaries, component-specific radius and finite depth have a
+  purpose. A shadow, tint or blur alone never identifies a control or permission.
+- Primary action, navigation, sheet and keyboard reserve their measured space.
+  Both hands, safe areas, 200% text, 320-width reflow and explicit Back are covered.
+- Maps retain the authorized saved stop, address fallback and attribution.
+  Evidence, money, addresses and fields remain on opaque readable surfaces.
+- Reduced motion/effects preserves immediate feedback and a legible flat fallback.
+
+## Domain and implementation boundaries
+
+Preserve rider-claimed seller pickup, hub-assigned final-mile delivery, current
+eligibility, genuine evidence, buyer-only completion and separate cash facts.
+Unavailable resources remain unavailable. Scope and screen counts describe
+planning coverage, not completed routes or guaranteed delivery effort.
+
+Record specified, illustrated, implemented and physically verified states
+separately. Core colors/shapes now apply to existing screens; future views and optional
+candidates remain planned. Styling does not add their data or permission APIs.
+Validation includes token consistency/contrast, references, generated documents,
+visual artifact inspection and privacy checks. Illustrations use synthetic data.

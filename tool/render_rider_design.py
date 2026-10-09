@@ -97,6 +97,7 @@ def render(d):
  for x in d['idea_coverage']:lines.append(f"| {x['idea']:02} | {', '.join(x['surfaces'])} |")
  lines+=['','The canonical design data is [screens.json](screens.json). Validate and regenerate with the design rendering tool. Navigation IDs are planning references, not backend endpoints.','']
  blue=['# Rider page blueprints','',
+ 'The modern mobile visual target is independent of portal styling; shared colors, role-specific rounded geometry, grouped surfaces and neutral reference language follow [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md). This documentation target does not change runtime styling.', '',
  'These are frontend specifications for all counted views. Read [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) and [RESEARCH_AND_RATIONALE.md](RESEARCH_AND_RATIONALE.md) for shared tokens and limits of the theories. Every data page uses the applicable shared states in [SCREEN_INVENTORY.md](SCREEN_INVENTORY.md#shared-states); the specific recovery rule below adds its own context.','',
  'Entry/next IDs describe intended navigation, not actual deployed routes. A temporary focus workflow restores its parent, and Back never transfers a draft or command to another parcel.','']
  for p in d['pages']+d['external_views']:

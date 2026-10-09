@@ -32,7 +32,7 @@ on an Android phone. These are design choices, not measured RAM/battery savings.
 | `package_info_plus` 10.2.2 | Installed for About Rider | Actual app version/build information; no invented release/version label |
 | `integration_test` | Installed development SDK dependency | Opt-in native account checks and Linux-rendered workspace preview checks |
 | `intl` | Proposed when dates/money appear | Locale display; no floating-point money authority or guessed timezone |
-| Bundled Plus Jakarta Sans | Implemented app UI asset | Variable font with bundled SIL Open Font License; no runtime font download |
+| Bundled Plus Jakarta Sans | Implemented fallback font asset | Variable font with bundled SIL Open Font License; no runtime font download |
 
 Package versions are deliberately not presented as installed until they enter
 `pubspec.yaml` and resolve in `pubspec.lock`. At each implementation task check

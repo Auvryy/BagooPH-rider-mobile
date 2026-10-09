@@ -69,6 +69,7 @@ class NativeSettingsAuth extends TestAuthRepository implements RiderSessionApi {
     String path, {
     String method = 'GET',
     Object? data,
+    Map<String, String> headers = const {},
   }) async {
     if (method == 'PATCH') {
       saves++;

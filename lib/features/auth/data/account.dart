@@ -11,11 +11,13 @@ class RiderAccount {
     required this.emailVerified,
     this.feedback,
     this.settingsApiVersion,
+    this.operationsApiVersion,
   });
   final String id, name, email, status, kycStatus;
   final bool approved, emailVerified;
   final String? feedback;
   final int? settingsApiVersion;
+  final int? operationsApiVersion;
   factory RiderAccount.fromJson(Map<String, dynamic> json) {
     if (json['role'] != 'courier' ||
         json['id'] is! String ||
@@ -53,6 +55,7 @@ class RiderAccount {
           ['approved', 'verified'].contains(json['kyc_status']),
       emailVerified: json['email_verified'],
       feedback: json['kyc_feedback'],
+      operationsApiVersion: json['operations_api_version'] == 1 ? 1 : null,
       settingsApiVersion:
           json['settings_api_version'] is int &&
               json['settings_api_version'] == 1

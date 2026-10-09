@@ -5,6 +5,7 @@ roadmap and backlog; it does not replace their scope, stable IDs or deadlines.
 
 | Plan | Scope | State | Entry |
 |---|---|---|---|
+| Home dashboard/navigation | Selected map/location extension; live Home foundation first | Local implementation active; Azure/device gates outstanding | [Plan](home-dashboard-navigation/README.md) |
 | Native operations | Consume the completed backend Rider API in five Flutter batches | Planned; Azure/device acceptance outstanding | [Plan](native-operations/README.md) |
 
 ## Rules for future plans

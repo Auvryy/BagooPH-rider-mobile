@@ -1,3 +1,5 @@
+import '../../home/data/operations_models.dart';
+
 enum TaskQueue {
   available('Available pickups', 'Pickups are claimed by the rider.'),
   pickups('My pickups', 'The origin hub records receipt after collection.'),
@@ -44,9 +46,11 @@ class RiderTask {
     required this.address,
     required this.nextStep,
     this.cashCentavos,
+    this.operation,
   });
   final String id, tracking, stage, stop, address, nextStep;
   final int? cashCentavos;
+  final OperationTask? operation;
 }
 
 class TripCheckpoint {

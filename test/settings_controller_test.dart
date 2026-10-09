@@ -20,6 +20,7 @@ class TestSettingsApi implements RiderSessionApi {
     String path, {
     String method = 'GET',
     Object? data,
+    Map<String, String> headers = const {},
   }) async {
     requests.add((path: path, method: method, data: data));
     return reply;
@@ -33,6 +34,7 @@ class TestSessionAuth extends TestAuthRepository implements RiderSessionApi {
     String path, {
     String method = 'GET',
     Object? data,
+    Map<String, String> headers = const {},
   }) async {
     settingsRequests++;
     return settingsWire();

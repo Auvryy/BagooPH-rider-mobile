@@ -3,12 +3,55 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/network/api_failure.dart';
+import '../../../core/network/rider_api_client.dart';
+import '../../auth/presentation/auth_controller.dart';
+import '../../home/data/command_journal.dart';
+import '../../home/data/operations_models.dart';
+import '../../home/data/operations_repository.dart';
 import '../data/workspace_models.dart';
 import '../data/workspace_repository.dart';
 
 final workspaceRepositoryProvider = Provider<WorkspaceRepository>(
-  (ref) => const UnavailableWorkspaceRepository(),
-  dependencies: const [],
+  (ref) {
+    final account = ref.watch(
+      authControllerProvider.select(
+        (s) => (
+          id: s.user?.id,
+          approved: s.user?.approved,
+          version: s.user?.operationsApiVersion,
+        ),
+      ),
+    );
+    final repository = ref.watch(authRepositoryProvider);
+    final config = ref.watch(appConfigProvider);
+    if (account.id == null ||
+        account.approved != true ||
+        account.version != 1 ||
+        repository is! RiderSessionApi) {
+      return const UnavailableWorkspaceRepository();
+    }
+    var alive = true;
+    ref.onDispose(() => alive = false);
+    return OperationsRepository(
+      repository as RiderSessionApi,
+      accountId: account.id!,
+      journal: SecureCommandJournal(
+        origin: config.origin,
+        accountId: account.id!,
+      ),
+      writesVerified: config.operationsWritesVerified,
+      isCurrent: () =>
+          alive &&
+          ref.read(authControllerProvider).user?.id == account.id &&
+          ref.read(authControllerProvider).user?.approved == true,
+    );
+  },
+  dependencies: [
+    authControllerProvider,
+    authRepositoryProvider,
+    appConfigProvider,
+  ],
 );
 
 class WorkspaceIdentity {
@@ -28,16 +71,255 @@ final workspaceControllerProvider = Provider.autoDispose
     .family<WorkspaceController, WorkspaceIdentity>((ref, identity) {
       final controller = WorkspaceController(
         ref.watch(workspaceRepositoryProvider),
+        onSessionEnd: identity.preview
+            ? null
+            : (notice) => ref
+                  .read(authControllerProvider.notifier)
+                  .discardSession(notice),
       );
       ref.onDispose(controller.dispose);
       return controller;
-    }, dependencies: [workspaceRepositoryProvider]);
+    }, dependencies: [workspaceRepositoryProvider, authControllerProvider]);
 
 class WorkspaceController extends ChangeNotifier {
-  WorkspaceController(this.repository) {
-    unawaited(refreshAll());
+  WorkspaceController(this.repository, {this.onSessionEnd}) {
+    unawaited(operations == null ? refreshAll() : Future.microtask(refreshAll));
   }
   final WorkspaceRepository repository;
+  final Future<void> Function(String notice)? onSessionEnd;
+  OperationsRepository? get operations => repository is OperationsRepository
+      ? repository as OperationsRepository
+      : null;
+  FeatureData<OperationsHome> homeData = const FeatureData.loading();
+  CommandIntent? pendingIntent;
+  AccountFailure? workFailure;
+  String? workNotice;
+  bool working = false, loadingMore = false;
+  OperationTask? selectedTask;
+  bool selectingTask = false;
+  int _detailGeneration = 0;
+  TaskPage? taskPage;
+  Timer? _poll;
+  bool _foreground = true, _refreshingAll = false;
+  DateTime? _cooldownUntil;
+  bool get coolingDown => _cooldownUntil?.isAfter(DateTime.now()) ?? false;
+  bool get canWrite =>
+      operations?.writesVerified == true &&
+      !working &&
+      !coolingDown &&
+      pendingIntent == null &&
+      homeData.status == FeatureStatus.ready;
+
+  void setForeground(bool value) {
+    if (_foreground == value) return;
+    _foreground = value;
+    _poll?.cancel();
+    if (value) unawaited(refreshAll());
+  }
+
+  void _schedulePoll() {
+    _poll?.cancel();
+    if (!_foreground ||
+        _disposed ||
+        operations == null ||
+        homeData.data == null) {
+      return;
+    }
+    final seconds = (homeData.data!.limits['poll_interval_seconds'] ?? 30)
+        .clamp(30, 3600);
+    _poll = Timer(Duration(seconds: seconds), () async {
+      await refreshAll();
+      _schedulePoll();
+    });
+  }
+
+  Future<void> _workError(Object error) async {
+    final failure = error is AccountFailure
+        ? error
+        : const AccountFailure(
+            'Could not verify work data. Refresh and try again.',
+          );
+    workFailure = failure;
+    if (failure.retryAfterSeconds != null) {
+      _cooldownUntil = DateTime.now().add(
+        Duration(seconds: failure.retryAfterSeconds!),
+      );
+    }
+    if (failure.invalidSession) {
+      homeData = FeatureData.unavailable(failure.message);
+      taskData = FeatureData.unavailable(failure.message);
+      selectedTask = null;
+      _detailGeneration++;
+      _taskGeneration++;
+      _poll?.cancel();
+      if (!_disposed) await onSessionEnd?.call(failure.message);
+    }
+  }
+
+  Future<void> refreshHome() async {
+    final ops = operations;
+    if (ops == null) {
+      homeData = const FeatureData.unavailable(
+        'Work availability not connected',
+      );
+      return;
+    }
+    final previous = homeData.data;
+    homeData = previous == null
+        ? const FeatureData.loading()
+        : FeatureData.refreshing(previous);
+    _changed();
+    try {
+      final result = await ops.home();
+      if (_disposed) return;
+      if (result.capabilities['home'] != true) {
+        homeData = const FeatureData.unavailable(
+          'Home work data is unavailable.',
+        );
+        taskData = const FeatureData.unavailable(
+          'Home work data is unavailable.',
+        );
+        selectedTask = null;
+        return;
+      }
+      homeData = FeatureData.ready(result);
+      pendingIntent = await ops.pending();
+      if (pendingIntent != null && !working) {
+        await ops.reconcile();
+        if (!_disposed) pendingIntent = await ops.pending();
+      }
+    } catch (error) {
+      if (_disposed) return;
+      await _workError(error);
+      if (!_disposed && homeData.status != FeatureStatus.unavailable) {
+        homeData = FeatureData.failed(workFailure!.message, previous);
+      }
+    }
+    _changed();
+  }
+
+  Future<void> openTask(RiderTask task) async {
+    final generation = ++_detailGeneration;
+    selectedTask = null;
+    selectingTask = true;
+    _changed();
+    try {
+      final result = task.operation?.preview == true
+          ? task.operation
+          : await operations?.detail(task.id);
+      if (!_disposed && generation == _detailGeneration) selectedTask = result;
+    } catch (error) {
+      if (!_disposed && generation == _detailGeneration) {
+        await _workError(error);
+      }
+    }
+    if (!_disposed && generation == _detailGeneration) {
+      selectingTask = false;
+      _changed();
+    }
+  }
+
+  void closeTask() {
+    _detailGeneration++;
+    selectedTask = null;
+    selectingTask = false;
+    _changed();
+  }
+
+  Future<void> setDuty(bool desired) =>
+      _command(() => operations!.duty(desired));
+  Future<void> claimTask(OperationTask task) =>
+      _command(() => operations!.claim(task));
+  Future<void> checkPending({bool retryUnknown = false}) => _command(
+    () => operations!.reconcile(retryUnknown: retryUnknown),
+    recovery: true,
+  );
+  Future<void> _command(
+    Future<Map<String, dynamic>?> Function() request, {
+    bool recovery = false,
+  }) async {
+    if (_disposed ||
+        operations == null ||
+        working ||
+        coolingDown ||
+        (!recovery && !canWrite)) {
+      return;
+    }
+    working = true;
+    workFailure = null;
+    workNotice = null;
+    _changed();
+    try {
+      final result = await request();
+      if (_disposed) return;
+      if (result == null) {
+        workNotice =
+            'No committed result is visible yet. The original request is kept.';
+      } else {
+        workNotice = 'Work request confirmed.';
+        if (result['task_id'] is String) {
+          final owned = await operations!.detail(result['task_id']);
+          if (!_disposed) {
+            _detailGeneration++;
+            selectedTask = owned;
+            queue = TaskQueue.pickups;
+          }
+        }
+      }
+    } catch (error) {
+      if (!_disposed) await _workError(error);
+    } finally {
+      if (!_disposed) {
+        try {
+          pendingIntent = await operations!.pending();
+        } catch (error) {
+          await _workError(error);
+        }
+        working = false;
+        if (!_disposed && !coolingDown && !workFailureIsDenied) {
+          await refreshAll();
+        }
+        _changed();
+      }
+    }
+  }
+
+  bool get workFailureIsDenied => workFailure?.invalidSession == true;
+
+  Future<void> loadMoreTasks() async {
+    if (_disposed ||
+        loadingMore ||
+        operations == null ||
+        taskPage?.hasNext != true ||
+        coolingDown ||
+        taskData.status != FeatureStatus.ready) {
+      return;
+    }
+    final generation = _taskGeneration;
+    loadingMore = true;
+    _changed();
+    try {
+      final result = await operations!.taskPage(
+        queue,
+        page: taskPage!.page + 1,
+      );
+      if (!_disposed && generation == _taskGeneration) {
+        final merged = {for (final t in taskData.data!) t.id: t};
+        for (final t in result.items) {
+          merged[t.id] = OperationsRepository.asRiderTask(t);
+        }
+        taskData = FeatureData.ready(merged.values.toList());
+        taskPage = result;
+      }
+    } catch (error) {
+      if (!_disposed && generation == _taskGeneration) await _workError(error);
+    }
+    if (!_disposed) {
+      loadingMore = false;
+      _changed();
+    }
+  }
+
   FeatureData<List<RiderTask>> taskData = const FeatureData.loading();
   FeatureData<List<RiderTrip>> tripData = const FeatureData.loading();
   FeatureData<List<RiderConversation>> conversationData =
@@ -59,9 +341,39 @@ class WorkspaceController extends ChangeNotifier {
     if (!_disposed) notifyListeners();
   }
 
-  Future<void> refreshAll() async =>
-      Future.wait([refreshTasks(), refreshTrips(), refreshConversations()]);
+  Future<void> refreshAll() async {
+    if (_disposed || _refreshingAll || working || coolingDown) return;
+    _refreshingAll = true;
+    try {
+      if (operations == null) {
+        homeData = const FeatureData.unavailable(
+          'Work availability not connected',
+        );
+        await Future.wait([
+          refreshTasks(),
+          refreshTrips(),
+          refreshConversations(),
+        ]);
+        return;
+      }
+      await refreshHome();
+      if (_disposed) return;
+      if (operations == null || homeData.status == FeatureStatus.ready) {
+        await refreshTasks();
+      }
+      await Future.wait([refreshTrips(), refreshConversations()]);
+    } finally {
+      _refreshingAll = false;
+      _schedulePoll();
+    }
+  }
+
   Future<void> refreshTasks() async {
+    if (_disposed ||
+        coolingDown ||
+        (operations != null && homeData.status != FeatureStatus.ready)) {
+      return;
+    }
     final generation = ++_taskGeneration;
     final previous = taskData.data;
     taskData = previous == null
@@ -72,12 +384,19 @@ class WorkspaceController extends ChangeNotifier {
       final result = await repository.tasks(queue);
       if (!_disposed && generation == _taskGeneration) {
         taskData = result;
+        taskPage = operations?.lastPage;
+        if (selectedTask != null &&
+            !(result.data?.any((t) => t.id == selectedTask!.id) ?? false)) {
+          closeTask();
+        }
         _changed();
       }
-    } catch (_) {
+    } catch (error) {
       if (!_disposed && generation == _taskGeneration) {
+        if (operations != null) await _workError(error);
+        if (_disposed || workFailureIsDenied) return;
         taskData = FeatureData.failed(
-          'Could not load tasks. Try again.',
+          workFailure?.message ?? 'Could not load tasks. Try again.',
           previous,
         );
         _changed();
@@ -145,6 +464,8 @@ class WorkspaceController extends ChangeNotifier {
   void selectQueue(TaskQueue value) {
     if (queue == value) return;
     queue = value;
+    closeTask();
+    taskPage = null;
     taskSearch = '';
     taskData = const FeatureData.loading();
     unawaited(refreshTasks());
@@ -340,6 +661,11 @@ class WorkspaceController extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    _poll?.cancel();
+    _detailGeneration++;
+    homeData = const FeatureData.loading();
+    pendingIntent = null;
+    selectedTask = null;
     _drafts.clear();
     taskData = const FeatureData.loading();
     tripData = const FeatureData.loading();

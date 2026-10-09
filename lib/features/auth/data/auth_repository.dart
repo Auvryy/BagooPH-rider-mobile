@@ -34,19 +34,33 @@ class ApiAuthRepository implements AuthRepository, RiderSessionApi {
     String method = 'GET',
     Object? data,
     String? token,
-  }) => _api.request(path, method: method, data: data, token: token);
+    Map<String, String> headers = const {},
+  }) => _api.request(
+    path,
+    method: method,
+    data: data,
+    token: token,
+    headers: headers,
+  );
 
   @override
   Future<Map<String, dynamic>> authenticatedRequest(
     String path, {
     String method = 'GET',
     Object? data,
+    Map<String, String> headers = const {},
   }) {
     final token = _token;
     if (token == null) {
       throw const AccountFailure('Please sign in again.', status: 401);
     }
-    return _request(path, method: method, data: data, token: token);
+    return _request(
+      path,
+      method: method,
+      data: data,
+      token: token,
+      headers: headers,
+    );
   }
 
   @override

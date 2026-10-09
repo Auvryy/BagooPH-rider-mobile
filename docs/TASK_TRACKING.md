@@ -18,7 +18,7 @@ to the Laravel account adapter. M02 has its account transport, secure-store
 adapter and presentation foundation; M03 has the bounded account slice described
 in [ACCOUNT_ACCESS.md](ACCOUNT_ACCESS.md). Azure and physical Android account
 checks are recorded in [AZURE_ACCOUNT_ACCESS.md](AZURE_ACCOUNT_ACCESS.md).
-Operational queues/actions remain unimplemented. Account checks do not finish
+The selected [Home dashboard/navigation extension](plans/home-dashboard-navigation/README.md) now has a local v1 Home/queue/detail adapter and durable duty/claim foundation. Azure operational and physical-device acceptance remain outstanding. Account checks do not finish
 a major area or clear unrelated backend gates.
 
 The [Home layout fixtures](HOME_PREVIEW.md) provide M04 greeting, queue-filter and

@@ -60,6 +60,13 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (mounted) {
+      ref
+          .read(
+            workspaceControllerProvider(
+              WorkspaceIdentity(widget.account.id, preview: widget.preview),
+            ),
+          )
+          .setForeground(state == AppLifecycleState.resumed);
       setState(() => foreground = state == AppLifecycleState.resumed);
     }
   }

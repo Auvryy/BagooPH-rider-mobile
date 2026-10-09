@@ -8,6 +8,8 @@ import '../../workspace/presentation/workspace_controller.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
 
 import '../../../core/ui/rider_surfaces.dart';
+import '../data/operations_models.dart';
+import 'work_summary.dart';
 
 class TasksPage extends StatelessWidget {
   const TasksPage({
@@ -28,7 +30,7 @@ class TasksPage extends StatelessWidget {
         '',
         action: RiderPressFeedback(
           child: IconButton(
-            onPressed: controller.refreshTasks,
+            onPressed: controller.refreshAll,
             tooltip: 'Refresh tasks',
             icon: const Icon(Icons.refresh_rounded),
           ),
@@ -40,9 +42,9 @@ class TasksPage extends StatelessWidget {
         children: [
           const WorkspaceBadge('Rider account approved', accent: true),
           WorkspaceBadge(dayLabel(DateTime.now())),
-          if (!preview) const WorkspaceBadge('Work availability not connected'),
         ],
       ),
+      if (!preview) WorkSummary(controller: controller),
       const SizedBox(height: 28),
       Text('Your tasks', style: Theme.of(context).textTheme.titleLarge),
       const SizedBox(height: 16),
@@ -145,47 +147,7 @@ class TasksPage extends StatelessWidget {
                   prominentLabel: controller.queue == TaskQueue.available
                       ? 'Available pickup'
                       : 'Next responsibility',
-                  onOpen: () => showRiderSheet<void>(
-                    context: context,
-                    sheetAnimationStyle: RiderMotion.sheetStyle(context),
-                    isScrollControlled: true,
-                    builder: (context) => SafeArea(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(24),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text(
-                              'Parcel details',
-                              style: Theme.of(context).textTheme.headlineMedium,
-                            ),
-                            const SizedBox(height: 20),
-                            TaskCard(
-                              task: tasks[i],
-                              prominent: true,
-                              prominentLabel:
-                                  controller.queue == TaskQueue.available
-                                  ? 'Available pickup'
-                                  : 'Next responsibility',
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              preview
-                                  ? 'Sample parcel only. Pickup, handoff and delivery actions are not performed in this preview.'
-                                  : 'Parcel actions become available only after the work service confirms your permission.',
-                            ),
-                            const SizedBox(height: 20),
-                            RiderPressFeedback(
-                              child: OutlinedButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('Back to tasks'),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+                  onOpen: () => openParcel(context, tasks[i]),
                 ),
                 const SizedBox(height: 16),
               ],
@@ -193,6 +155,11 @@ class TasksPage extends StatelessWidget {
           );
         },
       ),
+      if (controller.taskPage?.hasNext == true)
+        TextButton(
+          onPressed: controller.loadingMore ? null : controller.loadMoreTasks,
+          child: Text(controller.loadingMore ? 'Loading…' : 'Load more tasks'),
+        ),
       const SizedBox(height: 24),
       Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,6 +181,86 @@ class TasksPage extends StatelessWidget {
       ),
     ],
   );
+  Future<void> openParcel(BuildContext context, RiderTask task) async {
+    if (!preview) await controller.openTask(task);
+    if (!context.mounted) return;
+    await showRiderSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      sheetAnimationStyle: RiderMotion.sheetStyle(context),
+      builder: (context) => ListenableBuilder(
+        listenable: controller,
+        builder: (context, _) {
+          final selected = controller.selectedTask;
+          final display = selected == null
+              ? task
+              : RiderTask(
+                  id: selected.id,
+                  tracking: selected.tracking,
+                  stage: selected.stage,
+                  stop: selected.stop.name ?? 'Stop name unavailable',
+                  address: selected.stop.address ?? 'Address unavailable',
+                  nextStep: selected.nextInstruction,
+                  operation: selected,
+                );
+          return SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Parcel details',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: 20),
+                  if (preview || selected != null)
+                    TaskCard(task: display, prominent: true)
+                  else
+                    const Text(
+                      'This parcel could not be revalidated. Refresh your tasks.',
+                    ),
+                  if (selected?.stop.instructions != null)
+                    Text(selected!.stop.instructions!),
+                  if (selected?.preview == true)
+                    FilledButton(
+                      onPressed:
+                          controller.canWrite &&
+                              controller.homeData.data?.canClaim == true &&
+                              selected!.actions['claim'] == true
+                          ? () => controller.claimTask(selected)
+                          : null,
+                      child: const Text('Claim pickup'),
+                    ),
+                  if (controller.workFailure != null)
+                    Text(controller.workFailure!.message),
+                  if (controller.pendingIntent != null)
+                    TextButton(
+                      onPressed: controller.working
+                          ? null
+                          : () => controller.checkPending(),
+                      child: const Text('Check saved request'),
+                    ),
+                  const SizedBox(height: 16),
+                  Text(
+                    preview
+                        ? 'Sample parcel only. Pickup, handoff and delivery actions are not performed in this preview.'
+                        : 'Collection and delivery outcomes are handled separately.',
+                  ),
+                  const SizedBox(height: 20),
+                  OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Back to tasks'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+    if (!preview) controller.closeTask();
+  }
 }
 
 class TaskCard extends StatelessWidget {
@@ -270,6 +317,12 @@ class TaskCard extends StatelessWidget {
             ),
           ],
         ),
+        if (task.operation?.codDueCents != null) ...[
+          const SizedBox(height: 18),
+          Text(
+            'Recorded cash to collect: ${exactPesos(task.operation!.codDueCents!)}',
+          ),
+        ],
         if (task.cashCentavos != null) ...[
           const SizedBox(height: 18),
           Text('Recorded cash to collect: ${pesos(task.cashCentavos!)}'),

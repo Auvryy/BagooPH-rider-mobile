@@ -5,10 +5,14 @@ class AppConfig {
     this.apiBase, {
     this.localAuth = false,
     this.riderWebsite = '',
+    this.operationsWritesVerified = false,
   });
   final String apiBase;
   final bool localAuth;
   final String riderWebsite;
+
+  /// Enable only after the selected Azure deployment/account gate is recorded.
+  final bool operationsWritesVerified;
   factory AppConfig.environment() {
     const deployedApi = 'https://bagooph.shop/api/v1';
     const deployedWebsite = 'https://courier.bagooph.shop';
@@ -26,6 +30,9 @@ class AppConfig {
       api,
       localAuth: bool.fromEnvironment('ALLOW_LOCAL_AUTH'),
       riderWebsite: website,
+      operationsWritesVerified: bool.fromEnvironment(
+        'OPERATIONS_WRITES_VERIFIED',
+      ),
     );
   }
   Uri get origin {

@@ -8,6 +8,8 @@ import '../../workspace/data/workspace_models.dart';
 import '../../workspace/presentation/workspace_controller.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
 
+import '../../../core/ui/rider_surfaces.dart';
+
 class MessagesPage extends StatefulWidget {
   const MessagesPage({
     super.key,
@@ -58,7 +60,12 @@ class _MessagesPageState extends State<MessagesPage> {
         final selected = c.selectedConversation;
         final contacts = ListView(
           key: const PageStorageKey('conversation-list'),
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.fromLTRB(
+            20,
+            20,
+            20,
+            20 + MediaQuery.paddingOf(context).bottom,
+          ),
           children: [
             Row(
               children: [
@@ -68,10 +75,12 @@ class _MessagesPageState extends State<MessagesPage> {
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                 ),
-                IconButton(
-                  tooltip: 'Refresh conversations',
-                  onPressed: c.sending ? null : c.refreshConversations,
-                  icon: const Icon(Icons.refresh_rounded),
+                RiderPressFeedback(
+                  child: IconButton(
+                    tooltip: 'Refresh conversations',
+                    onPressed: c.sending ? null : c.refreshConversations,
+                    icon: const Icon(Icons.refresh_rounded),
+                  ),
                 ),
               ],
             ),
@@ -95,9 +104,11 @@ class _MessagesPageState extends State<MessagesPage> {
               ),
             if (c.conversationData.status == FeatureStatus.failed) ...[
               Text(c.conversationData.message!),
-              TextButton(
-                onPressed: c.refreshConversations,
-                child: const Text('Try again'),
+              RiderPressFeedback(
+                child: TextButton(
+                  onPressed: c.refreshConversations,
+                  child: const Text('Try again'),
+                ),
               ),
             ],
             if (c.visibleConversations.isEmpty)
@@ -116,66 +127,74 @@ class _MessagesPageState extends State<MessagesPage> {
                   color: thread.id == c.selectedConversationId
                       ? Colors.white
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(RiderRadii.surface),
-                  child: InkWell(
-                    key: ValueKey('conversation-${thread.id}'),
-                    onTap: c.sending
-                        ? null
-                        : () => c.selectConversation(thread.id),
+                  shape: RoundedSuperellipseBorder(
                     borderRadius: BorderRadius.circular(RiderRadii.surface),
-                    child: Padding(
-                      padding: const EdgeInsets.all(14),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          WorkspaceAvatar(thread.participant),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  thread.participant,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  thread.phaseLabel,
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  thread.messages.isEmpty
-                                      ? 'No messages recorded'
-                                      : thread.messages.last.text,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  thread.tracking,
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                                if (!thread.canSend) ...[
+                  ),
+                  child: RiderPressFeedback(
+                    child: InkWell(
+                      key: ValueKey('conversation-${thread.id}'),
+                      onTap: c.sending
+                          ? null
+                          : () => c.selectConversation(thread.id),
+                      borderRadius: BorderRadius.circular(RiderRadii.surface),
+                      child: Padding(
+                        padding: const EdgeInsets.all(14),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            WorkspaceAvatar(thread.participant),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    thread.participant,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    thread.phaseLabel,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall,
+                                  ),
                                   const SizedBox(height: 8),
-                                  const WorkspaceBadge('Read only'),
+                                  Text(
+                                    thread.messages.isEmpty
+                                        ? 'No messages recorded'
+                                        : thread.messages.last.text,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    thread.tracking,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall,
+                                  ),
+                                  if (!thread.canSend) ...[
+                                    const SizedBox(height: 8),
+                                    const WorkspaceBadge('Read only'),
+                                  ],
                                 ],
-                              ],
-                            ),
-                          ),
-                          if (thread.unreadCount > 0) ...[
-                            const SizedBox(width: 8),
-                            Semantics(
-                              label: '${thread.unreadCount} unread messages',
-                              child: WorkspaceBadge(
-                                '${thread.unreadCount}',
-                                accent: true,
                               ),
                             ),
+                            if (thread.unreadCount > 0) ...[
+                              const SizedBox(width: 8),
+                              Semantics(
+                                label: '${thread.unreadCount} unread messages',
+                                child: WorkspaceBadge(
+                                  '${thread.unreadCount}',
+                                  accent: true,
+                                ),
+                              ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
                     ),
                   ),
@@ -354,18 +373,20 @@ class _ConversationThreadState extends State<_ConversationThread> {
                     : send,
                 icon: const Icon(Icons.send_outlined, size: 22),
               )
-            : FilledButton.icon(
-                key: const ValueKey('send-message'),
-                onPressed: c.sending || !canSend || c.draft.trim().isEmpty
-                    ? null
-                    : send,
-                icon: const Icon(Icons.send_outlined, size: 18),
-                label: Text(
-                  c.sending
-                      ? 'Please wait…'
-                      : widget.preview
-                      ? 'Preview send'
-                      : 'Send message',
+            : RiderPressFeedback(
+                child: FilledButton.icon(
+                  key: const ValueKey('send-message'),
+                  onPressed: c.sending || !canSend || c.draft.trim().isEmpty
+                      ? null
+                      : send,
+                  icon: const Icon(Icons.send_outlined, size: 18),
+                  label: Text(
+                    c.sending
+                        ? 'Please wait…'
+                        : widget.preview
+                        ? 'Preview send'
+                        : 'Send message',
+                  ),
                 ),
               );
         return Column(
@@ -381,16 +402,18 @@ class _ConversationThreadState extends State<_ConversationThread> {
                 child: Row(
                   children: [
                     if (widget.compact)
-                      IconButton(
-                        key: const ValueKey('conversation-back'),
-                        tooltip: 'Back to conversations',
-                        onPressed: c.sending
-                            ? null
-                            : () {
-                                FocusScope.of(context).unfocus();
-                                c.selectConversation(null);
-                              },
-                        icon: const Icon(Icons.arrow_back_rounded),
+                      RiderPressFeedback(
+                        child: IconButton(
+                          key: const ValueKey('conversation-back'),
+                          tooltip: 'Back to conversations',
+                          onPressed: c.sending
+                              ? null
+                              : () {
+                                  FocusScope.of(context).unfocus();
+                                  c.selectConversation(null);
+                                },
+                          icon: const Icon(Icons.arrow_back_rounded),
+                        ),
                       ),
                     WorkspaceAvatar(
                       thread.participant,
@@ -443,12 +466,14 @@ class _ConversationThreadState extends State<_ConversationThread> {
                         child: Container(
                           margin: const EdgeInsets.only(bottom: 16),
                           padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
+                          decoration: ShapeDecoration(
                             color: message.fromRider
-                                ? RiderColors.rose
+                                ? RiderColors.controlFill
                                 : Colors.white,
-                            borderRadius: BorderRadius.circular(
-                              RiderRadii.surface,
+                            shape: RoundedSuperellipseBorder(
+                              borderRadius: BorderRadius.circular(
+                                RiderRadii.surface,
+                              ),
                             ),
                           ),
                           child: Column(
@@ -472,13 +497,15 @@ class _ConversationThreadState extends State<_ConversationThread> {
                     ),
                   if (c.readError != null) ...[
                     Text(c.readError!),
-                    TextButton(
-                      onPressed: () => c.acknowledgeVisibleConversation(
-                        thread.id,
-                        phase: thread.phase,
-                        throughMessageId: thread.messages.last.id,
+                    RiderPressFeedback(
+                      child: TextButton(
+                        onPressed: () => c.acknowledgeVisibleConversation(
+                          thread.id,
+                          phase: thread.phase,
+                          throughMessageId: thread.messages.last.id,
+                        ),
+                        child: const Text('Retry read status'),
                       ),
-                      child: const Text('Retry read status'),
                     ),
                   ],
                   if (c.sendError != null)

@@ -3,26 +3,48 @@
 Reviewed **October 9, 2026**. This is the target appearance and interaction system
 for the Rider app. The account flow and compact Settings hierarchy are already
 implemented; the wider counted page catalogue remains planning coverage.
-The shared colors, shapes and basic motion are now applied to existing runtime
-screens. The wider screen catalogue and optional dark/material candidates remain
-planning coverage; styling does not implement new backend features or views.
+Existing screens now use borderless filled controls, continuous contours,
+frosted floating chrome, system sans-serif typography and spring touch feedback.
+The wider screen catalogue and dark candidate remain planning coverage; styling
+does not implement new backend features or views.
 
 ## Design direction
 
-Use a **modern mobile work interface** with an independent visual identity:
-quiet neutral canvas, opaque white inset groups, smoothly rounded surfaces,
-crisp dark typography, precise alignment, minimal chrome and restrained red
-emphasis. The result should feel composed, tactile and easy to scan on a phone.
-Polish comes from hierarchy, useful spacing and feedback rather than decorative
-noise, heavy gradients or repeated explanation.
+Use a **content-first, tactile mobile interface**: neutral white/light-gray
+reading space, strong readable text, smooth continuous contours and translucent
+floating controls. **Solid black or dark outlines are not an accepted default**
+for cards, fields, secondary buttons or navigation. Use fill, spacing, subtle
+shadow and labels to establish structure; keep an accent focus indicator and
+explicit error/selection feedback when needed.
 
-Primary red stays **`#E00D42`**. Use it for a meaningful primary action and active
-selection; use `#C20836` for smaller accent text. The target canvas becomes
-**`#F7F7FA`**, with `#FFFFFF` reading/form surfaces and Plus Jakarta Sans retained.
-Shapes become component-specific: **20-unit surfaces/groups, 12-unit controls,
-16-unit maps, 24-unit dialogs and 28-unit sheets**. Avatars and compact selection
-marks can remain circular/pill-shaped. The design system and `tokens.json`
-provide the canonical measurements.
+The four design principles are:
+
+1. **Direct touch and physics.** Pressed controls compress gently and return
+   with a finite spring. Scrolling carries momentum; sheets move from their
+   origin and remain draggable. Touch must not delay a request, obscure its
+   actual result or require a gesture without a labelled alternative.
+2. **Translucency and layering.** Frosted navigation/header chrome and temporary
+   sheets sit above a neutral background. Use clipped backdrop blur, light
+   translucent fill and soft depth rather than heavy framed boxes. Reading
+   surfaces stay opaque. Glass has an opaque fallback under reduced effects,
+   accessible navigation or high contrast. [R02](design/SOURCE_REGISTER.md#r02),
+   [R19](design/SOURCE_REGISTER.md#r19)
+3. **Content first.** Text, field labels, current responsibility and the next
+   action earn attention. Red primarily marks an actionable control or active
+   selection; semantic errors/waiting/results retain their labelled meanings.
+   Avoid decorative accent panels and repeated branding.
+4. **System typography and continuous corners.** Prefer each platform's native
+   sans-serif family; the bundled typeface is a fallback. Use continuous
+   superellipse contours, not an ordinary circular corner on every component.
+   Larger page titles and stable body sizes preserve hierarchy at enlarged text.
+   [R18](design/SOURCE_REGISTER.md#r18)
+
+Primary red stays **`#E00D42`**; small accent text uses `#C20836`. The canvas is
+**`#F7F7FA`**, reading surfaces are white and resting fields use **`#EEF0F4`**.
+Continuous contours use **24-unit surfaces/groups, 16-unit controls, 20-unit
+media, 28-unit dialogs and 32-unit sheets/navigation**. Selection contours use
+18 units. The supplied brand artwork keeps its own contour. The design system
+and `tokens.json` provide canonical values and platform-family choices.
 
 The mobile app shares the website's business meanings, data, branding and
 permissions. It owns its own presentation: do not copy portal CSS, desktop
@@ -41,7 +63,7 @@ before decoration. Group everyday choices into short labelled rows. Reveal
 account/vehicle records, identity guidance and operation-specific fields only
 when needed; this does not hide essential task or safety information.
 
-Navigation chrome may use subtle tonal separation or bounded translucency only
+Navigation chrome uses bounded translucency only
 where contrast, performance and reduced-effects preferences support it. Proof,
 addresses, amounts, fields and task content stay opaque. Every enhanced material
 has a readable flat fallback. The reasoning is documented in
@@ -60,8 +82,8 @@ has a readable flat fallback. The reasoning is documented in
 - A short form starts with the editable fields and its action. Password, code and
   other sensitive inputs appear only for the chosen operation. Rare guidance can
   expand in place; avoid an extra page containing only one navigation button.
-- Keep the four labelled destinations stable. A restrained rounded selection
-  shape and small accent are enough; navigation is distinct from content and
+- Keep the four labelled destinations stable. A restrained continuous selection
+  shape and small accent are enough; navigation is distinct from content, reserves its measured safe footprint and
   never covers the main action, keyboard, system gesture area or focused field.
 - Sheets use a clear title, explicit dismissal and visible intent, with a soft
   upper contour. Use finite transitions that preserve origin and focus; provide
@@ -220,9 +242,10 @@ large labelled touch targets and opaque backplates. Attribution stays visible.
   sand for relevant waiting and mint for a recorded result. Pair every state
   color with text/icon.
 - Use borderless information groups when spacing, headings and dividers are
-  enough. Use visible control outlines for inputs, choices and neutral buttons.
+  enough. Use filled, labelled inputs/choices and borderless neutral buttons; focus and
+  explicit errors/selected choices use accent indicators.
   Read-only managed values are definition rows, not disabled-looking inputs.
-- A task card can use a subtle shadow/outline because its nested explicit action
+- A task card can use a subtle shadow and continuous contour because its nested explicit action
   is discoverable. A fully clickable row needs text/chevron, focus and semantics.
   A shadow alone does not identify a control.
 - Align labels and values predictably; use one typeface and a compact type scale.

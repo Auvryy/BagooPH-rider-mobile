@@ -87,3 +87,20 @@ Restrained layering can distinguish navigation/overlays, but addresses, amounts,
 proof and forms keep opaque surfaces. Contrast, safe areas and reduced-effects
 fallbacks take precedence over a visual material. Planned target, illustration,
 implemented screen and physical device result remain different evidence.
+
+
+## Tactile and layered revision — October 9
+
+The review rejected dark framed controls and a visually flat dock. Existing
+screens now use borderless filled inputs, native sans-serif type, continuous
+contours and physical press feedback. Reading remains the dominant layer;
+frosted floating controls establish depth without making every card transparent.
+The dock reserves its measured safe-area footprint at enlarged text.
+
+Reference motion guidance informs finite spring/scroll behavior; exact values
+are Rider design choices, not platform defaults or usability measurements.
+Typography follows available platform families rather than distributing a
+proprietary font. Reduced effects, accessible navigation and high contrast have
+readable opaque fallbacks. Physical device performance and preference mapping
+remain acceptance checks. [R17](SOURCE_REGISTER.md#r17),
+[R18](SOURCE_REGISTER.md#r18), [R19](SOURCE_REGISTER.md#r19)

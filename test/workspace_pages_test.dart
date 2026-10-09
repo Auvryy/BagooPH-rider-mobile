@@ -376,7 +376,8 @@ void main() {
       await ProviderScope.containerOf(element)
           .read(authControllerProvider.notifier)
           .refresh();
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump();
       expect(find.text('Application needs correction'), findsOneWidget);
       expect(find.text('Parcel details'), findsNothing);
       expect(find.byKey(const ValueKey('rider-workspace')), findsNothing);

@@ -162,3 +162,39 @@ backend policies were changed by this design task.
 This is a source/documentation review. No deployed native API, browser
 walkthrough, physical-device test or measured usability improvement is claimed.
 Revisit live guidance and the accepted contract when implementation begins.
+
+
+## R17
+
+**Motion guidance** — [primary platform guidance](https://developer.apple.com/design/human-interface-guidelines/motion).
+Fetched October 9 through its public documentation data. Used for meaningful,
+responsive motion and respecting reduced effects. Rider spring coefficients and
+timings are authored choices; they do not establish measured usability.
+
+## R18
+
+**Typography and continuous contours** — [primary typography guidance](https://developer.apple.com/design/human-interface-guidelines/typography),
+[Flutter continuous border API](https://api.flutter.dev/flutter/painting/RoundedSuperellipseBorder-class.html).
+Fetched October 9 and checked against the installed Flutter source. Used for
+platform sans-serif typography, readable scaled hierarchy and actual continuous
+contours. Existing bundled font remains a fallback; no proprietary font is added.
+
+## R19
+
+**Frosted layers and accessibility** — [primary materials guidance](https://developer.apple.com/design/human-interface-guidelines/materials),
+[Flutter clipped backdrop filtering](https://api.flutter.dev/flutter/widgets/BackdropFilter-class.html),
+[Flutter motion preference](https://api.flutter.dev/flutter/widgets/MediaQueryData/disableAnimations.html).
+Fetched October 9; materials text was read through public documentation data.
+Used for separating floating controls from content, bounding blur and providing
+opaque/reduced-effects fallbacks. Runtime is a Flutter frosted layer, without a
+claim of proprietary material equivalence.
+
+
+## Existing-screen runtime review — October 9
+
+This revision starts from Rider commit `0fb9367` on the existing mobile branch.
+The backend reference advanced from `8fb5193` to `32c5207` during the work; the
+owning maintainer's native-operation changes were preserved read only. This
+slice changes presentation and privacy-route cleanup, without adding an API
+consumer or asserting deployment acceptance for those operation endpoints.
+Native physical-device review remains separate from the source/layout evidence.

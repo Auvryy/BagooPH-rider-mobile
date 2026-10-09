@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:bagoo_rider_mobile/app/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Color hex(String value) =>
@@ -19,7 +20,10 @@ void main() {
       final theme = buildRiderTheme();
       expect(theme.scaffoldBackgroundColor, hex(light['canvas']));
       expect(theme.colorScheme.primary, hex(light['accent']));
-      expect(theme.textTheme.bodyLarge?.fontFamily, 'Plus Jakarta Sans');
+      expect(
+        theme.textTheme.bodyLarge?.fontFamily,
+        (tokens['font_families'] as Map)[defaultTargetPlatform.name],
+      );
       expect(RiderRadii.surface, radii['surface']);
       expect(RiderRadii.group, radii['group']);
       expect(RiderRadii.control, radii['control']);
@@ -29,7 +33,10 @@ void main() {
       final field =
           theme.inputDecorationTheme.enabledBorder! as OutlineInputBorder;
       expect(field.borderRadius.topLeft.x, radii['control']);
-      final dialog = theme.dialogTheme.shape! as RoundedRectangleBorder;
+      expect(field.borderSide, BorderSide.none);
+      expect(field, isA<RiderInputBorder>());
+      expect(theme.inputDecorationTheme.fillColor, hex(light['control_fill']));
+      final dialog = theme.dialogTheme.shape! as RoundedSuperellipseBorder;
       expect(
         dialog.borderRadius.resolve(TextDirection.ltr).topLeft.x,
         radii['dialog'],
@@ -41,6 +48,24 @@ void main() {
       expect(
         theme.outlinedButtonTheme.style!.minimumSize!.resolve({})!.height,
         greaterThanOrEqualTo(geometry['target_min']),
+      );
+    },
+  );
+
+  test(
+    'focus, validation and high contrast remain visible without dark borders',
+    () {
+      final fields = buildRiderTheme().inputDecorationTheme;
+      expect(fields.focusedBorder!.borderSide.color, RiderColors.accentText);
+      expect(fields.focusedBorder!.borderSide.width, greaterThanOrEqualTo(2));
+      expect(fields.errorBorder!.borderSide.style, BorderStyle.solid);
+      expect(
+        buildRiderTheme(highContrast: true)
+            .inputDecorationTheme
+            .enabledBorder!
+            .borderSide
+            .color,
+        RiderColors.accentText,
       );
     },
   );

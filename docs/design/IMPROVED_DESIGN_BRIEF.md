@@ -7,6 +7,13 @@ target is described in [the design specification](../DESIGN_SPEC.md) and
 
 ## Visual direction
 
+- Reject solid black/dark control or card frames. Use softly filled fields,
+  borderless secondary actions, accent focus/error indicators and smooth
+  continuous superellipse contours.
+- Use system sans-serif type, spring touch feedback and momentum scrolling.
+  Frosted floating chrome sits above neutral reading space; data stays opaque.
+  Reduced effects/high contrast remove blur and nonessential motion.
+
 - Independent modern mobile presentation with calm neutral canvas, white inset
   groups, smooth component-specific shapes, crisp type and minimal chrome.
 - Primary red `#E00D42` and bundled Plus Jakarta Sans retained. Role-specific

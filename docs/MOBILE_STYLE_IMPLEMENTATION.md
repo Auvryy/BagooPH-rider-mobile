@@ -1,44 +1,56 @@
 # Existing app mobile styling
 
-Implemented October 9, 2026 from the neutral/red visual target in
-[the design specification](DESIGN_SPEC.md). Only existing UI is styled; the
-backend's new native operations work is separate and was read only.
+Revised October 9, 2026 after review of the earlier flat/outlined presentation.
+[The design specification](DESIGN_SPEC.md) now requires a tactile, layered style
+on existing screens. Backend operations work remains separate.
 
 ## Runtime changes
 
-- Neutral `#F7F7FA` canvas with primary `#E00D42` retained and bundled typeface.
-- White 20-unit cards/inset groups, 12-unit fields/controls/selection, 16-unit
-  media frames, 24-unit dialogs and 28-unit sheet corners. Supplied brand artwork
-  keeps its own contour rather than clipping it into another surface shape.
-- Rounded inset bottom navigation, quiet app bars and neutral dividers. Existing
-  labels, Back hierarchy, safe areas and minimum control sizes remain intact.
-- Home filters use a compact grouped row at normal phone width, with full queue
-  names exposed to semantics and a wrapping layout at small/large-text sizes.
-- Entry, registration, holding, workspace states, list/detail surfaces, chat,
-  Profile/Settings and account forms share the same theme. Future screens, data
-  adapters, operational commands and dark candidates are not added by styling.
-- Finite navigation/selection/sheet motion respects reduced-effects preferences.
-  Data remains opaque; no decorative blur, fake success or artificial delay is
-  introduced.
+- Ordinary fields and secondary controls have soft `#EEF0F4` fills and no dark
+  outlines. Accent focus and error indicators remain visible; selected controls
+  retain labels and explicit state. Primary red remains `#E00D42`.
+- Native continuous superellipse contours replace circular corner geometry on
+  shared groups, controls, dialogs and chrome: 24-unit groups/surfaces, 16-unit
+  controls, 20-unit media, 28-unit dialogs and 32-unit sheets/navigation.
+- Platform sans-serif typography replaces the bundled family as the first
+  choice. The bundled font remains a fallback. Page titles use 28/34/700;
+  secondary text has a quieter regular weight.
+- Frosted header, floating dock and existing sheets use clipped 18-unit backdrop
+  blur, translucent white fill and soft shadows. Opaque reading/field surfaces
+  remain clear; neutral canvas shading establishes depth without accent artwork.
+- Buttons and row actions gently compress and spring back. Gesture ownership,
+  disabled guards, callback dispatch and hit/layout sizes stay with the existing
+  controls. Workspace transitions preserve mounted tab state; account/approval changes
+  remove private routes immediately, independent of decorative motion; scrolling uses
+  momentum/elastic edges and existing sheets stay draggable with opaque reading bodies inside frosted shells.
+- The dock reserves its actual safe-area footprint, including enlarged labels.
+  High contrast, accessible navigation and reduced effects use opaque chrome;
+  reduced motion also removes travel/scaling and uses clamped scrolling. Native
+  motion flags are read where Flutter exposes them; no unsupported transparency
+  preference detection is claimed.
 
-Azure defaults, real-account behavior, token storage, ownership/capability checks,
-registration uploads, email codes and private cleanup are unchanged. Test-only
-repositories stay in tests; no sample page is exposed in the ordinary app.
+Login, registration, holding, Home, Trips, Messages, Profile, Settings and their
+existing forms share these primitives. This styling adds no routes or parcel
+commands. Azure configuration, account restrictions, token storage, capability
+checks, document uploads, code handling and private cleanup are preserved.
+Synthetic repositories remain in tests.
 
 ## Review and evidence
 
-`test/app_theme_test.dart` checks the runtime colors/shapes against the canonical
-JSON tokens, control sizes and reduced-effects behavior. Existing navigation,
-account, Settings, large-text and keyboard tests still run. Render review covers
-existing entry/registration and workspace screens under ignored `build/settings-ui`
-with synthetic test data. Those images are layout evidence, not live operations.
+Theme/token checks cover ordinary borderless fields, accent focus/error/high
+contrast, native-family choices and continuous contours. Surface tests exercise
+blur fallbacks, spring feedback, stable touch size, disabled actions and scroll
+physics. Existing layout/navigation/account/Settings tests remain required.
 
-The ordinary app remains connected to Azure even when a desktop layout frame is
-enabled. A physical-phone review should cover touch, Back, text scaling, keyboard
-and runtime transitions; desktop tests do not establish those device results.
+Rendered review uses synthetic test data and real host sans-serif/Material icon
+fonts under ignored `build/settings-ui` artifacts. Those images prove layout,
+not live parcel integration or Android performance. Test taps fail on missed
+hit targets, so floating chrome cannot silently hide controls during checks.
 
-Final verification: analysis clean; 89 local Flutter tests passed, including
-canonical token/control checks, reduced-effects scenarios and existing screen
-renders. Ordinary Linux and debug Android builds passed. APK origin/sample-route
-checks passed. No phone was connected, so physical touch/keyboard/system-motion
-review remains unverified; no live account mutation occurred.
+Fresh verification: **100 local tests passed**, with one expected explicit-
+configuration skip; analysis is clean. Six existing-screen layout/render tests
+passed again after the final neutral-fill refinement. Ordinary Linux and Android
+debug builds passed; the APK retains its Azure origin and excludes retired
+sample routes. Approval-loss cleanup is checked before animated settling.
+Physical Android touch, keyboard, system preferences and performance still require
+phone review; desktop renders do not establish those results.

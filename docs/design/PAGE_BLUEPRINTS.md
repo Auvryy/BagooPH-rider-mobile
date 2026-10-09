@@ -23,7 +23,7 @@ Entry/next IDs describe intended navigation, not actual deployed routes. A tempo
 
 **Secondary controls:** Forgot password under password; Apply as a rider below the main action.
 
-**Color, borders and grouping — why:** One red submit button makes the next action distinct; neutral outlined fields make editing recognizable. Recovery links use dark accent text rather than rival filled buttons.
+**Color, borders and grouping — why:** One red submit button makes the next action distinct; softly filled labelled fields make editing recognizable. Recovery links use dark accent text rather than rival filled buttons.
 
 **Theory and thumb reasoning:** Jakob, Hick and error prevention: familiar labelled fields, staged choice and field recovery. Large lower actions stay above device/navigation/keyboard insets; the lowest screen edge is not assumed universally comfortable.
 
@@ -198,7 +198,7 @@ Entry/next IDs describe intended navigation, not actual deployed routes. A tempo
 
 **Secondary controls:** Find by tracking reference; return to Stop Mode; scan identity through P07.
 
-**Color, borders and grouping — why:** Rose highlights one selected slot; other slots have visible outlines and text labels. A diagram is a personal memory aid, so it has no verified/custody badge.
+**Color, borders and grouping — why:** Rose highlights one selected slot; other slots have filled surfaces, visible selection indicators and text labels. A diagram is a personal memory aid, so it has no verified/custody badge.
 
 **Theory and thumb reasoning:** Recognition, grouping and thumb reach: a labelled spatial aid supplements full parcel identity. Large lower actions stay above device/navigation/keyboard insets; the lowest screen edge is not assumed universally comfortable.
 
@@ -273,7 +273,7 @@ Entry/next IDs describe intended navigation, not actual deployed routes. A tempo
 
 **Secondary controls:** Replace/remove photo near the thumbnail; cancel via discard-draft O08.
 
-**Color, borders and grouping — why:** Fields have visible outlines; photo is grouped in one white surface. One red continuation avoids competing Capture, Retake and Submit colors.
+**Color, borders and grouping — why:** Fields have persistent labels and soft fills; photo is grouped in one white surface. One red continuation avoids competing Capture, Retake and Submit colors.
 
 **Theory and thumb reasoning:** Jakob, Hick and error prevention: familiar labelled fields, staged choice and field recovery. Large lower actions stay above device/navigation/keyboard insets; the lowest screen edge is not assumed universally comfortable.
 
@@ -773,7 +773,7 @@ Entry/next IDs describe intended navigation, not actual deployed routes. A tempo
 
 **Secondary controls:** Back/discard through O08; recovery via approved entry if necessary.
 
-**Color, borders and grouping — why:** Clear outlined fields and a single submit focus on the task; requirements are text, not a misleading strength gauge unsupported by policy.
+**Color, borders and grouping — why:** Clear filled fields and a single submit focus on the task; requirements are text, not a misleading strength gauge unsupported by policy.
 
 **Theory and thumb reasoning:** Jakob, Hick and error prevention: familiar labelled fields, staged choice and field recovery. Large lower actions stay above device/navigation/keyboard insets; the lowest screen edge is not assumed universally comfortable.
 
@@ -848,7 +848,7 @@ Entry/next IDs describe intended navigation, not actual deployed routes. A tempo
 
 **Secondary controls:** Choose another owned parcel using O19; keep sensitive proof out of copied context.
 
-**Color, borders and grouping — why:** Read-only context is unboxed; any editable summary has a visible outline. No fake ticket number or claim that a safety agent is monitoring.
+**Color, borders and grouping — why:** Read-only context is unboxed; any editable summary has a soft fill and accent focus indicator. No fake ticket number or claim that a safety agent is monitoring.
 
 **Theory and thumb reasoning:** Recognition, grouping and progressive disclosure: key facts and one relevant action precede secondary records. Large lower actions stay above device/navigation/keyboard insets; the lowest screen edge is not assumed universally comfortable.
 
@@ -1223,7 +1223,7 @@ Entry/next IDs describe intended navigation, not actual deployed routes. A tempo
 
 **Secondary controls:** Back to sign in; inline help near the field.
 
-**Color, borders and grouping — why:** One red continuation and outlined fields clarify the sequence; the stepper is navigation context rather than verification.
+**Color, borders and grouping — why:** One red continuation and softly filled fields clarify the sequence; the stepper is navigation context rather than verification.
 
 **Theory and thumb reasoning:** Jakob, Hick and error prevention: familiar labelled fields, staged choice and field recovery. Large lower actions stay above device/navigation/keyboard insets; the lowest screen edge is not assumed universally comfortable.
 
@@ -1428,7 +1428,7 @@ Entry/next IDs describe intended navigation, not actual deployed routes. A tempo
 
 **Visible content and actions:** Show applicable phase/date/payment filters, Apply and Clear with current selection.
 
-**Color and border reasoning:** Neutral outlined choices; rose radio selection; lower Apply reachable.
+**Color and border reasoning:** Neutral filled choices; rose radio selection; lower Apply reachable.
 
 **Placement / adaptation:** Modal sheet on compact widths with an explicit Close/Cancel path; bounded scroll region and reachable action above the keyboard. At 600+ it can be a centered dialog at 560 units maximum. Scope choices wrap instead of requiring horizontal swipes.
 
@@ -1473,7 +1473,7 @@ Entry/next IDs describe intended navigation, not actual deployed routes. A tempo
 
 **Visible content and actions:** Pick a labelled bag/compartment; Save location or Clear for this parcel only.
 
-**Color and border reasoning:** Rose selection plus radio/text and outlined 48-unit targets.
+**Color and border reasoning:** Rose selection plus radio/text and filled 48-unit targets.
 
 **Placement / adaptation:** Modal sheet on compact widths with an explicit Close/Cancel path; bounded scroll region and reachable action above the keyboard. At 600+ it can be a centered dialog at 560 units maximum. Scope choices wrap instead of requiring horizontal swipes.
 
@@ -1653,7 +1653,7 @@ Entry/next IDs describe intended navigation, not actual deployed routes. A tempo
 
 **Visible content and actions:** Choose a supported Philippine-date period with Apply/Clear.
 
-**Color and border reasoning:** Readable outlined date controls; rose selected range, one primary Apply.
+**Color and border reasoning:** Readable filled date controls; rose selected range, one primary Apply.
 
 **Placement / adaptation:** Modal sheet on compact widths with an explicit Close/Cancel path; bounded scroll region and reachable action above the keyboard. At 600+ it can be a centered dialog at 560 units maximum. Scope choices wrap instead of requiring horizontal swipes.
 

@@ -259,7 +259,8 @@ operational states or the physical Android baseline. See [AUTH_PREVIEW.md](AUTH_
    checks; do not assume they are already installed.
 2. Build reusable fields, buttons, status/error panels and accessible sheets.
    Use the mobile design target: primary `#E00D42`, neutral `#F7F7FA`, role-specific
-   rounded shapes and bundled Plus Jakarta Sans. Apply target tokens only in the
+   continuous superellipse shapes, platform sans-serif typography, borderless
+   filled controls and accessible frosted chrome. Apply target tokens only in the
    selected implementation slice, with explicit checks against existing runtime.
 3. Wire explicit development fixtures behind replaceable repositories; retain
    debug Linux Device Preview and establish the physical Android baseline.
@@ -270,6 +271,12 @@ have labelled 48 logical-pixel touch targets, visible focus and usable contrast.
 Fixtures are visibly a development configuration and cannot produce operational
 release success. Foundation checks include meaningful routing/widget checks and
 Android launch evidence; desktop layout review does not verify native hardware.
+
+**October 9 appearance revision:** existing entry/workspace/Settings screens now
+use borderless filled controls, continuous contours, platform type, frosted
+floating chrome and finite spring feedback. Fresh local tests, render review and
+ordinary builds passed; physical-device and operational API gates remain separate.
+See [the implementation record](MOBILE_STYLE_IMPLEMENTATION.md).
 
 ### M03 — Authentication and account holding
 

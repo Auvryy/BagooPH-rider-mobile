@@ -47,7 +47,7 @@ removed from the everyday Settings path.
 - **Touch and text:** entire rows are interactive, with at least 48-unit targets.
   Compact spacing does not reduce text to fit. Large text may scroll vertically;
   fields, long values and keyboard paths must remain accessible.
-- **Consistency:** preserve Bagoo red and the bundled Plus Jakarta Sans. Detail
+- **Consistency:** preserve Bagoo red, use system sans-serif type and continuous corners. Detail
   pages share navigation and row structure. The follow-up shared-theme update
   applies neutral canvas, 20-unit groups and 12-unit controls to existing screens.
   The supplied brand artwork retains its contour.

@@ -79,7 +79,16 @@ class _BagooRiderAppState extends ConsumerState<BagooRiderApp>
           (previous?.user?.approved == true && next.user?.approved != true)) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
-            _navigator.currentState?.pushNamedAndRemoveUntil('/', (_) => false);
+            // Account changes remove private routes without decorative delay.
+            _navigator.currentState?.pushAndRemoveUntil<void>(
+              PageRouteBuilder<void>(
+                settings: const RouteSettings(name: '/'),
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+                pageBuilder: (_, _, _) => const AccountGate(),
+              ),
+              (_) => false,
+            );
           }
         });
       }
@@ -91,6 +100,8 @@ class _BagooRiderAppState extends ConsumerState<BagooRiderApp>
       locale: widget.useDevicePreview ? DevicePreview.locale(context) : null,
       builder: widget.useDevicePreview ? DevicePreview.appBuilder : null,
       theme: buildRiderTheme(),
+      highContrastTheme: buildRiderTheme(highContrast: true),
+      scrollBehavior: const RiderScrollBehavior(),
       routes: {
         '/': (_) => const AccountGate(),
         '/login': (_) => const AccountGate(),

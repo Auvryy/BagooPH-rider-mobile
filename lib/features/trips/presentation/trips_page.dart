@@ -7,6 +7,8 @@ import '../../workspace/data/workspace_models.dart';
 import '../../workspace/presentation/workspace_controller.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
 
+import '../../../core/ui/rider_surfaces.dart';
+
 class TripsPage extends StatefulWidget {
   const TripsPage({super.key, required this.controller, required this.preview});
   final WorkspaceController controller;
@@ -56,10 +58,12 @@ class _TripsPageState extends State<TripsPage> {
         WorkspaceHeading(
           'Trips',
           'Your recorded journeys, one parcel at a time.',
-          action: IconButton(
-            tooltip: 'Refresh trips',
-            onPressed: c.refreshTrips,
-            icon: const Icon(Icons.refresh_rounded),
+          action: RiderPressFeedback(
+            child: IconButton(
+              tooltip: 'Refresh trips',
+              onPressed: c.refreshTrips,
+              icon: const Icon(Icons.refresh_rounded),
+            ),
           ),
         ),
         Wrap(
@@ -94,35 +98,44 @@ class _TripsPageState extends State<TripsPage> {
             for (final filter in PaymentFilter.values)
               Semantics(
                 selected: c.payment == filter,
-                child: OutlinedButton(
-                  key: ValueKey('trip-payment-${filter.name}'),
-                  onPressed: ready ? () => c.filterPayment(filter) : null,
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: c.payment == filter
-                        ? RiderColors.rose
-                        : Colors.white,
+                child: RiderPressFeedback(
+                  child: OutlinedButton(
+                    key: ValueKey('trip-payment-${filter.name}'),
+                    onPressed: ready ? () => c.filterPayment(filter) : null,
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: c.payment == filter
+                          ? RiderColors.rose
+                          : Colors.white,
+                    ),
+                    child: Text(switch (filter) {
+                      PaymentFilter.all => 'All payments',
+                      PaymentFilter.cod => 'COD',
+                      PaymentFilter.prepaid => 'Prepaid',
+                    }),
                   ),
-                  child: Text(switch (filter) {
-                    PaymentFilter.all => 'All payments',
-                    PaymentFilter.cod => 'COD',
-                    PaymentFilter.prepaid => 'Prepaid',
-                  }),
                 ),
               ),
-            OutlinedButton.icon(
-              key: const ValueKey('trip-date-filter'),
-              onPressed: ready ? dates : null,
-              icon: const Icon(Icons.date_range_outlined, size: 18),
-              label: Text(
-                c.fromDate == null
-                    ? 'Date range'
-                    : '${calendarDateLabel(c.fromDate!)} – ${calendarDateLabel(c.toDate!)}',
+            RiderPressFeedback(
+              child: OutlinedButton.icon(
+                key: const ValueKey('trip-date-filter'),
+                onPressed: ready ? dates : null,
+                icon: const Icon(Icons.date_range_outlined, size: 18),
+                label: Text(
+                  c.fromDate == null
+                      ? 'Date range'
+                      : '${calendarDateLabel(c.fromDate!)} – ${calendarDateLabel(c.toDate!)}',
+                ),
               ),
             ),
             if (c.fromDate != null ||
                 c.payment != PaymentFilter.all ||
                 c.tripSearch.isNotEmpty)
-              TextButton(onPressed: clear, child: const Text('Clear filters')),
+              RiderPressFeedback(
+                child: TextButton(
+                  onPressed: clear,
+                  child: const Text('Clear filters'),
+                ),
+              ),
           ],
         ),
         const SizedBox(height: 24),
@@ -161,68 +174,68 @@ class _TripsPageState extends State<TripsPage> {
                     ),
                   WorkspacePanel(
                     padding: EdgeInsets.zero,
-                    child: InkWell(
-                      key: ValueKey('trip-${records[i].id}'),
-                      borderRadius: BorderRadius.circular(RiderRadii.media),
-                      onTap: () => showModalBottomSheet<void>(
-                        context: context,
-                        sheetAnimationStyle: RiderMotion.sheetStyle(context),
-                        isScrollControlled: true,
-                        showDragHandle: true,
-                        backgroundColor: RiderColors.canvas,
-                        builder: (_) => _TripDetails(
-                          trip: records[i],
-                          preview: widget.preview,
+                    child: RiderPressFeedback(
+                      child: InkWell(
+                        key: ValueKey('trip-${records[i].id}'),
+                        borderRadius: BorderRadius.circular(RiderRadii.media),
+                        onTap: () => showRiderSheet<void>(
+                          context: context,
+                          sheetAnimationStyle: RiderMotion.sheetStyle(context),
+                          isScrollControlled: true,
+                          builder: (_) => _TripDetails(
+                            trip: records[i],
+                            preview: widget.preview,
+                          ),
                         ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    records[i].tracking,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium,
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      records[i].tracking,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 8),
-                                const Icon(Icons.chevron_right_rounded),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: [
-                                WorkspaceBadge(
-                                  records[i].outcome,
-                                  accent: records[i].outcome == 'Delivered',
-                                ),
-                                WorkspaceBadge(
-                                  records[i].payment == PaymentFilter.cod
-                                      ? 'COD record'
-                                      : 'Prepaid',
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              records[i].recipient,
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(records[i].address),
-                            const SizedBox(height: 12),
-                            Text(
-                              'Recorded at ${timeLabel(records[i].recordedAt)}',
-                            ),
-                          ],
+                                  const SizedBox(width: 8),
+                                  const Icon(Icons.chevron_right_rounded),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: [
+                                  WorkspaceBadge(
+                                    records[i].outcome,
+                                    accent: records[i].outcome == 'Delivered',
+                                  ),
+                                  WorkspaceBadge(
+                                    records[i].payment == PaymentFilter.cod
+                                        ? 'COD record'
+                                        : 'Prepaid',
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                records[i].recipient,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(records[i].address),
+                              const SizedBox(height: 12),
+                              Text(
+                                'Recorded at ${timeLabel(records[i].recordedAt)}',
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -238,17 +251,21 @@ class _TripsPageState extends State<TripsPage> {
                   spacing: 12,
                   runSpacing: 8,
                   children: [
-                    OutlinedButton.icon(
-                      key: const ValueKey('trips-previous'),
-                      onPressed: c.tripPage > 0 ? c.previousTripPage : null,
-                      icon: const Icon(Icons.arrow_back_rounded, size: 18),
-                      label: const Text('Previous'),
+                    RiderPressFeedback(
+                      child: OutlinedButton.icon(
+                        key: const ValueKey('trips-previous'),
+                        onPressed: c.tripPage > 0 ? c.previousTripPage : null,
+                        icon: const Icon(Icons.arrow_back_rounded, size: 18),
+                        label: const Text('Previous'),
+                      ),
                     ),
-                    OutlinedButton.icon(
-                      key: const ValueKey('trips-next'),
-                      onPressed: c.hasNextTripPage ? c.nextTripPage : null,
-                      icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-                      label: const Text('Next'),
+                    RiderPressFeedback(
+                      child: OutlinedButton.icon(
+                        key: const ValueKey('trips-next'),
+                        onPressed: c.hasNextTripPage ? c.nextTripPage : null,
+                        icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                        label: const Text('Next'),
+                      ),
                     ),
                   ],
                 ),
@@ -302,16 +319,22 @@ class _TripDetails extends StatelessWidget {
                   Text('Recorded collection: ${pesos(trip.cashCentavos!)}'),
                 ],
                 const SizedBox(height: 16),
-                OutlinedButton.icon(
-                  onPressed: () async {
-                    final messenger = ScaffoldMessenger.of(context);
-                    await Clipboard.setData(ClipboardData(text: trip.tracking));
-                    messenger.showSnackBar(
-                      const SnackBar(content: Text('Parcel reference copied.')),
-                    );
-                  },
-                  icon: const Icon(Icons.copy_rounded, size: 18),
-                  label: const Text('Copy reference'),
+                RiderPressFeedback(
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      final messenger = ScaffoldMessenger.of(context);
+                      await Clipboard.setData(
+                        ClipboardData(text: trip.tracking),
+                      );
+                      messenger.showSnackBar(
+                        const SnackBar(
+                          content: Text('Parcel reference copied.'),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.copy_rounded, size: 18),
+                    label: const Text('Copy reference'),
+                  ),
                 ),
               ],
             ),
@@ -360,9 +383,11 @@ class _TripDetails extends StatelessWidget {
                 : 'This journey records delivery events. Buyer receipt and cash reconciliation are separate records.',
           ),
           const SizedBox(height: 20),
-          OutlinedButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Back to trips'),
+          RiderPressFeedback(
+            child: OutlinedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Back to trips'),
+            ),
           ),
         ],
       ),

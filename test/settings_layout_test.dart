@@ -6,6 +6,7 @@ import 'package:bagoo_rider_mobile/features/settings/data/settings_models.dart';
 import 'package:bagoo_rider_mobile/features/settings/presentation/settings_controller.dart';
 import 'package:bagoo_rider_mobile/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -130,16 +131,55 @@ Future<void> capture(WidgetTester tester, String name) async {
   });
 }
 
+void layoutTest(String description, Future<void> Function(WidgetTester) body) {
+  testWidgets(description, (tester) async {
+    final previous = debugDefaultTargetPlatformOverride;
+    final shadows = debugDisableShadows;
+    debugDefaultTargetPlatformOverride = TargetPlatform.linux;
+    debugDisableShadows = false;
+    try {
+      await body(tester);
+    } finally {
+      debugDefaultTargetPlatformOverride = previous;
+      debugDisableShadows = shadows;
+    }
+  });
+}
+
 void main() {
+  setUp(() {
+    final fatal = WidgetController.hitTestWarningShouldBeFatal;
+    WidgetController.hitTestWarningShouldBeFatal = true;
+    addTearDown(() => WidgetController.hitTestWarningShouldBeFatal = fatal);
+  });
   setUpAll(() async {
     final font = FontLoader('Plus Jakarta Sans')
       ..addFont(rootBundle.load('assets/fonts/PlusJakartaSans.ttf'));
     await font.load();
+    if (Platform.isLinux) {
+      try {
+        final match = await Process.run('fc-match', [
+          '-f',
+          '%{file}',
+          'sans-serif',
+        ]);
+        final file = File((match.stdout as String).trim());
+        if (match.exitCode == 0 && file.existsSync()) {
+          final native = FontLoader('sans-serif')
+            ..addFont(
+              Future.value(ByteData.sublistView(await file.readAsBytes())),
+            );
+          await native.load();
+        }
+      } on ProcessException {
+        // Headless hosts keep the bundled fallback loaded above.
+      }
+    }
     final icons = FontLoader('MaterialIcons')
       ..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'));
     await icons.load();
   });
-  testWidgets(
+  layoutTest(
     'Profile and Settings primary controls fit the first phone viewport',
     (tester) async {
       await openApp(tester);
@@ -194,7 +234,7 @@ void main() {
     },
   );
 
-  testWidgets(
+  layoutTest(
     'details preserve server values and system Back follows the hierarchy',
     (tester) async {
       await openApp(tester);
@@ -226,7 +266,7 @@ void main() {
     },
   );
 
-  testWidgets(
+  layoutTest(
     'email overview reveals credentials only when choosing an operation',
     (tester) async {
       await openApp(tester);
@@ -266,7 +306,7 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
-  testWidgets(
+  layoutTest(
     'six saved emails remain readable and management actions stay separate',
     (tester) async {
       await openApp(tester, repository: FullEmailsRepository());
@@ -288,7 +328,7 @@ void main() {
     },
   );
 
-  testWidgets(
+  layoutTest(
     'settings details and add-email forms support 320 width and 200 percent text',
     (tester) async {
       await openApp(tester);
@@ -312,7 +352,7 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
-  testWidgets(
+  layoutTest(
     'modern shared styling renders existing workspace and entry screens',
     (tester) async {
       await openApp(tester);

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/ui/rider_surfaces.dart';
 import '../../auth/data/account.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
@@ -69,13 +70,15 @@ class ProfileSettingsPage extends ConsumerWidget {
       if (section != ProfileSection.profile)
         Row(
           children: [
-            IconButton(
-              key: const ValueKey('settings-back'),
-              tooltip: section.parent == ProfileSection.profile
-                  ? 'Back to Profile'
-                  : 'Back to Settings',
-              onPressed: () => onSection(section.parent),
-              icon: const Icon(Icons.arrow_back_rounded),
+            RiderPressFeedback(
+              child: IconButton(
+                key: const ValueKey('settings-back'),
+                tooltip: section.parent == ProfileSection.profile
+                    ? 'Back to Profile'
+                    : 'Back to Settings',
+                onPressed: () => onSection(section.parent),
+                icon: const Icon(Icons.arrow_back_rounded),
+              ),
             ),
             const SizedBox(width: 4),
             Expanded(
@@ -93,44 +96,46 @@ class ProfileSettingsPage extends ConsumerWidget {
         content.addAll([
           _SettingsGroup(
             children: [
-              InkWell(
-                key: const ValueKey('open-account'),
-                onTap: () => onSection(ProfileSection.account),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      WorkspaceAvatar(account.name, size: 48),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              account.name,
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              account.email,
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Account details',
-                              style: Theme.of(context).textTheme.labelMedium
-                                  ?.copyWith(color: RiderColors.accentText),
-                            ),
-                          ],
+              RiderPressFeedback(
+                child: InkWell(
+                  key: const ValueKey('open-account'),
+                  onTap: () => onSection(ProfileSection.account),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        WorkspaceAvatar(account.name, size: 48),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                account.name,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                account.email,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Account details',
+                                style: Theme.of(context).textTheme.labelMedium
+                                    ?.copyWith(color: RiderColors.accentText),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Icon(
-                        Icons.chevron_right_rounded,
-                        color: RiderColors.muted,
-                        size: 20,
-                      ),
-                    ],
+                        const SizedBox(width: 8),
+                        const Icon(
+                          Icons.chevron_right_rounded,
+                          color: RiderColors.muted,
+                          size: 20,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -246,14 +251,16 @@ class ProfileSettingsPage extends ConsumerWidget {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 12),
-          TextButton.icon(
-            key: const ValueKey('refresh-account'),
-            onPressed: () {
-              onRefresh();
-              settings.load();
-            },
-            icon: const Icon(Icons.refresh_rounded, size: 18),
-            label: const Text('Refresh details'),
+          RiderPressFeedback(
+            child: TextButton.icon(
+              key: const ValueKey('refresh-account'),
+              onPressed: () {
+                onRefresh();
+                settings.load();
+              },
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              label: const Text('Refresh details'),
+            ),
           ),
         ]);
       case ProfileSection.assignment:
@@ -309,10 +316,12 @@ class ProfileSettingsPage extends ConsumerWidget {
                   ),
                   if (settings.available) ...[
                     const SizedBox(height: 12),
-                    TextButton.icon(
-                      onPressed: settings.loading ? null : settings.load,
-                      icon: const Icon(Icons.refresh_rounded, size: 18),
-                      label: const Text('Refresh details'),
+                    RiderPressFeedback(
+                      child: TextButton.icon(
+                        onPressed: settings.loading ? null : settings.load,
+                        icon: const Icon(Icons.refresh_rounded, size: 18),
+                        label: const Text('Refresh details'),
+                      ),
                     ),
                   ],
                 ],
@@ -421,10 +430,8 @@ class _SettingsGroup extends StatelessWidget {
   const _SettingsGroup({required this.children});
   final List<Widget> children;
   @override
-  Widget build(BuildContext context) => Material(
-    color: Colors.white,
-    borderRadius: BorderRadius.circular(RiderRadii.group),
-    clipBehavior: Clip.antiAlias,
+  Widget build(BuildContext context) => RiderSurface(
+    radius: RiderRadii.group,
     child: Column(
       children: [
         for (var i = 0; i < children.length; i++) ...[
@@ -450,38 +457,42 @@ class _SettingsRow extends StatelessWidget {
   final VoidCallback? onTap;
   final bool destructive, disclosure;
   @override
-  Widget build(BuildContext context) => InkWell(
-    onTap: onTap,
-    child: ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 56),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              size: 22,
-              color: destructive ? RiderColors.accentText : RiderColors.muted,
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Text(
-                title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                  color: destructive ? RiderColors.accentText : RiderColors.ink,
+  Widget build(BuildContext context) => RiderPressFeedback(
+    child: InkWell(
+      onTap: onTap,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 56),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                size: 22,
+                color: destructive ? RiderColors.accentText : RiderColors.muted,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: destructive
+                        ? RiderColors.accentText
+                        : RiderColors.ink,
+                  ),
                 ),
               ),
-            ),
-            if (disclosure) ...[
-              const SizedBox(width: 8),
-              const Icon(
-                Icons.chevron_right_rounded,
-                size: 20,
-                color: RiderColors.muted,
-              ),
+              if (disclosure) ...[
+                const SizedBox(width: 8),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  size: 20,
+                  color: RiderColors.muted,
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     ),

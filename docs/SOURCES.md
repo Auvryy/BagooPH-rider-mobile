@@ -2,6 +2,14 @@
 
 ## Reviewed source snapshot
 
+**October 9 accepted operations handoff:** clean backend main
+`1d785aab7262c88f14e539b7f1bad58f90e180ec` now contains the native operations
+contract, executable OpenAPI, example register and all five implemented batches.
+The [plan source review](plans/native-operations/SOURCE_REVIEW.md) owns this scoped
+revision/fingerprint and evidence distinction. Earlier observations below retain
+their original dates; they do not override the accepted operations contract.
+Azure rollout and Flutter/device operational acceptance remain separate gates.
+
 Reviewed October 5, 2026 from the local Bagoo web checkout at
 `f24704f0a74162369687b8bfce976775cd58208f`. No web files were edited for this task.
 Public links below navigate the main branch of `Auvryy/BagooPH`; this review does

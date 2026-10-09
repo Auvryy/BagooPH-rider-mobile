@@ -1,5 +1,16 @@
 # Connecting the rider app and web backend
 
+## Current accepted operational handoff — October 9
+
+The backend checkout is now clean main `1d785aa`, with implemented operational
+routes, backend-owned OpenAPI and sanitized examples. The earlier route observations
+below remain historical snapshots. Current Flutter integration is planned in the
+separate [native operations package](../plans/native-operations/README.md), which
+owns its five batch files, source review and deployment/acceptance gate.
+This document continues to own cross-repository coordination, not batch progress.
+No Azure revision, migration, fresh operational token or device acceptance was
+verified by this documentation update.
+
 ## Dated starting point
 
 Rechecked for major-task planning on October 5, 2026 against the web checkout at
@@ -93,10 +104,10 @@ Both agree the payload/error/capability contract for a slice before implementati
 The same person may hold both roles; ownership still identifies where a change
 belongs.
 
-Create an OpenAPI specification in the backend repo **as part of the authorized
-API task**, initially for auth/me/tasks and one command. Commit sanitized request,
-response, and error fixtures next to its tests. No specification or generated
-client exists yet; this document is not a claim of one.
+The backend now owns `docs/api/rider-operations.openapi.json` and sanitized
+examples for implemented operations. Future schema extensions stay in that repo
+as part of a selected backend task. There is no generated Flutter client accepted
+by this plan; do not create a competing full specification in the mobile repo.
 
 Record the accepted backend contract version/commit in mobile release notes and
 consumer fixtures. Keep a reviewed snapshot/reference when needed; do not

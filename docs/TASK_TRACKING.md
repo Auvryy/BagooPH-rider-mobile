@@ -7,6 +7,12 @@ into **180 planned subtasks and 63 suggested batches** for later prompts.
 Creating the planning cards does not create future execution records or
 authorize implementing them now.
 
+The completed backend operations handoff now has a separate
+[five-batch Flutter plan](plans/native-operations/README.md) under the
+[plan registry](plans/README.md). It references these stable major/backlog IDs
+without changing their statuses or creating all future work records. Backend
+source availability is distinct from Azure and mobile acceptance.
+
 The app now connects login, verified registration, own-account home and logout
 to the Laravel account adapter. M02 has its account transport, secure-store
 adapter and presentation foundation; M03 has the bounded account slice described

@@ -51,6 +51,12 @@ service names, credentials, CLI paths, or remote task IDs.
 - Follow the source authority and conflict rules in
   [docs/SOURCES.md](docs/SOURCES.md). Never copy historical shortcuts into a
   live rider action. Keep the latest backend audit in the backend repository.
+- Keep each new implementation plan in its own `docs/plans/<slug>/` directory
+  with an entry README, scope, source revisions, dependencies and finish evidence.
+  Register it in [docs/plans/README.md](docs/plans/README.md); link existing roadmap,
+  backlog and owner contracts instead of duplicating or replacing them. Update
+  only the selected plan/batch, and coordinate shared source-file changes before
+  concurrent work. A planning request does not activate implementation batches.
 - The presentation target is November 21, 2026, Asia/Manila. November 20 is the
   latest development deadline. Read [docs/DELIVERY_PLAN.md](docs/DELIVERY_PLAN.md)
   before changing scope or delivery commitments.

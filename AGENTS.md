@@ -123,6 +123,10 @@ service names, credentials, CLI paths, or remote task IDs.
 
 ## Privacy and Git
 
+- Save copyable prompts for other AIs outside the repository, such as Downloads.
+  Keep prompt files and their machine-specific destinations out of tracked
+  project documentation. API contracts and technical project docs remain here.
+
 - Never publish the local guide, its contents, work-tracker identity, URLs,
   machine paths, task IDs, session details, or receipts in public files,
   branches, commits, or pull requests. Use generic wording in public docs.

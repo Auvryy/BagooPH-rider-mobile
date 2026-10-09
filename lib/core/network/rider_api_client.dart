@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../app/config.dart';
 import 'api_failure.dart';
+import 'request_budget.dart';
 
 /// Data repositories share the current native session without reading tokens.
 abstract interface class RiderSessionApi {
@@ -19,6 +20,7 @@ class RiderApiClient {
   }
   final AppConfig config;
   final Dio _client;
+  final NativeRequestBudget _budget = NativeRequestBudget();
 
   Future<Map<String, dynamic>> request(
     String path, {
@@ -45,6 +47,7 @@ class RiderApiClient {
         );
       }
     }
+    _budget.reserve(method);
     try {
       final response = await _client.request(
         '${config.origin}/$path',

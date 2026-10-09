@@ -17,34 +17,45 @@ class TasksPage extends StatelessWidget {
     required this.account,
     required this.controller,
     required this.preview,
+    this.panelOnly = false,
+    this.scrollController,
+    this.navigationActions,
+    this.onTaskSelected,
   });
   final RiderAccount account;
   final WorkspaceController controller;
   final bool preview;
+  final bool panelOnly;
+  final ScrollController? scrollController;
+  final Widget Function(OperationTask task)? navigationActions;
+  final void Function(RiderTask task)? onTaskSelected;
   @override
   Widget build(BuildContext context) => WorkspaceBody(
     storageKey: 'tasks-scroll',
+    scrollController: scrollController,
     children: [
-      WorkspaceHeading(
-        'Welcome, ${account.name}.',
-        '',
-        action: RiderPressFeedback(
-          child: IconButton(
-            onPressed: controller.refreshAll,
-            tooltip: 'Refresh tasks',
-            icon: const Icon(Icons.refresh_rounded),
+      if (!panelOnly)
+        WorkspaceHeading(
+          'Welcome, ${account.name}.',
+          '',
+          action: RiderPressFeedback(
+            child: IconButton(
+              onPressed: controller.refreshAll,
+              tooltip: 'Refresh tasks',
+              icon: const Icon(Icons.refresh_rounded),
+            ),
           ),
         ),
-      ),
-      Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          const WorkspaceBadge('Rider account approved', accent: true),
-          WorkspaceBadge(dayLabel(DateTime.now())),
-        ],
-      ),
-      if (!preview) WorkSummary(controller: controller),
+      if (!panelOnly)
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            const WorkspaceBadge('Rider account approved', accent: true),
+            WorkspaceBadge(dayLabel(DateTime.now())),
+          ],
+        ),
+      if (!preview && !panelOnly) WorkSummary(controller: controller),
       const SizedBox(height: 28),
       Text('Your tasks', style: Theme.of(context).textTheme.titleLarge),
       const SizedBox(height: 16),
@@ -182,6 +193,7 @@ class TasksPage extends StatelessWidget {
     ],
   );
   Future<void> openParcel(BuildContext context, RiderTask task) async {
+    onTaskSelected?.call(task);
     if (!preview) await controller.openTask(task);
     if (!context.mounted) return;
     await showRiderSheet<void>(
@@ -232,6 +244,10 @@ class TasksPage extends StatelessWidget {
                           : null,
                       child: const Text('Claim pickup'),
                     ),
+                  if (selected != null &&
+                      !selected.preview &&
+                      navigationActions != null)
+                    navigationActions!(selected),
                   if (controller.workFailure != null)
                     Text(controller.workFailure!.message),
                   if (controller.pendingIntent != null)
@@ -259,7 +275,6 @@ class TasksPage extends StatelessWidget {
         },
       ),
     );
-    if (!preview) controller.closeTask();
   }
 }
 

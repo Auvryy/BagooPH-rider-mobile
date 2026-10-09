@@ -58,5 +58,6 @@ No credentials, contacts, proof or travelled coordinates are in this journal.
 ## Verification and open gates
 
 Local evidence and remaining external requirements are recorded in
-[EVIDENCE.md](EVIDENCE.md). Keep source, local tests/builds, Azure and physical
+[EVIDENCE.md](EVIDENCE.md). Configuration and the backend/device handoff are in
+[SETUP_AND_ACCEPTANCE.md](SETUP_AND_ACCEPTANCE.md). Keep source, local tests/builds, Azure and physical
 Android distinct. Each phase is reviewed locally before the next implementation.

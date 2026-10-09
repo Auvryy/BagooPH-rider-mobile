@@ -55,7 +55,11 @@ class RiderAccount {
           ['approved', 'verified'].contains(json['kyc_status']),
       emailVerified: json['email_verified'],
       feedback: json['kyc_feedback'],
-      operationsApiVersion: json['operations_api_version'] == 1 ? 1 : null,
+      operationsApiVersion:
+          json['operations_api_version'] is int &&
+              json['operations_api_version'] == 1
+          ? 1
+          : null,
       settingsApiVersion:
           json['settings_api_version'] is int &&
               json['settings_api_version'] == 1

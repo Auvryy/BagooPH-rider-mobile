@@ -385,9 +385,30 @@ class WorkspaceController extends ChangeNotifier {
       if (!_disposed && generation == _taskGeneration) {
         taskData = result;
         taskPage = operations?.lastPage;
-        if (selectedTask != null &&
-            !(result.data?.any((t) => t.id == selectedTask!.id) ?? false)) {
-          closeTask();
+        final selected = selectedTask;
+        if (selected != null && selected.preview) {
+          final matches =
+              result.data?.where((t) => t.id == selected.id).toList() ?? [];
+          if (matches.isEmpty) {
+            closeTask();
+          } else {
+            selectedTask = matches.first.operation;
+          }
+        } else if (selected != null && operations != null) {
+          final detailGeneration = _detailGeneration;
+          try {
+            final detail = await operations!.detail(selected.id);
+            if (!_disposed &&
+                generation == _taskGeneration &&
+                detailGeneration == _detailGeneration) {
+              selectedTask = detail;
+            }
+          } catch (error) {
+            if (!_disposed && detailGeneration == _detailGeneration) {
+              closeTask();
+              await _workError(error);
+            }
+          }
         }
         _changed();
       }

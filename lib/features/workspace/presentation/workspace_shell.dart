@@ -7,6 +7,9 @@ import '../../../core/ui/rider_surfaces.dart';
 import '../../auth/data/account.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../home/presentation/tasks_page.dart';
+import '../../home/presentation/home_dashboard.dart';
+import '../../navigation/presentation/navigation_providers.dart';
+import '../../navigation/presentation/navigation_controls.dart';
 import '../../messages/presentation/messages_page.dart';
 import '../../settings/presentation/settings_page.dart';
 import '../../trips/presentation/trips_page.dart';
@@ -125,6 +128,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
       ),
     );
     if (confirmed == true && mounted) {
+      await ref.read(navigationProvider).stop();
       await ref.read(authControllerProvider.notifier).logout();
     }
   }
@@ -178,6 +182,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                 child: Column(
                   children: [
                     if (!typing) _header(session.busy),
+                    if (!widget.preview) const NavigationBanner(),
                     if (widget.preview && !typing)
                       Container(
                         width: double.infinity,
@@ -244,11 +249,17 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                               child: IndexedStack(
                                 index: destination,
                                 children: [
-                                  TasksPage(
-                                    account: widget.account,
-                                    controller: controller,
-                                    preview: widget.preview,
-                                  ),
+                                  if (!widget.preview)
+                                    HomeDashboard(
+                                      account: widget.account,
+                                      controller: controller,
+                                    )
+                                  else
+                                    TasksPage(
+                                      account: widget.account,
+                                      controller: controller,
+                                      preview: widget.preview,
+                                    ),
                                   TripsPage(
                                     controller: controller,
                                     preview: widget.preview,

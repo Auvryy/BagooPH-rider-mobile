@@ -6,6 +6,7 @@ class AppConfig {
     this.localAuth = false,
     this.riderWebsite = '',
     this.operationsWritesVerified = false,
+    this.geoapifyKey = '',
   });
   final String apiBase;
   final bool localAuth;
@@ -13,6 +14,7 @@ class AppConfig {
 
   /// Enable only after the selected Azure deployment/account gate is recorded.
   final bool operationsWritesVerified;
+  final String geoapifyKey;
   factory AppConfig.environment() {
     const deployedApi = 'https://bagooph.shop/api/v1';
     const deployedWebsite = 'https://courier.bagooph.shop';
@@ -33,6 +35,7 @@ class AppConfig {
       operationsWritesVerified: bool.fromEnvironment(
         'OPERATIONS_WRITES_VERIFIED',
       ),
+      geoapifyKey: String.fromEnvironment('GEOAPIFY_API_KEY'),
     );
   }
   Uri get origin {

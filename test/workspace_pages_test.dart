@@ -3,6 +3,7 @@ import 'package:bagoo_rider_mobile/app/theme.dart';
 import 'package:bagoo_rider_mobile/core/platform/rider_website.dart';
 import 'package:bagoo_rider_mobile/features/auth/data/account.dart';
 import 'package:bagoo_rider_mobile/features/auth/presentation/auth_controller.dart';
+import 'package:bagoo_rider_mobile/features/home/data/operations_repository.dart';
 import 'package:bagoo_rider_mobile/features/workspace/development/workspace_preview_repository.dart';
 import 'package:bagoo_rider_mobile/features/workspace/presentation/workspace_controller.dart';
 import 'package:bagoo_rider_mobile/features/workspace/presentation/workspace_shell.dart';
@@ -13,6 +14,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import 'support/test_auth_repository.dart';
+import 'operations_contract_test.dart' as ops;
 
 Future<void> tap(WidgetTester tester, String key) async {
   final target = find.byKey(ValueKey(key));
@@ -145,6 +147,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      await tap(tester, 'home-expand-panel');
       expect(find.text('Tasks are not connected yet'), findsOneWidget);
       expect(find.text('DEMO-P1001'), findsNothing);
       await tapFinder(
@@ -344,23 +347,46 @@ void main() {
     'loss of approval closes a private parcel sheet and returns to holding',
     (tester) async {
       final auth = TestAuthRepository()..account = TestAuthRepository.approved;
+      final api = ops.Session();
+      final home = ops.fixture('home');
+      home['data']['account_id'] = '7';
+      home['data']['counts'] = {'available': 0, 'pickup': 1, 'final_mile': 0};
+      final task = ops.fixture('pickup-task')['data'];
+      api.respond = (path, method, data, headers) async {
+        if (path == 'rider/home') return home;
+        if (path.startsWith('rider/tasks/')) return {'data': task};
+        return {
+          'data': {
+            'items': [task],
+            'pagination': {
+              'page': 1,
+              'per_page': 20,
+              'total': 1,
+              'last_page': 1,
+            },
+          },
+        };
+      };
+      final operations = OperationsRepository(
+        api,
+        accountId: '7',
+        journal: ops.Journal(),
+        writesVerified: false,
+        isCurrent: () => true,
+      );
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
             authRepositoryProvider.overrideWithValue(auth),
-            workspaceRepositoryProvider.overrideWithValue(
-              PreviewWorkspaceRepository(),
-            ),
+            workspaceRepositoryProvider.overrideWithValue(operations),
           ],
           child: const BagooRiderApp(),
         ),
       );
       await tester.pumpAndSettle();
-      await tapFinder(
-        tester,
-        find.widgetWithText(OutlinedButton, 'View parcel').first,
-      );
-      await tester.pumpAndSettle();
+      await tap(tester, 'home-expand-panel');
+      await tap(tester, 'home-task-pickup-1');
+      await tap(tester, 'home-selected-details');
       expect(find.text('Parcel details'), findsOneWidget);
       auth.account = const RiderAccount(
         id: '7',

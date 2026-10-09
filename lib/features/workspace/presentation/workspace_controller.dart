@@ -96,6 +96,7 @@ class WorkspaceController extends ChangeNotifier {
   String? workNotice;
   bool working = false, loadingMore = false;
   OperationTask? selectedTask;
+  String? unavailableTaskId;
   bool selectingTask = false;
   int _detailGeneration = 0;
   TaskPage? taskPage;
@@ -183,6 +184,14 @@ class WorkspaceController extends ChangeNotifier {
         return;
       }
       homeData = FeatureData.ready(result);
+      if (!_queueChosenByRider && !_initialQueueChosen) {
+        _initialQueueChosen = true;
+        queue = (result.counts['final_mile'] ?? 0) > 0
+            ? TaskQueue.delivery
+            : (result.counts['pickup'] ?? 0) > 0
+            ? TaskQueue.pickups
+            : TaskQueue.available;
+      }
       pendingIntent = await ops.pending();
       if (pendingIntent != null && !working) {
         await ops.reconcile();
@@ -207,9 +216,25 @@ class WorkspaceController extends ChangeNotifier {
       final result = task.operation?.preview == true
           ? task.operation
           : await operations?.detail(task.id);
-      if (!_disposed && generation == _detailGeneration) selectedTask = result;
+      if (!_disposed && generation == _detailGeneration) {
+        selectedTask = result;
+        unavailableTaskId = null;
+      }
     } catch (error) {
       if (!_disposed && generation == _detailGeneration) {
+        if (error is AccountFailure && error.status == 404) {
+          unavailableTaskId = task.id;
+          taskData = FeatureData.failed(
+            'This task is no longer available. Refresh the queue.',
+            taskData.data?.where((t) => t.id != task.id).toList(),
+          );
+          if (homeData.data != null) {
+            homeData = FeatureData.failed(
+              'Refresh work availability.',
+              homeData.data,
+            );
+          }
+        }
         await _workError(error);
       }
     }
@@ -325,6 +350,7 @@ class WorkspaceController extends ChangeNotifier {
   FeatureData<List<RiderConversation>> conversationData =
       const FeatureData.loading();
   TaskQueue queue = TaskQueue.available;
+  bool _queueChosenByRider = false, _initialQueueChosen = false;
   String taskSearch = '', tripSearch = '', conversationSearch = '';
   PaymentFilter payment = PaymentFilter.all;
   DateTime? fromDate, toDate;
@@ -483,6 +509,7 @@ class WorkspaceController extends ChangeNotifier {
   }
 
   void selectQueue(TaskQueue value) {
+    _queueChosenByRider = true;
     if (queue == value) return;
     queue = value;
     closeTask();
@@ -687,6 +714,7 @@ class WorkspaceController extends ChangeNotifier {
     homeData = const FeatureData.loading();
     pendingIntent = null;
     selectedTask = null;
+    unavailableTaskId = null;
     _drafts.clear();
     taskData = const FeatureData.loading();
     tripData = const FeatureData.loading();

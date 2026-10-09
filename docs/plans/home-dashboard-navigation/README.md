@@ -8,7 +8,8 @@ and [source rules](../../SOURCES.md).
 
 The user selected local implementation and verification while credentials and
 operator evidence are unavailable. Local checks never establish Azure or physical
-Android acceptance. Production writes remain disabled until deployment acceptance
+Android acceptance. The later [Home refinement](HOME_POLISH.md) records successful
+native Azure Home/queue reads and the updated UI, with remaining gates separate. Production writes remain disabled until deployment acceptance
 is recorded; ordinary Azure account and Settings access remain available.
 
 ## Source and prerequisites

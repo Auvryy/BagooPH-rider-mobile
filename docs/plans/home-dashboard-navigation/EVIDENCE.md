@@ -85,3 +85,29 @@ The debug APK rebuilt successfully with the private provider configuration and
 writes still disabled. The real-network smoke test and native build logs were
 checked for accidental key disclosure; no key appeared in either log. Provider checks do not establish authorized task selection,
 physical Android GPS/background behavior or real quota-exhaustion handling.
+
+
+## Home refinement after reported Azure rollout
+
+The [Home refinement](HOME_POLISH.md) implements compact counted queues,
+responsibility-first presentation, selected stop/map focus, responsive panels,
+search preservation and immediate removal of hidden/freshly unlocated pins.
+A read-only live check using Flutter's actual authenticated transport and operations
+adapter passed: fresh approved login discovered version 1; Home and the three
+queues returned valid resources with zero tasks. Its verification token was logged
+out. No live duty, claim, custody or cash mutation occurred.
+
+A separate earlier generic HTTP probe's logout was blocked/unconfirmed. Bearers
+stayed in memory and were not printed; no global token-count cleanup audit is
+claimed. Backend-source review is `5068c66`; exact VM/migration evidence and
+positive live owned task detail remain separate prerequisites for write activation.
+
+Final analysis is clean. The full Flutter suite passes 136 tests with one expected
+explicit-configuration skip. Meaningful Home/queue tests and the account/Settings/
+workspace regressions cover the resulting behavior, including lost approval closing
+an open private sheet. Four before/after synthetic render checks pass at 390 and
+1440 widths using the bundled/system fonts, Material icons and cached public tiles.
+The reviewed outputs preserve visible attribution and contain no key or live
+personal task data. Ordinary Linux and Android debug builds pass with the ignored
+Geoapify configuration. Diff, Markdown links/fences, key-in-source/log and private
+file checks pass. No physical Android navigation acceptance is claimed.

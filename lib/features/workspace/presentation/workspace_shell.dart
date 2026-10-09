@@ -125,11 +125,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
             if (didPop) return;
             FocusScope.of(context).unfocus();
             if (nested) {
-              setState(
-                () => profileSection = profileSection == ProfileSection.settings
-                    ? ProfileSection.profile
-                    : ProfileSection.settings,
-              );
+              setState(() => profileSection = profileSection.parent);
             } else if (compactThread) {
               controller.selectConversation(null);
             } else if (destination != 0) {
@@ -272,19 +268,21 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
               ],
             ),
           ),
-          IconButton(
-            tooltip: 'Open Profile',
-            onPressed: () => select(3),
-            icon: WorkspaceAvatar(widget.account.name, size: 32),
-          ),
-          IconButton(
-            key: const ValueKey('logout-button'),
-            tooltip: widget.preview ? 'Exit preview' : 'Log out',
-            onPressed: busy && !widget.preview ? null : logout,
-            icon: Icon(
-              widget.preview ? Icons.close_rounded : Icons.logout_rounded,
+          if (destination != 3)
+            IconButton(
+              tooltip: 'Open Profile',
+              onPressed: () => select(3),
+              icon: WorkspaceAvatar(widget.account.name, size: 32),
             ),
-          ),
+          if (destination != 3)
+            IconButton(
+              key: const ValueKey('logout-button'),
+              tooltip: widget.preview ? 'Exit preview' : 'Log out',
+              onPressed: busy && !widget.preview ? null : logout,
+              icon: Icon(
+                widget.preview ? Icons.close_rounded : Icons.logout_rounded,
+              ),
+            ),
         ],
       ),
     ),

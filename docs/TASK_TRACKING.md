@@ -41,6 +41,13 @@ This M02/M03 usability correction does not clear pending settings or parcel APIs
 The backend owner is independently implementing settings on its own branch;
 mobile configuration changes do not edit or prove that implementation.
 
+**Settings mobile UX (October 9):** Profile details now use named secondary pages;
+Settings has compact grouped actions with direct password navigation. Contact
+repetition and duplicate toolbar actions are removed; email lists reveal credential
+forms only for selected operations. See [Settings UX](SETTINGS_UX.md). This M13/M14
+presentation slice preserves the deployed API and its outstanding private/Android
+acceptance gates; it does not implement other backend or parcel capabilities.
+
 ## Always check the Bagoo website project
 
 **Rider branding update (October 8):** the supplied GooRiders artwork now feeds

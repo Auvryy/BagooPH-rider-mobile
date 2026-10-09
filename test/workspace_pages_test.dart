@@ -156,6 +156,18 @@ void main() {
         launcher.urls.single.toString(),
         'https://courier.bagoo.example.test/deliveries',
       );
+      launcher.result = false;
+      await tapFinder(
+        tester,
+        find.widgetWithText(OutlinedButton, 'Open Rider website'),
+      );
+      expect(
+        find.text('Could not open the Rider website. Try again.'),
+        findsOneWidget,
+      );
+      launcher.result = true;
+      await tester.pump(const Duration(seconds: 4));
+      await tester.pumpAndSettle();
       await tap(tester, 'nav-trips');
       expect(find.text('Trips are not connected yet'), findsOneWidget);
       await tap(tester, 'nav-messages');
@@ -163,23 +175,11 @@ void main() {
       await tap(tester, 'nav-profile');
       expect(find.text('rider@example.com'), findsOneWidget);
       await tap(tester, 'open-settings');
-      await tap(tester, 'open-security');
       expect(find.text('Manage account on the website'), findsNothing);
       expect(
         launcher.urls.every((uri) => uri.query.isEmpty && uri.userInfo.isEmpty),
         isTrue,
       );
-      launcher.result = false;
-      await tapFinder(
-        tester,
-        find.widgetWithText(OutlinedButton, 'Forgot password'),
-      );
-      await tester.pumpAndSettle();
-      expect(
-        find.text('Could not open the Rider website. Try again.'),
-        findsOneWidget,
-      );
-      await tap(tester, 'settings-back');
       await tap(tester, 'settings-logout');
       await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
@@ -407,7 +407,7 @@ void main() {
         }
         await tap(tester, 'open-settings');
         await tap(tester, 'open-about');
-        expect(find.text('Version 0.1.0 · Build 1'), findsOneWidget);
+        expect(find.text('0.1.0 (1)'), findsOneWidget);
         expect(tester.takeException(), isNull);
       },
     );

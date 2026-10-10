@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../app/config.dart';
 import 'api_failure.dart';
+import 'request_budget.dart';
 
 /// Data repositories share the current native session without reading tokens.
 abstract interface class RiderSessionApi {
@@ -9,6 +10,7 @@ abstract interface class RiderSessionApi {
     String path, {
     String method = 'GET',
     Object? data,
+    Map<String, String> headers = const {},
   });
 }
 
@@ -18,13 +20,34 @@ class RiderApiClient {
   }
   final AppConfig config;
   final Dio _client;
+  final NativeRequestBudget _budget = NativeRequestBudget();
 
   Future<Map<String, dynamic>> request(
     String path, {
     String method = 'GET',
     Object? data,
     String? token,
+    Map<String, String> headers = const {},
   }) async {
+    final relative = Uri.tryParse(path);
+    if (relative == null ||
+        relative.hasScheme ||
+        relative.hasAuthority ||
+        relative.hasFragment ||
+        path.startsWith('/') ||
+        relative.pathSegments.any((s) => s == '..' || s == '.')) {
+      throw const AccountFailure('The service path could not be verified.');
+    }
+    for (final entry in headers.entries) {
+      if (!['Idempotency-Key', 'X-Request-ID'].contains(entry.key) ||
+          !RegExp(r'^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$')
+              .hasMatch(entry.value)) {
+        throw const AccountFailure(
+          'The command headers could not be verified.',
+        );
+      }
+    }
+    _budget.reserve(method);
     try {
       final response = await _client.request(
         '${config.origin}/$path',
@@ -34,6 +57,7 @@ class RiderApiClient {
           headers: {
             'Accept': 'application/json',
             if (token != null) 'Authorization': 'Bearer $token',
+            ...headers,
           },
           followRedirects: false,
           receiveTimeout: const Duration(seconds: 30),
@@ -48,7 +72,7 @@ class RiderApiClient {
       }
       return response.data as Map<String, dynamic>;
     } on FormatException catch (error) {
-      throw AccountFailure(error.message);
+      throw AccountFailure(error.message, unconfirmed: method != 'GET');
     } on DioException catch (error) {
       final body = error.response?.data;
       final fields = <String, String>{};
@@ -72,6 +96,16 @@ class RiderApiClient {
       throw AccountFailure(
         message,
         status: status,
+        code: body is Map && body['code'] is String
+            ? body['code'] as String
+            : null,
+        requestId:
+            body is Map &&
+                body['request_id'] is String &&
+                RegExp(r'^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$')
+                    .hasMatch(body['request_id'])
+            ? body['request_id'] as String
+            : null,
         fields: fields,
         retryAfterSeconds: retry != null && retry >= 0 && retry <= 86400
             ? retry

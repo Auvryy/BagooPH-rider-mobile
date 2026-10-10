@@ -5,8 +5,11 @@ class AccountFailure implements Exception {
     this.fields = const {},
     this.retryAfterSeconds,
     this.unconfirmed = false,
+    this.code,
+    this.requestId,
   });
   final String message;
+  final String? code, requestId;
   final int? status, retryAfterSeconds;
   final Map<String, String> fields;
   final bool unconfirmed;

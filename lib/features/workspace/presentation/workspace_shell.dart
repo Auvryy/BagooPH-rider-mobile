@@ -7,6 +7,9 @@ import '../../../core/ui/rider_surfaces.dart';
 import '../../auth/data/account.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../home/presentation/tasks_page.dart';
+import '../../home/presentation/home_dashboard.dart';
+import '../../navigation/presentation/navigation_providers.dart';
+import '../../navigation/presentation/navigation_controls.dart';
 import '../../messages/presentation/messages_page.dart';
 import '../../settings/presentation/settings_page.dart';
 import '../../trips/presentation/trips_page.dart';
@@ -60,6 +63,13 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (mounted) {
+      ref
+          .read(
+            workspaceControllerProvider(
+              WorkspaceIdentity(widget.account.id, preview: widget.preview),
+            ),
+          )
+          .setForeground(state == AppLifecycleState.resumed);
       setState(() => foreground = state == AppLifecycleState.resumed);
     }
   }
@@ -118,6 +128,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
       ),
     );
     if (confirmed == true && mounted) {
+      await ref.read(navigationProvider).stop();
       await ref.read(authControllerProvider.notifier).logout();
     }
   }
@@ -162,7 +173,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
           },
           child: Scaffold(
             key: const ValueKey('rider-workspace'),
-            extendBody: !rail && !typing,
+            extendBody: destination != 0 && !rail && !typing,
             bottomNavigationBar: !rail && !typing
                 ? SafeArea(top: false, child: _navigation(vertical: false))
                 : null,
@@ -171,6 +182,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                 child: Column(
                   children: [
                     if (!typing) _header(session.busy),
+                    if (!widget.preview) const NavigationBanner(),
                     if (widget.preview && !typing)
                       Container(
                         width: double.infinity,
@@ -237,11 +249,17 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                               child: IndexedStack(
                                 index: destination,
                                 children: [
-                                  TasksPage(
-                                    account: widget.account,
-                                    controller: controller,
-                                    preview: widget.preview,
-                                  ),
+                                  if (!widget.preview)
+                                    HomeDashboard(
+                                      account: widget.account,
+                                      controller: controller,
+                                    )
+                                  else
+                                    TasksPage(
+                                      account: widget.account,
+                                      controller: controller,
+                                      preview: widget.preview,
+                                    ),
                                   TripsPage(
                                     controller: controller,
                                     preview: widget.preview,

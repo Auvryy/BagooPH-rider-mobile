@@ -1,3 +1,5 @@
+The selected [Home dashboard/navigation extension](plans/home-dashboard-navigation/README.md) now owns the local live Home adapter, map-first dashboard and explicit route navigation. Its [acceptance record](plans/home-dashboard-navigation/EVIDENCE.md) distinguishes local checks from provider, Azure and physical Android requirements. Historical fixtures below remain isolated tests.
+
 # Rider Home, Trips, Messages and Settings
 
 This Flutter slice follows the courier website at reviewed backend main

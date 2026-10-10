@@ -12,8 +12,8 @@ abstract interface class WorkspaceRepository {
   );
 }
 
-/// Account access is deployed; these operational native contracts are not yet
-/// provided. Do not call proposed URLs or treat missing resources as empty data.
+/// Features without accepted live integration stay explicitly unavailable.
+/// Operational v1 uses its own adapter after account capability discovery.
 class UnavailableWorkspaceRepository implements WorkspaceRepository {
   const UnavailableWorkspaceRepository();
   @override

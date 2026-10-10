@@ -109,11 +109,18 @@ class WorkspaceHeading extends StatelessWidget {
 }
 
 class WorkspaceBody extends StatelessWidget {
-  const WorkspaceBody({super.key, required this.children, this.storageKey});
+  const WorkspaceBody({
+    super.key,
+    required this.children,
+    this.storageKey,
+    this.scrollController,
+  });
   final List<Widget> children;
   final String? storageKey;
+  final ScrollController? scrollController;
   @override
   Widget build(BuildContext context) => SingleChildScrollView(
+    controller: scrollController,
     key: storageKey == null ? null : PageStorageKey(storageKey),
     padding: EdgeInsets.fromLTRB(
       MediaQuery.sizeOf(context).width < 360 ? 16 : 24,

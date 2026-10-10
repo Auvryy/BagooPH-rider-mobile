@@ -52,7 +52,7 @@ The app contains connected login, verified three-stage registration, an approved
 workspace and approval holding/logout, bundled
 Bagoo branding and Plus Jakarta Sans, Android/Linux/web runners and an optional
 layout frame. Ordinary native runs connect directly to Azure. [Account access](ACCOUNT_ACCESS.md) records the implementation, local
-backend contract and checks. It has no connected native operational queues or parcel actions.
+backend contract and checks. The [selected Home refinement](plans/home-dashboard-navigation/HOME_POLISH.md) connects v1 Home and queues and improves map/task interaction. Operational-write acceptance, parcel outcomes and later connected-record batches remain separate.
 The account endpoints are available on Azure HTTPS, and native Android login,
 secure-session restoration and logout have passed. See the
 [deployment acceptance record](AZURE_ACCOUNT_ACCESS.md) for signup evidence and

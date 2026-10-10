@@ -125,3 +125,24 @@ This establishes installation and startup on the phone. Sign-in, authenticated
 Home/queue reads on that phone, owned-stop routing, permissions and background
 GPS behavior still require device testing; no physical navigation acceptance
 or live operational mutation is claimed by this check.
+
+## Phone Home scrolling correction — October 10, 2026
+
+Phone Home now uses one normal scrolling page with a bounded map followed by
+the task section. The draggable sheet, handle and expand/collapse action are
+removed. Map credits scroll below the map instead of occupying a fixed footer;
+Home content reserves space above bottom navigation. Wide windows retain the
+map and task side panel. Show stop returns the phone page to the map, and map
+centering no longer offsets for an overlapping sheet.
+
+The backend checkout at `d4a1038` was read only: the native operations controller,
+sanitized examples, Rider UI source and roadmap were reviewed. No API contract,
+account behavior, write gate or navigation lifecycle changed.
+
+Analysis is clean. The full Flutter suite passes 136 tests with one expected
+configuration skip. Existing meaningful checks now verify that map and tasks move together during
+page scrolling, task selection/search and queue access remain usable, enlarged
+text and wide-to-phone resizing work, and Home ends above bottom navigation.
+Configured ARM64 Android debug and ordinary Linux builds pass. The connected
+phone was no longer detected during this correction, so installation of this
+updated APK and physical touch review remain pending.

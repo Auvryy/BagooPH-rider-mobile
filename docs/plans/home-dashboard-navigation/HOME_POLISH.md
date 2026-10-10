@@ -14,13 +14,16 @@ explicit navigation lifecycle. It does not activate later parcel/finance batches
   refresh. Off-duty owned work remains reachable.
 - Compact stop rows, expandable search and a selected stop summary with the
   complete authorized address, next instruction and exact recorded COD when
-  returned. The task panel has a visible handle and expand/collapse control.
+  returned. Task content uses ordinary vertical scrolling without a drag handle
+  or expand/collapse control.
   Large text stacks required controls rather than requiring horizontal scrolling.
-- Phones use an expandable panel; wide windows place it beside the map. Short
+- Phones use one scrolling page with a bounded map and the task section below it;
+  wide windows place tasks beside the map. The bottom navigation reserves its
+  own space, and map credits scroll directly below the map. Short
   keyboard-constrained views retain scrollable task access. Search survives a
   window-size change. Account changes still dispose private UI state.
 - The map frames valid returned stops on load and focuses pin/card selection.
-  Recenter, Show stop, Show queue stops and Show full route account for the panel.
+  Recenter, Show stop, Show queue stops and Show full route focus the visible map.
   Panning disables GPS follow until Recenter. Selection does not start GPS.
 - Fresh detail overrides stale list coordinates. Missing coordinates remove the
   selected pin and retain its address. Explicit hidden-task responses remove the
@@ -53,7 +56,8 @@ commit or physical Android navigation. Operational writes remain gated.
 Meaningful checks cover pin/card/detail selection, camera zoom, attribution
 placement, panel/search/queue interactions, missing/freshly removed coordinates,
 hidden-task navigation stop, off-duty responsibility priority, explicit queue
-choice, large text and wide-to-phone resize. Full regression, analysis and native
+choice, continuous phone scrolling, bottom-navigation spacing, large text and
+wide-to-phone resize. Full regression, analysis and native
 build evidence is recorded in [EVIDENCE.md](EVIDENCE.md).
 
 Before/after phone and wide renders use isolated synthetic tasks and cached public

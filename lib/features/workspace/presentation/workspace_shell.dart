@@ -173,7 +173,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
           },
           child: Scaffold(
             key: const ValueKey('rider-workspace'),
-            extendBody: !rail && !typing,
+            extendBody: destination != 0 && !rail && !typing,
             bottomNavigationBar: !rail && !typing
                 ? SafeArea(top: false, child: _navigation(vertical: false))
                 : null,

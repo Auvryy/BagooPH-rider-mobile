@@ -36,7 +36,7 @@ class HomeDashboard extends ConsumerStatefulWidget {
 
 class _HomeDashboardState extends ConsumerState<HomeDashboard> {
   final _map = MapController();
-  final _sheet = DraggableScrollableController();
+  final _pageScroll = ScrollController();
   GeoapifyTiles? _tiles;
   GeoapifyClient? _tileClient;
   bool _ready = false, _wide = false, _cameraQueued = false;
@@ -47,7 +47,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
   static const _overview = LatLng(12.8, 121.7);
   @override
   void dispose() {
-    _sheet.dispose();
+    _pageScroll.dispose();
     _map.dispose();
     super.dispose();
   }
@@ -63,14 +63,12 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
           _mapTask(t)?.stop.longitude != null)
         LatLng(_mapTask(t)!.stop.latitude!, _mapTask(t)!.stop.longitude!),
   ];
-  double get _coveredHeight =>
-      _wide ? 0 : (_sheet.isAttached ? _sheet.size : .5) * _mapSize.height;
   String? _stopKey(OperationTask? task) => task == null
       ? null
       : '${task.id}:${task.stop.kind}:${task.stop.latitude}:${task.stop.longitude}';
   void _moveTo(LatLng p, {double zoom = 15}) {
     if (!_ready || _mapSize.isEmpty) return;
-    _map.move(p, zoom, offset: Offset(0, -_coveredHeight / 2));
+    _map.move(p, zoom);
   }
 
   void _fit(List<LatLng> points) {
@@ -85,7 +83,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
     }
     final top = (76.0).clamp(0.0, _mapSize.height * .2);
     final maxBottom = (_mapSize.height - top - 72).clamp(0.0, _mapSize.height);
-    final bottom = (_coveredHeight + 28).clamp(0.0, maxBottom);
+    final bottom = 28.0.clamp(0.0, maxBottom);
     _map.fitCamera(
       CameraFit.bounds(
         bounds: LatLngBounds.fromPoints(points),
@@ -156,15 +154,6 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
       await nav.checkAuthorization();
     }
     if (!mounted) return;
-    if (!_wide && _sheet.isAttached && widget.controller.selectedTask != null) {
-      await _sheet.animateTo(
-        .64,
-        duration: RiderMotion.reduced(context)
-            ? Duration.zero
-            : RiderMotion.sheet,
-        curve: Curves.easeOutCubic,
-      );
-    }
     final selected = widget.controller.selectedTask;
     if (selected != null &&
         selected.stop.latitude != null &&
@@ -175,49 +164,44 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
     }
   }
 
-  void _togglePanel() {
-    if (!_sheet.isAttached) return;
-    _sheet.animateTo(
-      _sheet.size > 0.6 ? 0.3 : 0.84,
-      duration: RiderMotion.reduced(context)
-          ? Duration.zero
-          : RiderMotion.sheet,
-      curve: Curves.easeOutCubic,
-    );
-  }
-
-  Widget _panel(
-    NavigationController nav, {
-    ScrollController? scroll,
-    bool draggable = false,
-  }) => HomeTaskPanel(
-    controller: widget.controller,
-    scrollController: scroll,
-    onSelect: (task) => unawaited(_select(task, nav)),
-    onDetails: (task) {
-      final display = OperationsRepository.asRiderTask(task);
-      TasksPage(
-        account: widget.account,
+  Widget _panel(NavigationController nav, {bool asSliver = false}) =>
+      HomeTaskPanel(
         controller: widget.controller,
-        preview: false,
-        navigationActions: (task) =>
-            NavigationControls(task: task, navigation: nav),
-      ).openParcel(context, display);
-    },
-    onTogglePanel: draggable ? _togglePanel : null,
-    onQueueChanged: (_) {
-      _fittedQueue = null;
-      _focusedTask = null;
-    },
-    onShowStop: () {
-      nav.pan();
-      final stop = widget.controller.selectedTask?.stop;
-      if (stop?.latitude != null && stop?.longitude != null) {
-        if (_sheet.isAttached) _sheet.jumpTo(.3);
-        _moveTo(LatLng(stop!.latitude!, stop.longitude!));
-      }
-    },
-  );
+        asSliver: asSliver,
+        onSelect: (task) => unawaited(_select(task, nav)),
+        onDetails: (task) {
+          final display = OperationsRepository.asRiderTask(task);
+          TasksPage(
+            account: widget.account,
+            controller: widget.controller,
+            preview: false,
+            navigationActions: (task) =>
+                NavigationControls(task: task, navigation: nav),
+          ).openParcel(context, display);
+        },
+        onQueueChanged: (_) {
+          _fittedQueue = null;
+          _focusedTask = null;
+        },
+        onShowStop: () {
+          nav.pan();
+          final stop = widget.controller.selectedTask?.stop;
+          if (stop?.latitude != null && stop?.longitude != null) {
+            if (!_wide && _pageScroll.hasClients) {
+              unawaited(
+                _pageScroll.animateTo(
+                  0,
+                  duration: RiderMotion.reduced(context)
+                      ? Duration.zero
+                      : RiderMotion.sheet,
+                  curve: Curves.easeOutCubic,
+                ),
+              );
+            }
+            _moveTo(LatLng(stop!.latitude!, stop.longitude!));
+          }
+        },
+      );
   @override
   Widget build(BuildContext context) {
     final nav = ref.watch(navigationProvider),
@@ -232,50 +216,70 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
         builder: (context, _) {
           _wide = constraints.maxWidth >= 1000;
           _queueCamera(nav);
-          final header = ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: (constraints.maxHeight * .3).clamp(72.0, 180.0),
-            ),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'Welcome, ${widget.account.name}.',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  if (widget.controller.homeData.data == null)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 4),
-                      child: Text(
-                        'Rider account approved',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: RiderColors.accentText,
-                        ),
+          final header = Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Welcome, ${widget.account.name}.',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                if (widget.controller.homeData.data == null)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 4),
+                    child: Text(
+                      'Rider account approved',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: RiderColors.accentText,
                       ),
                     ),
-                  const SizedBox(height: 4),
-                  WorkSummary(controller: widget.controller, compact: true),
-                ],
-              ),
+                  ),
+                const SizedBox(height: 4),
+                WorkSummary(controller: widget.controller, compact: true),
+              ],
             ),
           );
-          if (constraints.maxHeight < 360) {
-            _ready = false;
-            _mapSize = Size.zero;
-            return Column(
-              children: [
-                header,
-                Expanded(child: _panel(nav)),
+          if (!_wide || constraints.maxHeight < 360) {
+            final showMap = constraints.maxHeight >= 360;
+            if (!showMap) {
+              _ready = false;
+              _mapSize = Size.zero;
+            }
+            return CustomScrollView(
+              key: const ValueKey('home-page-scroll'),
+              controller: _pageScroll,
+              slivers: [
+                SliverToBoxAdapter(child: header),
+                if (showMap)
+                  SliverToBoxAdapter(
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: (constraints.maxHeight * .5).clamp(
+                            240.0,
+                            360.0,
+                          ),
+                          child: _mapArea(nav, geo),
+                        ),
+                        _attribution(),
+                      ],
+                    ),
+                  ),
+                _panel(nav, asSliver: true),
               ],
             );
           }
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              header,
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: (constraints.maxHeight * .3).clamp(72.0, 180.0),
+                ),
+                child: SingleChildScrollView(child: header),
+              ),
               Expanded(
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(
@@ -507,19 +511,6 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                 ),
               ),
             ),
-            if (!_wide)
-              DraggableScrollableSheet(
-                controller: _sheet,
-                initialChildSize: .5,
-                minChildSize: .22,
-                maxChildSize: .84,
-                snap: true,
-                snapSizes: const [.3, .64],
-                builder: (context, scroll) => RiderSurface(
-                  radius: RiderRadii.sheet,
-                  child: _panel(nav, scroll: scroll, draggable: true),
-                ),
-              ),
           ],
         ),
       );

@@ -30,7 +30,9 @@ stale geometry. The free plan currently advertises 3,000 shared credits/day; ver
 usage in the provider project before rollout. [Pricing](https://www.geoapify.com/pricing/),
 [routing parameters](https://apidocs.geoapify.com/docs/routing/),
 [required map attribution](https://apidocs.geoapify.com/docs/maps/map-tiles/).
-All three credits (Geoapify, OpenStreetMap and OpenMapTiles) stay outside the sheet.
+All three credits (Geoapify, OpenStreetMap and OpenMapTiles) stay directly below
+the map, clear of task content and bottom navigation. On phones they scroll with
+the map; the task section uses the same normal page scroll.
 
 Dependencies reviewed October 9: flutter_map 8.3.2 (BSD-3-Clause, native Linux/
 Android), geolocator 14.1.1 (MIT, Android foreground-service configuration) and

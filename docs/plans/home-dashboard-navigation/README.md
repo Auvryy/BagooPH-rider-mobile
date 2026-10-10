@@ -32,7 +32,8 @@ Missing coordinates retain the server address and never create a guessed pin.
    available/owned queues, fresh detail, duty and claim with protected durable
    account-scoped UUID intents, command reconciliation and session cleanup.
 2. Map-first Home: flutter_map, Geoapify raster tiles, linked pin/card selection,
-   expandable three-queue panel, task address/details and external directions.
+   normally scrolling three-queue task section on phones and a side panel on
+   wide windows, task address/details and external directions.
 3. Road line: separate Geoapify client, correct GeoJSON conversion, registered
    vehicle profile or explicit choice, good-fix validation, local trimming,
    cancellation, recenter and bounded rerouting.

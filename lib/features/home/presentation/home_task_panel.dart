@@ -39,7 +39,7 @@ class HomeTaskPanel extends StatefulWidget {
     required this.onSelect,
     required this.onDetails,
     this.scrollController,
-    this.onTogglePanel,
+    this.asSliver = false,
     this.onQueueChanged,
     this.onShowStop,
   });
@@ -47,7 +47,8 @@ class HomeTaskPanel extends StatefulWidget {
   final ValueChanged<RiderTask> onSelect;
   final ValueChanged<OperationTask> onDetails;
   final ScrollController? scrollController;
-  final VoidCallback? onTogglePanel, onShowStop;
+  final bool asSliver;
+  final VoidCallback? onShowStop;
   final ValueChanged<TaskQueue>? onQueueChanged;
   @override
   State<HomeTaskPanel> createState() => _HomeTaskPanelState();
@@ -85,253 +86,232 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
         });
       }
     }
+    final slivers = <Widget>[
+      SliverPadding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        sliver: SliverToBoxAdapter(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Your tasks',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Search tasks',
+                    onPressed: () => setState(() => _searching = !_searching),
+                    icon: const Icon(Icons.search_rounded),
+                  ),
+                  IconButton(
+                    key: const ValueKey('home-refresh-tasks'),
+                    tooltip: 'Refresh tasks',
+                    onPressed: controller.refreshAll,
+                    icon: const Icon(Icons.refresh_rounded),
+                  ),
+                ],
+              ),
+              if (selected != null) ...[
+                const SizedBox(height: 16),
+                _SelectedStop(
+                  task: selected,
+                  onDetails: () => widget.onDetails(selected),
+                  onShowStop: widget.onShowStop,
+                  onClear: controller.closeTask,
+                ),
+              ],
+              const SizedBox(height: 8),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final stack =
+                      constraints.maxWidth < 330 ||
+                      MediaQuery.textScalerOf(context).scale(13) > 20;
+                  Widget choice(TaskQueue queue) {
+                    final key = switch (queue) {
+                      TaskQueue.available => 'available',
+                      TaskQueue.pickups => 'pickup',
+                      TaskQueue.delivery => 'final_mile',
+                    };
+                    final count = controller.homeData.data?.counts[key];
+                    final active = controller.queue == queue;
+                    final label = Text(
+                      queue.label,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      textAlign: stack ? TextAlign.start : TextAlign.center,
+                    );
+                    final badge = Text(
+                      count?.toString() ?? '—',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                      ),
+                    );
+                    return Semantics(
+                      selected: active,
+                      button: true,
+                      label:
+                          '${queue.label}, ${count == null ? 'count unavailable' : '$count tasks'}',
+                      child: RiderPressFeedback(
+                        child: TextButton(
+                          key: ValueKey('task-queue-${queue.name}'),
+                          onPressed: () {
+                            controller.selectQueue(queue);
+                            _search.clear();
+                            if (_scroll.hasClients) _scroll.jumpTo(0);
+                            widget.onQueueChanged?.call(queue);
+                          },
+                          style: TextButton.styleFrom(
+                            foregroundColor: active
+                                ? RiderColors.accentText
+                                : RiderColors.muted,
+                            backgroundColor: active
+                                ? RiderColors.rose
+                                : RiderColors.controlFill,
+                            minimumSize: Size(0, stack ? 52 : 72),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 10,
+                            ),
+                          ),
+                          child: stack
+                              ? Row(
+                                  children: [
+                                    Expanded(child: label),
+                                    badge,
+                                  ],
+                                )
+                              : Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    label,
+                                    const SizedBox(height: 4),
+                                    badge,
+                                  ],
+                                ),
+                        ),
+                      ),
+                    );
+                  }
+
+                  return stack
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (final queue in TaskQueue.values)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 6),
+                                child: choice(queue),
+                              ),
+                          ],
+                        )
+                      : Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            for (final queue in TaskQueue.values)
+                              Expanded(
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                    right: queue == TaskQueue.delivery ? 0 : 6,
+                                  ),
+                                  child: choice(queue),
+                                ),
+                              ),
+                          ],
+                        );
+                },
+              ),
+              const SizedBox(height: 14),
+              if (_searching)
+                TextField(
+                  controller: _search,
+                  key: const ValueKey('task-search'),
+                  enabled: controller.taskData.data != null,
+                  onChanged: controller.searchTasks,
+                  decoration: const InputDecoration(
+                    hintText: 'Find a parcel or stop',
+                    labelText: 'Search tasks',
+                    prefixIcon: Icon(Icons.search_rounded),
+                  ),
+                ),
+              if (controller.selectingTask)
+                const Padding(
+                  padding: EdgeInsets.only(top: 12),
+                  child: LinearProgressIndicator(
+                    semanticsLabel: 'Refreshing selected stop',
+                  ),
+                ),
+              const SizedBox(height: 16),
+              Text(
+                controller.queue.description,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+      SliverPadding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        sliver: SliverToBoxAdapter(
+          child: FeatureStateView<List<RiderTask>>(
+            data: controller.taskData,
+            icon: Icons.inventory_2_outlined,
+            title: 'Tasks',
+            website: RiderWebsitePage.tasks,
+            onRetry: controller.refreshAll,
+            ready: (all) {
+              final tasks = controller.visibleTasks;
+              if (tasks.isEmpty) {
+                return WorkspaceEmpty(
+                  all.isEmpty
+                      ? 'No tasks in this queue'
+                      : 'No matching parcels',
+                  all.isEmpty
+                      ? 'Refresh when new work is available in your scope.'
+                      : 'Try a different parcel reference or stop.',
+                );
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final task in tasks)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: HomeTaskRow(
+                        task: selected?.id == task.id
+                            ? OperationsRepository.asRiderTask(selected!)
+                            : task,
+                        selected: selected?.id == task.id,
+                        onSelect: () => widget.onSelect(task),
+                      ),
+                    ),
+                  if (controller.taskPage?.hasNext == true)
+                    TextButton(
+                      onPressed: controller.loadingMore
+                          ? null
+                          : controller.loadMoreTasks,
+                      child: Text(
+                        controller.loadingMore ? 'Loading…' : 'Load more tasks',
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    ];
+    if (widget.asSliver) return SliverMainAxisGroup(slivers: slivers);
     return CustomScrollView(
       controller: _scroll,
       key: const PageStorageKey('home-task-panel-scroll'),
-      slivers: [
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-          sliver: SliverToBoxAdapter(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (widget.onTogglePanel != null)
-                  Center(
-                    child: Container(
-                      width: 36,
-                      height: 4,
-                      margin: const EdgeInsets.only(top: 2, bottom: 8),
-                      decoration: BoxDecoration(
-                        color: RiderColors.border,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Your tasks',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: 'Search tasks',
-                      onPressed: () => setState(() => _searching = !_searching),
-                      icon: const Icon(Icons.search_rounded),
-                    ),
-                    IconButton(
-                      key: const ValueKey('home-refresh-tasks'),
-                      tooltip: 'Refresh tasks',
-                      onPressed: controller.refreshAll,
-                      icon: const Icon(Icons.refresh_rounded),
-                    ),
-                    if (widget.onTogglePanel != null)
-                      IconButton(
-                        key: const ValueKey('home-expand-panel'),
-                        tooltip: 'Expand or collapse task panel',
-                        onPressed: widget.onTogglePanel,
-                        icon: const Icon(Icons.unfold_more_rounded),
-                      ),
-                  ],
-                ),
-                if (selected != null) ...[
-                  const SizedBox(height: 16),
-                  _SelectedStop(
-                    task: selected,
-                    onDetails: () => widget.onDetails(selected),
-                    onShowStop: widget.onShowStop,
-                    onClear: controller.closeTask,
-                  ),
-                ],
-                const SizedBox(height: 8),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final stack =
-                        constraints.maxWidth < 330 ||
-                        MediaQuery.textScalerOf(context).scale(13) > 20;
-                    Widget choice(TaskQueue queue) {
-                      final key = switch (queue) {
-                        TaskQueue.available => 'available',
-                        TaskQueue.pickups => 'pickup',
-                        TaskQueue.delivery => 'final_mile',
-                      };
-                      final count = controller.homeData.data?.counts[key];
-                      final active = controller.queue == queue;
-                      final label = Text(
-                        queue.label,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        textAlign: stack ? TextAlign.start : TextAlign.center,
-                      );
-                      final badge = Text(
-                        count?.toString() ?? '—',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 12,
-                        ),
-                      );
-                      return Semantics(
-                        selected: active,
-                        button: true,
-                        label:
-                            '${queue.label}, ${count == null ? 'count unavailable' : '$count tasks'}',
-                        child: RiderPressFeedback(
-                          child: TextButton(
-                            key: ValueKey('task-queue-${queue.name}'),
-                            onPressed: () {
-                              controller.selectQueue(queue);
-                              _search.clear();
-                              if (_scroll.hasClients) _scroll.jumpTo(0);
-                              widget.onQueueChanged?.call(queue);
-                            },
-                            style: TextButton.styleFrom(
-                              foregroundColor: active
-                                  ? RiderColors.accentText
-                                  : RiderColors.muted,
-                              backgroundColor: active
-                                  ? RiderColors.rose
-                                  : RiderColors.controlFill,
-                              minimumSize: Size(0, stack ? 52 : 72),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 10,
-                              ),
-                            ),
-                            child: stack
-                                ? Row(
-                                    children: [
-                                      Expanded(child: label),
-                                      badge,
-                                    ],
-                                  )
-                                : Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      label,
-                                      const SizedBox(height: 4),
-                                      badge,
-                                    ],
-                                  ),
-                          ),
-                        ),
-                      );
-                    }
-
-                    return stack
-                        ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              for (final queue in TaskQueue.values)
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 6),
-                                  child: choice(queue),
-                                ),
-                            ],
-                          )
-                        : Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              for (final queue in TaskQueue.values)
-                                Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsets.only(
-                                      right: queue == TaskQueue.delivery
-                                          ? 0
-                                          : 6,
-                                    ),
-                                    child: choice(queue),
-                                  ),
-                                ),
-                            ],
-                          );
-                  },
-                ),
-                const SizedBox(height: 14),
-                if (_searching)
-                  TextField(
-                    controller: _search,
-                    key: const ValueKey('task-search'),
-                    enabled: controller.taskData.data != null,
-                    onChanged: controller.searchTasks,
-                    decoration: const InputDecoration(
-                      hintText: 'Find a parcel or stop',
-                      labelText: 'Search tasks',
-                      prefixIcon: Icon(Icons.search_rounded),
-                    ),
-                  ),
-                if (controller.selectingTask)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 12),
-                    child: LinearProgressIndicator(
-                      semanticsLabel: 'Refreshing selected stop',
-                    ),
-                  ),
-                const SizedBox(height: 16),
-                Text(
-                  controller.queue.description,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                const SizedBox(height: 8),
-              ],
-            ),
-          ),
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-          sliver: SliverToBoxAdapter(
-            child: FeatureStateView<List<RiderTask>>(
-              data: controller.taskData,
-              icon: Icons.inventory_2_outlined,
-              title: 'Tasks',
-              website: RiderWebsitePage.tasks,
-              onRetry: controller.refreshAll,
-              ready: (all) {
-                final tasks = controller.visibleTasks;
-                if (tasks.isEmpty) {
-                  return WorkspaceEmpty(
-                    all.isEmpty
-                        ? 'No tasks in this queue'
-                        : 'No matching parcels',
-                    all.isEmpty
-                        ? 'Refresh when new work is available in your scope.'
-                        : 'Try a different parcel reference or stop.',
-                  );
-                }
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final task in tasks)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: HomeTaskRow(
-                          task: selected?.id == task.id
-                              ? OperationsRepository.asRiderTask(selected!)
-                              : task,
-                          selected: selected?.id == task.id,
-                          onSelect: () => widget.onSelect(task),
-                        ),
-                      ),
-                    if (controller.taskPage?.hasNext == true)
-                      TextButton(
-                        onPressed: controller.loadingMore
-                            ? null
-                            : controller.loadMoreTasks,
-                        child: Text(
-                          controller.loadingMore
-                              ? 'Loading…'
-                              : 'Load more tasks',
-                        ),
-                      ),
-                  ],
-                );
-              },
-            ),
-          ),
-        ),
-      ],
+      slivers: slivers,
     );
   }
 }

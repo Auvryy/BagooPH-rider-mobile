@@ -4,6 +4,7 @@ import 'package:bagoo_rider_mobile/core/platform/rider_website.dart';
 import 'package:bagoo_rider_mobile/features/auth/data/account.dart';
 import 'package:bagoo_rider_mobile/features/auth/presentation/auth_controller.dart';
 import 'package:bagoo_rider_mobile/features/home/data/operations_repository.dart';
+import 'package:bagoo_rider_mobile/features/home/presentation/home_task_panel.dart';
 import 'package:bagoo_rider_mobile/features/workspace/development/workspace_preview_repository.dart';
 import 'package:bagoo_rider_mobile/features/workspace/presentation/workspace_controller.dart';
 import 'package:bagoo_rider_mobile/features/workspace/presentation/workspace_shell.dart';
@@ -18,6 +19,11 @@ import 'operations_contract_test.dart' as ops;
 
 Future<void> tap(WidgetTester tester, String key) async {
   final target = find.byKey(ValueKey(key));
+  if (target.evaluate().isEmpty &&
+      find.byKey(const ValueKey('home-page-scroll')).evaluate().isNotEmpty) {
+    await tester.ensureVisible(find.byType(HomeTaskPanel, skipOffstage: false));
+    await tester.pumpAndSettle();
+  }
   if (target.evaluate().isEmpty && key.startsWith('conversation-')) {
     final list = find.byKey(const PageStorageKey('conversation-list'));
     if (list.evaluate().isNotEmpty) {
@@ -147,7 +153,19 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tap(tester, 'home-expand-panel');
+      await tester.ensureVisible(
+        find.byType(HomeTaskPanel, skipOffstage: false),
+      );
+      await tester.pumpAndSettle();
+      final scaffold = tester.widget<Scaffold>(
+        find.byKey(const ValueKey('rider-workspace')),
+      );
+      expect(
+        tester.getRect(find.byKey(const ValueKey('home-page-scroll'))).bottom,
+        lessThanOrEqualTo(
+          tester.getRect(find.byWidget(scaffold.bottomNavigationBar!)).top,
+        ),
+      );
       expect(find.text('Tasks are not connected yet'), findsOneWidget);
       expect(find.text('DEMO-P1001'), findsNothing);
       await tapFinder(
@@ -384,7 +402,6 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tap(tester, 'home-expand-panel');
       await tap(tester, 'home-task-pickup-1');
       await tap(tester, 'home-selected-details');
       expect(find.text('Parcel details'), findsOneWidget);

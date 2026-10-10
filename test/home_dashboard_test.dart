@@ -188,14 +188,24 @@ void main() {
     });
   }
   managedDashboardTest(
-    'task row selection, panel controls, search and queue changes keep the same stop',
+    'phone Home scrolls as one page and preserves task selection and search',
     (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1;
       final h = await openDashboard(tester);
-      final expand = find.byKey(const ValueKey('home-expand-panel'));
-      await tester.tap(expand);
+      expect(find.byType(DraggableScrollableSheet), findsNothing);
+      final mapBefore = tester.getRect(find.byType(FlutterMap));
+      final titleBefore = tester.getRect(find.text('Your tasks'));
+      await tester.drag(find.text('Your tasks'), const Offset(0, -100));
       await tester.pumpAndSettle();
+      final mapAfter = tester.getRect(find.byType(FlutterMap));
+      final titleAfter = tester.getRect(find.text('Your tasks'));
+      expect(mapAfter.top, lessThan(mapBefore.top));
+      expect(mapAfter.size, mapBefore.size);
+      expect(
+        titleBefore.top - titleAfter.top,
+        closeTo(mapBefore.top - mapAfter.top, 1),
+      );
       final row = find.byKey(ValueKey('home-task-${h.task.id}'));
       await tapHome(tester, row);
       expect(h.controller.selectedTask?.id, h.task.id);
@@ -238,7 +248,9 @@ void main() {
       tester.view.physicalSize = const Size(320, 640);
       tester.view.devicePixelRatio = 1;
       final h = await openDashboard(tester, textScale: 2, onDuty: false);
-      await tester.tap(find.byKey(const ValueKey('home-expand-panel')));
+      await tester.ensureVisible(
+        find.byType(HomeTaskPanel, skipOffstage: false),
+      );
       await tester.pumpAndSettle();
       for (final queue in TaskQueue.values) {
         final choice = find.byKey(ValueKey('task-queue-${queue.name}'));
@@ -277,7 +289,7 @@ void main() {
       );
       tester.view.physicalSize = const Size(390, 844);
       await tester.pumpAndSettle();
-      expect(find.byType(DraggableScrollableSheet), findsOneWidget);
+      expect(find.byType(DraggableScrollableSheet), findsNothing);
       expect(h.controller.taskSearch, h.task.tracking);
       expect(
         tester
@@ -299,8 +311,6 @@ void main() {
         tester.widget<MarkerLayer>(find.byType(MarkerLayer)).markers,
         isEmpty,
       );
-      await tester.tap(find.byKey(const ValueKey('home-expand-panel')));
-      await tester.pumpAndSettle();
       final row = find.byKey(ValueKey('home-task-${h.task.id}'));
       await tapHome(tester, row);
       expect(find.text('Address only · no saved map pin'), findsOneWidget);
@@ -458,6 +468,10 @@ void managedDashboardTest(
 }
 
 Future<void> tapHome(WidgetTester tester, Finder target) async {
+  if (target.evaluate().isEmpty) {
+    await tester.ensureVisible(find.byType(HomeTaskPanel, skipOffstage: false));
+    await tester.pumpAndSettle();
+  }
   await tester.ensureVisible(target);
   await tester.pumpAndSettle();
   await tester.tap(target);

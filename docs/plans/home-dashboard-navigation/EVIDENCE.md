@@ -111,3 +111,17 @@ The reviewed outputs preserve visible attribution and contain no key or live
 personal task data. Ordinary Linux and Android debug builds pass with the ignored
 Geoapify configuration. Diff, Markdown links/fences, key-in-source/log and private
 file checks pass. No physical Android navigation acceptance is claimed.
+
+## Android phone installation — October 10, 2026
+
+The current source rebuilt as an ARM64 debug APK with the ignored Geoapify
+configuration and the Azure account/API origin. Operational writes remain
+disabled. It installed successfully over the existing app on the connected
+Android 16 (API 36) phone, preserving its data, and launched successfully.
+The application remained running in the foreground; its startup log contained
+no fatal Android exception or unhandled Flutter runtime error.
+
+This establishes installation and startup on the phone. Sign-in, authenticated
+Home/queue reads on that phone, owned-stop routing, permissions and background
+GPS behavior still require device testing; no physical navigation acceptance
+or live operational mutation is claimed by this check.

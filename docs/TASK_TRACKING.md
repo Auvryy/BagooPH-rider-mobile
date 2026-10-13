@@ -21,6 +21,13 @@ checks are recorded in [AZURE_ACCOUNT_ACCESS.md](AZURE_ACCOUNT_ACCESS.md).
 The selected [Home dashboard/navigation extension](plans/home-dashboard-navigation/README.md) now has local v1 Home/queue/detail and durable duty/claim adapters, a map-first panel, road routing and explicit navigation lifecycle. The [Home refinement](plans/home-dashboard-navigation/HOME_POLISH.md) adds compact counted queues, fresh stop/map selection, ordinary phone page scrolling clear of bottom navigation, wide-window panels and verified Azure Home/queue reads. Live owned detail/write and physical-device acceptance remain outstanding. Account checks do not finish
 a major area or clear unrelated backend gates.
 
+**October 13 Home planning review:** the [Home branch plan](plans/home-dashboard-branch-plan/README.md)
+reviews current Home surfaces, records five reproduced baseline defects and orders
+dashboard/stop/operational additions into one selected branch per prompt. The
+separate [API needs checklist](api/HOME_DASHBOARD_NEEDS.md) distinguishes implemented
+server adapters from live acceptance and conditional requests. This documentation
+does not repair the defects, activate those branches or complete any major area.
+
 The [Home layout fixtures](HOME_PREVIEW.md) provide M04 greeting, queue-filter and
 parcel-card test evidence with isolated M02 fixtures. They now run only in
 widget tests: the app has no standalone sample entry. Live task resources,
@@ -317,6 +324,12 @@ Fully native registration/KYC remains a scope decision, not a hidden requirement
 
 ### M04 — Home and task queues
 
+**October 13 selected fix:** HDB-01 separates read recovery from unresolved
+commands, removes newly hidden tasks and stops their routes outside the map's
+lifecycle. Scoped implementation and verification are recorded in
+[HDB-01 evidence](plans/home-dashboard-branch-plan/HDB-01-EVIDENCE.md);
+this does not finish every M04 card or activate production writes.
+
 **Outcome:** the rider knows what they hold, where to go and what they may do next.
 
 1. Build the Home/Tasks overview with actual identity and scope, available
@@ -493,6 +506,11 @@ its own authorization, not public URLs in general profile JSON. M14 owns securit
 actions so account forms and session behavior are not duplicated.
 
 ### M14 — Settings, security and help
+
+**October 13 selected UI correction:** fitted pages/read-only values stay still,
+long content remains scrollable and large-text navigation keeps readable labels.
+See [the Settings layout record](SETTINGS_UX.md) and HDB-01 evidence above.
+Account/API compatibility and live Settings mutations retain their own gates.
 
 **Outcome:** useful account controls that respect review and custody responsibilities.
 

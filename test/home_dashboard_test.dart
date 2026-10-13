@@ -9,6 +9,7 @@ import 'package:bagoo_rider_mobile/features/home/presentation/home_task_panel.da
 import 'package:bagoo_rider_mobile/features/navigation/data/geoapify_client.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/navigation_controller.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/navigation_providers.dart';
+import 'package:bagoo_rider_mobile/features/navigation/presentation/navigation_workspace_binding.dart';
 import 'package:bagoo_rider_mobile/features/workspace/data/workspace_models.dart';
 import 'package:bagoo_rider_mobile/features/workspace/data/workspace_repository.dart';
 import 'package:bagoo_rider_mobile/features/workspace/presentation/workspace_controller.dart';
@@ -350,6 +351,83 @@ void main() {
       expect(find.byType(PolylineLayer), findsNothing);
     },
   );
+  managedDashboardTest('refresh controls recover after the server cooldown', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    final h = await openDashboard(tester);
+    final response = h.api.respond;
+    h.api.respond = (path, method, data, headers) {
+      if (path == 'rider/home') {
+        throw const AccountFailure(
+          'Please wait before refreshing.',
+          status: 429,
+          retryAfterSeconds: 2,
+        );
+      }
+      return response(path, method, data, headers);
+    };
+    await h.controller.refreshAll();
+    await tester.pump();
+    final button = find.byKey(const ValueKey('home-refresh-tasks'));
+    await tester.ensureVisible(button);
+    await tester.pump();
+    expect(tester.widget<IconButton>(button).onPressed, isNull);
+    expect(h.controller.taskData.data, isNotEmpty);
+    h.api.respond = response;
+    await tester.pump(const Duration(seconds: 2));
+    expect(tester.widget<IconButton>(button).onPressed, isNotNull);
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+    expect(h.controller.workFailure, isNull);
+    expect(tester.widget<IconButton>(button).onPressed, isNotNull);
+    expect(tester.takeException(), isNull);
+  });
+  for (final mapless in [false, true]) {
+    managedDashboardTest(
+      'refresh invalidation stops navigation in a ${mapless ? 'mapless keyboard' : 'hidden Home'} view',
+      (tester) async {
+        tester.view.physicalSize = Size(390, mapless ? 320 : 844);
+        tester.view.devicePixelRatio = 1;
+        final h = await openDashboard(tester, hidden: !mapless);
+        await h.controller.openTask(OperationsRepository.asRiderTask(h.task));
+        h.navigation.task = h.task;
+        h.navigation.active = true;
+        h.navigation.road = RoadRoute([
+          [const LatLng(14.6, 120.986), const LatLng(14.601, 120.987)],
+        ]);
+        h.navigation.recenter();
+        await tester.pumpAndSettle();
+        if (mapless) {
+          expect(find.byType(FlutterMap), findsNothing);
+        } else {
+          expect(find.text('Another screen'), findsOneWidget);
+          expect(find.byType(HomeDashboard), findsNothing);
+        }
+        final response = h.api.respond;
+        h.api.respond = (path, method, data, headers) {
+          if (path.startsWith('rider/tasks/')) {
+            throw const AccountFailure('Task hidden', status: 404);
+          }
+          return response(path, method, data, headers);
+        };
+        await h.controller.refreshTasks();
+        // No frame or periodic authorization check is needed to stop.
+        expect(h.navigation.active, isFalse);
+        expect(h.navigation.road, isNull);
+        expect(h.controller.selectedTask, isNull);
+        expect(h.controller.visibleTasks, isEmpty);
+        await tester.pumpAndSettle();
+        final layers = find.byType(MarkerLayer, skipOffstage: false);
+        if (layers.evaluate().isNotEmpty) {
+          expect(tester.widget<MarkerLayer>(layers).markers, isEmpty);
+        }
+        expect(find.byType(PolylineLayer, skipOffstage: false), findsNothing);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
   test(
     'unfamiliar stage codes remain unknown rather than granting a task state',
     () {
@@ -373,6 +451,7 @@ openDashboard(
   double textScale = 1,
   bool onDuty = true,
   bool coordinates = true,
+  bool hidden = false,
 }) async {
   final api = support.Session(), journal = support.Journal();
   final home = support.fixture('home');
@@ -419,8 +498,10 @@ openDashboard(
     vehicleType: () async => null,
     manual: true,
   );
+  final binding = NavigationWorkspaceBinding(controller, nav);
   _disposeDashboard = () async {
     await tester.pumpWidget(const SizedBox.shrink());
+    binding.dispose();
     controller.dispose();
     nav.dispose();
     geo.dispose();
@@ -441,7 +522,15 @@ openDashboard(
             textScaler: TextScaler.linear(textScale),
           ),
           child: Scaffold(
-            body: HomeDashboard(account: account, controller: controller),
+            body: hidden
+                ? IndexedStack(
+                    index: 1,
+                    children: [
+                      HomeDashboard(account: account, controller: controller),
+                      const Text('Another screen'),
+                    ],
+                  )
+                : HomeDashboard(account: account, controller: controller),
           ),
         ),
       ),

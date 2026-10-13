@@ -81,6 +81,8 @@ final workspaceControllerProvider = Provider.autoDispose
       return controller;
     }, dependencies: [workspaceRepositoryProvider, authControllerProvider]);
 
+enum _WorkRead { home, tasks, detail, more }
+
 class WorkspaceController extends ChangeNotifier {
   WorkspaceController(this.repository, {this.onSessionEnd}) {
     unawaited(operations == null ? refreshAll() : Future.microtask(refreshAll));
@@ -92,19 +94,35 @@ class WorkspaceController extends ChangeNotifier {
       : null;
   FeatureData<OperationsHome> homeData = const FeatureData.loading();
   CommandIntent? pendingIntent;
-  AccountFailure? workFailure;
+  final _readFailures = <_WorkRead, AccountFailure>{};
+  AccountFailure? _commandFailure;
+  AccountFailure? get workFailure =>
+      _commandFailure ?? _readFailures.values.lastOrNull;
+  AccountFailure? get loadMoreFailure => _readFailures[_WorkRead.more];
   String? workNotice;
   bool working = false, loadingMore = false;
   OperationTask? selectedTask;
   String? unavailableTaskId;
+  final _unavailableTasks = <String>{};
+  bool isTaskUnavailable(String id) => _unavailableTasks.contains(id);
+  bool workAccessUnavailable = false;
+  bool _sessionEnded = false;
   bool selectingTask = false;
-  int _detailGeneration = 0;
+  int _detailGeneration = 0, _homeGeneration = 0, _moreGeneration = 0;
   TaskPage? taskPage;
-  Timer? _poll;
+  Timer? _poll, _cooldownTimer;
   bool _foreground = true, _refreshingAll = false;
   DateTime? _cooldownUntil;
   bool get coolingDown => _cooldownUntil?.isAfter(DateTime.now()) ?? false;
+  bool get canRefresh =>
+      !_disposed &&
+      !_sessionEnded &&
+      !_refreshingAll &&
+      !working &&
+      !coolingDown;
   bool get canWrite =>
+      !_disposed &&
+      !_sessionEnded &&
       operations?.writesVerified == true &&
       !working &&
       !coolingDown &&
@@ -122,6 +140,7 @@ class WorkspaceController extends ChangeNotifier {
     _poll?.cancel();
     if (!_foreground ||
         _disposed ||
+        _sessionEnded ||
         operations == null ||
         homeData.data == null) {
       return;
@@ -134,30 +153,60 @@ class WorkspaceController extends ChangeNotifier {
     });
   }
 
-  Future<void> _workError(Object error) async {
+  Future<AccountFailure> _workError(Object error, {_WorkRead? read}) async {
     final failure = error is AccountFailure
         ? error
         : const AccountFailure(
             'Could not verify work data. Refresh and try again.',
           );
-    workFailure = failure;
+    if (read == null) {
+      _commandFailure = failure;
+    } else {
+      _readFailures.remove(read);
+      _readFailures[read] = failure;
+    }
     if (failure.retryAfterSeconds != null) {
+      _cooldownTimer?.cancel();
       _cooldownUntil = DateTime.now().add(
         Duration(seconds: failure.retryAfterSeconds!),
       );
+      _cooldownTimer = Timer(Duration(seconds: failure.retryAfterSeconds!), () {
+        _cooldownUntil = null;
+        _changed();
+      });
     }
     if (failure.invalidSession) {
+      _readFailures.clear();
+      _commandFailure = failure;
+      _sessionEnded = true;
+      workAccessUnavailable = true;
       homeData = FeatureData.unavailable(failure.message);
       taskData = FeatureData.unavailable(failure.message);
+      tripData = FeatureData.unavailable(failure.message);
+      conversationData = FeatureData.unavailable(failure.message);
       selectedTask = null;
+      pendingIntent = null;
+      taskPage = null;
+      selectingTask = loadingMore = false;
+      selectedConversationId = null;
+      _drafts.clear();
+      _homeGeneration++;
       _detailGeneration++;
       _taskGeneration++;
+      _tripGeneration++;
+      _conversationGeneration++;
+      _moreGeneration++;
       _poll?.cancel();
+      _cooldownTimer?.cancel();
+      // Deliver access loss before awaiting session cleanup or a widget rebuild.
+      _changed();
       if (!_disposed) await onSessionEnd?.call(failure.message);
     }
+    return failure;
   }
 
   Future<void> refreshHome() async {
+    if (_disposed || _sessionEnded || coolingDown) return;
     final ops = operations;
     if (ops == null) {
       homeData = const FeatureData.unavailable(
@@ -165,6 +214,7 @@ class WorkspaceController extends ChangeNotifier {
       );
       return;
     }
+    final generation = ++_homeGeneration;
     final previous = homeData.data;
     homeData = previous == null
         ? const FeatureData.loading()
@@ -172,8 +222,10 @@ class WorkspaceController extends ChangeNotifier {
     _changed();
     try {
       final result = await ops.home();
-      if (_disposed) return;
+      if (_disposed || generation != _homeGeneration) return;
+      _readFailures.remove(_WorkRead.home);
       if (result.capabilities['home'] != true) {
+        workAccessUnavailable = true;
         homeData = const FeatureData.unavailable(
           'Home work data is unavailable.',
         );
@@ -181,8 +233,15 @@ class WorkspaceController extends ChangeNotifier {
           'Home work data is unavailable.',
         );
         selectedTask = null;
+        selectingTask = loadingMore = false;
+        taskPage = null;
+        _detailGeneration++;
+        _taskGeneration++;
+        _moreGeneration++;
+        _changed();
         return;
       }
+      workAccessUnavailable = false;
       homeData = FeatureData.ready(result);
       if (!_queueChosenByRider && !_initialQueueChosen) {
         _initialQueueChosen = true;
@@ -192,22 +251,38 @@ class WorkspaceController extends ChangeNotifier {
             ? TaskQueue.pickups
             : TaskQueue.available;
       }
-      pendingIntent = await ops.pending();
-      if (pendingIntent != null && !working) {
-        await ops.reconcile();
-        if (!_disposed) pendingIntent = await ops.pending();
+      // A successful read is independent of an uncertain saved command.
+      try {
+        final pending = await ops.pending();
+        if (_disposed || generation != _homeGeneration) return;
+        pendingIntent = pending;
+        if (pending != null && !working) {
+          final committed = await ops.reconcile();
+          if (_disposed || generation != _homeGeneration) return;
+          pendingIntent = await ops.pending();
+          if (_disposed || generation != _homeGeneration) return;
+          if (committed != null) {
+            _commandFailure = null;
+            workNotice = 'Work request confirmed.';
+          }
+        }
+      } catch (error) {
+        if (!_disposed && generation == _homeGeneration) {
+          await _workError(error);
+        }
       }
     } catch (error) {
-      if (_disposed) return;
-      await _workError(error);
-      if (!_disposed && homeData.status != FeatureStatus.unavailable) {
-        homeData = FeatureData.failed(workFailure!.message, previous);
+      if (_disposed || generation != _homeGeneration) return;
+      final failure = await _workError(error, read: _WorkRead.home);
+      if (!_disposed && !_sessionEnded && generation == _homeGeneration) {
+        homeData = FeatureData.failed(failure.message, previous);
       }
     }
     _changed();
   }
 
   Future<void> openTask(RiderTask task) async {
+    if (_disposed || _sessionEnded) return;
     final generation = ++_detailGeneration;
     selectedTask = null;
     selectingTask = true;
@@ -218,30 +293,45 @@ class WorkspaceController extends ChangeNotifier {
           : await operations?.detail(task.id);
       if (!_disposed && generation == _detailGeneration) {
         selectedTask = result;
-        unavailableTaskId = null;
+        _readFailures.remove(_WorkRead.detail);
+        _unavailableTasks.remove(task.id);
+        if (unavailableTaskId == task.id) unavailableTaskId = null;
       }
     } catch (error) {
       if (!_disposed && generation == _detailGeneration) {
         if (error is AccountFailure && error.status == 404) {
-          unavailableTaskId = task.id;
-          taskData = FeatureData.failed(
-            'This task is no longer available. Refresh the queue.',
-            taskData.data?.where((t) => t.id != task.id).toList(),
-          );
-          if (homeData.data != null) {
-            homeData = FeatureData.failed(
-              'Refresh work availability.',
-              homeData.data,
-            );
-          }
+          _invalidateTask(task.id);
         }
-        await _workError(error);
+        await _workError(error, read: _WorkRead.detail);
+        _changed();
       }
     }
     if (!_disposed && generation == _detailGeneration) {
       selectingTask = false;
       _changed();
     }
+  }
+
+  void _invalidateTask(String id) {
+    unavailableTaskId = id;
+    _unavailableTasks.add(id);
+    selectedTask = null;
+    selectingTask = loadingMore = false;
+    _detailGeneration++;
+    _taskGeneration++;
+    _homeGeneration++;
+    _moreGeneration++;
+    taskData = FeatureData.failed(
+      'This task is no longer available. Refresh the queue.',
+      taskData.data?.where((t) => t.id != id).toList(),
+    );
+    if (homeData.data != null) {
+      homeData = FeatureData.failed(
+        'Refresh work availability.',
+        homeData.data,
+      );
+    }
+    _changed();
   }
 
   void closeTask() {
@@ -264,6 +354,7 @@ class WorkspaceController extends ChangeNotifier {
     bool recovery = false,
   }) async {
     if (_disposed ||
+        _sessionEnded ||
         operations == null ||
         working ||
         coolingDown ||
@@ -271,7 +362,7 @@ class WorkspaceController extends ChangeNotifier {
       return;
     }
     working = true;
-    workFailure = null;
+    _commandFailure = null;
     workNotice = null;
     _changed();
     try {
@@ -283,11 +374,24 @@ class WorkspaceController extends ChangeNotifier {
       } else {
         workNotice = 'Work request confirmed.';
         if (result['task_id'] is String) {
-          final owned = await operations!.detail(result['task_id']);
-          if (!_disposed) {
-            _detailGeneration++;
-            selectedTask = owned;
-            queue = TaskQueue.pickups;
+          final generation = ++_detailGeneration;
+          try {
+            final owned = await operations!.detail(result['task_id']);
+            if (!_disposed && generation == _detailGeneration) {
+              selectedTask = owned;
+              selectingTask = false;
+              _readFailures.remove(_WorkRead.detail);
+              _unavailableTasks.remove(owned.id);
+              if (unavailableTaskId == owned.id) unavailableTaskId = null;
+              queue = TaskQueue.pickups;
+            }
+          } catch (error) {
+            if (!_disposed && generation == _detailGeneration) {
+              if (error is AccountFailure && error.status == 404) {
+                _invalidateTask(result['task_id']);
+              }
+              await _workError(error, read: _WorkRead.detail);
+            }
           }
         }
       }
@@ -309,10 +413,11 @@ class WorkspaceController extends ChangeNotifier {
     }
   }
 
-  bool get workFailureIsDenied => workFailure?.invalidSession == true;
+  bool get workFailureIsDenied => _sessionEnded;
 
   Future<void> loadMoreTasks() async {
     if (_disposed ||
+        _sessionEnded ||
         loadingMore ||
         operations == null ||
         taskPage?.hasNext != true ||
@@ -321,11 +426,13 @@ class WorkspaceController extends ChangeNotifier {
       return;
     }
     final generation = _taskGeneration;
+    final moreGeneration = ++_moreGeneration;
+    final requestedQueue = queue;
     loadingMore = true;
     _changed();
     try {
       final result = await operations!.taskPage(
-        queue,
+        requestedQueue,
         page: taskPage!.page + 1,
       );
       if (!_disposed && generation == _taskGeneration) {
@@ -335,11 +442,14 @@ class WorkspaceController extends ChangeNotifier {
         }
         taskData = FeatureData.ready(merged.values.toList());
         taskPage = result;
+        _readFailures.remove(_WorkRead.more);
       }
     } catch (error) {
-      if (!_disposed && generation == _taskGeneration) await _workError(error);
+      if (!_disposed && generation == _taskGeneration) {
+        await _workError(error, read: _WorkRead.more);
+      }
     }
-    if (!_disposed) {
+    if (!_disposed && moreGeneration == _moreGeneration) {
       loadingMore = false;
       _changed();
     }
@@ -368,7 +478,13 @@ class WorkspaceController extends ChangeNotifier {
   }
 
   Future<void> refreshAll() async {
-    if (_disposed || _refreshingAll || working || coolingDown) return;
+    if (_disposed ||
+        _sessionEnded ||
+        _refreshingAll ||
+        working ||
+        coolingDown) {
+      return;
+    }
     _refreshingAll = true;
     try {
       if (operations == null) {
@@ -383,7 +499,7 @@ class WorkspaceController extends ChangeNotifier {
         return;
       }
       await refreshHome();
-      if (_disposed) return;
+      if (_disposed || _sessionEnded) return;
       if (operations == null || homeData.status == FeatureStatus.ready) {
         await refreshTasks();
       }
@@ -391,26 +507,50 @@ class WorkspaceController extends ChangeNotifier {
     } finally {
       _refreshingAll = false;
       _schedulePoll();
+      _changed();
     }
   }
 
   Future<void> refreshTasks() async {
     if (_disposed ||
+        _sessionEnded ||
         coolingDown ||
         (operations != null && homeData.status != FeatureStatus.ready)) {
       return;
     }
     final generation = ++_taskGeneration;
+    _moreGeneration++;
+    loadingMore = false;
+    final requestedQueue = queue;
     final previous = taskData.data;
     taskData = previous == null
         ? const FeatureData.loading()
         : FeatureData.refreshing(previous);
     _changed();
     try {
-      final result = await repository.tasks(queue);
+      final ops = operations;
+      TaskPage? page;
+      final FeatureData<List<RiderTask>> result;
+      if (ops != null) {
+        page = await ops.taskPage(requestedQueue);
+        result = FeatureData.ready(
+          page.items.map(OperationsRepository.asRiderTask).toList(),
+        );
+      } else {
+        result = await repository.tasks(requestedQueue);
+      }
       if (!_disposed && generation == _taskGeneration) {
         taskData = result;
-        taskPage = operations?.lastPage;
+        taskPage = page;
+        if (result.status == FeatureStatus.ready) {
+          _readFailures.remove(_WorkRead.tasks);
+          _readFailures.remove(_WorkRead.more);
+          if (selectedTask == null) _readFailures.remove(_WorkRead.detail);
+          for (final task in result.data!) {
+            _unavailableTasks.remove(task.id);
+            if (unavailableTaskId == task.id) unavailableTaskId = null;
+          }
+        }
         final selected = selectedTask;
         if (selected != null && selected.preview) {
           final matches =
@@ -428,11 +568,24 @@ class WorkspaceController extends ChangeNotifier {
                 generation == _taskGeneration &&
                 detailGeneration == _detailGeneration) {
               selectedTask = detail;
+              _readFailures.remove(_WorkRead.detail);
             }
           } catch (error) {
-            if (!_disposed && detailGeneration == _detailGeneration) {
-              closeTask();
-              await _workError(error);
+            if (!_disposed &&
+                generation == _taskGeneration &&
+                detailGeneration == _detailGeneration) {
+              if (error is AccountFailure && error.status == 404) {
+                _invalidateTask(selected.id);
+              }
+              final failure = await _workError(error, read: _WorkRead.detail);
+              final hidden = error is AccountFailure && error.status == 404;
+              if (!_disposed &&
+                  !_sessionEnded &&
+                  generation == _taskGeneration &&
+                  detailGeneration == _detailGeneration &&
+                  !hidden) {
+                taskData = FeatureData.failed(failure.message, taskData.data);
+              }
             }
           }
         }
@@ -440,10 +593,14 @@ class WorkspaceController extends ChangeNotifier {
       }
     } catch (error) {
       if (!_disposed && generation == _taskGeneration) {
-        if (operations != null) await _workError(error);
-        if (_disposed || workFailureIsDenied) return;
+        final failure = operations == null
+            ? null
+            : await _workError(error, read: _WorkRead.tasks);
+        if (_disposed || workFailureIsDenied || generation != _taskGeneration) {
+          return;
+        }
         taskData = FeatureData.failed(
-          workFailure?.message ?? 'Could not load tasks. Try again.',
+          failure?.message ?? 'Could not load tasks. Try again.',
           previous,
         );
         _changed();
@@ -452,6 +609,7 @@ class WorkspaceController extends ChangeNotifier {
   }
 
   Future<void> refreshTrips() async {
+    if (_disposed || _sessionEnded) return;
     final generation = ++_tripGeneration;
     final previous = tripData.data;
     tripData = previous == null
@@ -477,6 +635,7 @@ class WorkspaceController extends ChangeNotifier {
   }
 
   Future<void> refreshConversations() async {
+    if (_disposed || _sessionEnded) return;
     final generation = ++_conversationGeneration;
     final previous = conversationData.data;
     conversationData = previous == null
@@ -509,13 +668,21 @@ class WorkspaceController extends ChangeNotifier {
   }
 
   void selectQueue(TaskQueue value) {
+    if (_disposed || _sessionEnded) return;
     _queueChosenByRider = true;
     if (queue == value) return;
     queue = value;
     closeTask();
+    _taskGeneration++;
+    _moreGeneration++;
+    loadingMore = false;
+    _readFailures.remove(_WorkRead.tasks);
+    _readFailures.remove(_WorkRead.more);
+    _readFailures.remove(_WorkRead.detail);
     taskPage = null;
     taskSearch = '';
     taskData = const FeatureData.loading();
+    _changed();
     unawaited(refreshTasks());
   }
 
@@ -710,11 +877,15 @@ class WorkspaceController extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     _poll?.cancel();
+    _cooldownTimer?.cancel();
     _detailGeneration++;
     homeData = const FeatureData.loading();
     pendingIntent = null;
     selectedTask = null;
     unavailableTaskId = null;
+    _unavailableTasks.clear();
+    _readFailures.clear();
+    _commandFailure = null;
     _drafts.clear();
     taskData = const FeatureData.loading();
     tripData = const FeatureData.loading();

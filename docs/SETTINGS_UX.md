@@ -1,5 +1,13 @@
 # Profile and Settings mobile layout
 
+October 13 touch/accessibility correction: fitted pages no longer inherit forced
+always-scrollable physics, and read-only values wrap in place while remaining
+selectable/copyable. Long content and keyboard paths still scroll. When large
+text cannot fit all four bottom captions, labelled icons retain their tooltips
+and screen-reader labels with a full-width selected caption. The desktop rail
+adapts its width and scrolls in short windows. The selected checks and device
+limits are in [HDB-01 evidence](plans/home-dashboard-branch-plan/HDB-01-EVIDENCE.md).
+
 Implemented October 9, 2026. This presentation update follows the existing
 courier profile and email flows, with backend source reviewed at `8fb5193`.
 The web owner is developing APIs separately; no backend file or contract is

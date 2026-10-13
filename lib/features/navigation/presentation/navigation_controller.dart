@@ -28,6 +28,8 @@ class NavigationController extends ChangeNotifier {
   final DateTime Function() now;
   final Future<void> Function(String message)? onAccessDenied;
   OperationTask? task;
+  OperationTask? _startingTask;
+  OperationTask? get navigatingTask => task ?? _startingTask;
   NavigationProfile? profile;
   LocationFix? fix;
   RoadRoute? road;
@@ -63,6 +65,7 @@ class NavigationController extends ChangeNotifier {
   }) async {
     await stop();
     final generation = ++_generation;
+    _startingTask = selection;
     starting = true;
     message = null;
     paused = false;
@@ -254,6 +257,23 @@ class NavigationController extends ChangeNotifier {
     _changed();
   }
 
+  void stopIfTaskChanged(OperationTask fresh) {
+    final selected = navigatingTask;
+    if (_disposed || selected == null || fresh.id != selected.id) return;
+    if (fresh.preview ||
+        fresh.assignmentReference != selected.assignmentReference ||
+        fresh.stop.kind != selected.stop.kind ||
+        fresh.stop.address != selected.stop.address ||
+        fresh.stop.latitude != selected.stop.latitude ||
+        fresh.stop.longitude != selected.stop.longitude) {
+      unawaited(
+        stop(
+          reason: 'This assignment or destination changed. Refresh it before navigating again.',
+        ),
+      );
+    }
+  }
+
   void _scheduleAuthorizationExpiry() {
     _authorizationExpiry?.cancel();
     _authorizationExpiry = Timer(const Duration(minutes: 2), () {
@@ -295,17 +315,8 @@ class NavigationController extends ChangeNotifier {
     try {
       final fresh = await authorize(selected.id);
       if (_disposed || generation != _generation) return;
-      if (fresh.preview ||
-          fresh.assignmentReference != selected.assignmentReference ||
-          fresh.stop.kind != selected.stop.kind ||
-          fresh.stop.address != selected.stop.address ||
-          fresh.stop.latitude != selected.stop.latitude ||
-          fresh.stop.longitude != selected.stop.longitude) {
-        await stop(
-          reason: 'This assignment or destination changed. Refresh it before navigating again.',
-        );
-        return;
-      }
+      stopIfTaskChanged(fresh);
+      if (generation != _generation) return;
       task = fresh;
       _lastAuthorizedAt = now();
       _scheduleAuthorizationExpiry();
@@ -350,6 +361,7 @@ class NavigationController extends ChangeNotifier {
     calculating = false;
     paused = pause;
     task = null;
+    _startingTask = null;
     fix = null;
     road = null;
     _offRouteFixes = 0;

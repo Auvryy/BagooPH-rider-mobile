@@ -510,7 +510,11 @@ class _Information extends StatelessWidget {
       children: [
         Text(label, style: Theme.of(context).textTheme.bodySmall),
         const SizedBox(height: 4),
-        SelectableText(value, style: Theme.of(context).textTheme.bodyLarge),
+        SelectableText(
+          value,
+          scrollPhysics: const NeverScrollableScrollPhysics(),
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
       ],
     ),
   );

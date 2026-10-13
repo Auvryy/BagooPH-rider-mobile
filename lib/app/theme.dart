@@ -60,7 +60,7 @@ class RiderScrollBehavior extends MaterialScrollBehavior {
   ScrollPhysics getScrollPhysics(BuildContext context) =>
       RiderMotion.reduced(context)
       ? const ClampingScrollPhysics()
-      : const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics());
+      : const BouncingScrollPhysics();
 }
 
 /// Filled fields keep the same continuous contour as surfaces and controls.

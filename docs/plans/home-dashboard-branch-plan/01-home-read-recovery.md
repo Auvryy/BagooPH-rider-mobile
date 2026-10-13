@@ -1,10 +1,13 @@
 # HDB-01 — Recover reads and remove newly hidden tasks
 
-State: **planned, not activated**. Branch: `fix/home-read-recovery`.
+State: **locally implemented and verified; user review/publication pending**.
+Branch: `fix/home-read-recovery`.
 Planning effort: **4–7 client hours**, including selected checks,
 excluding owner/API/device waiting. Recommended model/effort: **GPT-6.1 Sol / High**.
-Re-estimate from current evidence before activation; assign a 1–14 inclusive-day
-window ending by November 20. No runtime result is claimed by this brief.
+Activated October 13 with a **5–8 client-hour** estimate including the user's
+Settings touch/large-text navigation correction and checks; execution window
+October 13–15. This is an estimate, not measured time. See
+[implementation evidence](HDB-01-EVIDENCE.md) for the resulting scope and checks.
 
 ## Dependencies and API needs
 
@@ -25,6 +28,8 @@ gates remain mandatory. Unsupported release/recovery/earnings portions stay open
 - Fix BUG-H02: apply the same selected-task 404 invalidation during refresh as direct open; remove its cached row/pin, signal known authorization loss and stop its route immediately, independently of map readiness or Home visibility.
 - Retain stale-data labels and pending UUID intents through network errors; 401/403 continue the existing session/access cleanup.
 - Keep generation guards and honest first-page/load-more failure states; explain that search currently covers loaded rows.
+- User steering: prevent unwanted movement in fitted Settings pages/read-only
+  values; keep long content/copy usable and review large-text navigation.
 
 ## File ownership
 
@@ -34,6 +39,10 @@ gates remain mandatory. Unsupported release/recovery/earnings portions stay open
 - `lib/features/home/presentation/home_dashboard.dart`
 - `lib/features/navigation/presentation/navigation_controller.dart`
 - `lib/features/navigation/presentation/navigation_providers.dart`
+- `lib/features/navigation/presentation/navigation_workspace_binding.dart`
+- `lib/app/theme.dart`, `lib/features/settings/presentation/settings_page.dart`
+  and `lib/features/workspace/presentation/workspace_shell.dart` for the added
+  touch/accessibility correction.
 
 Names marked proposed do not exist by implication. Inspect the actual current
 architecture before choosing new files or moving a shared interface. Keep one
@@ -42,14 +51,19 @@ code/docs, its branch and unrelated work remain read only for this mobile slice.
 
 ## Finish evidence
 
-- [ ] Failed Home read followed by accepted success removes the obsolete read error; an unresolved write stays unresolved.
-- [ ] Queue read followed by selected-detail 404 removes the task/pin and stops navigation before its next periodic authorization check, including hidden Home and a keyboard-constrained view without a mounted map.
-- [ ] Late queue/detail replies cannot restore hidden/private state; first page, failed append and explicit queue choice still work.
-- [ ] Run analysis and the meaningful selected contract/controller/widget checks;
+- [x] Failed Home read followed by accepted success removes the obsolete read error; an unresolved write stays unresolved.
+- [x] Queue read followed by selected-detail 404 removes the task/pin and stops navigation before its next periodic authorization check, including hidden Home and a keyboard-constrained view without a mounted map.
+- [x] Late queue/detail replies cannot restore hidden/private state; first page, failed append and explicit queue choice still work.
+- [x] Run analysis and the meaningful selected contract/controller/widget checks;
   add ordinary native builds when runtime/platform/integration risk requires them.
-- [ ] Record local versus authorized Azure versus physical Android evidence,
+- [x] Record local versus authorized Azure versus physical Android evidence,
   remaining gates, reviewed source and coherent local commits in the owning plan.
-- [ ] Review scope/privacy and the staged diff; the user handles push/PR/merge.
+- [x] Review scope/privacy and the staged diff; the user handles push/PR/merge.
+
+Final local result: 161 Flutter tests passed, one expected configuration skip;
+analysis clean; ordinary configured Linux/ARM64 Android builds pass. See the
+linked evidence for added Settings/navigation gesture/layout checks and the
+separate outstanding Azure/physical-phone gates.
 
 ## Stop boundary
 

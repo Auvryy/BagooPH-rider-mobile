@@ -149,6 +149,9 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
     final typing =
         destination == 2 && MediaQuery.viewInsetsOf(context).bottom > 0;
     final rail = size.width >= 840;
+    final railWidth = size.width >= 1200
+        ? 220.0
+        : (_navigationItemWidth(context) + 24).clamp(96.0, 260.0);
     return ListenableBuilder(
       listenable: controller,
       builder: (context, _) {
@@ -221,7 +224,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                         children: [
                           if (rail && !typing)
                             SizedBox(
-                              width: size.width >= 1200 ? 220 : 96,
+                              width: railWidth,
                               child: _navigation(vertical: true),
                             ),
                           if (rail && !typing)
@@ -360,128 +363,174 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
       ),
     ),
   );
-  Widget _navigation({required bool vertical}) {
-    final wide = MediaQuery.sizeOf(context).width >= 1200;
-    final children = [
-      for (var index = 0; index < labels.length; index++)
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: vertical ? 8 : 4,
-            vertical: 8,
-          ),
-          child: Semantics(
-            selected: destination == index,
-            button: true,
-            label: labels[index],
-            child: Tooltip(
-              message: labels[index],
-              child: RiderPressFeedback(
-                child: InkWell(
-                  key: ValueKey('nav-${labels[index].toLowerCase()}'),
-                  onTap: () => select(index),
-                  customBorder: RoundedSuperellipseBorder(
-                    borderRadius: BorderRadius.circular(RiderRadii.selection),
-                  ),
-                  child: AnimatedContainer(
-                    duration: RiderMotion.reduced(context)
-                        ? Duration.zero
-                        : RiderMotion.pressed,
-                    constraints: const BoxConstraints(minHeight: 64),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 10,
+  double _navigationItemWidth(BuildContext context) {
+    final text = TextPainter(
+      text: TextSpan(
+        text: 'Messages',
+        style: Theme.of(context).textTheme.bodyMedium
+            ?.copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+      ),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+    )..layout();
+    final width = text.width + 20; // Item padding and outer spacing.
+    text.dispose();
+    return width;
+  }
+
+  Widget _navigation({required bool vertical}) => LayoutBuilder(
+    builder: (context, constraints) {
+      final wide = MediaQuery.sizeOf(context).width >= 1200;
+      final availableWidth = constraints.maxWidth - 32;
+      final itemWidth = _navigationItemWidth(context);
+      final compactLabels = !vertical && availableWidth / 4 < itemWidth;
+      final children = [
+        for (var index = 0; index < labels.length; index++)
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: vertical ? 8 : 4,
+              vertical: 8,
+            ),
+            child: Semantics(
+              selected: destination == index,
+              button: true,
+              label: labels[index],
+              child: Tooltip(
+                message: labels[index],
+                child: RiderPressFeedback(
+                  child: InkWell(
+                    key: ValueKey('nav-${labels[index].toLowerCase()}'),
+                    onTap: () => select(index),
+                    customBorder: RoundedSuperellipseBorder(
+                      borderRadius: BorderRadius.circular(RiderRadii.selection),
                     ),
-                    curve: Curves.easeOutCubic,
-                    decoration: ShapeDecoration(
-                      color: destination == index
-                          ? Colors.white.withValues(alpha: .92)
-                          : Colors.transparent,
-                      shape: RoundedSuperellipseBorder(
-                        borderRadius: BorderRadius.circular(
-                          RiderRadii.selection,
+                    child: AnimatedContainer(
+                      duration: RiderMotion.reduced(context)
+                          ? Duration.zero
+                          : RiderMotion.pressed,
+                      constraints: const BoxConstraints(minHeight: 64),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 10,
+                      ),
+                      curve: Curves.easeOutCubic,
+                      decoration: ShapeDecoration(
+                        color: destination == index
+                            ? Colors.white.withValues(alpha: .92)
+                            : Colors.transparent,
+                        shape: RoundedSuperellipseBorder(
+                          borderRadius: BorderRadius.circular(
+                            RiderRadii.selection,
+                          ),
                         ),
                       ),
-                    ),
-                    child: ExcludeSemantics(
-                      child: wide && vertical
-                          ? Row(
-                              children: [
-                                Icon(
-                                  icons[index],
-                                  color: destination == index
-                                      ? RiderColors.accentText
-                                      : RiderColors.muted,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    labels[index],
-                                    style: TextStyle(
-                                      color: destination == index
-                                          ? RiderColors.accentText
-                                          : RiderColors.muted,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  icons[index],
-                                  color: destination == index
-                                      ? RiderColors.accentText
-                                      : RiderColors.muted,
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  labels[index],
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    height: 1.3,
+                      child: ExcludeSemantics(
+                        child: wide && vertical
+                            ? Row(
+                                children: [
+                                  Icon(
+                                    icons[index],
                                     color: destination == index
                                         ? RiderColors.accentText
                                         : RiderColors.muted,
-                                    fontWeight: destination == index
-                                        ? FontWeight.w700
-                                        : FontWeight.w500,
                                   ),
-                                ),
-                              ],
-                            ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      labels[index],
+                                      style: TextStyle(
+                                        color: destination == index
+                                            ? RiderColors.accentText
+                                            : RiderColors.muted,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    icons[index],
+                                    color: destination == index
+                                        ? RiderColors.accentText
+                                        : RiderColors.muted,
+                                  ),
+                                  if (!compactLabels) ...[
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      labels[index],
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        height: 1.3,
+                                        color: destination == index
+                                            ? RiderColors.accentText
+                                            : RiderColors.muted,
+                                        fontWeight: destination == index
+                                            ? FontWeight.w700
+                                            : FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-    ];
-    final navigation = RiderGlass(
-      radius: RiderRadii.navigation,
-      child: vertical
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: children,
-            )
-          : Padding(
-              padding: const EdgeInsets.all(4),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (final child in children) Expanded(child: child),
-                ],
+      ];
+      final navigation = RiderGlass(
+        radius: RiderRadii.navigation,
+        child: vertical
+            ? SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: children,
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.all(4),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (final child in children) Expanded(child: child),
+                      ],
+                    ),
+                    if (compactLabels)
+                      ExcludeSemantics(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                          child: Text(
+                            labels[destination],
+                            key: const ValueKey('navigation-selected-label'),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: RiderColors.accentText,
+                              fontSize: 12,
+                              height: 1.3,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
-    );
-    return Padding(
-      padding: vertical
-          ? const EdgeInsets.all(8)
-          : const EdgeInsets.fromLTRB(12, 6, 12, 8),
-      child: navigation,
-    );
-  }
+      );
+      return Padding(
+        padding: vertical
+            ? const EdgeInsets.all(8)
+            : const EdgeInsets.fromLTRB(12, 6, 12, 8),
+        child: navigation,
+      );
+    },
+  );
 }

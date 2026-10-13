@@ -6,6 +6,11 @@ they are kept outside Git under the repository's privacy/prompt rules.
 
 ## Current planning delivery
 
+HDB-01 activation note: the user authorized implementation while the planning
+commit was still local. `fix/home-read-recovery` therefore starts from `d581e4e`
+and includes that planning prerequisite. No branch was pushed or merged here.
+Review/publication must account for those plan commits before starting HDB-02.
+
 This documentation branch is `docs/home-dashboard-branch-plan`, created from
 mobile `main` at `e04a253`. It adds the review, blueprint, branch briefs and API
 checklist. It fixes no runtime bug and activates no production write. Review and

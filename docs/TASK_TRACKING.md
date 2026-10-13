@@ -324,6 +324,12 @@ Fully native registration/KYC remains a scope decision, not a hidden requirement
 
 ### M04 — Home and task queues
 
+**October 13 selected fix:** HDB-01 separates read recovery from unresolved
+commands, removes newly hidden tasks and stops their routes outside the map's
+lifecycle. Scoped implementation and verification are recorded in
+[HDB-01 evidence](plans/home-dashboard-branch-plan/HDB-01-EVIDENCE.md);
+this does not finish every M04 card or activate production writes.
+
 **Outcome:** the rider knows what they hold, where to go and what they may do next.
 
 1. Build the Home/Tasks overview with actual identity and scope, available
@@ -500,6 +506,11 @@ its own authorization, not public URLs in general profile JSON. M14 owns securit
 actions so account forms and session behavior are not duplicated.
 
 ### M14 — Settings, security and help
+
+**October 13 selected UI correction:** fitted pages/read-only values stay still,
+long content remains scrollable and large-text navigation keeps readable labels.
+See [the Settings layout record](SETTINGS_UX.md) and HDB-01 evidence above.
+Account/API compatibility and live Settings mutations retain their own gates.
 
 **Outcome:** useful account controls that respect review and custody responsibilities.
 

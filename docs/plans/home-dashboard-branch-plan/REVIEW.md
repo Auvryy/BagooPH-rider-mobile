@@ -1,5 +1,9 @@
 # Home review, evidence and bug inventory
 
+This is the baseline review. The subsequent [HDB-01 implementation](HDB-01-EVIDENCE.md)
+owns the fixes for BUG-H01/BUG-H02 and the user's Settings touch/navigation
+correction; remaining findings retain their later branch ownership.
+
 ## Reviewed source and limits
 
 Mobile source is `e04a2536987eaf31cf1e6760207dba1da80d9258` on clean `main` before

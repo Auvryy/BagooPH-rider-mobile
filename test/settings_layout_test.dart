@@ -180,6 +180,96 @@ void main() {
     await icons.load();
   });
   layoutTest(
+    'short Settings stays still during a drag while the pointer is down',
+    (tester) async {
+      await openApp(tester);
+      await tap(tester, 'open-settings');
+      final page = find.byKey(const PageStorageKey('profile-settings'));
+      final scroll = tester.state<ScrollableState>(
+        find.descendant(of: page, matching: find.byType(Scrollable)),
+      );
+      expect(scroll.position.maxScrollExtent, 0);
+      final title = find.descendant(of: page, matching: find.text('Account'));
+      final before = tester.getRect(title);
+      final gesture = await tester.startGesture(before.center);
+      await gesture.moveBy(const Offset(0, -70));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(scroll.position.pixels, 0);
+      expect(tester.getRect(title), before);
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    },
+  );
+  layoutTest(
+    'read-only Settings values do not scroll internally and remain selectable',
+    (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      await openApp(tester);
+      await tap(tester, 'open-assignment');
+      final value = find.text('Example logistics');
+      final before = tester.getRect(value);
+      final gesture = await tester.startGesture(before.center);
+      await gesture.moveBy(const Offset(-65, 0));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(tester.getRect(value), before);
+      final inner = tester.state<ScrollableState>(
+        find.descendant(of: value, matching: find.byType(Scrollable)),
+      );
+      expect(inner.position.pixels, 0);
+      await gesture.up();
+      await tester.pumpAndSettle();
+      await tester.longPressAt(before.topLeft + const Offset(12, 12));
+      await tester.pumpAndSettle();
+      expect(find.text('Copy'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+  layoutTest('overflowing Settings remains scrollable with enlarged text', (
+    tester,
+  ) async {
+    await openApp(tester);
+    await tap(tester, 'open-settings');
+    tester.view.physicalSize = const Size(320, 640);
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pumpAndSettle();
+    final page = find.byKey(const PageStorageKey('profile-settings'));
+    final scroll = tester.state<ScrollableState>(
+      find.descendant(of: page, matching: find.byType(Scrollable)),
+    );
+    expect(scroll.position.maxScrollExtent, greaterThan(0));
+    await tester.drag(page, const Offset(0, -240));
+    await tester.pumpAndSettle();
+    expect(scroll.position.pixels, greaterThan(0));
+    await tester.ensureVisible(find.byKey(const ValueKey('settings-logout')));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('settings-logout')).hitTestable(),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+    for (final label in ['Tasks', 'Trips', 'Messages', 'Profile']) {
+      final button = find.byKey(ValueKey('nav-${label.toLowerCase()}'));
+      final caption = find.descendant(of: button, matching: find.text(label));
+      expect(caption, findsNothing);
+      expect(find.byTooltip(label), findsOneWidget);
+      expect(tester.getRect(button).height, greaterThanOrEqualTo(48));
+      expect(button.hitTestable(), findsOneWidget);
+    }
+    final caption = find.byKey(const ValueKey('navigation-selected-label'));
+    expect(tester.widget<Text>(caption).data, 'Profile');
+    expect(
+      tester
+          .renderObject<RenderParagraph>(caption)
+          .getBoxesForSelection(
+            const TextSelection(baseOffset: 0, extentOffset: 7),
+          ),
+      hasLength(1),
+    );
+    await capture(tester, 'settings-large-text');
+  });
+  layoutTest(
     'Profile and Settings primary controls fit the first phone viewport',
     (tester) async {
       await openApp(tester);
@@ -231,6 +321,35 @@ void main() {
         findsOneWidget,
       );
       expect(tester.takeException(), isNull);
+    },
+  );
+
+  layoutTest(
+    'the navigation rail keeps full labels reachable in a short large-text window',
+    (tester) async {
+      await openApp(tester);
+      tester.view.physicalSize = const Size(840, 480);
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await tester.pumpAndSettle();
+      for (final label in ['Tasks', 'Trips', 'Messages', 'Profile']) {
+        final button = find.byKey(ValueKey('nav-${label.toLowerCase()}'));
+        await tester.ensureVisible(button);
+        await tester.pumpAndSettle();
+        final caption = find.descendant(of: button, matching: find.text(label));
+        expect(
+          tester
+              .renderObject<RenderParagraph>(caption)
+              .getBoxesForSelection(
+                TextSelection(baseOffset: 0, extentOffset: label.length),
+              ),
+          hasLength(1),
+        );
+        expect(button.hitTestable(), findsOneWidget);
+        expect(tester.getRect(button).height, greaterThanOrEqualTo(48));
+        expect(tester.takeException(), isNull);
+      }
+      await capture(tester, 'settings-rail-large-text');
     },
   );
 

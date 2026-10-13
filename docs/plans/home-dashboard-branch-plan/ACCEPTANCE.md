@@ -10,8 +10,11 @@ a Linux phone frame or an APK build as a physical Android or Azure acceptance.
   duty/recovery, map/attribution and navigation controls.
 - [x] Run the existing five related suites: 43 tests passed on October 13.
 - [x] Reproduce BUG-H01–H05 with five isolated diagnostic probes against baseline.
-- [ ] HDB-01 maintained regressions expect recovered read errors to clear and
+- [x] HDB-01 maintained regressions expect recovered read errors to clear and
   refresh-time hidden tasks to lose their row/pin/active route immediately.
+  [Final evidence](HDB-01-EVIDENCE.md) includes hidden/mapless views, pending
+  start/route cancellation, unresolved commands, source review, 161 tests,
+  analysis and ordinary builds. It does not close the broader rows below.
 - [ ] HDB-02 maintained regression expects normal location-stream completion to
   stop navigation once; old stream callbacks cannot restart or modify it.
 - [ ] HDB-02 maps the registered Sedan / Van alias while preserving explicit

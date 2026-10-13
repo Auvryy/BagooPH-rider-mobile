@@ -1,7 +1,9 @@
 # Home dashboard review and branch plan
 
-Reviewed October 13, 2026. **Planning only: this delivery changes documentation,
-not application behavior or the website.** The user selects one future branch per
+Reviewed October 13, 2026. The original planning delivery changed documentation.
+The user subsequently activated **HDB-01**, plus the Settings touch/large-text
+correction; see [its implementation evidence](HDB-01-EVIDENCE.md).
+The user selects one future branch per
 implementation prompt, reviews it, publishes and merges it, then starts the next
 branch from updated `main`.
 
@@ -61,7 +63,7 @@ Geoapify/flutter_map and explicit rider-started navigation. Preserve native Azur
 account/Settings access. Website business rules apply; portal CSS, its Leaflet
 implementation and its desktop breakpoint do not govern Flutter presentation.
 
-Only the current documentation record is activated. Creating this plan does not
+Only HDB-01 and the explicitly added UI correction are activated. Creating this plan does not
 create 17 work records, 17 branches or authorization to implement them together.
 Backend code, docs, branch and uncommitted work remain read only in this task.
 
@@ -70,7 +72,11 @@ Backend code, docs, branch and uncommitted work remain read only in this task.
 - Review: 43 existing related Flutter tests passed; five isolated diagnostic
   probes reproduced the five documented baseline defects. A green reproduction
   asserts observed bad behavior, not a successful repair.
-- All future HDB branches remain **planned**. Some reuse substantial implemented
+- HDB-01 is locally implemented and verified, awaiting user review/publication:
+  161 tests passed with one expected configuration skip, clean analysis and
+  ordinary Linux/Android builds. See its evidence for the added UI correction.
+  Other
+  future HDB branches remain **planned**. Some reuse substantial implemented
   foundations; none is declared live accepted from those foundations alone.
 - The complete selected sequence estimates **80–137 client hours**, including
   branch checks, excluding backend changes, merge waiting and external access
@@ -80,5 +86,6 @@ Backend code, docs, branch and uncommitted work remain read only in this task.
   Capacity is not established, so this is an order of work, not a guaranteed dated
   completion schedule. Agree an explicit scope/capacity decision if it will not fit.
 
-Documentation completion does not repair BUG-H01–H05, enable work writes or establish
-physical Android navigation. Those outcomes belong to their selected future branches.
+The original review describes baseline BUG-H01–H05. HDB-01 owns the first two
+repairs. BUG-H03–H05, production write acceptance and physical navigation remain
+with their selected later branches.

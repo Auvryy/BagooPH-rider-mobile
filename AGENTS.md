@@ -107,6 +107,30 @@ service names, credentials, CLI paths, or remote task IDs.
 - Missing backend features stay unavailable until their real API is deployed
   and verified. Never substitute fixture success for a live operation.
 
+## Terminal launch instructions in every handoff
+
+- Always include a copyable terminal command for the mobile phone view on the
+  user's Linux PC in Rider-work final replies and handoffs. Tell the user to run
+  it from the Rider Mobile repository root. Use the current startup flags rather
+  than assuming plain `flutter run -d linux` enables the phone frame.
+- With the existing ignored project-local map configuration, use:
+
+  ```sh
+  flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.geoapify.json
+  ```
+
+  Device Preview supplies the phone frame and device selector; real Azure login
+  remains available. If the configuration file is absent, omit only its
+  `--dart-define-from-file` argument and explain that maps/routing need the local
+  key configuration. Never put the key value in the command or reply.
+- For an actual connected Android phone, list targets with `flutter devices`,
+  then use `flutter run -d <android-device-id>` with the existing local map
+  configuration. Android already uses its native phone layout. Keep PC layout
+  review distinct from physical permissions, GPS and background-service checks.
+- If launch flags or configuration change, verify the working command against
+  the entrypoint/configuration and update these instructions before recommending
+  it again.
+
 ## Implementation rules
 
 - Keep server-owned approval, assignment, capacity, custody, prices, COD,

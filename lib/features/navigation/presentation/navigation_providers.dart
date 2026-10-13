@@ -9,6 +9,7 @@ import '../../workspace/presentation/workspace_controller.dart';
 import '../data/geoapify_client.dart';
 import '../data/navigation_location.dart';
 import 'navigation_controller.dart';
+import 'navigation_workspace_binding.dart';
 
 final geoapifyProvider = Provider<GeoapifyClient>((ref) {
   final client = GeoapifyClient(ref.watch(appConfigProvider).geoapifyKey);
@@ -53,12 +54,24 @@ final navigationProvider = Provider<NavigationController>(
       onAccessDenied: (message) =>
           ref.read(authControllerProvider.notifier).discardSession(message),
     );
-    ref.onDispose(controller.dispose);
+    final workspace = identity.id == null
+        ? null
+        : ref.watch(
+            workspaceControllerProvider(WorkspaceIdentity(identity.id!)),
+          );
+    final binding = workspace == null
+        ? null
+        : NavigationWorkspaceBinding(workspace, controller);
+    ref.onDispose(() {
+      binding?.dispose();
+      controller.dispose();
+    });
     return controller;
   },
   dependencies: [
     authControllerProvider,
     workspaceRepositoryProvider,
+    workspaceControllerProvider,
     geoapifyProvider,
     settingsRepositoryProvider,
   ],

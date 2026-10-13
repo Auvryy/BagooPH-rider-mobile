@@ -109,7 +109,9 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                   IconButton(
                     key: const ValueKey('home-refresh-tasks'),
                     tooltip: 'Refresh tasks',
-                    onPressed: controller.refreshAll,
+                    onPressed: controller.canRefresh
+                        ? controller.refreshAll
+                        : null,
                     icon: const Icon(Icons.refresh_rounded),
                   ),
                 ],
@@ -237,6 +239,8 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                     hintText: 'Find a parcel or stop',
                     labelText: 'Search tasks',
                     prefixIcon: Icon(Icons.search_rounded),
+                    helperText: 'Searches loaded tasks in this queue',
+                    helperMaxLines: 2,
                   ),
                 ),
               if (controller.selectingTask)
@@ -252,6 +256,14 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 8),
+              if (controller.loadMoreFailure != null) ...[
+                Text(
+                  'Could not load more tasks. Your loaded tasks are kept.',
+                  style: Theme.of(context).textTheme.bodySmall
+                      ?.copyWith(color: Theme.of(context).colorScheme.error),
+                ),
+                const SizedBox(height: 8),
+              ],
             ],
           ),
         ),
@@ -293,7 +305,10 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                     ),
                   if (controller.taskPage?.hasNext == true)
                     TextButton(
-                      onPressed: controller.loadingMore
+                      onPressed:
+                          controller.loadingMore ||
+                              controller.coolingDown ||
+                              controller.taskData.status != FeatureStatus.ready
                           ? null
                           : controller.loadMoreTasks,
                       child: Text(

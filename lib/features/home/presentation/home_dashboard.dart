@@ -101,21 +101,6 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
       _cameraQueued = false;
       if (!mounted || !_ready) return;
       final selected = widget.controller.selectedTask;
-      if (nav.active &&
-          (widget.controller.unavailableTaskId == nav.task?.id ||
-              (selected != null &&
-                  selected.id == nav.task?.id &&
-                  (_stopKey(selected) != _stopKey(nav.task) ||
-                      selected.stop.address != nav.task?.stop.address ||
-                      selected.assignmentReference !=
-                          nav.task?.assignmentReference)))) {
-        unawaited(
-          nav.stop(
-            reason: 'This task or stop changed. Refresh it before navigating again.',
-          ),
-        );
-        return;
-      }
       final fix = nav.fix?.point;
       if (nav.active &&
           nav.following &&

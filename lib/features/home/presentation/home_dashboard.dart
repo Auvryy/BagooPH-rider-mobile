@@ -27,9 +27,11 @@ class HomeDashboard extends ConsumerStatefulWidget {
     super.key,
     required this.account,
     required this.controller,
+    this.active = true,
   });
   final RiderAccount account;
   final WorkspaceController controller;
+  final bool active;
   @override
   ConsumerState<HomeDashboard> createState() => _HomeDashboardState();
 }
@@ -39,14 +41,36 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
   final _pageScroll = ScrollController();
   GeoapifyTiles? _tiles;
   GeoapifyClient? _tileClient;
-  bool _ready = false, _wide = false, _cameraQueued = false;
+  bool _ready = false, _wide = false, _mapVisible = false;
+  int _mapEpoch = 0;
+  int? _queuedCameraEpoch;
+  int? _tileRevision;
+  LatLng? _savedCenter;
+  double? _savedZoom;
+  double _savedRotation = 0;
   Size _mapSize = Size.zero;
   LatLng? _lastCameraPoint;
   String? _focusedTask;
   TaskQueue? _fittedQueue;
   static const _overview = LatLng(12.8, 121.7);
   @override
+  void didUpdateWidget(HomeDashboard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!widget.active) _setMapVisible(false);
+  }
+
+  void _setMapVisible(bool visible) {
+    if (_mapVisible == visible) return;
+    _mapVisible = visible;
+    _mapEpoch++;
+    _ready = false;
+    _tiles?.suspend();
+    if (visible && _tileClient != null) _tiles = GeoapifyTiles(_tileClient!);
+  }
+
+  @override
   void dispose() {
+    _tiles?.suspend();
     _pageScroll.dispose();
     _map.dispose();
     super.dispose();
@@ -95,11 +119,17 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
   }
 
   void _queueCamera(NavigationController nav) {
-    if (_cameraQueued) return;
-    _cameraQueued = true;
+    if (!widget.active ||
+        !_ready ||
+        !_mapVisible ||
+        _queuedCameraEpoch == _mapEpoch) {
+      return;
+    }
+    final epoch = _mapEpoch;
+    _queuedCameraEpoch = epoch;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _cameraQueued = false;
-      if (!mounted || !_ready) return;
+      if (_queuedCameraEpoch == epoch) _queuedCameraEpoch = null;
+      if (!mounted || !widget.active || !_ready || epoch != _mapEpoch) return;
       final selected = widget.controller.selectedTask;
       final fix = nav.fix?.point;
       if (nav.active &&
@@ -189,16 +219,20 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
       );
   @override
   Widget build(BuildContext context) {
+    if (!widget.active) return const SizedBox.shrink();
     final nav = ref.watch(navigationProvider),
         geo = ref.watch(geoapifyProvider);
-    if (!identical(_tileClient, geo)) {
-      _tileClient = geo;
-      _tiles = GeoapifyTiles(geo);
-    }
     return LayoutBuilder(
       builder: (context, constraints) => ListenableBuilder(
         listenable: Listenable.merge([nav, geo, widget.controller]),
         builder: (context, _) {
+          if (!identical(_tileClient, geo) ||
+              _tileRevision != geo.tileRevision) {
+            _tiles?.suspend();
+            _tileClient = geo;
+            _tileRevision = geo.tileRevision;
+            _tiles = GeoapifyTiles(geo);
+          }
           _wide = constraints.maxWidth >= 1000;
           _queueCamera(nav);
           final header = Padding(
@@ -228,10 +262,10 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
           );
           if (!_wide || constraints.maxHeight < 360) {
             final showMap = constraints.maxHeight >= 360;
-            if (!showMap) {
-              _ready = false;
-              _mapSize = Size.zero;
-            }
+            _setMapVisible(
+              showMap &&
+                  widget.controller.taskData.status != FeatureStatus.loading,
+            );
             return CustomScrollView(
               key: const ValueKey('home-page-scroll'),
               controller: _pageScroll,
@@ -252,10 +286,15 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                       ],
                     ),
                   ),
+                SliverToBoxAdapter(child: _mapStatus(nav, geo)),
+                if (!showMap) SliverToBoxAdapter(child: _attribution()),
                 _panel(nav, asSliver: true),
               ],
             );
           }
+          _setMapVisible(
+            widget.controller.taskData.status != FeatureStatus.loading,
+          );
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -289,6 +328,12 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                 ),
               ),
               _attribution(),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: constraints.maxHeight * .25,
+                ),
+                child: SingleChildScrollView(child: _mapStatus(nav, geo)),
+              ),
             ],
           );
         },
@@ -302,7 +347,23 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
   ) => LayoutBuilder(
     builder: (context, constraints) {
       _mapSize = constraints.biggest;
+      if (!_mapVisible) {
+        return const Center(child: Text('Loading current stops…'));
+      }
+      final epoch = _mapEpoch;
       final tasks = widget.controller.visibleTasks;
+      final selected = widget.controller.selectedTask;
+      final selectedPoint =
+          selected?.stop.latitude == null || selected?.stop.longitude == null
+          ? null
+          : LatLng(selected!.stop.latitude!, selected.stop.longitude!);
+      final points = _queuePoints;
+      final start =
+          _savedCenter ??
+          (nav.following ? nav.fix?.point : null) ??
+          selectedPoint ??
+          nav.target ??
+          (points.isEmpty ? _overview : points.first);
       return ClipRRect(
         borderRadius: BorderRadius.circular(_wide ? RiderRadii.media : 0),
         child: Stack(
@@ -310,27 +371,48 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
             FlutterMap(
               mapController: _map,
               options: MapOptions(
-                initialCenter: _overview,
-                initialZoom: 5,
+                initialCenter: start,
+                initialZoom: _savedZoom ?? (start == _overview ? 5 : 15),
+                initialRotation: _savedRotation,
+                initialCameraFit:
+                    _savedCenter == null &&
+                        selectedPoint == null &&
+                        nav.target == null &&
+                        points.length > 1
+                    ? CameraFit.bounds(
+                        bounds: LatLngBounds.fromPoints(points),
+                        padding: const EdgeInsets.all(36),
+                        maxZoom: 15,
+                        minZoom: 3,
+                      )
+                    : null,
                 minZoom: 3,
                 maxZoom: 19,
                 backgroundColor: RiderColors.canvas,
                 onMapReady: () {
+                  if (!mounted || !widget.active || epoch != _mapEpoch) return;
                   _ready = true;
-                  _fittedQueue = null;
-                  _focusedTask = null;
-                  _lastCameraPoint = null;
+                  if (_savedCenter == null) {
+                    _fittedQueue = widget.controller.queue;
+                    _focusedTask = _stopKey(widget.controller.selectedTask);
+                  }
+                  if (nav.following) _lastCameraPoint = null;
                   _queueCamera(nav);
                 },
                 onPositionChanged: (camera, hasGesture) {
+                  if (!widget.active || epoch != _mapEpoch) return;
+                  _savedCenter = camera.center;
+                  _savedZoom = camera.zoom;
+                  _savedRotation = camera.rotation;
                   if (hasGesture) nav.pan();
                 },
               ),
               children: [
                 if (geo.configured)
                   TileLayer(
+                    key: ValueKey(_tiles!.scope),
                     tileProvider: _tiles!,
-                    urlTemplate: 'https://api.geoapify.com/v1/tile/positron/{z}/{x}/{y}.png',
+                    urlTemplate: 'https://maps.geoapify.com/v1/tile/positron/{z}/{x}/{y}.png',
                     userAgentPackageName: 'com.example.bagoo_rider_mobile',
                     panBuffer: 0,
                   ),
@@ -420,35 +502,6 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
             ),
             Positioned(
               top: 12,
-              left: 12,
-              right: 72,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (!geo.configured || geo.failure != null)
-                    _mapNote(
-                      geo.failure ?? 'Map unavailable · add a Geoapify key to load streets.',
-                      Icons.map_outlined,
-                    ),
-                  if (geo.configured &&
-                      _queuePoints.isEmpty &&
-                      nav.target == null)
-                    _mapNote(
-                      'No saved map pins in this queue. Task addresses are still available.',
-                      Icons.location_off_outlined,
-                    ),
-                  if (nav.manual)
-                    _mapNote(
-                      'Manual preview origin',
-                      Icons.edit_location_alt_outlined,
-                    ),
-                  if (nav.message != null)
-                    _mapNote(nav.message!, Icons.info_outline_rounded),
-                ],
-              ),
-            ),
-            Positioned(
-              top: 12,
               right: 12,
               child: RiderSurface(
                 radius: RiderRadii.control,
@@ -500,6 +553,48 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
         ),
       );
     },
+  );
+  Widget _mapStatus(NavigationController nav, GeoapifyClient geo) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (!geo.configured || geo.failure != null)
+          _mapNote(
+            geo.failure ??
+                'Map unavailable. Task addresses are still available.',
+            Icons.map_outlined,
+          ),
+        if (geo.configured && geo.loadingTiles)
+          const LinearProgressIndicator(semanticsLabel: 'Loading map streets'),
+        if (geo.failure != null && geo.configured)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              key: const ValueKey('home-retry-map'),
+              onPressed: _mapVisible && geo.canRetryTiles
+                  ? geo.retryTiles
+                  : null,
+              icon: const Icon(Icons.refresh_rounded),
+              label: Text(
+                geo.coolingDown ? 'Map provider is cooling down' : 'Retry map',
+              ),
+            ),
+          ),
+        if (geo.configured &&
+            widget.controller.taskData.status != FeatureStatus.loading &&
+            _queuePoints.isEmpty &&
+            nav.target == null)
+          _mapNote(
+            'No saved map pins in this queue. Task addresses are still available.',
+            Icons.location_off_outlined,
+          ),
+        if (nav.manual)
+          _mapNote('Manual preview origin', Icons.edit_location_alt_outlined),
+        if (nav.message != null)
+          _mapNote(nav.message!, Icons.info_outline_rounded),
+      ],
+    ),
   );
   Widget _mapNote(String text, IconData icon) => Padding(
     padding: const EdgeInsets.only(bottom: 6),

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/ui/rider_surfaces.dart';
+
 import '../../home/data/operations_models.dart';
 import '../data/route_geometry.dart';
 import 'navigation_controller.dart';
@@ -167,32 +169,95 @@ class _NavigationControlsState extends State<NavigationControls> {
 }
 
 class NavigationBanner extends ConsumerWidget {
-  const NavigationBanner({super.key});
+  const NavigationBanner({super.key, this.onRevalidated});
+  final ValueChanged<OperationTask>? onRevalidated;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final nav = ref.watch(navigationProvider);
     return ListenableBuilder(
       listenable: nav,
-      builder: (context, _) => !nav.active && !nav.starting
+      builder: (context, _) => !nav.active && !nav.starting && !nav.paused
           ? const SizedBox.shrink()
-          : Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: Wrap(
-                spacing: 8,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Text(
-                    nav.manual ? 'Manual route preview' : 'Navigation active',
+          : ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight:
+                    ((MediaQuery.sizeOf(context).height -
+                                MediaQuery.viewInsetsOf(context).bottom) *
+                            .25)
+                        .clamp(64.0, 160.0),
+              ),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
                   ),
-                  TextButton(
-                    onPressed: nav.calculating ? null : nav.refreshRoute,
-                    child: const Text('Refresh route'),
+                  child: RiderSurface(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (nav.paused) ...[
+                          const Text(
+                            'Navigation paused',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                          Text(
+                            nav.message ??
+                                'Revalidate your task before navigating again.',
+                          ),
+                        ],
+                        Wrap(
+                          spacing: 8,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            if (!nav.paused)
+                              Text(
+                                nav.manual
+                                    ? 'Manual route preview'
+                                    : 'Navigation active',
+                              ),
+                            if (nav.paused)
+                              TextButton(
+                                key: const ValueKey('navigation-revalidate'),
+                                onPressed: nav.revalidating
+                                    ? null
+                                    : () async {
+                                        final task = await nav
+                                            .revalidatePausedTask();
+                                        if (context.mounted && task != null) {
+                                          onRevalidated?.call(task);
+                                        }
+                                      },
+                                child: Text(
+                                  nav.revalidating
+                                      ? 'Checking task…'
+                                      : 'Revalidate task',
+                                ),
+                              ),
+                            if (!nav.paused)
+                              TextButton(
+                                onPressed: nav.calculating
+                                    ? null
+                                    : nav.refreshRoute,
+                                child: const Text('Refresh route'),
+                              ),
+                            FilledButton(
+                              onPressed: nav.stop,
+                              child: Text(
+                                nav.paused ? 'Dismiss' : 'Stop navigation',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                  FilledButton(
-                    onPressed: nav.stop,
-                    child: const Text('Stop navigation'),
-                  ),
-                ],
+                ),
               ),
             ),
     );

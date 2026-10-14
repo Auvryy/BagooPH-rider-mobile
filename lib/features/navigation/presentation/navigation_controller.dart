@@ -39,6 +39,8 @@ class NavigationController extends ChangeNotifier {
       calculating = false,
       paused = false;
   String? message;
+  String? pausedTaskId;
+  bool revalidating = false;
   StreamSubscription<LocationFix>? _positions;
   Timer? _authorizationTimer,
       _permissionTimer,
@@ -63,8 +65,10 @@ class NavigationController extends ChangeNotifier {
     NavigationProfile? chosenProfile,
     LatLng? manualOrigin,
   }) async {
-    await stop();
-    final generation = ++_generation;
+    final stopped = stop();
+    final generation = _generation;
+    await stopped;
+    if (_disposed || generation != _generation) return;
     _startingTask = selection;
     starting = true;
     message = null;
@@ -124,10 +128,21 @@ class NavigationController extends ChangeNotifier {
             unawaited(
               stop(
                 reason: 'Location updates stopped. Check permissions and start again.',
+                pause: true,
+              ),
+            );
+          },
+          onDone: () {
+            if (_disposed || generation != _generation) return;
+            unawaited(
+              stop(
+                reason: 'Location updates ended. Revalidate the task and press Navigate to restart.',
+                pause: true,
               ),
             );
           },
         );
+        if (_disposed || generation != _generation) return;
         _permissionTimer = Timer.periodic(
           const Duration(seconds: 15),
           (_) => unawaited(checkPermissions()),
@@ -345,7 +360,49 @@ class NavigationController extends ChangeNotifier {
     }
   }
 
+  /// Checks access only. Location updates require a separate Navigate action.
+  Future<OperationTask?> revalidatePausedTask() async {
+    if (_disposed || !paused || revalidating || pausedTaskId == null) {
+      return null;
+    }
+    final generation = _generation;
+    final id = pausedTaskId!;
+    revalidating = true;
+    _changed();
+    try {
+      final fresh = await authorize(id);
+      if (_disposed || generation != _generation) return null;
+      if (fresh.preview || fresh.id != id) {
+        throw const AccountFailure(
+          'This task is no longer available.',
+          status: 404,
+        );
+      }
+      message = 'Task access checked. Open the current stop and press Navigate to resume.';
+      return fresh;
+    } catch (error) {
+      if (_disposed || generation != _generation) return null;
+      if (error is AccountFailure && [401, 403, 404].contains(error.status)) {
+        await stop(
+          reason: 'This task is no longer authorized. Refresh your work.',
+        );
+        if (!_disposed && error.status != 404) {
+          await onAccessDenied?.call(error.message);
+        }
+      } else {
+        message = 'Task access could not be checked. Try revalidation again when connected.';
+      }
+      return null;
+    } finally {
+      if (!_disposed && generation == _generation) {
+        revalidating = false;
+        _changed();
+      }
+    }
+  }
+
   Future<void> stop({String? reason, bool pause = false}) async {
+    final previousId = navigatingTask?.id ?? pausedTaskId;
     ++_generation;
     _routeCancel?.cancel();
     _routeCancel = null;
@@ -359,7 +416,9 @@ class NavigationController extends ChangeNotifier {
     active = false;
     starting = false;
     calculating = false;
-    paused = pause;
+    pausedTaskId = pause ? previousId : null;
+    paused = pause && pausedTaskId != null;
+    revalidating = false;
     task = null;
     _startingTask = null;
     fix = null;
@@ -369,7 +428,11 @@ class NavigationController extends ChangeNotifier {
     message = reason;
     following = true;
     _changed();
-    await stream?.cancel();
+    try {
+      await stream?.cancel();
+    } catch (_) {
+      // State and generations are already cleared even if native cleanup fails.
+    }
   }
 
   @override

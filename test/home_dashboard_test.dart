@@ -14,11 +14,43 @@ import 'package:bagoo_rider_mobile/features/workspace/data/workspace_models.dart
 import 'package:bagoo_rider_mobile/features/workspace/data/workspace_repository.dart';
 import 'package:bagoo_rider_mobile/features/workspace/presentation/workspace_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'operations_contract_test.dart' as support;
+
+class MemoryTiles extends GeoapifyClient {
+  MemoryTiles() : super('synthetic-map-key');
+  final calls = <({int z, int x, int y, CancelToken? cancel})>[];
+  final tokens = <CancelToken>[];
+  final bytes = <String, Uint8List>{};
+  @override
+  Future<Uint8List> tile(int z, int x, int y, {CancelToken? cancel}) async {
+    if (cancel != null) tokens.add(cancel);
+    final key = '$z/$x/$y';
+    if (bytes.containsKey(key)) return bytes[key]!;
+    calls.add((z: z, x: x, y: y, cancel: cancel));
+    return bytes[key] = TileProvider.transparentImage;
+  }
+
+  void showFailure() {
+    failure = 'Synthetic map connection failure';
+    notifyListeners();
+  }
+
+  @override
+  Future<RoadRoute> route(
+    LatLng origin,
+    LatLng target,
+    NavigationProfile profile,
+    CancelToken cancel,
+  ) async => RoadRoute([
+    [origin, target],
+  ]);
+}
 
 const account = RiderAccount(
   id: '5',
@@ -111,6 +143,7 @@ void main() {
       await tester.ensureVisible(
         find.byKey(const ValueKey('home-selected-details')),
       );
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('home-selected-details')));
       await tester.pumpAndSettle();
       expect(find.text('Navigate'), findsOneWidget);
@@ -195,6 +228,11 @@ void main() {
       tester.view.devicePixelRatio = 1;
       final h = await openDashboard(tester);
       expect(find.byType(DraggableScrollableSheet), findsNothing);
+      await Scrollable.ensureVisible(
+        tester.element(find.text('Your tasks')),
+        alignment: .8,
+      );
+      await tester.pumpAndSettle();
       final mapBefore = tester.getRect(find.byType(FlutterMap));
       final titleBefore = tester.getRect(find.text('Your tasks'));
       await tester.drag(find.text('Your tasks'), const Offset(0, -100));
@@ -371,6 +409,8 @@ void main() {
     await h.controller.refreshAll();
     await tester.pump();
     final button = find.byKey(const ValueKey('home-refresh-tasks'));
+    await tester.ensureVisible(find.byType(HomeTaskPanel, skipOffstage: false));
+    await tester.pump();
     await tester.ensureVisible(button);
     await tester.pump();
     expect(tester.widget<IconButton>(button).onPressed, isNull);
@@ -428,6 +468,157 @@ void main() {
       },
     );
   }
+  managedDashboardTest(
+    'hidden Home cancels tile scopes, keeps navigation and restores the panned camera',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      final visibility = ValueNotifier(true), geo = MemoryTiles();
+      addTearDown(visibility.dispose);
+      final h = await openDashboard(
+        tester,
+        visibility: visibility,
+        geoClient: geo,
+      );
+      expect(geo.calls, isNotEmpty);
+      expect(
+        geo.calls.every((c) => c.z == 15),
+        isTrue,
+        reason: 'No discarded wide-overview tile requests',
+      );
+      await h.controller.openTask(OperationsRepository.asRiderTask(h.task));
+      await h.navigation.start(
+        h.task,
+        chosenProfile: NavigationProfile.motorcycle,
+        manualOrigin: const LatLng(14.6, 120.986),
+      );
+      await tester.pumpAndSettle();
+      final map = find.byType(FlutterMap);
+      await tester.dragFrom(
+        tester.getTopLeft(map) + const Offset(30, 120),
+        const Offset(70, 0),
+      );
+      await tester.pumpAndSettle();
+      expect(h.navigation.following, isFalse);
+      tester.widget<FlutterMap>(map).mapController!.rotate(20);
+      await tester.pumpAndSettle();
+      final before = tester
+          .widget<FlutterMap>(map)
+          .mapController!
+          .camera
+          .center;
+      final requests = geo.calls.length;
+      final oldTokens = geo.tokens.toList();
+      visibility.value = false;
+      await tester.pumpAndSettle();
+      expect(find.byType(FlutterMap), findsNothing);
+      expect(oldTokens.every((t) => t.isCancelled), isTrue);
+      await h.navigation.updateFix(
+        LocationFix(const LatLng(14.6001, 120.986), DateTime.now(), 0),
+      );
+      await tester.pumpAndSettle();
+      expect(h.navigation.active, isTrue);
+      expect(h.navigation.fix?.point.latitude, 14.6001);
+      expect(geo.calls.length, requests);
+      visibility.value = true;
+      await tester.pumpAndSettle();
+      final restored = tester
+          .widget<FlutterMap>(find.byType(FlutterMap))
+          .mapController!
+          .camera
+          .center;
+      expect(restored.latitude, closeTo(before.latitude, .000001));
+      expect(restored.longitude, closeTo(before.longitude, .000001));
+      expect(h.navigation.following, isFalse);
+      expect(
+        tester
+            .widget<FlutterMap>(find.byType(FlutterMap))
+            .mapController!
+            .camera
+            .rotation,
+        closeTo(20, .001),
+      );
+      await tester.tap(find.byTooltip('Recenter'));
+      await tester.pumpAndSettle();
+      expect(h.navigation.following, isTrue);
+      expect(
+        tester
+            .widget<FlutterMap>(find.byType(FlutterMap))
+            .mapController!
+            .camera
+            .center
+            .latitude,
+        closeTo(14.6001, .000001),
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  managedDashboardTest(
+    'keyboard-constrained Home suspends tiles and keeps map feedback and credits readable',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      final geo = MemoryTiles();
+      await openDashboard(tester, geoClient: geo);
+      final requests = geo.calls.length;
+      geo.showFailure();
+      await tester.pumpAndSettle();
+      tester.view.physicalSize = const Size(390, 320);
+      await tester.pumpAndSettle();
+      expect(find.byType(FlutterMap), findsNothing);
+      expect(find.text('Synthetic map connection failure'), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.text('Powered by Geoapify'),
+        80,
+        scrollable: find
+            .descendant(
+              of: find.byKey(const ValueKey('home-page-scroll')),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Powered by Geoapify'), findsOneWidget);
+      expect(geo.calls.length, requests);
+      tester.view.physicalSize = const Size(390, 844);
+      await tester.pumpAndSettle();
+      expect(find.byType(FlutterMap), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  managedDashboardTest(
+    'explicit map retry reloads only tile scope and remains bounded',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      final geo = MemoryTiles();
+      await openDashboard(tester, geoClient: geo);
+      final initial = tester
+          .widget<FlutterMap>(find.byType(FlutterMap))
+          .mapController!
+          .camera
+          .center;
+      geo.showFailure();
+      await tester.pumpAndSettle();
+      final retry = find.byKey(const ValueKey('home-retry-map'));
+      await tester.ensureVisible(retry);
+      await tester.pumpAndSettle();
+      await tester.tap(retry);
+      await tester.pumpAndSettle();
+      expect(geo.tileRevision, 1);
+      expect(tester.widget<TextButton>(retry).onPressed, isNull);
+      final current = tester
+          .widget<FlutterMap>(find.byType(FlutterMap))
+          .mapController!
+          .camera
+          .center;
+      expect(current, initial);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   test(
     'unfamiliar stage codes remain unknown rather than granting a task state',
     () {
@@ -452,6 +643,8 @@ openDashboard(
   bool onDuty = true,
   bool coordinates = true,
   bool hidden = false,
+  GeoapifyClient? geoClient,
+  ValueListenable<bool>? visibility,
 }) async {
   final api = support.Session(), journal = support.Journal();
   final home = support.fixture('home');
@@ -491,7 +684,7 @@ openDashboard(
     ),
   );
   controller.selectQueue(TaskQueue.delivery);
-  final geo = GeoapifyClient('');
+  final geo = geoClient ?? GeoapifyClient('');
   final nav = NavigationController(
     routes: geo,
     authorize: (_) async => task,
@@ -526,11 +719,24 @@ openDashboard(
                 ? IndexedStack(
                     index: 1,
                     children: [
-                      HomeDashboard(account: account, controller: controller),
+                      HomeDashboard(
+                        account: account,
+                        controller: controller,
+                        active: false,
+                      ),
                       const Text('Another screen'),
                     ],
                   )
-                : HomeDashboard(account: account, controller: controller),
+                : visibility == null
+                ? HomeDashboard(account: account, controller: controller)
+                : ValueListenableBuilder<bool>(
+                    valueListenable: visibility,
+                    builder: (context, active, _) => HomeDashboard(
+                      account: account,
+                      controller: controller,
+                      active: active,
+                    ),
+                  ),
           ),
         ),
       ),

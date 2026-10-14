@@ -1,4 +1,7 @@
 import 'package:flutter/foundation.dart';
+
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,6 +11,7 @@ import '../../auth/data/account.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../home/presentation/tasks_page.dart';
 import '../../home/presentation/home_dashboard.dart';
+import '../../home/data/operations_repository.dart';
 import '../../navigation/presentation/navigation_providers.dart';
 import '../../navigation/presentation/navigation_controls.dart';
 import '../../messages/presentation/messages_page.dart';
@@ -185,7 +189,18 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                 child: Column(
                   children: [
                     if (!typing) _header(session.busy),
-                    if (!widget.preview) const NavigationBanner(),
+                    if (!widget.preview)
+                      NavigationBanner(
+                        onRevalidated: (task) {
+                          if (!mounted) return;
+                          select(0);
+                          unawaited(
+                            controller.openTask(
+                              OperationsRepository.asRiderTask(task),
+                            ),
+                          );
+                        },
+                      ),
                     if (widget.preview && !typing)
                       Container(
                         width: double.infinity,
@@ -256,6 +271,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                                     HomeDashboard(
                                       account: widget.account,
                                       controller: controller,
+                                      active: destination == 0 && foreground,
                                     )
                                   else
                                     TasksPage(

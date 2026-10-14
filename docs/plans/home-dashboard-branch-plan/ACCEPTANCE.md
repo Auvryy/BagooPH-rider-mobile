@@ -15,10 +15,12 @@ a Linux phone frame or an APK build as a physical Android or Azure acceptance.
   [Final evidence](HDB-01-EVIDENCE.md) includes hidden/mapless views, pending
   start/route cancellation, unresolved commands, source review, 161 tests,
   analysis and ordinary builds. It does not close the broader rows below.
-- [ ] HDB-02 maintained regression expects normal location-stream completion to
+- [x] HDB-02 maintained regression expects normal location-stream completion to
   stop navigation once; old stream callbacks cannot restart or modify it.
-- [ ] HDB-02 maps the registered Sedan / Van alias while preserving explicit
+- [x] HDB-02 maps the registered Sedan / Van alias while preserving explicit
   unknown-vehicle choices and registered-profile precedence.
+  [HDB-02 evidence](HDB-02-EVIDENCE.md) records 179 tests, analysis/builds and two
+  public provider samples; broader runtime/physical rows remain separate.
 - [ ] Confirm 320/390/430/840/1000/1440 logical widths, 200% text, long identifiers
   and addresses, reduced motion/high contrast, keyboard and window resize.
 - [ ] Verify one normal phone page scroll, bounded map/notices/attribution and

@@ -9,8 +9,17 @@ import 'package:flutter_map/flutter_map.dart';
 import '../data/geoapify_client.dart';
 
 class GeoapifyTiles extends TileProvider {
-  GeoapifyTiles(this.client);
+  GeoapifyTiles(this.client) : scope = Object();
   final GeoapifyClient client;
+  final Object scope;
+  final _requests = <CancelToken>{};
+  void suspend() {
+    for (final cancel in _requests.toList()) {
+      cancel.cancel();
+    }
+    _requests.clear();
+  }
+
   @override
   bool get supportsCancelLoading => true;
   @override
@@ -20,21 +29,37 @@ class GeoapifyTiles extends TileProvider {
     Future<void> cancelLoading,
   ) {
     final cancel = CancelToken();
-    cancelLoading.then((_) => cancel.cancel());
+    _requests.add(cancel);
+    cancelLoading.then((_) {
+      cancel.cancel();
+      _requests.remove(cancel);
+    });
     return _TileImage(
       client,
       coordinates.z,
       coordinates.x,
       coordinates.y,
       cancel,
+      scope,
+      client.tileRevision,
     );
   }
 }
 
 class _TileImage extends ImageProvider<_TileImage> {
-  const _TileImage(this.client, this.z, this.x, this.y, this.cancel);
+  const _TileImage(
+    this.client,
+    this.z,
+    this.x,
+    this.y,
+    this.cancel,
+    this.scope,
+    this.revision,
+  );
   final GeoapifyClient client;
   final int z, x, y;
+  final Object scope;
+  final int revision;
   final CancelToken cancel;
   @override
   Future<_TileImage> obtainKey(ImageConfiguration configuration) =>
@@ -47,13 +72,15 @@ class _TileImage extends ImageProvider<_TileImage> {
         debugLabel: 'Geoapify map tile',
       );
   Future<ui.Codec> _load(ImageDecoderCallback decode) async {
+    var receivedBytes = false;
     try {
-      return await decode(
-        await ui.ImmutableBuffer.fromUint8List(
-          await client.tile(z, x, y, cancel: cancel),
-        ),
-      );
+      final bytes = await client.tile(z, x, y, cancel: cancel);
+      receivedBytes = true;
+      return await decode(await ui.ImmutableBuffer.fromUint8List(bytes));
     } catch (_) {
+      if (receivedBytes && !cancel.isCancelled) {
+        client.tileDecodeFailed(z, x, y, cancel: cancel);
+      }
       scheduleMicrotask(() => PaintingBinding.instance.imageCache.evict(this));
       // Blank tiles preserve truthful address-first dashboard behavior. The
       // provider's visible failure message explains missing map data.
@@ -69,9 +96,11 @@ class _TileImage extends ImageProvider<_TileImage> {
       identical(client, other.client) &&
       z == other.z &&
       x == other.x &&
-      y == other.y;
+      y == other.y &&
+      scope == other.scope &&
+      revision == other.revision;
   @override
-  int get hashCode => Object.hash(client, z, x, y);
+  int get hashCode => Object.hash(client, z, x, y, scope, revision);
   @override
   String toString() => 'Geoapify map tile';
 }

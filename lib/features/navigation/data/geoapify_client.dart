@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'route_geometry.dart';
+import 'map_tile_source.dart';
 
 class ProviderFailure implements Exception {
   const ProviderFailure(this.message);
@@ -109,8 +110,14 @@ class GeoapifyClient extends ChangeNotifier {
     }
   }
 
-  void tileDecodeFailed(int z, int x, int y, {CancelToken? cancel}) {
-    final path = '/v1/tile/positron/$z/$x/$y.png';
+  void tileDecodeFailed(
+    int z,
+    int x,
+    int y, {
+    CancelToken? cancel,
+    MapTileSource source = const MapTileSource(),
+  }) {
+    final path = source.path(z, x, y);
     _tiles.remove(path);
     _tileFailures[path] = (
       message:
@@ -229,10 +236,16 @@ class GeoapifyClient extends ChangeNotifier {
     }
   }
 
-  Future<Uint8List> tile(int z, int x, int y, {CancelToken? cancel}) async {
+  Future<Uint8List> tile(
+    int z,
+    int x,
+    int y, {
+    CancelToken? cancel,
+    MapTileSource source = const MapTileSource(),
+  }) async {
     _forgetCancelledTileFailures();
     if (cancel?.isCancelled == true) throw cancel!.cancelError!;
-    final path = '/v1/tile/positron/$z/$x/$y.png';
+    final path = source.path(z, x, y);
     final cached = _tiles.remove(path);
     if (cached != null) {
       _tiles[path] = cached;

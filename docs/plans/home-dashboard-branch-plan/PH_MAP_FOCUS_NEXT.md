@@ -1,9 +1,10 @@
 # Next map improvement: Philippines view and current-stop focus
 
-Requested after HDB-02 on October 13, 2026. **Recommendation only; not activated
-by the lifecycle branch.** Integrate this into the next selected Home overview
-delivery, or select a separate `feat/home-philippines-map-focus` branch before it.
-Do not create another execution record until that work is requested.
+Requested after HDB-02 on October 13, 2026 and **selected for implementation on
+October 14**, after PR 18 was merged. The separate
+[Philippines map-focus package](../philippines-map-focus/README.md) owns branch
+`feat/home-philippines-map-focus` before HDB-03. The recommendations below retain
+their original intent; the owning package records actual scope and evidence.
 
 ## Recommended behavior
 

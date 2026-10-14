@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bagoo_rider_mobile/app/theme.dart';
 import 'package:bagoo_rider_mobile/features/navigation/data/route_geometry.dart';
 import 'package:latlong2/latlong.dart';
@@ -7,6 +9,8 @@ import 'package:bagoo_rider_mobile/features/home/data/operations_repository.dart
 import 'package:bagoo_rider_mobile/features/home/presentation/home_dashboard.dart';
 import 'package:bagoo_rider_mobile/features/home/presentation/home_task_panel.dart';
 import 'package:bagoo_rider_mobile/features/navigation/data/geoapify_client.dart';
+import 'package:bagoo_rider_mobile/features/navigation/data/map_tile_source.dart';
+import 'package:bagoo_rider_mobile/features/navigation/data/philippines_map_region.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/navigation_controller.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/navigation_providers.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/navigation_workspace_binding.dart';
@@ -27,12 +31,20 @@ class MemoryTiles extends GeoapifyClient {
   final calls = <({int z, int x, int y, CancelToken? cancel})>[];
   final tokens = <CancelToken>[];
   final bytes = <String, Uint8List>{};
+  final sources = <MapTileSource>[];
   @override
-  Future<Uint8List> tile(int z, int x, int y, {CancelToken? cancel}) async {
+  Future<Uint8List> tile(
+    int z,
+    int x,
+    int y, {
+    CancelToken? cancel,
+    MapTileSource source = const MapTileSource(),
+  }) async {
     if (cancel != null) tokens.add(cancel);
-    final key = '$z/$x/$y';
+    final key = source.path(z, x, y);
     if (bytes.containsKey(key)) return bytes[key]!;
     calls.add((z: z, x: x, y: y, cancel: cancel));
+    sources.add(source);
     return bytes[key] = TileProvider.transparentImage;
   }
 
@@ -115,6 +127,14 @@ void main() {
           overrides: [
             geoapifyProvider.overrideWithValue(geo),
             navigationProvider.overrideWithValue(nav),
+            philippinesMapRegionProvider.overrideWithValue(
+              AsyncData(
+                _testMapRegion ??= PhilippinesMapRegion.decode(
+                  File('assets/maps/philippines-display.geojson')
+                      .readAsStringSync(),
+                ),
+              ),
+            ),
           ],
           child: MaterialApp(
             theme: buildRiderTheme(),
@@ -229,15 +249,19 @@ void main() {
       final h = await openDashboard(tester);
       expect(find.byType(DraggableScrollableSheet), findsNothing);
       await Scrollable.ensureVisible(
-        tester.element(find.text('Your tasks')),
+        tester.element(find.text('Your tasks', skipOffstage: false)),
         alignment: .8,
       );
       await tester.pumpAndSettle();
-      final mapBefore = tester.getRect(find.byType(FlutterMap));
+      final mapBefore = tester.getRect(
+        find.byType(FlutterMap, skipOffstage: false),
+      );
       final titleBefore = tester.getRect(find.text('Your tasks'));
       await tester.drag(find.text('Your tasks'), const Offset(0, -100));
       await tester.pumpAndSettle();
-      final mapAfter = tester.getRect(find.byType(FlutterMap));
+      final mapAfter = tester.getRect(
+        find.byType(FlutterMap, skipOffstage: false),
+      );
       final titleAfter = tester.getRect(find.text('Your tasks'));
       expect(mapAfter.top, lessThan(mapBefore.top));
       expect(mapAfter.size, mapBefore.size);
@@ -330,6 +354,10 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(DraggableScrollableSheet), findsNothing);
       expect(h.controller.taskSearch, h.task.tracking);
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('task-search'), skipOffstage: false),
+      );
+      await tester.pumpAndSettle();
       expect(
         tester
             .widget<TextField>(find.byKey(const ValueKey('task-search')))
@@ -493,7 +521,7 @@ void main() {
         manualOrigin: const LatLng(14.6, 120.986),
       );
       await tester.pumpAndSettle();
-      final map = find.byType(FlutterMap);
+      final map = find.byType(FlutterMap, skipOffstage: false);
       await tester.dragFrom(
         tester.getTopLeft(map) + const Offset(30, 120),
         const Offset(70, 0),
@@ -541,15 +569,15 @@ void main() {
       await tester.tap(find.byTooltip('Recenter'));
       await tester.pumpAndSettle();
       expect(h.navigation.following, isTrue);
+      final recentered = tester
+          .widget<FlutterMap>(find.byType(FlutterMap))
+          .mapController!
+          .camera;
       expect(
-        tester
-            .widget<FlutterMap>(find.byType(FlutterMap))
-            .mapController!
-            .camera
-            .center
-            .latitude,
-        closeTo(14.6001, .000001),
+        recentered.visibleBounds.contains(h.navigation.fix!.point),
+        isTrue,
       );
+      expect(recentered.visibleBounds.contains(h.navigation.target!), isTrue);
       expect(tester.takeException(), isNull);
     },
   );
@@ -627,6 +655,118 @@ void main() {
       expect(stopKindLabel('destination_hub'), 'Destination hub');
     },
   );
+  managedDashboardTest(
+    'filtering keeps the selected owned stop and its camera',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      final h = await openDashboard(tester);
+      await h.controller.openTask(OperationsRepository.asRiderTask(h.task));
+      await tester.pumpAndSettle();
+      final before = tester
+          .widget<FlutterMap>(find.byType(FlutterMap))
+          .mapController!
+          .camera
+          .center;
+      h.controller.searchTasks('No matching parcel');
+      await tester.pumpAndSettle();
+      expect(h.controller.visibleTasks, isEmpty);
+      expect(find.byKey(ValueKey('home-marker-${h.task.id}')), findsOneWidget);
+      expect(h.controller.selectedTask?.id, h.task.id);
+      expect(
+        find.text(
+          'Your selected stop stays on the map while you browse this list.',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        tester
+            .widget<FlutterMap>(find.byType(FlutterMap))
+            .mapController!
+            .camera
+            .center,
+        before,
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+  managedDashboardTest(
+    'outside-outline coordinates keep their original address and fallback',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      final h = await openDashboard(tester, stopPoint: const LatLng(6, 116));
+      await h.controller.openTask(OperationsRepository.asRiderTask(h.task));
+      await tester.pumpAndSettle();
+      expect(h.controller.selectedTask?.stop.latitude, 6);
+      expect(h.controller.selectedTask?.stop.longitude, 116);
+      expect(find.textContaining('outside this PH outline'), findsOneWidget);
+      expect(
+        tester
+            .widget<FlutterMap>(find.byType(FlutterMap))
+            .mapController!
+            .camera
+            .center,
+        isNot(const LatLng(6, 116)),
+      );
+      final details = find.byKey(
+        const ValueKey('home-selected-details'),
+        skipOffstage: false,
+      );
+      await tester.ensureVisible(details);
+      await tester.pumpAndSettle();
+      await tester.tap(details);
+      await tester.pumpAndSettle();
+      expect(find.text(h.task.stop.address!), findsWidgets);
+      Navigator.of(tester.element(find.text(h.task.stop.address!).first)).pop();
+      await tester.pumpAndSettle();
+      expect(h.navigation.active, isFalse);
+      expect(tester.takeException(), isNull);
+    },
+  );
+  managedDashboardTest(
+    'sharper labels replace only tile work and preserve active navigation and pan',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      final geo = MemoryTiles(),
+          h = await openDashboard(tester, geoClient: geo);
+      await h.controller.openTask(OperationsRepository.asRiderTask(h.task));
+      await h.navigation.start(
+        h.task,
+        chosenProfile: NavigationProfile.motorcycle,
+        manualOrigin: const LatLng(14.6, 120.986),
+      );
+      await tester.pumpAndSettle();
+      final map = find.byType(FlutterMap, skipOffstage: false);
+      await tester.dragFrom(
+        tester.getTopLeft(map) + const Offset(30, 120),
+        const Offset(60, 0),
+      );
+      await tester.pumpAndSettle();
+      final before = tester
+          .widget<FlutterMap>(map)
+          .mapController!
+          .camera
+          .center;
+      final road = h.navigation.road, oldTokens = geo.tokens.toList();
+      final toggle = find.byKey(const ValueKey('home-sharper-labels'));
+      await tester.ensureVisible(toggle);
+      await tester.pumpAndSettle();
+      await tester.tap(toggle);
+      await tester.pumpAndSettle();
+      expect(geo.sources.any((s) => s.retina), isTrue);
+      expect(oldTokens.every((t) => t.isCancelled), isTrue);
+      expect(
+        tester.widget<FlutterMap>(map).mapController!.camera.center,
+        before,
+      );
+      expect(h.navigation.road, same(road));
+      expect(h.navigation.active, isTrue);
+      expect(h.navigation.following, isFalse);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }
 
 Future<
@@ -645,6 +785,7 @@ openDashboard(
   bool hidden = false,
   GeoapifyClient? geoClient,
   ValueListenable<bool>? visibility,
+  LatLng stopPoint = const LatLng(14.6, 120.986),
 }) async {
   final api = support.Session(), journal = support.Journal();
   final home = support.fixture('home');
@@ -656,8 +797,8 @@ openDashboard(
       support.fixture('final-mile-task')['data'] as Map<String, dynamic>;
   json['stop']['kind'] = 'buyer';
   json['operational_stage'] = 'out_for_delivery';
-  json['stop']['latitude'] = coordinates ? 14.6 : null;
-  json['stop']['longitude'] = coordinates ? 120.986 : null;
+  json['stop']['latitude'] = coordinates ? stopPoint.latitude : null;
+  json['stop']['longitude'] = coordinates ? stopPoint.longitude : null;
   final task = OperationTask.fromJson(json);
   api.respond = (path, method, data, headers) async {
     if (path == 'rider/home') return home;
@@ -692,6 +833,9 @@ openDashboard(
     manual: true,
   );
   final binding = NavigationWorkspaceBinding(controller, nav);
+  final region = _testMapRegion ??= PhilippinesMapRegion.decode(
+    File('assets/maps/philippines-display.geojson').readAsStringSync(),
+  );
   _disposeDashboard = () async {
     await tester.pumpWidget(const SizedBox.shrink());
     binding.dispose();
@@ -706,6 +850,7 @@ openDashboard(
       overrides: [
         geoapifyProvider.overrideWithValue(geo),
         navigationProvider.overrideWithValue(nav),
+        philippinesMapRegionProvider.overrideWithValue(AsyncData(region)),
       ],
       child: MaterialApp(
         theme: buildRiderTheme(),
@@ -747,6 +892,7 @@ openDashboard(
 }
 
 Future<void> Function()? _disposeDashboard;
+PhilippinesMapRegion? _testMapRegion;
 void managedDashboardTest(
   String name,
   Future<void> Function(WidgetTester) body,

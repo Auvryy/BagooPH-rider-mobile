@@ -10,7 +10,11 @@ import '../../../app/theme.dart';
 import '../../../core/ui/rider_surfaces.dart';
 import '../../auth/data/account.dart';
 import '../../navigation/data/geoapify_client.dart';
+import '../../navigation/data/map_tile_source.dart';
+import '../../navigation/data/philippines_map_region.dart';
+import '../../navigation/data/route_geometry.dart';
 import '../../navigation/presentation/geoapify_tiles.dart';
+import '../../navigation/presentation/philippines_map_mask.dart';
 import '../../navigation/presentation/navigation_controller.dart';
 import '../../navigation/presentation/navigation_controls.dart';
 import '../../navigation/presentation/navigation_providers.dart';
@@ -19,6 +23,7 @@ import '../data/operations_repository.dart';
 import '../data/operations_models.dart';
 import '../../workspace/presentation/workspace_controller.dart';
 import 'home_task_panel.dart';
+import 'home_map_focus.dart';
 import 'tasks_page.dart';
 import 'work_summary.dart';
 
@@ -41,6 +46,10 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
   final _pageScroll = ScrollController();
   GeoapifyTiles? _tiles;
   GeoapifyClient? _tileClient;
+  PhilippinesMapRegion? _region;
+  bool _outlineFailed = false, _retinaTiles = false;
+  MapTileSource get _tileSource =>
+      MapTileSource(style: MapTileStyle.bright, retina: _retinaTiles);
   bool _ready = false, _wide = false, _mapVisible = false;
   int _mapEpoch = 0;
   int? _queuedCameraEpoch;
@@ -50,9 +59,8 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
   double _savedRotation = 0;
   Size _mapSize = Size.zero;
   LatLng? _lastCameraPoint;
-  String? _focusedTask;
-  TaskQueue? _fittedQueue;
-  static const _overview = LatLng(12.8, 121.7);
+  String? _lastFocusKey;
+  RoadRoute? _lastFocusRoad;
   @override
   void didUpdateWidget(HomeDashboard oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -65,8 +73,11 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
     _mapEpoch++;
     _ready = false;
     _tiles?.suspend();
-    if (visible && _tileClient != null) _tiles = GeoapifyTiles(_tileClient!);
+    if (visible && _tileClient != null) _tiles = _newTiles(_tileClient!);
   }
+
+  GeoapifyTiles _newTiles(GeoapifyClient client) =>
+      GeoapifyTiles(client, source: _tileSource, clipToPhilippines: true);
 
   @override
   void dispose() {
@@ -85,20 +96,44 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
     for (final t in widget.controller.visibleTasks)
       if (_mapTask(t)?.stop.latitude != null &&
           _mapTask(t)?.stop.longitude != null)
-        LatLng(_mapTask(t)!.stop.latitude!, _mapTask(t)!.stop.longitude!),
+        if (HomeMapFocus.pointFor(_mapTask(t)) case final point?
+            when _region?.containsLand(point) == true)
+          point,
   ];
+  List<OperationTask> get _queueTasks => widget.controller.visibleTasks
+      .map(_mapTask)
+      .whereType<OperationTask>()
+      .toList(growable: false);
+  HomeMapFocus _focus(NavigationController nav, {bool selectedOnly = false}) =>
+      HomeMapFocus.resolve(
+        region: _region!,
+        navigatingTask: !selectedOnly && nav.active ? nav.task : null,
+        fix: !selectedOnly && nav.active ? nav.fix : null,
+        road: !selectedOnly && nav.active ? nav.road : null,
+        selectedTask: widget.controller.selectedTask,
+        queuedTasks: _queueTasks,
+      );
   String? _stopKey(OperationTask? task) => task == null
       ? null
       : '${task.id}:${task.stop.kind}:${task.stop.latitude}:${task.stop.longitude}';
   void _moveTo(LatLng p, {double zoom = 15}) {
-    if (!_ready || _mapSize.isEmpty) return;
+    if (!_ready || _mapSize.isEmpty || !PhilippinesMapRegion.inCameraArea(p)) {
+      return;
+    }
     _map.move(p, zoom);
   }
 
   void _fit(List<LatLng> points) {
     if (!_ready || _mapSize.isEmpty) return;
     if (points.isEmpty) {
-      _map.move(_overview, 5);
+      _map.fitCamera(
+        CameraFit.bounds(
+          bounds: PhilippinesMapRegion.cameraBounds,
+          padding: const EdgeInsets.all(24),
+          maxZoom: 6,
+          minZoom: PhilippinesMapRegion.minimumZoom,
+        ),
+      );
       return;
     }
     if (points.length == 1) {
@@ -112,8 +147,8 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
       CameraFit.bounds(
         bounds: LatLngBounds.fromPoints(points),
         padding: EdgeInsets.fromLTRB(36, top, 36, bottom),
-        maxZoom: 15,
-        minZoom: 3,
+        maxZoom: 16,
+        minZoom: PhilippinesMapRegion.minimumZoom,
       ),
     );
   }
@@ -130,37 +165,26 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_queuedCameraEpoch == epoch) _queuedCameraEpoch = null;
       if (!mounted || !widget.active || !_ready || epoch != _mapEpoch) return;
-      final selected = widget.controller.selectedTask;
-      final fix = nav.fix?.point;
-      if (nav.active &&
-          nav.following &&
-          fix != null &&
-          fix != _lastCameraPoint) {
-        _lastCameraPoint = fix;
-        _moveTo(fix, zoom: 16);
+      if (!nav.following || _region == null) return;
+      final focus = _focus(nav), fix = nav.fix?.point;
+      final key = '${widget.controller.queue.name}:${focus.key}';
+      if (key == _lastFocusKey &&
+          fix == _lastCameraPoint &&
+          identical(_lastFocusRoad, nav.road)) {
         return;
       }
-      if (selected != null &&
-          selected.stop.latitude != null &&
-          selected.stop.longitude != null &&
-          _focusedTask != _stopKey(selected)) {
-        _focusedTask = _stopKey(selected);
-        _fittedQueue = widget.controller.queue;
-        _moveTo(LatLng(selected.stop.latitude!, selected.stop.longitude!));
-        return;
-      }
-      if (!nav.active &&
-          _fittedQueue != widget.controller.queue &&
-          _queuePoints.isNotEmpty) {
-        _fittedQueue = widget.controller.queue;
-        _fit(_queuePoints);
-      }
+      _lastFocusKey = key;
+      _lastCameraPoint = fix;
+      _lastFocusRoad = nav.road;
+      _fit(focus.points);
     });
     WidgetsBinding.instance.ensureVisualUpdate();
   }
 
   Future<void> _select(RiderTask task, NavigationController nav) async {
+    final wasFollowing = nav.following;
     if (nav.task?.id != task.id) await nav.stop();
+    if (!wasFollowing) nav.pan();
     await widget.controller.openTask(task);
     if (!mounted) return;
     if (nav.active &&
@@ -170,12 +194,9 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
     }
     if (!mounted) return;
     final selected = widget.controller.selectedTask;
-    if (selected != null &&
-        selected.stop.latitude != null &&
-        selected.stop.longitude != null) {
-      _focusedTask = _stopKey(selected);
-      _fittedQueue = widget.controller.queue;
-      _moveTo(LatLng(selected.stop.latitude!, selected.stop.longitude!));
+    if (selected != null && nav.following && _region != null) {
+      _lastFocusKey = null;
+      _queueCamera(nav);
     }
   }
 
@@ -195,8 +216,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
           ).openParcel(context, display);
         },
         onQueueChanged: (_) {
-          _fittedQueue = null;
-          _focusedTask = null;
+          _lastFocusKey = null;
         },
         onShowStop: () {
           nav.pan();
@@ -213,7 +233,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                 ),
               );
             }
-            _moveTo(LatLng(stop!.latitude!, stop.longitude!));
+            if (_region != null) _fit(_focus(nav, selectedOnly: true).points);
           }
         },
       );
@@ -222,18 +242,23 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
     if (!widget.active) return const SizedBox.shrink();
     final nav = ref.watch(navigationProvider),
         geo = ref.watch(geoapifyProvider);
+    final outline = ref.watch(philippinesMapRegionProvider);
+    _region = outline.asData?.value;
+    _outlineFailed = outline.hasError;
     return LayoutBuilder(
       builder: (context, constraints) => ListenableBuilder(
         listenable: Listenable.merge([nav, geo, widget.controller]),
         builder: (context, _) {
           if (!identical(_tileClient, geo) ||
-              _tileRevision != geo.tileRevision) {
+              _tileRevision != geo.tileRevision ||
+              _tiles?.source != _tileSource) {
             _tiles?.suspend();
             _tileClient = geo;
             _tileRevision = geo.tileRevision;
-            _tiles = GeoapifyTiles(geo);
+            _tiles = _newTiles(geo);
           }
           _wide = constraints.maxWidth >= 1000;
+          final focus = _region == null ? null : _focus(nav);
           _queueCamera(nav);
           final header = Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
@@ -264,6 +289,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
             final showMap = constraints.maxHeight >= 360;
             _setMapVisible(
               showMap &&
+                  _region != null &&
                   widget.controller.taskData.status != FeatureStatus.loading,
             );
             return CustomScrollView(
@@ -280,20 +306,21 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                             240.0,
                             360.0,
                           ),
-                          child: _mapArea(nav, geo),
+                          child: _mapArea(nav, geo, focus),
                         ),
                         _attribution(),
                       ],
                     ),
                   ),
-                SliverToBoxAdapter(child: _mapStatus(nav, geo)),
+                SliverToBoxAdapter(child: _mapStatus(nav, geo, focus)),
                 if (!showMap) SliverToBoxAdapter(child: _attribution()),
                 _panel(nav, asSliver: true),
               ],
             );
           }
           _setMapVisible(
-            widget.controller.taskData.status != FeatureStatus.loading,
+            _region != null &&
+                widget.controller.taskData.status != FeatureStatus.loading,
           );
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -316,7 +343,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                       ? Row(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Expanded(child: _mapArea(nav, geo)),
+                            Expanded(child: _mapArea(nav, geo, focus)),
                             const SizedBox(width: 16),
                             SizedBox(
                               width: 390,
@@ -324,7 +351,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                             ),
                           ],
                         )
-                      : _mapArea(nav, geo),
+                      : _mapArea(nav, geo, focus),
                 ),
               ),
               _attribution(),
@@ -332,7 +359,9 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                 constraints: BoxConstraints(
                   maxHeight: constraints.maxHeight * .25,
                 ),
-                child: SingleChildScrollView(child: _mapStatus(nav, geo)),
+                child: SingleChildScrollView(
+                  child: _mapStatus(nav, geo, focus),
+                ),
               ),
             ],
           );
@@ -344,26 +373,33 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
   Widget _mapArea(
     NavigationController nav,
     GeoapifyClient geo,
+    HomeMapFocus? resolvedFocus,
   ) => LayoutBuilder(
     builder: (context, constraints) {
       _mapSize = constraints.biggest;
       if (!_mapVisible) {
-        return const Center(child: Text('Loading current stops…'));
+        return Center(
+          child: Text(
+            _outlineFailed
+                ? 'Philippines map unavailable. Use task addresses.'
+                : _region == null
+                ? 'Loading Philippines map…'
+                : 'Loading current stops…',
+          ),
+        );
       }
       final epoch = _mapEpoch;
-      final tasks = widget.controller.visibleTasks;
-      final selected = widget.controller.selectedTask;
-      final selectedPoint =
-          selected?.stop.latitude == null || selected?.stop.longitude == null
-          ? null
-          : LatLng(selected!.stop.latitude!, selected.stop.longitude!);
-      final points = _queuePoints;
+      final focus = resolvedFocus!, points = focus.points;
+      final tasks = HomeMapFocus.pins(
+        queuedTasks: _queueTasks,
+        selectedTask: widget.controller.selectedTask,
+        navigatingTask: nav.active ? nav.task : null,
+      );
       final start =
           _savedCenter ??
-          (nav.following ? nav.fix?.point : null) ??
-          selectedPoint ??
-          nav.target ??
-          (points.isEmpty ? _overview : points.first);
+          (points.isNotEmpty
+              ? points.first
+              : PhilippinesMapRegion.cameraBounds.center);
       return ClipRRect(
         borderRadius: BorderRadius.circular(_wide ? RiderRadii.media : 0),
         child: Stack(
@@ -372,29 +408,30 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
               mapController: _map,
               options: MapOptions(
                 initialCenter: start,
-                initialZoom: _savedZoom ?? (start == _overview ? 5 : 15),
+                initialZoom: _savedZoom ?? (points.length == 1 ? 15 : 5),
                 initialRotation: _savedRotation,
-                initialCameraFit:
-                    _savedCenter == null &&
-                        selectedPoint == null &&
-                        nav.target == null &&
-                        points.length > 1
+                initialCameraFit: _savedCenter == null && points.length != 1
                     ? CameraFit.bounds(
-                        bounds: LatLngBounds.fromPoints(points),
+                        bounds: points.isEmpty
+                            ? PhilippinesMapRegion.cameraBounds
+                            : LatLngBounds.fromPoints(points),
                         padding: const EdgeInsets.all(36),
                         maxZoom: 15,
-                        minZoom: 3,
+                        minZoom: PhilippinesMapRegion.minimumZoom,
                       )
                     : null,
-                minZoom: 3,
-                maxZoom: 19,
+                minZoom: PhilippinesMapRegion.minimumZoom,
+                maxZoom: PhilippinesMapRegion.maximumZoom,
+                cameraConstraint: CameraConstraint.containCenter(
+                  bounds: PhilippinesMapRegion.cameraBounds,
+                ),
                 backgroundColor: RiderColors.canvas,
                 onMapReady: () {
                   if (!mounted || !widget.active || epoch != _mapEpoch) return;
                   _ready = true;
                   if (_savedCenter == null) {
-                    _fittedQueue = widget.controller.queue;
-                    _focusedTask = _stopKey(widget.controller.selectedTask);
+                    _lastFocusKey =
+                        '${widget.controller.queue.name}:${focus.key}';
                   }
                   if (nav.following) _lastCameraPoint = null;
                   _queueCamera(nav);
@@ -412,11 +449,12 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                   TileLayer(
                     key: ValueKey(_tiles!.scope),
                     tileProvider: _tiles!,
-                    urlTemplate: 'https://maps.geoapify.com/v1/tile/positron/{z}/{x}/{y}.png',
+                    urlTemplate: _tileSource.template,
                     userAgentPackageName: 'com.example.bagoo_rider_mobile',
                     panBuffer: 0,
                   ),
-                if (nav.road != null)
+                PhilippinesMapMask(region: _region!),
+                if (nav.road != null && !focus.outsideOutline)
                   PolylineLayer(
                     polylines: [
                       for (final line in nav.road!.lines)
@@ -430,55 +468,43 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                 MarkerLayer(
                   markers: [
                     for (final task in tasks)
-                      if (_mapTask(task)?.stop.latitude != null &&
-                          _mapTask(task)?.stop.longitude != null)
-                        Marker(
-                          key: ValueKey('home-marker-${task.id}'),
-                          point: LatLng(
-                            _mapTask(task)!.stop.latitude!,
-                            _mapTask(task)!.stop.longitude!,
-                          ),
-                          width: 56,
-                          height: 56,
-                          child: Tooltip(
-                            message: 'Select ${task.tracking}',
-                            child: Semantics(
-                              button: true,
-                              label: 'Select ${task.tracking}',
-                              child: Material(
-                                shape: const CircleBorder(),
-                                elevation: 3,
-                                color:
-                                    widget.controller.selectedTask?.id ==
-                                        task.id
-                                    ? RiderColors.accent
-                                    : Colors.white,
-                                child: InkWell(
-                                  customBorder: const CircleBorder(),
-                                  onTap: () => unawaited(_select(task, nav)),
-                                  child: Icon(
-                                    stopKindIcon(_mapTask(task)?.stop.kind),
-                                    color:
-                                        widget.controller.selectedTask?.id ==
-                                            task.id
-                                        ? Colors.white
-                                        : RiderColors.accentText,
-                                    size: 28,
+                      Marker(
+                        key: ValueKey('home-marker-${task.id}'),
+                        point: HomeMapFocus.pointFor(task)!,
+                        width: 56,
+                        height: 56,
+                        child: Tooltip(
+                          message: 'Select ${task.tracking}',
+                          child: Semantics(
+                            button: true,
+                            label: 'Select ${task.tracking}',
+                            child: Material(
+                              shape: const CircleBorder(),
+                              elevation: 3,
+                              color:
+                                  widget.controller.selectedTask?.id == task.id
+                                  ? RiderColors.accent
+                                  : Colors.white,
+                              child: InkWell(
+                                customBorder: const CircleBorder(),
+                                onTap: () => unawaited(
+                                  _select(
+                                    OperationsRepository.asRiderTask(task),
+                                    nav,
                                   ),
+                                ),
+                                child: Icon(
+                                  stopKindIcon(task.stop.kind),
+                                  color:
+                                      widget.controller.selectedTask?.id ==
+                                          task.id
+                                      ? Colors.white
+                                      : RiderColors.accentText,
+                                  size: 28,
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                    if (nav.target != null &&
-                        !tasks.any((t) => t.id == nav.task?.id))
-                      Marker(
-                        point: nav.target!,
-                        width: 40,
-                        height: 40,
-                        child: const Icon(
-                          Icons.flag_rounded,
-                          color: RiderColors.accent,
                         ),
                       ),
                     if (nav.fix != null)
@@ -500,65 +526,97 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                 ),
               ],
             ),
-            Positioned(
-              top: 12,
-              right: 12,
-              child: RiderSurface(
-                radius: RiderRadii.control,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      tooltip: 'Recenter',
-                      onPressed: () {
-                        nav.recenter();
-                        final p = nav.fix?.point ?? nav.target;
-                        if (p != null) {
-                          _lastCameraPoint = p;
-                          _moveTo(p, zoom: 16);
-                        } else {
-                          final stop = widget.controller.selectedTask?.stop;
-                          if (stop?.latitude != null &&
-                              stop?.longitude != null) {
-                            _moveTo(LatLng(stop!.latitude!, stop.longitude!));
-                          } else {
-                            _fit(_queuePoints);
-                          }
-                        }
-                      },
-                      icon: const Icon(Icons.my_location_rounded),
-                    ),
-                    if (nav.road != null)
-                      IconButton(
-                        tooltip: 'Show full route',
-                        onPressed: () {
-                          nav.pan();
-                          _fit([for (final line in nav.road!.lines) ...line]);
-                        },
-                        icon: const Icon(Icons.route_rounded),
-                      ),
-                    IconButton(
-                      tooltip: 'Show queue stops',
-                      onPressed: () {
-                        nav.pan();
-                        _fit(_queuePoints);
-                      },
-                      icon: const Icon(Icons.crop_free_rounded),
-                    ),
-                  ],
-                ),
-              ),
-            ),
           ],
         ),
       );
     },
   );
-  Widget _mapStatus(NavigationController nav, GeoapifyClient geo) => Padding(
+  Widget _mapStatus(
+    NavigationController nav,
+    GeoapifyClient geo,
+    HomeMapFocus? focus,
+  ) => Padding(
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (focus != null) ...[
+          Text(
+            focus.label,
+            key: const ValueKey('home-map-focus-label'),
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          Wrap(
+            children: [
+              IconButton(
+                tooltip: 'Recenter',
+                onPressed: !_mapVisible
+                    ? null
+                    : () {
+                        nav.recenter();
+                        _lastFocusKey = null;
+                        _queueCamera(nav);
+                      },
+                icon: const Icon(Icons.my_location_rounded),
+              ),
+              if (nav.road != null && !focus.outsideOutline)
+                IconButton(
+                  tooltip: 'Show full route',
+                  onPressed: !_mapVisible
+                      ? null
+                      : () {
+                          nav.pan();
+                          _fit(focus.points);
+                        },
+                  icon: const Icon(Icons.route_rounded),
+                ),
+              IconButton(
+                tooltip: 'Show queue stops',
+                onPressed: !_mapVisible
+                    ? null
+                    : () {
+                        nav.pan();
+                        _fit(_queuePoints);
+                      },
+                icon: const Icon(Icons.crop_free_rounded),
+              ),
+              IconButton(
+                key: const ValueKey('home-sharper-labels'),
+                tooltip: _retinaTiles
+                    ? 'Use standard map detail'
+                    : 'Sharper labels (larger images)',
+                isSelected: _retinaTiles,
+                onPressed: !_mapVisible
+                    ? null
+                    : () => setState(() => _retinaTiles = !_retinaTiles),
+                icon: const Icon(Icons.hd_outlined),
+              ),
+            ],
+          ),
+          if (focus.outsideOutline)
+            _mapNote(
+              'The saved stop is outside this PH outline. Its address and external directions remain available.',
+              Icons.location_off_outlined,
+            ),
+          if (focus.missingCoordinates)
+            _mapNote(
+              'This stop has no saved coordinates. Use its address for directions.',
+              Icons.location_off_outlined,
+            ),
+          if (widget.controller.selectedTask != null &&
+              !widget.controller.visibleTasks.any(
+                (t) => t.id == widget.controller.selectedTask!.id,
+              ))
+            _mapNote(
+              'Your selected stop stays on the map while you browse this list.',
+              Icons.filter_alt_outlined,
+            ),
+        ],
+        if (_outlineFailed)
+          _mapNote(
+            'Philippines outline could not load. Task addresses remain available.',
+            Icons.map_outlined,
+          ),
         if (!geo.configured || geo.failure != null)
           _mapNote(
             geo.failure ??
@@ -581,12 +639,13 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
               ),
             ),
           ),
-        if (geo.configured &&
+        if (_region != null &&
+            geo.configured &&
             widget.controller.taskData.status != FeatureStatus.loading &&
             _queuePoints.isEmpty &&
-            nav.target == null)
+            (focus?.points.isEmpty ?? true))
           _mapNote(
-            'No saved map pins in this queue. Task addresses are still available.',
+            'No stops in this list can be mapped here. Task addresses are still available.',
             Icons.location_off_outlined,
           ),
         if (nav.manual)
@@ -626,6 +685,51 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
         'https://www.openstreetmap.org/copyright',
       ),
       _credit('© OpenMapTiles', 'https://openmaptiles.org/'),
+      TextButton(
+        style: TextButton.styleFrom(
+          textStyle: Theme.of(context).textTheme.labelSmall
+              ?.copyWith(fontSize: 10),
+          minimumSize: const Size(0, 36),
+          padding: const EdgeInsets.symmetric(horizontal: 5),
+        ),
+        onPressed: () => showRiderDialog<void>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Philippines outline credits'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Philippines administrative boundary (2020): OCHA Philippines / NAMRIA, via geoBoundaries. Simplified for this map; all source islands retained. The outline is a display approximation.',
+                  ),
+                  _credit(
+                    'OCHA / NAMRIA source',
+                    'https://data.humdata.org/dataset/philippines-administrative-levels-0-to-3',
+                  ),
+                  _credit('geoBoundaries', 'https://www.geoboundaries.org/'),
+                  _credit(
+                    'CC BY 3.0 IGO',
+                    'https://creativecommons.org/licenses/by/3.0/igo/',
+                  ),
+                  _credit(
+                    'CC BY 4.0',
+                    'https://creativecommons.org/licenses/by/4.0/',
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        ),
+        child: const Text('PH outline credits'),
+      ),
     ],
   );
   Widget _credit(String label, String url) => TextButton(

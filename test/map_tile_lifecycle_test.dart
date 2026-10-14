@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:bagoo_rider_mobile/features/navigation/data/geoapify_client.dart';
+import 'package:bagoo_rider_mobile/features/navigation/data/map_tile_source.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/geoapify_tiles.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/painting.dart';
@@ -40,6 +41,70 @@ class TileAdapter implements HttpClientAdapter {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  test('style and native-density variants use isolated caches and one request per tile', () async {
+    final adapter = TileAdapter(), dio = Dio();
+    dio.httpClientAdapter = adapter;
+    final geo = GeoapifyClient(
+      'synthetic-key',
+      client: dio,
+      scheduler: Immediate(),
+    );
+    addTearDown(geo.dispose);
+    for (final source in [
+      const MapTileSource(),
+      const MapTileSource(style: MapTileStyle.bright),
+      const MapTileSource(style: MapTileStyle.bright, retina: true),
+    ]) {
+      final first = await geo.tile(15, 27390, 15025, source: source);
+      expect(await geo.tile(15, 27390, 15025, source: source), same(first));
+    }
+    expect(adapter.calls, hasLength(3));
+    expect(
+      adapter.calls.map((c) => c.uri.path),
+      containsAll([
+        '/v1/tile/positron/15/27390/15025.png',
+        '/v1/tile/osm-bright-smooth/15/27390/15025.png',
+        '/v1/tile/osm-bright-smooth/15/27390/15025@2x.png',
+      ]),
+    );
+    expect(
+      adapter.calls.every((c) => !c.headers.containsKey('Authorization')),
+      isTrue,
+    );
+  });
+  test(
+    'tiles wholly outside the PH envelope decode locally without provider work',
+    () async {
+      final adapter = TileAdapter(), dio = Dio();
+      dio.httpClientAdapter = adapter;
+      final geo = GeoapifyClient(
+        'synthetic-key',
+        client: dio,
+        scheduler: Immediate(),
+      );
+      addTearDown(geo.dispose);
+      final tiles = GeoapifyTiles(geo, clipToPhilippines: true);
+      addTearDown(tiles.suspend);
+      final cancel = Completer<void>();
+      final image = tiles.getImageWithCancelLoadingSupport(
+        const TileCoordinates(0, 0, 15),
+        TileLayer(),
+        cancel.future,
+      );
+      final decoded = Completer<void>(),
+          stream = image.resolve(ImageConfiguration.empty);
+      final listener = ImageStreamListener((info, _) {
+        info.dispose();
+        decoded.complete();
+      }, onError: (Object e, StackTrace? s) => decoded.completeError(e, s));
+      stream.addListener(listener);
+      await decoded.future;
+      stream.removeListener(listener);
+      expect(adapter.calls, isEmpty);
+      expect(geo.failure, isNull);
+      cancel.complete();
+    },
+  );
   test(
     'corrupt tile bytes are evicted even while a sibling tile has failed',
     () async {

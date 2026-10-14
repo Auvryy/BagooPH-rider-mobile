@@ -1,6 +1,6 @@
 # HDB-02 — Stop ended location streams and bound hidden map work
 
-State: **locally implemented and verified; user review/publication pending**.
+State: **merged in PR 18; locally verified, physical acceptance separate**.
 Branch: `fix/home-navigation-lifecycle`.
 Planning effort: **4–7 client hours**, including selected checks,
 excluding owner/API/device waiting. Recommended model/effort: **GPT-6.1 Sol / High**.

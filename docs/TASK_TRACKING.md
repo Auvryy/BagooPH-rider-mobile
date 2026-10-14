@@ -428,7 +428,9 @@ request/camera work while navigation persists. Its loading/cancellation/retry
 checks and physical limits are in
 [HDB-02 evidence](plans/home-dashboard-branch-plan/HDB-02-EVIDENCE.md).
 The [PH/current-stop map recommendation](plans/home-dashboard-branch-plan/PH_MAP_FOCUS_NEXT.md)
-is future scope; this does not complete all M09/M16 or physical navigation gates.
+was selected October 14 as a
+[separate client map slice](plans/philippines-map-focus/README.md), after HDB-02
+was merged. This does not complete all M09/M16 or physical navigation gates.
 
 **Outcome:** the current authorized destination stays usable without a map service.
 

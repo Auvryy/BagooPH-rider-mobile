@@ -7,10 +7,18 @@ import 'package:flutter/painting.dart';
 import 'package:flutter_map/flutter_map.dart';
 
 import '../data/geoapify_client.dart';
+import '../data/map_tile_source.dart';
+import '../data/philippines_map_region.dart';
 
 class GeoapifyTiles extends TileProvider {
-  GeoapifyTiles(this.client) : scope = Object();
+  GeoapifyTiles(
+    this.client, {
+    this.source = const MapTileSource(),
+    this.clipToPhilippines = false,
+  }) : scope = Object();
   final GeoapifyClient client;
+  final MapTileSource source;
+  final bool clipToPhilippines;
   final Object scope;
   final _requests = <CancelToken>{};
   void suspend() {
@@ -42,6 +50,8 @@ class GeoapifyTiles extends TileProvider {
       cancel,
       scope,
       client.tileRevision,
+      source,
+      clipToPhilippines,
     );
   }
 }
@@ -55,11 +65,15 @@ class _TileImage extends ImageProvider<_TileImage> {
     this.cancel,
     this.scope,
     this.revision,
+    this.source,
+    this.clipToPhilippines,
   );
   final GeoapifyClient client;
   final int z, x, y;
   final Object scope;
   final int revision;
+  final MapTileSource source;
+  final bool clipToPhilippines;
   final CancelToken cancel;
   @override
   Future<_TileImage> obtainKey(ImageConfiguration configuration) =>
@@ -68,18 +82,24 @@ class _TileImage extends ImageProvider<_TileImage> {
   ImageStreamCompleter loadImage(_TileImage key, ImageDecoderCallback decode) =>
       MultiFrameImageStreamCompleter(
         codec: _load(decode),
-        scale: 1,
+        scale: source.retina ? 2 : 1,
         debugLabel: 'Geoapify map tile',
       );
   Future<ui.Codec> _load(ImageDecoderCallback decode) async {
+    if (clipToPhilippines &&
+        !PhilippinesMapRegion.tileIntersectsDisplay(z, x, y)) {
+      return decode(
+        await ui.ImmutableBuffer.fromUint8List(TileProvider.transparentImage),
+      );
+    }
     var receivedBytes = false;
     try {
-      final bytes = await client.tile(z, x, y, cancel: cancel);
+      final bytes = await client.tile(z, x, y, cancel: cancel, source: source);
       receivedBytes = true;
       return await decode(await ui.ImmutableBuffer.fromUint8List(bytes));
     } catch (_) {
       if (receivedBytes && !cancel.isCancelled) {
-        client.tileDecodeFailed(z, x, y, cancel: cancel);
+        client.tileDecodeFailed(z, x, y, cancel: cancel, source: source);
       }
       scheduleMicrotask(() => PaintingBinding.instance.imageCache.evict(this));
       // Blank tiles preserve truthful address-first dashboard behavior. The
@@ -98,9 +118,10 @@ class _TileImage extends ImageProvider<_TileImage> {
       x == other.x &&
       y == other.y &&
       scope == other.scope &&
-      revision == other.revision;
+      revision == other.revision &&
+      source == other.source;
   @override
-  int get hashCode => Object.hash(client, z, x, y, scope, revision);
+  int get hashCode => Object.hash(client, z, x, y, scope, revision, source);
   @override
   String toString() => 'Geoapify map tile';
 }

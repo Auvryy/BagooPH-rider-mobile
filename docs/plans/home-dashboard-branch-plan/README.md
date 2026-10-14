@@ -65,8 +65,9 @@ Geoapify/flutter_map and explicit rider-started navigation. Preserve native Azur
 account/Settings access. Website business rules apply; portal CSS, its Leaflet
 implementation and its desktop breakpoint do not govern Flutter presentation.
 
-HDB-01 is merged; only HDB-02 is now active, including the map-loading investigation.
-The PH-only/focus extension is a future recommendation. Creating this plan does not
+HDB-01/02 are merged. The separately selected
+[PH map-focus extension](../philippines-map-focus/README.md) is now active before
+HDB-03; dashboard/operations additions remain planned. Creating this plan does not
 create 17 work records, 17 branches or authorization to implement them together.
 Backend code, docs, branch and uncommitted work remain read only in this task.
 
@@ -79,7 +80,7 @@ Backend code, docs, branch and uncommitted work remain read only in this task.
   161 tests passed with one expected configuration skip, clean analysis and
   ordinary Linux/Android builds. See its evidence for the added UI correction.
   HDB-02 is also locally verified: 179 tests with one expected skip, clean analysis
-  and native builds; user review/publication and physical acceptance are separate.
+  and native builds; it is merged in PR 18, with physical acceptance separate.
   Other
   future HDB branches remain **planned**. Some reuse substantial implemented
   foundations; none is declared live accepted from those foundations alone.

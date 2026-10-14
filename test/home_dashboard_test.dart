@@ -156,7 +156,7 @@ void main() {
         findsOneWidget,
       );
       final camera = tester
-          .widget<FlutterMap>(find.byType(FlutterMap))
+          .widget<FlutterMap>(find.byType(FlutterMap, skipOffstage: false))
           .mapController!
           .camera;
       expect(camera.zoom, greaterThan(12));
@@ -232,6 +232,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
+      await revealHome(tester, find.text('Powered by Geoapify'));
       expect(find.text('Powered by Geoapify'), findsOneWidget);
       await tester.pumpWidget(const SizedBox.shrink());
       controller.dispose();
@@ -279,7 +280,7 @@ void main() {
       await tapHome(tester, find.text('Show stop'));
       expect(
         tester
-            .widget<FlutterMap>(find.byType(FlutterMap))
+            .widget<FlutterMap>(find.byType(FlutterMap, skipOffstage: false))
             .mapController!
             .camera
             .zoom,
@@ -437,19 +438,18 @@ void main() {
     await h.controller.refreshAll();
     await tester.pump();
     final button = find.byKey(const ValueKey('home-refresh-tasks'));
-    await tester.ensureVisible(find.byType(HomeTaskPanel, skipOffstage: false));
+    await revealHome(tester, button);
     await tester.pump();
-    await tester.ensureVisible(button);
-    await tester.pump();
-    expect(tester.widget<IconButton>(button).onPressed, isNull);
+    expect(tester.widget<TextButton>(button).onPressed, isNull);
     expect(h.controller.taskData.data, isNotEmpty);
     h.api.respond = response;
     await tester.pump(const Duration(seconds: 2));
-    expect(tester.widget<IconButton>(button).onPressed, isNotNull);
+    expect(tester.widget<TextButton>(button).onPressed, isNotNull);
     await tester.tap(button);
     await tester.pumpAndSettle();
     expect(h.controller.workFailure, isNull);
-    expect(tester.widget<IconButton>(button).onPressed, isNotNull);
+    await revealHome(tester, button);
+    expect(tester.widget<TextButton>(button).onPressed, isNotNull);
     expect(tester.takeException(), isNull);
   });
   for (final mapless in [false, true]) {
@@ -551,7 +551,7 @@ void main() {
       visibility.value = true;
       await tester.pumpAndSettle();
       final restored = tester
-          .widget<FlutterMap>(find.byType(FlutterMap))
+          .widget<FlutterMap>(find.byType(FlutterMap, skipOffstage: false))
           .mapController!
           .camera
           .center;
@@ -560,17 +560,17 @@ void main() {
       expect(h.navigation.following, isFalse);
       expect(
         tester
-            .widget<FlutterMap>(find.byType(FlutterMap))
+            .widget<FlutterMap>(find.byType(FlutterMap, skipOffstage: false))
             .mapController!
             .camera
             .rotation,
         closeTo(20, .001),
       );
-      await tester.tap(find.byTooltip('Recenter'));
+      await tapHome(tester, find.byTooltip('Recenter'));
       await tester.pumpAndSettle();
       expect(h.navigation.following, isTrue);
       final recentered = tester
-          .widget<FlutterMap>(find.byType(FlutterMap))
+          .widget<FlutterMap>(find.byType(FlutterMap, skipOffstage: false))
           .mapController!
           .camera;
       expect(
@@ -595,6 +595,7 @@ void main() {
       tester.view.physicalSize = const Size(390, 320);
       await tester.pumpAndSettle();
       expect(find.byType(FlutterMap), findsNothing);
+      await revealHome(tester, find.text('Synthetic map connection failure'));
       expect(find.text('Synthetic map connection failure'), findsOneWidget);
       await tester.scrollUntilVisible(
         find.text('Powered by Geoapify'),
@@ -611,6 +612,7 @@ void main() {
       expect(geo.calls.length, requests);
       tester.view.physicalSize = const Size(390, 844);
       await tester.pumpAndSettle();
+      await revealHome(tester, find.byType(FlutterMap));
       expect(find.byType(FlutterMap), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
@@ -624,21 +626,21 @@ void main() {
       final geo = MemoryTiles();
       await openDashboard(tester, geoClient: geo);
       final initial = tester
-          .widget<FlutterMap>(find.byType(FlutterMap))
+          .widget<FlutterMap>(find.byType(FlutterMap, skipOffstage: false))
           .mapController!
           .camera
           .center;
       geo.showFailure();
       await tester.pumpAndSettle();
       final retry = find.byKey(const ValueKey('home-retry-map'));
-      await tester.ensureVisible(retry);
+      await revealHome(tester, retry);
       await tester.pumpAndSettle();
       await tester.tap(retry);
       await tester.pumpAndSettle();
       expect(geo.tileRevision, 1);
       expect(tester.widget<TextButton>(retry).onPressed, isNull);
       final current = tester
-          .widget<FlutterMap>(find.byType(FlutterMap))
+          .widget<FlutterMap>(find.byType(FlutterMap, skipOffstage: false))
           .mapController!
           .camera
           .center;
@@ -664,7 +666,7 @@ void main() {
       await h.controller.openTask(OperationsRepository.asRiderTask(h.task));
       await tester.pumpAndSettle();
       final before = tester
-          .widget<FlutterMap>(find.byType(FlutterMap))
+          .widget<FlutterMap>(find.byType(FlutterMap, skipOffstage: false))
           .mapController!
           .camera
           .center;
@@ -673,6 +675,12 @@ void main() {
       expect(h.controller.visibleTasks, isEmpty);
       expect(find.byKey(ValueKey('home-marker-${h.task.id}')), findsOneWidget);
       expect(h.controller.selectedTask?.id, h.task.id);
+      await revealHome(
+        tester,
+        find.text(
+          'Your selected stop stays on the map while you browse this list.',
+        ),
+      );
       expect(
         find.text(
           'Your selected stop stays on the map while you browse this list.',
@@ -681,7 +689,7 @@ void main() {
       );
       expect(
         tester
-            .widget<FlutterMap>(find.byType(FlutterMap))
+            .widget<FlutterMap>(find.byType(FlutterMap, skipOffstage: false))
             .mapController!
             .camera
             .center,
@@ -700,10 +708,11 @@ void main() {
       await tester.pumpAndSettle();
       expect(h.controller.selectedTask?.stop.latitude, 6);
       expect(h.controller.selectedTask?.stop.longitude, 116);
+      await revealHome(tester, find.textContaining('outside this PH outline'));
       expect(find.textContaining('outside this PH outline'), findsOneWidget);
       expect(
         tester
-            .widget<FlutterMap>(find.byType(FlutterMap))
+            .widget<FlutterMap>(find.byType(FlutterMap, skipOffstage: false))
             .mapController!
             .camera
             .center,
@@ -751,7 +760,7 @@ void main() {
           .center;
       final road = h.navigation.road, oldTokens = geo.tokens.toList();
       final toggle = find.byKey(const ValueKey('home-sharper-labels'));
-      await tester.ensureVisible(toggle);
+      await revealHome(tester, toggle);
       await tester.pumpAndSettle();
       await tester.tap(toggle);
       await tester.pumpAndSettle();
@@ -909,12 +918,30 @@ void managedDashboardTest(
 }
 
 Future<void> tapHome(WidgetTester tester, Finder target) async {
-  if (target.evaluate().isEmpty) {
-    await tester.ensureVisible(find.byType(HomeTaskPanel, skipOffstage: false));
-    await tester.pumpAndSettle();
-  }
-  await tester.ensureVisible(target);
+  await revealHome(tester, target);
   await tester.pumpAndSettle();
   await tester.tap(target);
+  await tester.pumpAndSettle();
+}
+
+Future<void> revealHome(WidgetTester tester, Finder target) async {
+  if (target.evaluate().isEmpty) {
+    final page = find.byKey(const ValueKey('home-page-scroll'));
+    if (page.evaluate().isNotEmpty) {
+      final scrollable = find
+          .descendant(of: page, matching: find.byType(Scrollable))
+          .first;
+      final position = tester.state<ScrollableState>(scrollable).position;
+      position.jumpTo(0);
+      await tester.pump();
+      for (var n = 0; target.evaluate().isEmpty && n < 40; n++) {
+        position.jumpTo(
+          (position.pixels + 160).clamp(0, position.maxScrollExtent),
+        );
+        await tester.pump();
+      }
+    }
+  }
+  await tester.ensureVisible(target);
   await tester.pumpAndSettle();
 }

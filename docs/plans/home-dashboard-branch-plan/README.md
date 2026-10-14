@@ -29,6 +29,7 @@ and unknown live/device behavior. Recheck both checkouts when activating a branc
 | [Git and prompt workflow](WORKFLOW.md) | Implement, review, user push/merge, pull `main`, then new branch |
 | [Acceptance matrix](ACCEPTANCE.md) | Local, Azure, cross-role and physical-device finish evidence |
 | [HDB-02 evidence](HDB-02-EVIDENCE.md) | Navigation stream/revalidation, hidden map work and provider loading checks |
+| [HDB-03 evidence](HDB-03-EVIDENCE.md) | Actual Home overview, observed freshness and shared task-stage display |
 | [Future PH map focus](PH_MAP_FOCUS_NEXT.md) | Country-shaped display, current-stop framing and map-quality recommendations |
 | [Separate Home API checklist](../../api/HOME_DASHBOARD_NEEDS.md) | Existing server capabilities, required verification and conditional requests |
 | [Account compatibility watch](ACCOUNT_COMPATIBILITY.md) | Changed account contracts and a separate conditional follow-up outside Home bug fixes |
@@ -65,9 +66,10 @@ Geoapify/flutter_map and explicit rider-started navigation. Preserve native Azur
 account/Settings access. Website business rules apply; portal CSS, its Leaflet
 implementation and its desktop breakpoint do not govern Flutter presentation.
 
-HDB-01/02 are merged. The separately selected
-[PH map-focus extension](../philippines-map-focus/README.md) is now active before
-HDB-03; dashboard/operations additions remain planned. Creating this plan does not
+HDB-01/02 and the separately selected
+[PH map-focus extension](../philippines-map-focus/README.md) are merged.
+HDB-03 is locally implemented and verified, awaiting user review/publication;
+later dashboard/operations branches remain planned. Creating this plan does not
 create 17 work records, 17 branches or authorization to implement them together.
 Backend code, docs, branch and uncommitted work remain read only in this task.
 

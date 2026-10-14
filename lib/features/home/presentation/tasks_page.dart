@@ -9,6 +9,7 @@ import '../../workspace/presentation/workspace_widgets.dart';
 
 import '../../../core/ui/rider_surfaces.dart';
 import '../data/operations_models.dart';
+import 'task_stage_label.dart';
 import 'work_summary.dart';
 
 class TasksPage extends StatelessWidget {
@@ -38,13 +39,15 @@ class TasksPage extends StatelessWidget {
         WorkspaceHeading(
           'Welcome, ${account.name}.',
           '',
-          action: RiderPressFeedback(
-            child: IconButton(
-              onPressed: controller.refreshAll,
-              tooltip: 'Refresh tasks',
-              icon: const Icon(Icons.refresh_rounded),
-            ),
-          ),
+          action: preview
+              ? RiderPressFeedback(
+                  child: IconButton(
+                    onPressed: controller.refreshAll,
+                    tooltip: 'Refresh tasks',
+                    icon: const Icon(Icons.refresh_rounded),
+                  ),
+                )
+              : null,
         ),
       if (!panelOnly)
         Wrap(
@@ -299,7 +302,10 @@ class TaskCard extends StatelessWidget {
           spacing: 8,
           runSpacing: 8,
           children: [
-            WorkspaceBadge(task.stage, accent: true),
+            WorkspaceBadge(
+              taskStageLabel(task.operation?.stage ?? task.stage),
+              accent: true,
+            ),
             if (prominent) WorkspaceBadge(prominentLabel),
           ],
         ),

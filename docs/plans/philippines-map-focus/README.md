@@ -2,7 +2,7 @@
 
 Selected October 14, 2026 after HDB-02 was merged in PR 18. Branch
 `feat/home-philippines-map-focus`, starting from mobile `main` `5016b03`.
-State: **locally implemented and verified; user review/publication pending**.
+State: **merged in PR 19**, mobile `main` `d6ff936`; physical acceptance remains open.
 See [the evidence](EVIDENCE.md). Estimate: 6–9 client hours, 8-hour point
 estimate; October 14–18 window. Suggested model: Sol 6.1 Medium.
 

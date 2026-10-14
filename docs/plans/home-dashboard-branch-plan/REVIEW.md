@@ -77,7 +77,7 @@ regression that expects corrected behavior.
 |---|---|---|
 | BUG-H01 / P2 | Load Home, fail a later Home read with a recoverable 500, then successfully refresh. Home becomes ready but workFailure still contains the old error, which WorkSummary displays | WorkspaceController.refreshHome/_workError and WorkSummary; HDB-01 |
 | BUG-H02 / P1 | Select an owned task and start a synthetic route. Refresh gets a list row, then selected detail returns 404 because access changed between requests. Selection clears, but the cached row/pin remains, unavailableTaskId is unset and navigation stays active until another authorization path handles it | WorkspaceController.refreshTasks differs from openTask; HomeDashboard._queueCamera; HDB-01 |
-| BUG-H03 / P2 | Open details for an out_for_delivery task. TaskCard renders the literal out_for_delivery stage rather than the friendly Home row label | TasksPage/TaskCard; HDB-03 shared display formatting |
+| BUG-H03 / P2 | Baseline details rendered literal out_for_delivery rather than the friendly Home row label | Locally fixed by HDB-03 shared display formatting; [evidence](HDB-03-EVIDENCE.md); user review/publication pending |
 | BUG-H04 / P1 | Start navigation through a fake valid location adapter, then close its stream normally without an error. Navigation remains active | NavigationController.start registers data/error handlers without a completion handler; HDB-02 |
 | BUG-H05 / P2 | Registration permits Sedan / Van, but forVehicle returns null for that value and a manual route without a fallback choice fails as unrecognized | RegisterPage, backend ApplicationValidationService.VEHICLES and NavigationProfile.forVehicle; HDB-02 |
 

@@ -9,8 +9,8 @@ row now. Select one HDB ID per prompt. Current review/source and gates are in
 
 | ID / brief | Branch | Concrete result | Required HDB predecessors | Client effort | State |
 |---|---|---|---|---|---|
-| [HDB-01](01-home-read-recovery.md) | `fix/home-read-recovery` | Recover reads and remove newly hidden tasks | Current foundation | 4–7 h | Local verified; review/publication pending |
-| [HDB-02](02-home-navigation-lifecycle.md) | `fix/home-navigation-lifecycle` | Stop ended location streams and bound hidden map work | HDB-01 | 4–7 h | Planned |
+| [HDB-01](01-home-read-recovery.md) | `fix/home-read-recovery` | Recover reads and remove newly hidden tasks | Current foundation | 4–7 h | Merged; local checks verified |
+| [HDB-02](02-home-navigation-lifecycle.md) | `fix/home-navigation-lifecycle` | Stop ended location streams and bound hidden map work | HDB-01 | 4–7 h | Local verified; review/publication pending |
 | [HDB-03](03-home-dashboard-overview.md) | `feat/home-dashboard-overview` | Make the Home overview useful with existing server data | HDB-01, HDB-02 | 4–7 h | Planned |
 | [HDB-04](04-home-stop-mode-guidance.md) | `feat/home-stop-mode-guidance` | Add focused Stop Mode and current-stop guidance | HDB-03 | 5–8 h | Planned |
 | [HDB-05](05-home-duty-claim-acceptance.md) | `feat/home-duty-claim-acceptance` | Accept one live duty and pickup-claim workflow | HDB-01 | 3–6 h | Planned |

@@ -1,10 +1,12 @@
 # HDB-02 — Stop ended location streams and bound hidden map work
 
-State: **planned, not activated**. Branch: `fix/home-navigation-lifecycle`.
+State: **locally implemented and verified; user review/publication pending**.
+Branch: `fix/home-navigation-lifecycle`.
 Planning effort: **4–7 client hours**, including selected checks,
 excluding owner/API/device waiting. Recommended model/effort: **GPT-6.1 Sol / High**.
 Re-estimate from current evidence before activation; assign a 1–14 inclusive-day
-window ending by November 20. No runtime result is claimed by this brief.
+window ending by November 20. Activated October 13 with a 6-hour point estimate
+and October 13–16 execution window. See [implementation evidence](HDB-02-EVIDENCE.md).
 
 ## Dependencies and API needs
 
@@ -27,6 +29,8 @@ gates remain mandatory. Unsupported release/recovery/earnings portions stay open
 - Add explicit Home visibility/foreground handling for map painting, tile requests and camera updates; keep the persistent rider-started navigation controller independent.
 - Preserve panning/Recenter behavior, correct vehicle precedence, original GPS/accuracy/rerouting limits and provider/bearer isolation.
 - Keep map errors and attribution readable in small/keyboard views; add a bounded retry after provider cooldown without inventing tiles or roads.
+- User steering: investigate slow map loading within this lifecycle slice and
+  document the [future Philippines/current-stop recommendation](PH_MAP_FOCUS_NEXT.md).
 
 ## File ownership
 
@@ -36,6 +40,10 @@ gates remain mandatory. Unsupported release/recovery/earnings portions stay open
 - `lib/features/workspace/presentation/workspace_shell.dart`
 - `lib/features/navigation/presentation/geoapify_tiles.dart`
 - `lib/features/navigation/data/route_geometry.dart`
+- `lib/features/navigation/data/geoapify_client.dart` for tile cancellation,
+  memory-cache reuse, bounded retry and the documented map host.
+- `lib/features/navigation/presentation/navigation_workspace_binding.dart`
+  for paused-target access cleanup.
 
 Names marked proposed do not exist by implication. Inspect the actual current
 architecture before choosing new files or moving a shared interface. Keep one
@@ -44,19 +52,24 @@ code/docs, its branch and unrelated work remain read only for this mobile slice.
 
 ## Finish evidence
 
-- [ ] Normal stream completion, stream error, Stop and permission removal each end the active navigation state once.
-- [ ] The registered Sedan / Van value selects driving without an unnecessary
+- [x] Normal stream completion, stream error, Stop and permission removal each end the active navigation state once.
+- [x] The registered Sedan / Van value selects driving without an unnecessary
   unknown-vehicle error; unsupported values are not silently forced to driving.
-- [ ] Home offstage causes no new view-driven tile/camera churn while active navigation authorization/fixes continue.
-- [ ] Return to Home, keyboard/rotation and map pan/Recenter preserve explicit following mode; quota and missing coordinates retain text fallback.
-- [ ] A paused state exposes its reason and explicit revalidation path even when
+- [x] Home offstage causes no new view-driven tile/camera churn while active navigation authorization/fixes continue.
+- [x] Return to Home, keyboard/rotation and map pan/Recenter preserve explicit following mode; quota and missing coordinates retain text fallback.
+- [x] A paused state exposes its reason and explicit revalidation path even when
   Home/the map is hidden. Revalidation never auto-starts tracking.
-- [ ] Physical Android minimized/screen-off continuation remains a separate acceptance item, not a mock-test claim.
-- [ ] Run analysis and the meaningful selected contract/controller/widget checks;
+- [x] Physical Android minimized/screen-off continuation remains a separate acceptance item, not a mock-test claim.
+- [x] Run analysis and the meaningful selected contract/controller/widget checks;
   add ordinary native builds when runtime/platform/integration risk requires them.
-- [ ] Record local versus authorized Azure versus physical Android evidence,
+- [x] Record local versus authorized Azure versus physical Android evidence,
   remaining gates, reviewed source and coherent local commits in the owning plan.
-- [ ] Review scope/privacy and the staged diff; the user handles push/PR/merge.
+- [x] Review scope/privacy and the staged diff; the user handles push/PR/merge.
+
+Local finish: 179 tests passed with one expected configuration skip, analysis
+clean, ordinary configured Linux/ARM64 debug builds passed. Physical Android
+continuation and full phone performance remain **unverified**, not accepted by
+the checked boundary row above. See the linked evidence and future PH map brief.
 
 ## Stop boundary
 

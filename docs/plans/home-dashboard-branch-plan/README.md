@@ -28,6 +28,8 @@ and unknown live/device behavior. Recheck both checkouts when activating a branc
 | [Prerequisite audit](PREREQUISITES.md) | Full canonical dependencies versus the selected partial implementation/acceptance scope |
 | [Git and prompt workflow](WORKFLOW.md) | Implement, review, user push/merge, pull `main`, then new branch |
 | [Acceptance matrix](ACCEPTANCE.md) | Local, Azure, cross-role and physical-device finish evidence |
+| [HDB-02 evidence](HDB-02-EVIDENCE.md) | Navigation stream/revalidation, hidden map work and provider loading checks |
+| [Future PH map focus](PH_MAP_FOCUS_NEXT.md) | Country-shaped display, current-stop framing and map-quality recommendations |
 | [Separate Home API checklist](../../api/HOME_DASHBOARD_NEEDS.md) | Existing server capabilities, required verification and conditional requests |
 | [Account compatibility watch](ACCOUNT_COMPATIBILITY.md) | Changed account contracts and a separate conditional follow-up outside Home bug fixes |
 
@@ -63,7 +65,8 @@ Geoapify/flutter_map and explicit rider-started navigation. Preserve native Azur
 account/Settings access. Website business rules apply; portal CSS, its Leaflet
 implementation and its desktop breakpoint do not govern Flutter presentation.
 
-Only HDB-01 and the explicitly added UI correction are activated. Creating this plan does not
+HDB-01 is merged; only HDB-02 is now active, including the map-loading investigation.
+The PH-only/focus extension is a future recommendation. Creating this plan does not
 create 17 work records, 17 branches or authorization to implement them together.
 Backend code, docs, branch and uncommitted work remain read only in this task.
 
@@ -72,9 +75,11 @@ Backend code, docs, branch and uncommitted work remain read only in this task.
 - Review: 43 existing related Flutter tests passed; five isolated diagnostic
   probes reproduced the five documented baseline defects. A green reproduction
   asserts observed bad behavior, not a successful repair.
-- HDB-01 is locally implemented and verified, awaiting user review/publication:
+- HDB-01 is merged and locally verified:
   161 tests passed with one expected configuration skip, clean analysis and
   ordinary Linux/Android builds. See its evidence for the added UI correction.
+  HDB-02 is also locally verified: 179 tests with one expected skip, clean analysis
+  and native builds; user review/publication and physical acceptance are separate.
   Other
   future HDB branches remain **planned**. Some reuse substantial implemented
   foundations; none is declared live accepted from those foundations alone.
@@ -87,5 +92,5 @@ Backend code, docs, branch and uncommitted work remain read only in this task.
   completion schedule. Agree an explicit scope/capacity decision if it will not fit.
 
 The original review describes baseline BUG-H01–H05. HDB-01 owns the first two
-repairs. BUG-H03–H05, production write acceptance and physical navigation remain
-with their selected later branches.
+repairs. HDB-02 owns BUG-H04/BUG-H05. BUG-H03, production write acceptance and
+physical navigation remain with their selected later branches.

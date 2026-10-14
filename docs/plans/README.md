@@ -6,7 +6,7 @@ roadmap and backlog; it does not replace their scope, stable IDs or deadlines.
 | Plan | Scope | State | Entry |
 |---|---|---|---|
 | Home dashboard/navigation | Selected map/location extension; live Home foundation first | Foundation/map implemented; live-write, owned-task and device acceptance open | [Plan](home-dashboard-navigation/README.md) |
-| Home dashboard branch plan | Current screen/bug review, useful dashboard additions and sequential mobile delivery briefs | Review/plan documented; future branches planned | [Plan](home-dashboard-branch-plan/README.md) |
+| Home dashboard branch plan | Current screen/bug review, useful dashboard additions and sequential mobile delivery briefs | HDB-01 merged; HDB-02 locally verified/review pending; later branches planned | [Plan](home-dashboard-branch-plan/README.md) |
 | Native operations | Consume the completed backend Rider API in five Flutter batches | Planned; Azure/device acceptance outstanding | [Plan](native-operations/README.md) |
 
 ## Rules for future plans

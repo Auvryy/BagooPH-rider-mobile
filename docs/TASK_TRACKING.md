@@ -422,6 +422,14 @@ operations show a real limitation and approved contact path.
 
 ### M09 — Directions and permitted contact
 
+**October 13 selected lifecycle work:** HDB-02 handles stream completion,
+registered Sedan / Van, explicit paused-task revalidation and hidden map
+request/camera work while navigation persists. Its loading/cancellation/retry
+checks and physical limits are in
+[HDB-02 evidence](plans/home-dashboard-branch-plan/HDB-02-EVIDENCE.md).
+The [PH/current-stop map recommendation](plans/home-dashboard-branch-plan/PH_MAP_FOCUS_NEXT.md)
+is future scope; this does not complete all M09/M16 or physical navigation gates.
+
 **Outcome:** the current authorized destination stays usable without a map service.
 
 1. Resolve the relevant stop from task state: seller, origin hub, destination

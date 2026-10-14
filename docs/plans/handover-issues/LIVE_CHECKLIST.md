@@ -6,6 +6,9 @@ Do not create substitute actors/parcels or confirm possession for a fixture.
 The October 14 native Linux read check passed fresh version-1 discovery, Home
 handover flags and an empty involved queue; see [evidence](EVIDENCE.md).
 The account-specific and device rows below remain for the controlled real flow.
+On October 15, an isolated native Flutter/Laravel kernel test also passed report,
+private PNG/PDF, uncertain-command, acknowledgement and fixture receipt checks.
+Those synthetic local actions do not close the live or physical rows below.
 
 ## Backend/operator information
 

@@ -4,6 +4,9 @@ Reviewed October 14, 2026. Client implementation and local verification passed.
 Azure native discovery/list reads passed. Live writes, involved detail/evidence,
 actual receiving-hub receipt and physical Android acceptance remain open in the
 [separate checklist](LIVE_CHECKLIST.md).
+The October 15 extension below adds native client/kernel flow verification with
+isolated synthetic resources, following the user's instruction to proceed locally
+without a phone or supplied actors.
 
 ## Source and scope
 
@@ -92,6 +95,56 @@ An empty queue proves authenticated discovery/list decoding only. No involved
 live detail, evidence download, report, possession event, upload-proxy limit or
 actual receipt was exercised. The operator's actual running commit/migration
 audit remains outstanding; read flags are partial deployment evidence.
+
+## October 15: isolated native client and Laravel kernel
+
+The [local runner](../../../tool/handover_local_api/README.md) passed one native
+Linux integration test against the unchanged Laravel HTTP kernel. It uses the
+backend's existing order/handover test helpers, a loopback-only HTTP bridge and
+SQLite `:memory:`. All other database connections are removed before migrations;
+files and application caches live in a temporary ignored Rider build directory
+and are removed on exit. No backend checkout or existing container was changed.
+The source checkout advanced to merged `main` `1327bc1`; the three H04 source
+fingerprints above remained unchanged.
+
+```sh
+node tool/handover_local_api/run.mjs ../bagoo
+```
+
+Observed through actual `ApiAuthRepository`, Dio, `HandoverRepository` and native
+`SecureHandoverJournal`:
+
+- Original PNG multipart bytes survive encrypted retention, a deliberately lost
+  committed response, repository recreation and owned command reconciliation.
+  The server records one report and one command; original stock, order, custody
+  and COD observations are unchanged by the report.
+- Involved list/detail decode and private image bytes return with the expected
+  response headers. The downloaded bytes and stored hash match the original.
+- Independently authenticated fixture web actors review and authorize through
+  existing backend helpers. Current native detail permits acknowledgement;
+  the rider sends an integer version, source token and true JSON boolean. One
+  holder event is recorded and the hold remains active.
+- The fixture's eligible web handler records receipt through the existing
+  receiving helper. Refreshed native detail then becomes recovered without a
+  rider receiving command.
+- A PDF interruption before dispatch produces `COMMAND_UNKNOWN`. Reconciliation
+  retains its original key and retries only that intent. The private PDF bytes
+  and stored hash match exactly, with two reports and three committed commands
+  overall, including the single acknowledgement.
+- An image with a PNG signature but unreadable contents is rejected by the real
+  backend validator. The native client receives HTTP 422 evidence field feedback
+  and clears only that definitively rejected intent.
+
+Final Dart analysis, formatting, PHP/Node syntax and diff checks passed. The
+ordinary product code and existing write defaults are unchanged by this test
+extension. The earlier full suite and ordinary builds retain their October 14
+scope; they were not rerun for these test-only additions.
+
+The bridge uses Node's standard Fetch multipart parser and passes UploadedFiles
+to Laravel's unchanged kernel. It does not certify PHP's web-server multipart
+parser, Azure/proxy upload limits, PostgreSQL concurrency, Android file picking,
+physical possession or real hub receipt. The fixture controls exist only in the
+test runner, and the integration test is skipped outside that runner.
 
 ## Remaining acceptance
 

@@ -17,7 +17,10 @@ The H04 source fingerprints stayed unchanged. Read-only sources are
 `docs/api/RIDER_HANDOVER_API.md`, `docs/api/rider-operations.openapi.json`,
 the exercised handover examples, native service/controller and relevant tests.
 The backend owns report involvement, source/version, holds, grants and custody.
-No backend edit, test, deployment, migration or reset is authorized here.
+The October 15 local verification extension runs the unchanged backend kernel
+and existing test helpers in isolated SQLite `:memory:`. It does not edit the
+backend checkout or change any development/production database, deployment or
+migration state. See the [local runner](../../../tool/handover_local_api/README.md).
 
 Add involved issue lists/detail from Home and owned Stop Mode, actual missed-scan
 reporting with one private evidence file, bearer evidence viewing and the named
@@ -48,6 +51,9 @@ prerequisite evidence; new encrypted original-file retention is scoped here.
    Refresh current detail before acknowledgement and after committed results.
 4. Verify contract/controller/widget regressions, analysis and native builds;
    exercise the actual deployed API and phone when their prerequisites exist.
+   The isolated local runner provides client/kernel evidence when live actors
+   and a phone are unavailable; its synthetic actions cannot establish physical
+   possession or deployed upload acceptance.
 
 ## Acceptance checklist
 

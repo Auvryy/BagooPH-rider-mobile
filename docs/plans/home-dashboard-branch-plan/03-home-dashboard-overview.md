@@ -1,6 +1,6 @@
 # HDB-03 — Make the Home overview useful with existing server data
 
-State: **locally implemented and verified; user review/publication pending**.
+State: **merged in PR 20; selected local checks verified**.
 Branch: `feat/home-dashboard-overview`.
 Activated October 14, 2026 from clean, updated `main` `d6ff936` after HDB-01,
 HDB-02 and the Philippines map slice (PR 19) were merged. Point estimate:

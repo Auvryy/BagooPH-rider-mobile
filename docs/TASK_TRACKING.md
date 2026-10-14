@@ -228,9 +228,9 @@ preserves the rider-claim pickup / hub-assignment final-mile distinction.
 
 | Selected experience | Major ownership | Current planning state |
 |---|---|---|
-| Stop Mode | M02, M04, M06–M09, M16 | Selected presentation over existing tasks/actions; not implemented |
+| Stop Mode | M02, M04, M06–M09, M16 | Current-stop presentation locally verified in HDB-04; review pending; physical action consumers remain separate |
 | Parcel Finder | M04, M06/M07 scanning, M16 cleanup | Selected extension; tag storage and incremental estimate pending |
-| Doorstep Guide | M01 task-detail contract, M04, M09, M16 | Selected extension; authorized instruction data and incremental estimate pending |
+| Doorstep Guide | M01 task-detail contract, M04, M09, M16 | HDB-04 displays supplied buyer stop instructions; richer fields and physical acceptance remain separate |
 
 The 180 cards and 63 batches cover the existing baseline. Do not report the new
 extensions complete from that catalog, silently include them in its 315-hour
@@ -323,6 +323,13 @@ capabilities are available. Browser sign-in does not become native token auth.
 Fully native registration/KYC remains a scope decision, not a hidden requirement.
 
 ### M04 — Home and task queues
+
+**October 14 selected Stop Mode:** HDB-04 adds a normal full-page current stop,
+recorded custody, full identifiers, fresh copy/call/directions and supplied buyer
+guidance. App/route resume revalidates; access/selection changes cancel old actions.
+See [the scoped evidence](plans/home-dashboard-branch-plan/HDB-04-EVIDENCE.md).
+This is client presentation over existing reads, not collection/delivery acceptance
+or full completion of its associated M04/M06/M07/M09/M16 cards.
 
 **October 14 selected overview:** HDB-03 presents existing Home placement,
 returned counts/capacity, observed freshness and shared friendly task stages.

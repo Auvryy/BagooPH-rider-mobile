@@ -6,6 +6,13 @@ a Linux phone frame or an APK build as a physical Android or Azure acceptance.
 
 ## Local review and regressions
 
+- [x] HDB-04 verifies fresh owned Stop Mode, preview privacy, exact identifiers/COD,
+  copy/contact/directions guards, changed stops, denied/late/cooldown states and
+  resume/Back/keyboard behavior. Selected layouts cover 320/390/840/1440 widths
+  at normal/200% text. Covering Home suspends its map while navigation continues;
+  a known handover hold prevents or stops navigation.
+  [Scoped evidence](HDB-04-EVIDENCE.md) keeps actual collection/departure,
+  Azure and physical Android acceptance separate.
 - [x] HDB-03 verifies returned placement/counts/capacity, observed freshness,
   shared friendly stages, failed-first-read recovery and reachable overview
   controls across the six selected widths at normal/200% text with keyboard.

@@ -129,6 +129,20 @@ class WorkspaceController extends ChangeNotifier {
       pendingIntent == null &&
       homeData.status == FeatureStatus.ready;
 
+  bool get hasWorkAccess =>
+      !_disposed && !_sessionEnded && !workAccessUnavailable;
+
+  bool canUseSelectedStop(String id) =>
+      hasWorkAccess &&
+      _foreground &&
+      !selectingTask &&
+      !coolingDown &&
+      homeData.status == FeatureStatus.ready &&
+      selectedTask?.id == id &&
+      selectedTask?.preview == false &&
+      !isTaskUnavailable(id) &&
+      !_readFailures.containsKey(_WorkRead.detail);
+
   void setForeground(bool value) {
     if (_foreground == value) return;
     _foreground = value;
@@ -310,6 +324,45 @@ class WorkspaceController extends ChangeNotifier {
       selectingTask = false;
       _changed();
     }
+  }
+
+  /// Keeps the displayed stop while checking it, but blocks its actions until
+  /// this read succeeds. A newer selection or session loss cancels the result.
+  Future<OperationTask?> revalidateSelectedStop(String id) async {
+    if (_disposed ||
+        _sessionEnded ||
+        !_foreground ||
+        coolingDown ||
+        selectingTask ||
+        selectedTask?.id != id ||
+        selectedTask?.preview != false ||
+        operations == null) {
+      return null;
+    }
+    final generation = ++_detailGeneration;
+    selectingTask = true;
+    _changed();
+    try {
+      final task = await operations!.detail(id);
+      if (_disposed || generation != _detailGeneration) return null;
+      selectedTask = task;
+      _readFailures.remove(_WorkRead.detail);
+      _unavailableTasks.remove(id);
+      if (unavailableTaskId == id) unavailableTaskId = null;
+    } catch (error) {
+      if (!_disposed && generation == _detailGeneration) {
+        if (error is AccountFailure && error.status == 404) {
+          _invalidateTask(id);
+        }
+        await _workError(error, read: _WorkRead.detail);
+      }
+    } finally {
+      if (!_disposed && generation == _detailGeneration) {
+        selectingTask = false;
+        _changed();
+      }
+    }
+    return canUseSelectedStop(id) ? selectedTask : null;
   }
 
   void _invalidateTask(String id) {
@@ -560,7 +613,7 @@ class WorkspaceController extends ChangeNotifier {
           } else {
             selectedTask = matches.first.operation;
           }
-        } else if (selected != null && operations != null) {
+        } else if (selected != null && operations != null && !selectingTask) {
           final detailGeneration = _detailGeneration;
           try {
             final detail = await operations!.detail(selected.id);

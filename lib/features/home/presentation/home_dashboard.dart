@@ -16,7 +16,6 @@ import '../../navigation/data/route_geometry.dart';
 import '../../navigation/presentation/geoapify_tiles.dart';
 import '../../navigation/presentation/philippines_map_mask.dart';
 import '../../navigation/presentation/navigation_controller.dart';
-import '../../navigation/presentation/navigation_controls.dart';
 import '../../navigation/presentation/navigation_providers.dart';
 import '../../workspace/data/workspace_models.dart';
 import '../data/operations_repository.dart';
@@ -211,8 +210,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
             account: widget.account,
             controller: widget.controller,
             preview: false,
-            navigationActions: (task) =>
-                NavigationControls(task: task, navigation: nav),
+            navigation: nav,
           ).openParcel(context, display);
         },
         onQueueChanged: (_) {
@@ -239,7 +237,10 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
       );
   @override
   Widget build(BuildContext context) {
-    if (!widget.active) return const SizedBox.shrink();
+    if (!widget.active || ModalRoute.isCurrentOf(context) == false) {
+      _setMapVisible(false);
+      return const SizedBox.shrink();
+    }
     final nav = ref.watch(navigationProvider),
         geo = ref.watch(geoapifyProvider);
     final outline = ref.watch(philippinesMapRegionProvider);

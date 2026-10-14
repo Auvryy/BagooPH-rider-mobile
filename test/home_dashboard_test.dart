@@ -25,6 +25,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'operations_contract_test.dart' as support;
+import 'navigation_test.dart' as navigation;
 
 class MemoryTiles extends GeoapifyClient {
   MemoryTiles() : super('synthetic-map-key');
@@ -115,13 +116,15 @@ void main() {
       );
       final controller = WorkspaceController(repo);
       controller.selectQueue(TaskQueue.delivery);
-      final geo = GeoapifyClient('');
+      final geo = MemoryTiles();
+      final roads = navigation.Routes();
       final nav = NavigationController(
-        routes: geo,
+        routes: roads,
         authorize: (_) async => owned,
         vehicleType: () async => null,
         manual: true,
       );
+      final binding = NavigationWorkspaceBinding(controller, nav);
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -164,15 +167,43 @@ void main() {
         find.byKey(const ValueKey('home-selected-details')),
       );
       await tester.pumpAndSettle();
+      await nav.start(
+        owned,
+        chosenProfile: NavigationProfile.motorcycle,
+        manualOrigin: const LatLng(14.003, 121),
+      );
+      await tester.pumpAndSettle();
+      expect(nav.active, isTrue);
       await tester.tap(find.byKey(const ValueKey('home-selected-details')));
+      await tester.pumpAndSettle();
+      expect(find.byType(FlutterMap, skipOffstage: false), findsNothing);
+      expect(nav.active, isTrue);
+      final hiddenCalls = geo.calls.length;
+      await nav.updateFix(
+        LocationFix(const LatLng(14.002, 121), DateTime.now(), 5),
+      );
+      await tester.pumpAndSettle();
+      expect(geo.calls.length, hiddenCalls);
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('stop-navigate')),
+        200,
+        scrollable: find
+            .descendant(
+              of: find.byKey(const ValueKey('stop-mode-scroll')),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
       await tester.pumpAndSettle();
       expect(find.text('Navigate'), findsOneWidget);
       expect(find.text('Origin latitude'), findsOneWidget);
-      await tester.ensureVisible(find.text('Back to tasks'));
+      await tester.ensureVisible(find.byKey(const ValueKey('stop-back')));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Back to tasks'));
+      await tester.tap(find.byKey(const ValueKey('stop-back')));
       await tester.pumpAndSettle();
       expect(controller.selectedTask?.id, owned.id);
+      expect(find.byType(FlutterMap), findsOneWidget);
+      expect(nav.active, isTrue);
       await controller.openTask(OperationsRepository.asRiderTask(owned));
       expect(controller.selectedTask?.id, owned.id);
       j['stop']['latitude'] = null;
@@ -185,11 +216,15 @@ void main() {
           .widget<MarkerLayer>(find.byType(MarkerLayer))
           .markers;
       expect(markers, isEmpty);
+      expect(controller.selectedTask?.id, owned.id);
+      await revealHome(tester, find.text('Address only · no saved map pin'));
       expect(find.text('Address only · no saved map pin'), findsOneWidget);
       await tester.pumpWidget(const SizedBox.shrink());
+      binding.dispose();
       controller.dispose();
       nav.dispose();
       geo.dispose();
+      roads.dispose();
       tester.view.resetPhysicalSize();
       tester.view.resetDevicePixelRatio();
     },

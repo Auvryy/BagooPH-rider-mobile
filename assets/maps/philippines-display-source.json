@@ -1,0 +1,24 @@
+{
+  "source": "https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/PHL/ADM0/geoBoundaries-PHL-ADM0.geojson",
+  "sourceSha256": "7c3a7a39dacb5fb0c14d150061306fa5839455fbf93231854af3c6d74a1fa24f",
+  "sourceYear": "2020",
+  "boundaryId": "PHL-ADM0-24100683",
+  "sourceAttribution": "OCHA Philippines / NAMRIA, via geoBoundaries",
+  "licenses": [
+    "https://creativecommons.org/licenses/by/3.0/igo/",
+    "https://creativecommons.org/licenses/by/4.0/"
+  ],
+  "changes": "Topology-preserving simplification; all source islands retained.",
+  "toleranceDegrees": 0.0005,
+  "sourcePolygons": 2852,
+  "polygons": 2852,
+  "vertices": 98879,
+  "bounds": [
+    114.27790168600006,
+    4.587390601000038,
+    126.60495742800003,
+    21.121755276000044
+  ],
+  "assetBytes": 3881449,
+  "assetSha256": "2cb0ca5ec72cdc40b31212a31517579861e8f91b9b3a965b73fb3e7d837f5bad"
+}

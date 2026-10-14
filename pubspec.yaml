@@ -36,6 +36,9 @@ flutter:
   assets:
     - assets/branding/gooriders-icon.png
     - assets/fonts/OFL.txt
+    - assets/maps/philippines-display.geojson
+    - assets/maps/README.md
+    - assets/maps/philippines-display-source.json
   fonts:
     - family: Plus Jakarta Sans
       fonts:

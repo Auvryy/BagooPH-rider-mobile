@@ -8,16 +8,10 @@ import '../../workspace/presentation/workspace_controller.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
 import '../data/operations_models.dart';
 import '../data/operations_repository.dart';
+import 'task_stage_label.dart';
 
-String taskStageLabel(String stage) => switch (stage) {
-  'unassigned' => 'Ready for pickup',
-  'assigned' || 'assigned_pickup' => 'Pickup assigned',
-  'picked_up' => 'Bring to origin hub',
-  'assigned_to_rider' => 'Collect at destination hub',
-  'out_for_delivery' => 'On delivery',
-  'delivery_failed' => 'Return to destination hub',
-  _ => 'Unknown work stage',
-};
+export 'task_stage_label.dart' show taskStageLabel;
+
 String stopKindLabel(String? kind) => switch (kind) {
   'seller' => 'Seller pickup',
   'origin_hub' => 'Origin hub',
@@ -78,6 +72,10 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
   @override
   Widget build(BuildContext context) {
     final selected = controller.selectedTask;
+    final waitingForFailedHome =
+        controller.homeData.status == FeatureStatus.failed &&
+        controller.homeData.data == null &&
+        controller.taskData.data == null;
     if (selected?.id != _lastSelection) {
       _lastSelection = selected?.id;
       if (selected != null) {
@@ -106,14 +104,6 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                     onPressed: () => setState(() => _searching = !_searching),
                     icon: const Icon(Icons.search_rounded),
                   ),
-                  IconButton(
-                    key: const ValueKey('home-refresh-tasks'),
-                    tooltip: 'Refresh tasks',
-                    onPressed: controller.canRefresh
-                        ? controller.refreshAll
-                        : null,
-                    icon: const Icon(Icons.refresh_rounded),
-                  ),
                 ],
               ),
               if (selected != null) ...[
@@ -138,6 +128,11 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                       TaskQueue.delivery => 'final_mile',
                     };
                     final count = controller.homeData.data?.counts[key];
+                    final countLabel = count == null
+                        ? 'count unavailable'
+                        : controller.homeData.status == FeatureStatus.ready
+                        ? '$count tasks'
+                        : 'last checked $count tasks';
                     final active = controller.queue == queue;
                     final label = Text(
                       queue.label,
@@ -157,8 +152,7 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                     return Semantics(
                       selected: active,
                       button: true,
-                      label:
-                          '${queue.label}, ${count == null ? 'count unavailable' : '$count tasks'}',
+                      label: '${queue.label}, $countLabel',
                       child: RiderPressFeedback(
                         child: TextButton(
                           key: ValueKey('task-queue-${queue.name}'),
@@ -229,6 +223,12 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                 },
               ),
               const SizedBox(height: 14),
+              if (controller.homeData.data != null &&
+                  controller.homeData.status != FeatureStatus.ready)
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 8),
+                  child: Text('Queue counts are from the last Home check.'),
+                ),
               if (_searching)
                 TextField(
                   controller: _search,
@@ -272,7 +272,11 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         sliver: SliverToBoxAdapter(
           child: FeatureStateView<List<RiderTask>>(
-            data: controller.taskData,
+            data: waitingForFailedHome
+                ? const FeatureData.failed(
+                    'Check work availability to load this queue.',
+                  )
+                : controller.taskData,
             icon: Icons.inventory_2_outlined,
             title: 'Tasks',
             website: RiderWebsitePage.tasks,
@@ -461,6 +465,22 @@ class _SelectedStop extends StatelessWidget {
             ),
           ],
         ),
+        SelectableText(
+          task.tracking,
+          key: const ValueKey('home-selected-reference'),
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+        const SizedBox(height: 6),
+        Wrap(
+          children: [
+            WorkspaceBadge(
+              taskStageLabel(task.stage),
+              key: const ValueKey('home-selected-stage'),
+              accent: true,
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
         Text(
           task.stop.name ?? 'Stop name unavailable',
           style: Theme.of(context).textTheme.titleMedium,

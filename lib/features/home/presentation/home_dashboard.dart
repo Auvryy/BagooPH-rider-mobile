@@ -302,10 +302,16 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                     child: Column(
                       children: [
                         SizedBox(
-                          height: (constraints.maxHeight * .5).clamp(
-                            240.0,
-                            360.0,
-                          ),
+                          height:
+                              MediaQuery.textScalerOf(context).scale(14) > 20
+                              ? (constraints.maxHeight * .33).clamp(
+                                  160.0,
+                                  240.0,
+                                )
+                              : (constraints.maxHeight * .42).clamp(
+                                  200.0,
+                                  320.0,
+                                ),
                           child: _mapArea(nav, geo, focus),
                         ),
                         _attribution(),

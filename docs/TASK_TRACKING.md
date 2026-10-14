@@ -324,6 +324,12 @@ Fully native registration/KYC remains a scope decision, not a hidden requirement
 
 ### M04 — Home and task queues
 
+**October 14 selected overview:** HDB-03 presents existing Home placement,
+returned counts/capacity, observed freshness and shared friendly task stages.
+See [the scoped evidence](plans/home-dashboard-branch-plan/HDB-03-EVIDENCE.md).
+Whole-card daily activity, live operational writes and physical acceptance stay
+separate; the canonical 180-card catalog is not marked complete by this UI slice.
+
 **October 13 selected fix:** HDB-01 separates read recovery from unresolved
 commands, removes newly hidden tasks and stops their routes outside the map's
 lifecycle. Scoped implementation and verification are recorded in

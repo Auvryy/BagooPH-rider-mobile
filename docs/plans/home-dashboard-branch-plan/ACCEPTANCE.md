@@ -6,6 +6,11 @@ a Linux phone frame or an APK build as a physical Android or Azure acceptance.
 
 ## Local review and regressions
 
+- [x] HDB-03 verifies returned placement/counts/capacity, observed freshness,
+  shared friendly stages, failed-first-read recovery and reachable overview
+  controls across the six selected widths at normal/200% text with keyboard.
+  [Scoped evidence](HDB-03-EVIDENCE.md) distinguishes local UI checks, existing
+  API source, ongoing handover work and still-open Azure/physical acceptance.
 - [x] Inspect baseline Home entry/shell, queues/search/paging, selected detail,
   duty/recovery, map/attribution and navigation controls.
 - [x] Run the existing five related suites: 43 tests passed on October 13.

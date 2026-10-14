@@ -1,10 +1,15 @@
 # HDB-03 — Make the Home overview useful with existing server data
 
-State: **planned, not activated**. Branch: `feat/home-dashboard-overview`.
+State: **locally implemented and verified; user review/publication pending**.
+Branch: `feat/home-dashboard-overview`.
+Activated October 14, 2026 from clean, updated `main` `d6ff936` after HDB-01,
+HDB-02 and the Philippines map slice (PR 19) were merged. Point estimate:
+**6 client hours**, October 14–16, due October 16 at 18:00 Asia/Manila.
+See [selected implementation evidence](HDB-03-EVIDENCE.md).
 Planning effort: **4–7 client hours**, including selected checks,
 excluding owner/API/device waiting. Recommended model/effort: **GPT-6.1 Sol / Medium**.
-Re-estimate from current evidence before activation; assign a 1–14 inclusive-day
-window ending by November 20. No runtime result is claimed by this brief.
+The selected window is three inclusive calendar days and ends before November 20.
+Local UI verification does not establish fresh Azure or physical-phone acceptance.
 
 ## Dependencies and API needs
 
@@ -43,15 +48,15 @@ code/docs, its branch and unrelated work remain read only for this mobile slice.
 
 ## Finish evidence
 
-- [ ] 320/390/430/840/1000/1440 widths, 200% text and keyboard have reachable work filters/actions with no draggable task panel.
-- [ ] Loading, missing placement, empty, full capacity, read failure/stale recovery and unknown counts are distinct.
-- [ ] Details use a friendly current-stage label and full identifier; shared formatting never changes server permissions.
-- [ ] Dashboard quantities match returned counts/capacity and time comes from observed data.
-- [ ] Run analysis and the meaningful selected contract/controller/widget checks;
+- [x] 320/390/430/840/1000/1440 widths, 200% text and keyboard have reachable work filters/actions with no draggable task panel.
+- [x] Loading, missing placement, empty, full capacity, read failure/stale recovery and unknown counts are distinct.
+- [x] Details use a friendly current-stage label and full identifier; shared formatting never changes server permissions.
+- [x] Dashboard quantities match returned counts/capacity and time comes from observed data.
+- [x] Run analysis and the meaningful selected contract/controller/widget checks;
   add ordinary native builds when runtime/platform/integration risk requires them.
-- [ ] Record local versus authorized Azure versus physical Android evidence,
+- [x] Record local versus authorized Azure versus physical Android evidence,
   remaining gates, reviewed source and coherent local commits in the owning plan.
-- [ ] Review scope/privacy and the staged diff; the user handles push/PR/merge.
+- [x] Review scope/privacy and the staged diff; the user handles push/PR/merge.
 
 ## Stop boundary
 

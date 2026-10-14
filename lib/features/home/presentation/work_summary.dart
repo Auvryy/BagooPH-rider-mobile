@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/ui/rider_surfaces.dart';
 import '../../workspace/data/workspace_models.dart';
 import '../../workspace/presentation/workspace_controller.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
@@ -12,11 +13,23 @@ class WorkSummary extends StatelessWidget {
   });
   final WorkspaceController controller;
   final bool compact;
+
+  String _placement(String kind, String? id, String? name) => id == null
+      ? '$kind not assigned'
+      : name == null || name.trim().isEmpty
+      ? '$kind name unavailable'
+      : name;
+
   @override
   Widget build(BuildContext context) {
-    final home = controller.homeData.data;
+    final state = controller.homeData;
+    final home = state.data;
+    final supportingStyle = compact
+        ? Theme.of(context).textTheme.bodySmall
+        : Theme.of(context).textTheme.bodyMedium;
     final eligibility = switch (home?.claimDenial) {
-      'PLACEMENT_UNAVAILABLE' => 'Your hub assignment needs attention.',
+      'PLACEMENT_UNAVAILABLE' =>
+        'Your company or hub assignment needs attention.',
       'OFF_DUTY' => 'Go on duty to claim new pickups.',
       'PICKUP_CAPACITY' => 'Your pickup capacity is full.',
       'OTHER_ACTIVE_WORK' =>
@@ -24,100 +37,159 @@ class WorkSummary extends StatelessWidget {
       null =>
         home == null
             ? null
-            : '${home.capacity['active_pickups']} of ${home.capacity['pickup_limit']} pickup slots in use',
+            : home.canClaim
+            ? 'Eligible for new pickup claims.'
+            : home.operational
+            ? 'New pickup claims are unavailable.'
+            : 'Your work eligibility needs confirmation.',
       _ => 'Pickup availability needs confirmation.',
+    };
+    final freshness = switch (state.status) {
+      FeatureStatus.loading => 'Checking work availability…',
+      FeatureStatus.refreshing =>
+        'Refreshing work · showing last checked data.',
+      FeatureStatus.failed =>
+        home == null
+            ? 'Could not check work availability.'
+            : 'Refresh failed · showing last checked data.',
+      FeatureStatus.unavailable => 'Work availability unavailable.',
+      FeatureStatus.ready => null,
     };
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (home != null) ...[
-          if (compact)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Icon(Icons.warehouse_outlined, size: 20),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        home.hub ?? 'Hub not assigned',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                        ),
-                      ),
-                      if (home.barangay != null)
-                        Text(
-                          home.barangay!,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                    ],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final placement = Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 3),
+                    child: Icon(Icons.warehouse_outlined, size: 20),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Column(
-                  children: [
-                    Text(
-                      home.onDuty ? 'On duty' : 'Off duty',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 12,
-                      ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _placement('Company', home.companyId, home.company),
+                          key: const ValueKey('home-company'),
+                          style: supportingStyle,
+                        ),
+                        Text(
+                          _placement('Hub', home.hubId, home.hub),
+                          key: const ValueKey('home-hub'),
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                        Text(
+                          home.barangay == null || home.barangay!.trim().isEmpty
+                              ? 'Coverage not assigned'
+                              : home.barangay!,
+                          style: supportingStyle,
+                        ),
+                      ],
                     ),
-                    Semantics(
-                      label: 'Duty availability',
-                      child: Switch(
-                        value: home.onDuty,
-                        onChanged:
-                            controller.canWrite &&
-                                home.capabilities['duty'] == true
-                            ? controller.setDuty
-                            : null,
-                      ),
+                  ),
+                ],
+              );
+              final duty = Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(child: Text(home.onDuty ? 'On duty' : 'Off duty')),
+                  const SizedBox(width: 4),
+                  Semantics(
+                    label: 'Duty availability',
+                    child: Switch(
+                      value: home.onDuty,
+                      onChanged:
+                          controller.canWrite &&
+                              home.capabilities['duty'] == true
+                          ? controller.setDuty
+                          : null,
                     ),
-                  ],
-                ),
-              ],
-            )
-          else
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                WorkspaceBadge(home.hub ?? 'Hub not assigned'),
-                if (home.barangay != null) WorkspaceBadge(home.barangay!),
-                WorkspaceBadge(
-                  'Available ${home.counts['available']} · Pickups ${home.counts['pickup']} · Delivery ${home.counts['final_mile']}',
-                ),
-              ],
+                  ),
+                ],
+              );
+              if (constraints.maxWidth < 400 ||
+                  MediaQuery.textScalerOf(context).scale(14) > 20) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [placement, duty],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: placement),
+                  const SizedBox(width: 12),
+                  duty,
+                ],
+              );
+            },
+          ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            children: [
+              WorkspaceBadge(
+                'Pickup slots: ${home.capacity['active_pickups']} of ${home.capacity['pickup_limit']} in use',
+              ),
+              WorkspaceBadge(
+                '${home.capacity['remaining_pickups']} slots remaining',
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(eligibility!, style: supportingStyle),
+          if (!home.onDuty)
+            Text(
+              'Existing pickups and assigned deliveries remain your responsibility.',
+              style: supportingStyle,
             ),
-          if (!compact)
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(home.onDuty ? 'On duty' : 'Off duty'),
-              subtitle: Text(eligibility ?? 'Work eligibility unavailable'),
-              value: home.onDuty,
-              onChanged:
-                  controller.canWrite && home.capabilities['duty'] == true
-                  ? controller.setDuty
-                  : null,
-            ),
-          if (compact && eligibility != null)
-            Text(eligibility, style: Theme.of(context).textTheme.bodySmall),
-          if (controller.homeData.status != FeatureStatus.ready)
-            const Text('Work data needs refresh before starting an action.'),
           if (controller.operations?.writesVerified != true)
             Text(
-              compact
-                  ? 'Work actions are currently unavailable.'
-                  : 'Work actions are awaiting deployment verification.',
-              style: Theme.of(context).textTheme.bodySmall,
+              'Work actions are currently unavailable.',
+              style: supportingStyle,
             ),
         ] else
-          Text(controller.homeData.message ?? 'Loading work availability…'),
-        if (controller.workFailure != null)
+          Text('Pickup capacity unavailable.', style: supportingStyle),
+        if (freshness != null)
+          Semantics(
+            liveRegion: true,
+            child: Text(freshness, style: supportingStyle),
+          ),
+        if (state.message != null) Text(state.message!),
+        if (home != null)
+          Text(
+            'Home checked ${dayLabel(home.observedAt)} · ${timeLabel(home.observedAt)} PHT',
+            key: const ValueKey('home-checked-time'),
+            style: supportingStyle,
+          ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: RiderPressFeedback(
+            child: Tooltip(
+              message: 'Refresh tasks',
+              child: TextButton.icon(
+                key: const ValueKey('home-refresh-tasks'),
+                onPressed: controller.canRefresh ? controller.refreshAll : null,
+                icon: const Icon(Icons.refresh_rounded, size: 18),
+                label: Text(
+                  state.status == FeatureStatus.loading ||
+                          state.status == FeatureStatus.refreshing
+                      ? 'Checking work…'
+                      : controller.coolingDown
+                      ? 'Refresh available shortly'
+                      : 'Refresh work',
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (controller.workFailure != null &&
+            controller.workFailure!.message != state.message)
           Text(
             controller.workFailure!.message,
             style: TextStyle(color: Theme.of(context).colorScheme.error),
@@ -129,6 +201,7 @@ class WorkSummary extends StatelessWidget {
           ),
           Wrap(
             spacing: 8,
+            runSpacing: 4,
             children: [
               TextButton(
                 onPressed: controller.working || controller.coolingDown

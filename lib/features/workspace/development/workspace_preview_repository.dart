@@ -52,7 +52,11 @@ class PreviewWorkspaceRepository implements WorkspaceRepository {
           (t) => RiderTask(
             id: t.tracking,
             tracking: t.tracking,
-            stage: t.stage,
+            stage: switch (queue) {
+              TaskQueue.available => 'unassigned',
+              TaskQueue.pickups => 'picked_up',
+              TaskQueue.delivery => 'assigned_to_rider',
+            },
             stop: t.stop,
             address: t.address,
             nextStep: t.nextStep,

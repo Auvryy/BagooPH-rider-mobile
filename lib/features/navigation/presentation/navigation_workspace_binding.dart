@@ -16,9 +16,9 @@ class NavigationWorkspaceBinding {
 
   void _sync() {
     final task = navigation.navigatingTask;
-    if (task == null) return;
-    if (workspace.workAccessUnavailable ||
-        workspace.isTaskUnavailable(task.id)) {
+    final id = task?.id ?? navigation.pausedTaskId;
+    if (id == null) return;
+    if (workspace.workAccessUnavailable || workspace.isTaskUnavailable(id)) {
       unawaited(
         navigation.stop(
           reason: 'This task is no longer available. Refresh before navigating again.',

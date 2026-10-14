@@ -21,7 +21,7 @@ enum NavigationProfile {
       switch (type?.trim().toLowerCase()) {
         'motorcycle' => motorcycle,
         'scooter' => scooter,
-        'sedan' || 'van' => drive,
+        'sedan' || 'van' || 'sedan / van' => drive,
         _ => null,
       };
 }

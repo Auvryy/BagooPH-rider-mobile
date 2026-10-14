@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/ui/rider_surfaces.dart';
 
 import '../../home/data/operations_models.dart';
+import '../../home/presentation/stop_guidance.dart';
 import '../data/route_geometry.dart';
 import 'navigation_controller.dart';
 import 'navigation_providers.dart';
@@ -15,9 +16,15 @@ class NavigationControls extends StatefulWidget {
     super.key,
     required this.task,
     required this.navigation,
+    this.enabled = true,
+    this.revalidateTask,
+    this.launchDirections,
   });
   final OperationTask task;
   final NavigationController navigation;
+  final bool enabled;
+  final Future<OperationTask?> Function()? revalidateTask;
+  final Future<bool> Function(Uri)? launchDirections;
   @override
   State<NavigationControls> createState() => _NavigationControlsState();
 }
@@ -27,6 +34,7 @@ class _NavigationControlsState extends State<NavigationControls> {
       _longitude = TextEditingController();
   NavigationProfile? _profile;
   String? _error;
+  bool _checking = false;
   @override
   void dispose() {
     _latitude.dispose();
@@ -40,6 +48,7 @@ class _NavigationControlsState extends State<NavigationControls> {
     builder: (context, _) {
       final nav = widget.navigation, stop = widget.task.stop;
       final coords = stop.latitude != null && stop.longitude != null;
+      final enabled = widget.enabled && !_checking && !nav.starting;
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -49,23 +58,27 @@ class _NavigationControlsState extends State<NavigationControls> {
             ),
           if (coords) ...[
             DropdownButtonFormField<NavigationProfile>(
+              isExpanded: true,
               initialValue: _profile,
               decoration: const InputDecoration(
-                labelText: 'Navigation profile (if vehicle is unknown)',
+                labelText: 'Navigation profile',
+                helperText: 'Choose only if the registered vehicle is unknown.',
+                helperMaxLines: 3,
               ),
               items: [
                 for (final profile in NavigationProfile.values)
                   DropdownMenuItem(value: profile, child: Text(profile.label)),
               ],
-              onChanged: nav.starting
-                  ? null
-                  : (value) => setState(() => _profile = value),
+              onChanged: enabled
+                  ? (value) => setState(() => _profile = value)
+                  : null,
             ),
             if (nav.manual) ...[
               const SizedBox(height: 12),
               const Text('Manual preview origin · Linux does not track GPS'),
               TextField(
                 controller: _latitude,
+                enabled: enabled,
                 keyboardType: const TextInputType.numberWithOptions(
                   signed: true,
                   decimal: true,
@@ -74,6 +87,7 @@ class _NavigationControlsState extends State<NavigationControls> {
               ),
               TextField(
                 controller: _longitude,
+                enabled: enabled,
                 keyboardType: const TextInputType.numberWithOptions(
                   signed: true,
                   decimal: true,
@@ -85,9 +99,10 @@ class _NavigationControlsState extends State<NavigationControls> {
             ],
             const SizedBox(height: 12),
             FilledButton(
-              onPressed: nav.starting
-                  ? null
-                  : () async {
+              key: const ValueKey('stop-navigate'),
+              style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
+              onPressed: enabled
+                  ? () async {
                       LatLng? origin;
                       if (nav.manual) {
                         final lat = double.tryParse(_latitude.text.trim()),
@@ -103,64 +118,123 @@ class _NavigationControlsState extends State<NavigationControls> {
                         }
                         origin = LatLng(lat, lon);
                       }
-                      setState(() => _error = null);
+                      final profile = _profile;
+                      var selection = widget.task;
+                      setState(() {
+                        _error = null;
+                        _checking = true;
+                      });
+                      if (widget.revalidateTask != null) {
+                        final fresh = await widget.revalidateTask!();
+                        if (!mounted) return;
+                        if (fresh == null) {
+                          setState(() {
+                            _checking = false;
+                            _error = 'Review or refresh the current stop before navigating.';
+                          });
+                          return;
+                        }
+                        selection = fresh;
+                      }
                       await nav.start(
-                        widget.task,
-                        chosenProfile: _profile,
+                        selection,
+                        chosenProfile: profile,
                         manualOrigin: origin,
                       );
-                    },
-              child: Text(nav.starting ? 'Starting…' : 'Navigate'),
+                      if (mounted) setState(() => _checking = false);
+                    }
+                  : null,
+              child: Text(
+                nav.starting
+                    ? 'Starting…'
+                    : _checking
+                    ? 'Checking stop…'
+                    : 'Navigate',
+              ),
             ),
           ],
           if (_error != null) Text(_error!),
           if (nav.message != null) Text(nav.message!),
-          if (nav.active)
+          if (nav.active || nav.starting || nav.paused)
             OutlinedButton(
+              key: const ValueKey('stop-navigation-stop'),
+              style: OutlinedButton.styleFrom(minimumSize: const Size(0, 48)),
               onPressed: nav.stop,
               child: const Text('Stop navigation'),
             ),
           if (stop.address?.trim().isNotEmpty == true || coords)
             TextButton.icon(
+              key: const ValueKey('stop-external-directions'),
+              style: TextButton.styleFrom(minimumSize: const Size(0, 48)),
               icon: const Icon(Icons.directions_outlined),
               label: const Text('External directions'),
-              onPressed: () async {
-                try {
-                  final refreshed = await nav.authorize(widget.task.id);
-                  if (!mounted || refreshed.preview) return;
-                  final currentStop = refreshed.stop;
-                  final target =
-                      currentStop.latitude != null &&
-                          currentStop.longitude != null
-                      ? '${currentStop.latitude},${currentStop.longitude}'
-                      : currentStop.address;
-                  if (target == null || target.trim().isEmpty) {
-                    setState(
-                      () => _error = 'This stop has no address or coordinates.',
-                    );
-                    return;
-                  }
-                  final uri = Uri.https('www.google.com', '/maps/dir/', {
-                    'api': '1',
-                    'destination': target,
-                  });
-                  final ok = await launchUrl(
-                    uri,
-                    mode: LaunchMode.externalApplication,
-                  );
-                  if (mounted && !ok) {
-                    setState(
-                      () => _error = 'Could not open external directions. Use the stop address.',
-                    );
-                  }
-                } catch (_) {
-                  if (mounted) {
-                    setState(
-                      () => _error = 'Revalidate this task before opening external directions.',
-                    );
-                  }
-                }
-              },
+              onPressed: !enabled
+                  ? null
+                  : () async {
+                      final reviewed = widget.task;
+                      setState(() {
+                        _checking = true;
+                        _error = null;
+                      });
+                      var authorized = false;
+                      try {
+                        final refreshed = widget.revalidateTask == null
+                            ? await nav.authorize(reviewed.id)
+                            : await widget.revalidateTask!();
+                        if (!mounted) return;
+                        if (refreshed == null || refreshed.preview) {
+                          setState(
+                            () => _error = 'Review or refresh the current stop before opening directions.',
+                          );
+                          return;
+                        }
+                        if (!sameReviewedStop(reviewed, refreshed)) {
+                          setState(
+                            () => _error = 'The stop changed. Review its current details before opening directions.',
+                          );
+                          return;
+                        }
+                        final currentStop = refreshed.stop;
+                        final target =
+                            currentStop.latitude != null &&
+                                currentStop.longitude != null
+                            ? '${currentStop.latitude},${currentStop.longitude}'
+                            : currentStop.address;
+                        if (target == null || target.trim().isEmpty) {
+                          setState(
+                            () => _error =
+                                'This stop has no address or coordinates.',
+                          );
+                          return;
+                        }
+                        final uri = Uri.https('www.google.com', '/maps/dir/', {
+                          'api': '1',
+                          'destination': target,
+                        });
+                        authorized = true;
+                        final ok = widget.launchDirections == null
+                            ? await launchUrl(
+                                uri,
+                                mode: LaunchMode.externalApplication,
+                              )
+                            : await widget.launchDirections!(uri);
+                        if (mounted && !ok) {
+                          setState(
+                            () => _error = 'Could not open external directions. Use the stop address.',
+                          );
+                        }
+                      } catch (_) {
+                        if (mounted) {
+                          setState(
+                            () => _error = authorized
+                                ? 'Could not open external directions. Use the stop address.'
+                                : 'Revalidate this task before opening external directions.',
+                          );
+                        }
+                      } finally {
+                        if (mounted) setState(() => _checking = false);
+                      }
+                    },
             ),
         ],
       );

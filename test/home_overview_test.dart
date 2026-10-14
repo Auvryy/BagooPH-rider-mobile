@@ -8,7 +8,7 @@ import 'package:bagoo_rider_mobile/features/auth/presentation/auth_controller.da
 import 'package:bagoo_rider_mobile/features/home/data/operations_models.dart';
 import 'package:bagoo_rider_mobile/features/home/data/operations_repository.dart';
 import 'package:bagoo_rider_mobile/features/home/presentation/home_dashboard.dart';
-import 'package:bagoo_rider_mobile/features/home/presentation/tasks_page.dart';
+import 'package:bagoo_rider_mobile/features/home/presentation/stop_mode_page.dart';
 import 'package:bagoo_rider_mobile/features/navigation/data/geoapify_client.dart';
 import 'package:bagoo_rider_mobile/features/navigation/data/philippines_map_region.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/navigation_controller.dart';
@@ -296,13 +296,16 @@ void main() {
       expect(h.controller.selectedTask!.stage, stage);
       await _tap(tester, find.byKey(const ValueKey('home-selected-details')));
       expect(
-        find.descendant(of: find.byType(TaskCard), matching: find.text(label)),
+        find.descendant(
+          of: find.byType(StopModePage),
+          matching: find.text(label),
+        ),
         findsOneWidget,
       );
       expect(find.text(stage), findsNothing);
       expect(
         find.descendant(
-          of: find.byType(TaskCard),
+          of: find.byType(StopModePage),
           matching: find.text(h.task.tracking),
         ),
         findsOneWidget,
@@ -377,7 +380,7 @@ void main() {
             tester,
             find.byKey(const ValueKey('home-selected-details')),
           );
-          await _tap(tester, find.text('Back to tasks'));
+          await _tap(tester, find.byKey(const ValueKey('stop-back')));
           if (width == 390 && scale == 1) {
             await _capture(tester, 'phone-selected-stop');
           }
@@ -395,7 +398,7 @@ void main() {
             tester,
             find.byKey(const ValueKey('home-selected-details')),
           );
-          await _tap(tester, find.text('Back to tasks'));
+          await _tap(tester, find.byKey(const ValueKey('stop-back')));
           h.keyboard.value = 0;
           await tester.pumpAndSettle();
           await _tap(tester, find.byKey(const ValueKey('home-refresh-tasks')));

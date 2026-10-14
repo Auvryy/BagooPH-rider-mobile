@@ -517,7 +517,7 @@ class _SelectedStop extends StatelessWidget {
               key: const ValueKey('home-selected-details'),
               onPressed: onDetails,
               icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-              label: const Text('View details'),
+              label: Text(task.preview ? 'View pickup' : 'Work this stop'),
             ),
             if (task.stop.latitude != null && task.stop.longitude != null)
               TextButton.icon(

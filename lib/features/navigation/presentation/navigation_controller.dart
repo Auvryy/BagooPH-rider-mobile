@@ -51,6 +51,7 @@ class NavigationController extends ChangeNotifier {
   int _generation = 0, _offRouteFixes = 0;
   DateTime? _lastFixAt;
   bool _disposed = false;
+  bool get isDisposed => _disposed;
   int? _checkingGeneration;
   void _changed() {
     if (!_disposed) notifyListeners();
@@ -83,6 +84,11 @@ class NavigationController extends ChangeNotifier {
       }
       final owned = await authorize(selection.id);
       if (_disposed || generation != _generation) return;
+      if (owned.actionDenials['handover'] == 'HANDOVER_HOLD') {
+        throw StateError(
+          'This parcel is on a reviewed handover hold. Follow the current instruction before navigating.',
+        );
+      }
       if (owned.preview ||
           owned.stop.latitude == null ||
           owned.stop.longitude == null) {
@@ -275,6 +281,14 @@ class NavigationController extends ChangeNotifier {
   void stopIfTaskChanged(OperationTask fresh) {
     final selected = navigatingTask;
     if (_disposed || selected == null || fresh.id != selected.id) return;
+    if (fresh.actionDenials['handover'] == 'HANDOVER_HOLD') {
+      unawaited(
+        stop(
+          reason: 'Navigation stopped for a reviewed handover hold. Follow the current instruction.',
+        ),
+      );
+      return;
+    }
     if (fresh.preview ||
         fresh.assignmentReference != selected.assignmentReference ||
         fresh.stop.kind != selected.stop.kind ||

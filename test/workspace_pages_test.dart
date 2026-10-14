@@ -361,71 +361,89 @@ void main() {
       expect(repo.reads.last, 'preview-delivery:final_mile:preview-m3');
     },
   );
-  testWidgets(
-    'loss of approval closes a private parcel sheet and returns to holding',
-    (tester) async {
-      final auth = TestAuthRepository()..account = TestAuthRepository.approved;
-      final api = ops.Session();
-      final home = ops.fixture('home');
-      home['data']['account_id'] = '7';
-      home['data']['counts'] = {'available': 0, 'pickup': 1, 'final_mile': 0};
-      final task = ops.fixture('pickup-task')['data'];
-      api.respond = (path, method, data, headers) async {
-        if (path == 'rider/home') return home;
-        if (path.startsWith('rider/tasks/')) return {'data': task};
-        return {
-          'data': {
-            'items': [task],
-            'pagination': {
-              'page': 1,
-              'per_page': 20,
-              'total': 1,
-              'last_page': 1,
+  for (final lostVersion in [false, true]) {
+    testWidgets(
+      'loss of ${lostVersion ? 'operations discovery' : 'approval'} closes private Stop Mode',
+      (tester) async {
+        final auth = TestAuthRepository()
+          ..account = const RiderAccount(
+            id: '7',
+            name: 'Test Rider',
+            email: 'rider@example.test',
+            status: 'active',
+            kycStatus: 'approved',
+            approved: true,
+            emailVerified: true,
+            operationsApiVersion: 1,
+          );
+        final api = ops.Session();
+        final home = ops.fixture('home');
+        home['data']['account_id'] = '7';
+        home['data']['counts'] = {'available': 0, 'pickup': 1, 'final_mile': 0};
+        final task = ops.fixture('pickup-task')['data'];
+        api.respond = (path, method, data, headers) async {
+          if (path == 'rider/home') return home;
+          if (path.startsWith('rider/tasks/')) return {'data': task};
+          return {
+            'data': {
+              'items': [task],
+              'pagination': {
+                'page': 1,
+                'per_page': 20,
+                'total': 1,
+                'last_page': 1,
+              },
             },
-          },
+          };
         };
-      };
-      final operations = OperationsRepository(
-        api,
-        accountId: '7',
-        journal: ops.Journal(),
-        writesVerified: false,
-        isCurrent: () => true,
-      );
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            authRepositoryProvider.overrideWithValue(auth),
-            workspaceRepositoryProvider.overrideWithValue(operations),
-          ],
-          child: const BagooRiderApp(),
-        ),
-      );
-      await tester.pumpAndSettle();
-      await tap(tester, 'home-task-pickup-1');
-      await tap(tester, 'home-selected-details');
-      expect(find.text('Parcel details'), findsOneWidget);
-      auth.account = const RiderAccount(
-        id: '7',
-        name: 'Test Rider',
-        email: 'rider@example.test',
-        status: 'pending_approval',
-        kycStatus: 'rejected',
-        approved: false,
-        emailVerified: true,
-        feedback: 'Replace the test document.',
-      );
-      final element = tester.element(find.byType(BagooRiderApp));
-      await ProviderScope.containerOf(element)
-          .read(authControllerProvider.notifier)
-          .refresh();
-      await tester.pump();
-      await tester.pump();
-      expect(find.text('Application needs correction'), findsOneWidget);
-      expect(find.text('Parcel details'), findsNothing);
-      expect(find.byKey(const ValueKey('rider-workspace')), findsNothing);
-    },
-  );
+        final operations = OperationsRepository(
+          api,
+          accountId: '7',
+          journal: ops.Journal(),
+          writesVerified: false,
+          isCurrent: () => true,
+        );
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              authRepositoryProvider.overrideWithValue(auth),
+              workspaceRepositoryProvider.overrideWithValue(operations),
+            ],
+            child: const BagooRiderApp(),
+          ),
+        );
+        await tester.pumpAndSettle();
+        await tap(tester, 'home-task-pickup-1');
+        await tap(tester, 'home-selected-details');
+        expect(find.text('Work this stop'), findsOneWidget);
+        auth.account = RiderAccount(
+          id: '7',
+          name: 'Test Rider',
+          email: 'rider@example.test',
+          status: lostVersion ? 'active' : 'pending_approval',
+          kycStatus: lostVersion ? 'approved' : 'rejected',
+          approved: lostVersion,
+          emailVerified: true,
+          feedback: lostVersion ? null : 'Replace the test document.',
+        );
+        final element = tester.element(find.byType(BagooRiderApp));
+        await ProviderScope.containerOf(element)
+            .read(authControllerProvider.notifier)
+            .refresh();
+        await tester.pump();
+        await tester.pump();
+        expect(
+          find.text('Application needs correction'),
+          lostVersion ? findsNothing : findsOneWidget,
+        );
+        expect(find.text('Work this stop'), findsNothing);
+        expect(
+          find.byKey(const ValueKey('rider-workspace')),
+          lostVersion ? findsOneWidget : findsNothing,
+        );
+      },
+    );
+  }
   for (final setting in [
     (320.0, 1.0),
     (320.0, 2.0),

@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/platform/rider_website.dart';
 import '../../auth/data/account.dart';
+import '../../auth/presentation/auth_controller.dart';
 import '../../workspace/data/workspace_models.dart';
 import '../../workspace/presentation/workspace_controller.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
+import '../../navigation/presentation/navigation_controller.dart';
 
 import '../../../core/ui/rider_surfaces.dart';
 import '../data/operations_models.dart';
 import 'task_stage_label.dart';
+import 'stop_mode_page.dart';
 import 'work_summary.dart';
 
 class TasksPage extends StatelessWidget {
@@ -21,6 +25,7 @@ class TasksPage extends StatelessWidget {
     this.panelOnly = false,
     this.scrollController,
     this.navigationActions,
+    this.navigation,
     this.onTaskSelected,
   });
   final RiderAccount account;
@@ -29,6 +34,7 @@ class TasksPage extends StatelessWidget {
   final bool panelOnly;
   final ScrollController? scrollController;
   final Widget Function(OperationTask task)? navigationActions;
+  final NavigationController? navigation;
   final void Function(RiderTask task)? onTaskSelected;
   @override
   Widget build(BuildContext context) => WorkspaceBody(
@@ -197,7 +203,46 @@ class TasksPage extends StatelessWidget {
   );
   Future<void> openParcel(BuildContext context, RiderTask task) async {
     onTaskSelected?.call(task);
-    if (!preview) await controller.openTask(task);
+    if (!preview) {
+      await Navigator.of(context).push<void>(
+        MaterialPageRoute(
+          builder: (_) => Consumer(
+            builder: (context, ref, _) {
+              ref.listen(
+                authControllerProvider.select(
+                  (session) => (
+                    id: session.user?.id,
+                    approved: session.user?.approved,
+                    version: session.user?.operationsApiVersion,
+                    initialized: !session.initializing,
+                  ),
+                ),
+                (previous, next) {
+                  if (previous == null ||
+                      !previous.initialized ||
+                      previous == next) {
+                    return;
+                  }
+                  controller.closeTask();
+                  final route = ModalRoute.of(context);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (context.mounted && route != null && route.isActive) {
+                      Navigator.of(context).removeRoute(route);
+                    }
+                  });
+                },
+              );
+              return StopModePage(
+                initialTask: task,
+                controller: controller,
+                navigation: navigation,
+              );
+            },
+          ),
+        ),
+      );
+      return;
+    }
     if (!context.mounted) return;
     await showRiderSheet<void>(
       context: context,

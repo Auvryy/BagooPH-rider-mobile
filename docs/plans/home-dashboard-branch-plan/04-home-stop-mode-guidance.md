@@ -1,10 +1,15 @@
 # HDB-04 — Add focused Stop Mode and current-stop guidance
 
-State: **planned, not activated**. Branch: `feat/home-stop-mode-guidance`.
+State: **implemented and verified locally; user review/publication pending**. Branch: `feat/home-stop-mode-guidance`.
+Activated October 14, 2026 from clean, fetched `main` `d13eefa`, after
+HDB-03 merged in PR 20. Selected estimate: **6 client hours**; October 14–16,
+due October 16 at 18:00 Asia/Manila (three inclusive calendar days).
+See [implementation and verification evidence](HDB-04-EVIDENCE.md).
 Planning effort: **5–8 client hours**, including selected checks,
 excluding owner/API/device waiting. Recommended model/effort: **GPT-6.1 Sol / Medium**.
 Re-estimate from current evidence before activation; assign a 1–14 inclusive-day
-window ending by November 20. No runtime result is claimed by this brief.
+window ending by November 20. The evidence distinguishes local implementation
+from the still-open Azure and physical-device acceptance.
 
 ## Dependencies and API needs
 
@@ -32,9 +37,14 @@ gates remain mandatory. Unsupported release/recovery/earnings portions stay open
 
 - `lib/features/home/presentation/tasks_page.dart`
 - `lib/features/home/presentation/home_task_panel.dart`
+- `lib/features/home/presentation/home_dashboard.dart`
+- `lib/features/home/presentation/stop_mode_page.dart`
+- `lib/features/home/presentation/stop_guidance.dart`
+- `lib/core/platform/stop_actions.dart`
 - `lib/features/navigation/presentation/navigation_controls.dart`
-- `lib/features/home/data/operations_models.dart`
-- proposed: focused Stop Mode presentation under lib/features/home/presentation/
+- `lib/features/navigation/presentation/navigation_controller.dart`
+- `lib/features/workspace/presentation/workspace_controller.dart`
+- Selected Home/workspace tests and `test/stop_mode_test.dart`
 
 Names marked proposed do not exist by implication. Inspect the actual current
 architecture before choosing new files or moving a shared interface. Keep one
@@ -43,15 +53,16 @@ code/docs, its branch and unrelated work remain read only for this mobile slice.
 
 ## Finish evidence
 
-- [ ] Current stop changes after confirmed collection/departure; old destination/phone/notes cannot remain actionable.
-- [ ] Missing coordinates/address/contact/instructions, failed external launcher, unavailable map and unknown vehicle remain honest.
-- [ ] Returning from directions, scanner/camera or app resume revalidates ownership and permissions.
-- [ ] Copy/call/message controls are labelled and at least 48 logical pixels; focus, Back, keyboard and 200% text work.
-- [ ] Run analysis and the meaningful selected contract/controller/widget checks;
+- [ ] Actual collection/departure changes are observed through the separately accepted write consumers and authorized seller/hub/buyer workflow.
+- [x] Local owned-detail regressions change the stop after simulated collection/departure; old destination/phone/notes cannot remain actionable.
+- [x] Missing coordinates/address/contact/instructions, failed external launcher, unavailable map and unknown vehicle remain honest in local checks.
+- [x] App resume and return from a covering route revalidate ownership and permissions locally. Physical directions and later scanner/camera flows remain device acceptance.
+- [x] Supported copy/call/directions controls are labelled and at least 48 logical pixels; focus, Back, keyboard and 200% text work locally. Messaging remains a later branch.
+- [x] Run analysis and the meaningful selected contract/controller/widget checks;
   add ordinary native builds when runtime/platform/integration risk requires them.
-- [ ] Record local versus authorized Azure versus physical Android evidence,
+- [x] Record local versus authorized Azure versus physical Android evidence,
   remaining gates, reviewed source and coherent local commits in the owning plan.
-- [ ] Review scope/privacy and the staged diff; the user handles push/PR/merge.
+- [x] Review scope/privacy and the staged diff; the user handles push/PR/merge.
 
 ## Stop boundary
 

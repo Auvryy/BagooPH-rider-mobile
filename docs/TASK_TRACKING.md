@@ -417,6 +417,17 @@ requires financial ledgers. Expose only backend capabilities whose gates passed.
 
 ### M08 — Failed delivery, returns and restricted recovery
 
+**October 14 selected handover extension:**
+[Native handover issues](plans/handover-issues/README.md) integrates merged backend
+H04 for ordinary approved native sessions: involved reports/history, original
+private evidence and the named holder's acknowledgement. Observations do not
+establish custody, and acknowledgement retains the hold until actual hub receipt.
+This does not implement suspended native access, failed-delivery consumers or
+complete the broader M08 recovery cards. Client implementation/local checks and
+native Azure discovery/empty-list reads passed; real writes, involved evidence,
+actual receipt and physical Android acceptance remain open in the
+[selected checklist](plans/handover-issues/LIVE_CHECKLIST.md).
+
 **Outcome:** an exception never makes held parcels or cash disappear.
 
 1. Load allowed failure reasons and evidence requirements; collect useful notes

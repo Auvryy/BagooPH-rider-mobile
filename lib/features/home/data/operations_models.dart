@@ -67,6 +67,10 @@ class OperationsHome {
       capacity = Wire.counts(j['capacity']),
       limits = Wire.counts(j['limits']) {
     if (j['operations_api_version'] != 1) Wire.invalid();
+    handoverApiVersion =
+        j['handover_api_version'] is int && j['handover_api_version'] == 1
+        ? 1
+        : null;
     final placement = Wire.object(j['placement']);
     companyId = placement['company_id'] == null
         ? null
@@ -100,6 +104,7 @@ class OperationsHome {
   final String accountId;
   final bool onDuty;
   final DateTime observedAt;
+  late final int? handoverApiVersion;
   late final String? companyId, hubId, company, hub, barangay, claimDenial;
   late final bool operational, canClaim;
   final Map<String, bool> capabilities;

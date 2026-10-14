@@ -25,6 +25,7 @@ import 'home_task_panel.dart';
 import 'home_map_focus.dart';
 import 'tasks_page.dart';
 import 'work_summary.dart';
+import '../../handover/presentation/handover_entry.dart';
 
 class HomeDashboard extends ConsumerStatefulWidget {
   const HomeDashboard({
@@ -283,6 +284,12 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                   ),
                 const SizedBox(height: 4),
                 WorkSummary(controller: widget.controller, compact: true),
+                HandoverEntry(
+                  home: widget.controller.homeData.data,
+                  accountId: widget.account.id,
+                  enabled:
+                      widget.controller.homeData.status == FeatureStatus.ready,
+                ),
               ],
             ),
           );

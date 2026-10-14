@@ -14,6 +14,7 @@ import '../data/operations_models.dart';
 import 'home_task_panel.dart' show stopKindLabel;
 import 'stop_guidance.dart';
 import 'task_stage_label.dart';
+import '../../handover/presentation/handover_entry.dart';
 
 class StopModePage extends StatefulWidget {
   const StopModePage({
@@ -341,6 +342,13 @@ class _StopModePageState extends State<StopModePage>
                           if (widget.navigation != null) _fallbackStop(),
                         ] else ...[
                           _details(task),
+                          if (!preview && work.operations != null)
+                            HandoverEntry(
+                              home: work.homeData.data,
+                              accountId: work.operations!.accountId,
+                              barcode: task.tracking,
+                              enabled: canAct,
+                            ),
                           const SizedBox(height: 16),
                           _guidance(task),
                           const SizedBox(height: 16),

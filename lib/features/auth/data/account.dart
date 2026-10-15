@@ -12,12 +12,14 @@ class RiderAccount {
     this.feedback,
     this.settingsApiVersion,
     this.operationsApiVersion,
+    this.handoverApiVersion,
   });
   final String id, name, email, status, kycStatus;
   final bool approved, emailVerified;
   final String? feedback;
   final int? settingsApiVersion;
   final int? operationsApiVersion;
+  final int? handoverApiVersion;
   factory RiderAccount.fromJson(Map<String, dynamic> json) {
     if (json['role'] != 'courier' ||
         json['id'] is! String ||
@@ -58,6 +60,11 @@ class RiderAccount {
       operationsApiVersion:
           json['operations_api_version'] is int &&
               json['operations_api_version'] == 1
+          ? 1
+          : null,
+      handoverApiVersion:
+          json['handover_api_version'] is int &&
+              json['handover_api_version'] == 1
           ? 1
           : null,
       settingsApiVersion:

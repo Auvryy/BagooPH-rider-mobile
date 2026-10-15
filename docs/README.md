@@ -29,6 +29,7 @@ they do not authorize changing the backend or implementing every proposed featur
 | [Home branch plan](plans/home-dashboard-branch-plan/README.md) | Which Home bugs/additions should one prompt and one reviewed branch handle next? |
 | [Home API needs checklist](api/HOME_DASHBOARD_NEEDS.md) | Which server capabilities already exist, which need live verification, and which additions require an API-owner decision? |
 | [Native operations plan](plans/native-operations/README.md) | How will the completed backend handoff be integrated in five selected Flutter batches? |
+| [Native handover issues](plans/handover-issues/README.md) | How does the rider report a missed scan and acknowledge an independently authorized recovery while actual receipt stays hub-owned? |
 | [RIDER_FLOW.md](RIDER_FLOW.md) | What may a rider do at each stage, including failures and cash custody? |
 | [TECH_STACK.md](TECH_STACK.md) | Which tools are installed, which are proposed, and why choose them? |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Where does Flutter code belong and how does data reach the screens? |

@@ -21,7 +21,8 @@ abstract interface class AuthRepository {
   Future<Map<String, dynamic>> registrationOptions();
 }
 
-class ApiAuthRepository implements AuthRepository, RiderSessionApi {
+class ApiAuthRepository
+    implements AuthRepository, RiderSessionApi, RiderEvidenceSessionApi {
   ApiAuthRepository(this.config, this.store, {Dio? client})
     : _api = RiderApiClient(config, client: client);
   final AppConfig config;
@@ -61,6 +62,19 @@ class ApiAuthRepository implements AuthRepository, RiderSessionApi {
       token: token,
       headers: headers,
     );
+  }
+
+  @override
+  Future<PrivateApiBytes> authenticatedEvidence(String path) async {
+    final token = _token;
+    if (token == null) {
+      throw const AccountFailure('Please sign in again.', status: 401);
+    }
+    final result = await _api.evidence(path, token: token);
+    if (_token != token) {
+      throw const AccountFailure('Please sign in again.', status: 401);
+    }
+    return result;
   }
 
   @override

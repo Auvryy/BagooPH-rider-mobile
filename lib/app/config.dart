@@ -6,6 +6,7 @@ class AppConfig {
     this.localAuth = false,
     this.riderWebsite = '',
     this.operationsWritesVerified = false,
+    this.handoverWritesVerified = false,
     this.geoapifyKey = '',
   });
   final String apiBase;
@@ -14,6 +15,9 @@ class AppConfig {
 
   /// Enable only after the selected Azure deployment/account gate is recorded.
   final bool operationsWritesVerified;
+
+  /// Separate H04 deployment gate; does not enable duty or pickup claims.
+  final bool handoverWritesVerified;
   final String geoapifyKey;
   factory AppConfig.environment() {
     const deployedApi = 'https://bagooph.shop/api/v1';
@@ -35,6 +39,7 @@ class AppConfig {
       operationsWritesVerified: bool.fromEnvironment(
         'OPERATIONS_WRITES_VERIFIED',
       ),
+      handoverWritesVerified: bool.fromEnvironment('HANDOVER_WRITES_VERIFIED'),
       geoapifyKey: String.fromEnvironment('GEOAPIFY_API_KEY'),
     );
   }

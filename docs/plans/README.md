@@ -7,7 +7,8 @@ roadmap and backlog; it does not replace their scope, stable IDs or deadlines.
 |---|---|---|---|
 | Home dashboard/navigation | Selected map/location extension; live Home foundation first | Foundation/map implemented; live-write, owned-task and device acceptance open | [Plan](home-dashboard-navigation/README.md) |
 | Philippines map focus | Country mask/bounds, retained current-stop pins, route framing and readable tiles | Merged in PR 19; physical performance and hub coordinates separate | [Plan](philippines-map-focus/README.md) |
-| Home dashboard branch plan | Current screen/bug review, useful dashboard additions and sequential mobile delivery briefs | HDB-01–03 merged; HDB-04 locally verified/review pending; later branches planned | [Plan](home-dashboard-branch-plan/README.md) |
+| Home dashboard branch plan | Current screen/bug review, useful dashboard additions and sequential mobile delivery briefs | HDB-01–04 merged; later branches planned | [Plan](home-dashboard-branch-plan/README.md) |
+| Native handover issues | Involved reports, private evidence and named-holder possession acknowledgement over merged backend H04 | Client/local checks and Azure discovery/list passed; real writes/device acceptance open | [Plan](handover-issues/README.md) |
 | Native operations | Consume the completed backend Rider API in five Flutter batches | Planned; Azure/device acceptance outstanding | [Plan](native-operations/README.md) |
 
 ## Rules for future plans

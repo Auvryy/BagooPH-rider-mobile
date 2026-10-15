@@ -2,8 +2,9 @@
 
 Selected October 14, 2026. State: client implemented and locally verified on
 `feat/rider-handover-issues`, from merged mobile `main` `adc2760` (PR 21).
-Azure discovery and the empty involved queue passed a native read check.
-Controlled writes, private live documents, actual hub receipt and Android
+Azure discovery and a controlled Linux software-test report with private PDF
+upload/download passed. The operator confirmed H04 deployment and migrations.
+Independent review/recovery authorization, actual hub receipt and Android
 acceptance remain open in the [deployment/device checklist](LIVE_CHECKLIST.md).
 Estimate: 12 client hours, October 14–18, due October 18 at 18:00 Asia/Manila.
 This estimate excludes operator/device waiting and does not change the November
@@ -71,17 +72,22 @@ prerequisite evidence; new encrypted original-file retention is scoped here.
   Linux/Android builds are verified and recorded in [evidence](EVIDENCE.md).
 - [x] Fresh native Azure sign-in advertises operations/handover version 1; Home
   flags and an empty involved list decode through the Flutter client.
-- [ ] Operator confirms the actual deployed revision and ordinary H01–H03
-  migrations. Read discovery is not a complete deployment/upload audit.
+- [x] Operator confirms deployed `d145375fc5f3d54e0294853f8db0b785f2f6e567`,
+  ordinary H01–H03 migrations and the 5 MB upload limit.
+- [x] Controlled native Linux report form commits one designated test report;
+  private labelled software-test PDF downloads byte-for-byte, with unchanged
+  custody, no hold and no recovery grant. See the [Linux check](LINUX_REPORT_CHECK.md).
 - [ ] Authorized Android report, private image/PDF, lost-response recovery and
   actual hub receipt are observed; backend or build checks cannot close this row.
 
-The user deferred Android and any unresolved Azure acceptance. No involved test
-parcel or authorized live evidence/grant has been supplied; the verified rider's
-involved queue was empty. `HANDOVER_WRITES_VERIFIED` defaults false, independently
-of the existing duty/claim gate. Production writes remain gated until the
-selected deployment and controlled-resource acceptance are recorded. The existing
-Geoapify configuration is unchanged; handover needs no additional provider key.
+The user deferred Android and supplied a prepared Azure test parcel, approving a
+labelled software-test PDF. The October 15 Linux check submitted that report and
+verified its private evidence; it does not certify physical possession or receipt.
+`HANDOVER_WRITES_VERIFIED` defaults false, independently of the duty/claim gate.
+It was enabled only for the explicit controlled acceptance run; ordinary local
+configuration remains unchanged. Independent web review and any subsequent
+current grant remain separate. Geoapify configuration is unchanged; handover
+needs no additional provider key.
 
 From the Rider repository root, review the PC phone frame with real Azure login:
 

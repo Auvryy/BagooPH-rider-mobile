@@ -9,38 +9,50 @@ The account-specific and device rows below remain for the controlled real flow.
 On October 15, an isolated native Flutter/Laravel kernel test also passed report,
 private PNG/PDF, uncertain-command, acknowledgement and fixture receipt checks.
 Those synthetic local actions do not close the live or physical rows below.
+The later October 15 controlled Linux run committed a designated Azure report
+and verified its original private PDF. Its approved evidence is explicitly a
+software-test record, not proof of physical possession; see [evidence](EVIDENCE.md)
+and the [repeat-safe Linux check](LINUX_REPORT_CHECK.md).
 
 ## Backend/operator information
 
-- [ ] Confirm the running Azure Docker deployment's commit includes merged H04
-  (`77fb96e` or a verified descendant). A local Git pull is not running-app evidence.
-- [ ] Confirm ordinary H01–H03 migrations and the existing operations/Settings
+- [x] Operator confirmed the running Azure Docker deployment includes H04 at
+  `d145375fc5f3d54e0294853f8db0b785f2f6e567`. This is deployment handoff evidence,
+  separate from the read-only local backend checkout.
+- [x] Operator confirmed ordinary H01–H03 migrations and existing operations
   dependencies are applied. H04 adds no migration and needs no reset/reseed.
   Discovery checks `handover_issues`, `handover_issue_events`,
   `handover_recovery_grants` and `handover_manifest_receipts` as well as existing
   native tables; the backend's migration audit remains authoritative.
-- [ ] Confirm the HTTP/proxy/PHP upload limit accepts 5 MB plus multipart overhead,
-  and private original evidence is retained with its existing integrity checks.
-- [ ] Identify an expressly authorized approved involved rider and test parcel,
-  with an actual missed scan/evidence and owning seller/company/hub actors.
+- [x] Operator verified the 5 MB upload boundary; the native controlled report's
+  smaller original PDF was privately retrieved and matched by bytes and SHA-256.
+- [x] Identified an expressly authorized approved involved rider and test parcel.
+  The user supplied the prepared case and approved labelled software-test evidence.
+- [ ] Verify a physical missed scan and its observations/evidence separately
+  with the owning seller/company/hub actors.
   Supply credentials privately at sign-in, not in code, docs or build flags.
 
 ## Fresh native session
 
-- [ ] Sign out and sign in again after deployment. Account discovery must return
+- [x] A separate fresh native session after deployment returned
   `operations_api_version: 1` and `handover_api_version: 1`.
-- [ ] Home must return handover version 1 and `capabilities.handover_issues: true`.
+- [x] Home returned handover version 1 and `capabilities.handover_issues: true`.
   Reporting additionally requires `handover_reporting: true`; the new token
   carries `rider:operations:handover`. Version alone does not prove permission.
-- [ ] Verify involved list/detail and denied/foreign resources. Empty queues are
-  valid reads and cannot establish reporting or holder acknowledgement acceptance.
+- [x] Native involved list/detail and private PDF decode for the controlled report.
+- [ ] Verify denied/foreign resources on separately authorized live test cases;
+  local denial tests do not establish this live row.
 
 ## Controlled write and device acceptance
 
-- [ ] After the deployment/session evidence is recorded, enable the separate
+- [x] After the deployment/session evidence was recorded, enabled the separate
   `HANDOVER_WRITES_VERIFIED` build define for the authorized handover check.
   It defaults false and does not enable duty or pickup claims. Keep the provider
   key private in the existing ignored project-local configuration.
+- [x] Linux report-form submission, committed owned command and private original
+  PDF match passed for the prepared case. Fresh detail is `pending_review`,
+  original/current custody unchanged, no hold, one reported event and recovery null.
+  This row covers the approved software test only; physical/device rows stay open.
 - [ ] Connect an authorized Android phone with USB debugging and verify the build
   identity before installation. Use `flutter devices` and the actual device ID.
 - [ ] From Home or an owned stop, open Handover issues. Pick actual JPG/JPEG/PNG/

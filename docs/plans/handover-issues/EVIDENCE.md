@@ -1,8 +1,9 @@
 # Handover integration evidence
 
-Reviewed October 14, 2026. Client implementation and local verification passed.
-Azure native discovery/list reads passed. Live writes, involved detail/evidence,
-actual receiving-hub receipt and physical Android acceptance remain open in the
+Reviewed October 15, 2026. Client implementation and local verification passed.
+Azure native discovery and a controlled Linux software-test report/private PDF
+passed. Independent review/recovery authorization, actual receiving-hub receipt
+and physical Android acceptance remain open in the
 [separate checklist](LIVE_CHECKLIST.md).
 The October 15 extension below adds native client/kernel flow verification with
 isolated synthetic resources, following the user's instruction to proceed locally
@@ -13,8 +14,9 @@ without a phone or supplied actors.
 Mobile branch `feat/rider-handover-issues` starts at merged `main` `adc2760`
 (Stop Mode PR 21). Backend H04 is merged in `77fb96e`; its read-only checkout
 advanced from `89c85bf` to `a1bd49f` during this work. Unrelated company work was
-preserved. No backend file, database, migration, deployment or live parcel write
-was changed by this integration.
+preserved. Initial implementation and isolated-kernel verification changed no
+backend file, existing database, migration, deployment or live parcel. The later
+controlled Azure report is recorded separately below.
 
 | Backend source | SHA-256 |
 |---|---|
@@ -146,13 +148,55 @@ parser, Azure/proxy upload limits, PostgreSQL concurrency, Android file picking,
 physical possession or real hub receipt. The fixture controls exist only in the
 test runner, and the integration test is skipped outside that runner.
 
+## October 15: controlled native Linux report on Azure
+
+The backend operator confirmed running revision
+`d145375fc5f3d54e0294853f8db0b785f2f6e567`, applied H01–H03 migrations, registered
+H04 methods, fresh Linux HTTP access and the 5 MB upload boundary. The user
+supplied a prepared owned pickup case and approved a clearly labelled
+software-test PDF. The read-only backend checkout was clean `a978e82`; the API
+document and handover service retained their fingerprints above. No backend
+source, deployment, migration, actor or test parcel was created by this check.
+
+The [opt-in native check](LINUX_REPORT_CHECK.md) passed in 15 seconds after its
+Linux debug build. It used the actual report form/controller and a file-selection
+callback returning the original private PDF. Account credentials and case values
+came from a private runtime file, never source or build definitions. Observed:
+
+- Fresh approved-account sign-in advertised both version-1 APIs. Home allowed
+  involved reading/reporting, and the exact owned pickup still had seller
+  custody, `ready_for_pickup` and `assigned_pickup` before submission.
+- The generated 1,749-byte PDF contains those verified software facts and was
+  opened/rendered by the native PDF engine. Its title, body and submitted report
+  distinguish software evidence from unverified physical holder/location/receipt.
+- The real form submitted one `missed_scan` through the ordinary multipart
+  transport. Protected storage retained its exact original bytes, body and UUID
+  before dispatch. Owned command GET confirmed the committed report result.
+- Fresh detail returned `pending_review`, version 1, one `reported` history
+  event, unchanged original/current custody, no hold and `recovery: null`.
+- The authenticated private PDF download passed the ordinary response/privacy
+  checks and matched the original bytes and SHA-256. The confirmed journal was
+  cleared, and only the temporary memory-token session was logged out.
+
+No normal pickup scan, claim, duty, acknowledgement, review, recovery authorization
+or hub receipt was performed. The issue ID/reference and original evidence remain
+in private artifacts for the independent web reviewer, outside Git. The test
+preserves its original key in a private receipt, so a rerun cannot create a new
+report after a lost result. No live fault was deliberately injected.
+
+Focused test analysis and PDF structure/text checks passed. The successful native
+Linux test rebuilt the debug app. The earlier full suite, ordinary Linux release
+and Android build retain their recorded scope; this verification adds no runtime
+product-code change and does not establish Android acceptance.
+
 ## Remaining acceptance
 
-The user deferred unresolved Azure and Android checks. No phone, authorized
-involved parcel, actual evidence or named-holder grant is available for the
-controlled flow. `HANDOVER_WRITES_VERIFIED` remains false and does not enable
-the existing `OPERATIONS_WRITES_VERIFIED` duty/claim gate. The existing private
-Geoapify configuration was preserved. Local fixtures remain test-only.
+Android remains deferred. Independent web review, any authorized current
+named-holder grant, physical possession and actual receiving-hub receipt remain
+unverified. The separate handover write gate was enabled only for the controlled
+test; its default and ordinary private configuration remain false. The existing
+duty/claim gate and Geoapify configuration were preserved. Local fixtures remain
+test-only.
 
 The [deployment/device checklist](LIVE_CHECKLIST.md) records exactly what the
 backend operator and rider must supply and observe. This client milestone does

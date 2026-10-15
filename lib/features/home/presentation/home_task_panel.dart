@@ -86,7 +86,7 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
     }
     final slivers = <Widget>[
       SliverPadding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
         sliver: SliverToBoxAdapter(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -145,8 +145,8 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                     final badge = Text(
                       count?.toString() ?? '—',
                       style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 24,
                       ),
                     );
                     return Semantics(
@@ -168,7 +168,7 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                                 : RiderColors.muted,
                             backgroundColor: active
                                 ? RiderColors.rose
-                                : RiderColors.controlFill,
+                                : Colors.white,
                             minimumSize: Size(0, stack ? 52 : 72),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 10,
@@ -185,9 +185,9 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                               : Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    label,
-                                    const SizedBox(height: 4),
                                     badge,
+                                    const SizedBox(height: 6),
+                                    label,
                                   ],
                                 ),
                         ),
@@ -348,7 +348,7 @@ class HomeTaskRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) => RiderSurface(
     radius: RiderRadii.selection,
-    color: selected ? RiderColors.rose : RiderColors.canvas,
+    color: selected ? RiderColors.rose : Colors.white,
     child: InkWell(
       key: ValueKey('home-task-${task.id}'),
       onTap: onSelect,
@@ -361,7 +361,7 @@ class HomeTaskRow extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: selected ? RiderColors.accent : Colors.white,
+                color: selected ? RiderColors.accent : RiderColors.rose,
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(
@@ -377,7 +377,7 @@ class HomeTaskRow extends StatelessWidget {
                 children: [
                   Text(
                     task.stop,
-                    style: Theme.of(context).textTheme.titleSmall,
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -441,8 +441,8 @@ class _SelectedStop extends StatelessWidget {
   final VoidCallback? onShowStop;
   @override
   Widget build(BuildContext context) => RiderSurface(
-    color: RiderColors.rose,
-    padding: const EdgeInsets.all(16),
+    color: Colors.white,
+    padding: const EdgeInsets.all(20),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -483,7 +483,7 @@ class _SelectedStop extends StatelessWidget {
         const SizedBox(height: 10),
         Text(
           task.stop.name ?? 'Stop name unavailable',
-          style: Theme.of(context).textTheme.titleMedium,
+          style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 6),
         Text(task.stop.address ?? 'Address unavailable'),

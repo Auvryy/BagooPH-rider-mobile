@@ -147,9 +147,11 @@ service names, credentials, CLI paths, or remote task IDs.
   configurations. A production feature cannot report fixture success.
 - Follow the mobile design target in `docs/DESIGN_SPEC.md` and its tokens: primary
   red `#E00D42`, neutral canvas `#F7F7FA`, borderless filled controls, continuous
-  superellipse contours, system sans-serif type and frosted floating chrome.
+  contours, bundled Plus Jakarta Sans and solid white navigation. Follow the
+  October 15 delivery-reference direction: strong headings, compact work cards,
+  clear map controls and ordinary Home scrolling. Reserve bottom navigation space.
   Do not restore solid black/dark outlines. Keep accent focus/error indicators,
-  finite spring touch feedback and opaque/reduced-motion fallbacks. Preserve labelled controls, readable text and safe areas. The mobile
+  finite spring touch feedback and reduced-motion behavior. Preserve labelled controls, readable text and safe areas. The mobile
   presentation is independent from portal CSS; web business rules remain shared.
   Distinguish target tokens from current runtime styling before implementing them.
 - Describe the mobile style in neutral terms. Do not name a reference handset in

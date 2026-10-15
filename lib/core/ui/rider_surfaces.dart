@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
@@ -26,9 +24,9 @@ class RiderSurface extends StatelessWidget {
       ),
       shadows: const [
         BoxShadow(
-          color: Color(0x080F172A),
-          blurRadius: 24,
-          offset: Offset(0, 6),
+          color: Color(0x060F172A),
+          blurRadius: 16,
+          offset: Offset(0, 4),
         ),
       ],
     ),
@@ -47,21 +45,13 @@ class RiderCanvas extends StatelessWidget {
   const RiderCanvas({super.key, required this.child});
   final Widget child;
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: const BoxDecoration(
-      gradient: LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [RiderColors.canvas, Color(0xFFEDEFF4)],
-      ),
-    ),
-    child: child,
-  );
+  Widget build(BuildContext context) =>
+      ColoredBox(color: RiderColors.canvas, child: child);
 }
 
-/// Blur is clipped to floating chrome, never applied to reading content.
-class RiderGlass extends StatelessWidget {
-  const RiderGlass({
+/// Solid chrome keeps navigation and temporary controls readable over a map.
+class RiderChrome extends StatelessWidget {
+  const RiderChrome({
     super.key,
     required this.child,
     this.radius = RiderRadii.navigation,
@@ -74,50 +64,16 @@ class RiderGlass extends StatelessWidget {
   final bool topOnly;
   @override
   Widget build(BuildContext context) {
-    final opaque =
-        RiderMotion.reduced(context) || MediaQuery.highContrastOf(context);
     final shape = RoundedSuperellipseBorder(
       borderRadius: topOnly
           ? BorderRadius.vertical(top: Radius.circular(radius))
           : BorderRadius.circular(radius),
     );
-    Widget layer = DecoratedBox(
-      decoration: ShapeDecoration(
-        shape: shape,
-        color: opaque ? Colors.white : null,
-        gradient: opaque
-            ? null
-            : const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xEFFFFFFF), Color(0xB8FFFFFF)],
-              ),
-      ),
+    return ClipPath(
+      clipper: ShapeBorderClipper(shape: shape),
       child: Material(
-        type: MaterialType.transparency,
+        color: Colors.white,
         child: Padding(padding: padding, child: child),
-      ),
-    );
-    if (!opaque) {
-      layer = BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: layer,
-      );
-    }
-    return DecoratedBox(
-      decoration: ShapeDecoration(
-        shape: shape,
-        shadows: const [
-          BoxShadow(
-            color: Color(0x100F172A),
-            blurRadius: 28,
-            offset: Offset(0, 8),
-          ),
-        ],
-      ),
-      child: ClipPath(
-        clipper: ShapeBorderClipper(shape: shape),
-        child: layer,
       ),
     );
   }
@@ -233,7 +189,7 @@ Future<T?> showRiderSheet<T>({
         const AlwaysStoppedAnimation<double>(1);
     return AnimatedBuilder(
       animation: animation,
-      child: RiderGlass(
+      child: RiderChrome(
         radius: RiderRadii.sheet,
         topOnly: true,
         padding: const EdgeInsets.all(6),

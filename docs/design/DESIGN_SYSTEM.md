@@ -1,6 +1,6 @@
 # Rider design system
 
-These October 9 target tokens define the Rider app's independent modern mobile
+These October 15 target tokens define the Rider app's independent modern mobile
 presentation. Shared red branding and business behavior remain aligned with the
 website; portal component styling does not govern this layout. Core target tokens now style existing app screens;
 future views and optional candidates remain proposals, not accessibility claims. All sizing
@@ -82,16 +82,15 @@ Borderless is a grouping decision, not a requirement to remove focus or control 
 
 ## Type and spacing
 
-Use platform system sans-serif typography: the native mobile family, Linux
-sans-serif or the desktop system family, as specified in `tokens.json`. The
-already bundled Plus Jakarta Sans is a fallback, not the primary styling choice.
-No proprietary font is copied into the package. Use aligned numerals for amounts
-and scale text with the user preference. [R18](SOURCE_REGISTER.md#r18)
+Use the bundled **Plus Jakarta Sans** on every platform, as specified in
+`tokens.json`. Its existing license remains bundled. Use aligned numerals for
+amounts and scale text with the user preference. Fonts and layout must be reviewed
+in real rendered captures; placeholder test glyphs do not prove visual quality.
 
 | Role | Size / line height / weight |
 |---|---|
-| page title | 28 / 34 / 700 |
-| section | 18 / 26 / 600 |
+| page title | 28 / 36 / 800 |
+| section | 18 / 26 / 700 |
 | body | 16 / 24 / 400 |
 | secondary | 14 / 20 / 400 |
 | metadata | 13 / 18 / 500 |
@@ -105,13 +104,13 @@ a 56-unit minimum height and full-row interaction; large text may increase it.
 
 | Component | Target corner radius | Treatment |
 |---|---:|---|
-| Task/card surface and inset list group | 24 | Continuous superellipse contour; nested rows share the group, not separate boxes |
-| Field and primary/secondary control | 16 | Filled resting state, accent focus, continuous contour |
+| Task/card surface and inset list group | 20 | Continuous superellipse contour; nested rows share the group, not separate boxes |
+| Field and primary/secondary control | 14 | Filled resting state, accent focus, continuous contour |
 | Saved-stop map/media frame | 20 | Bounded content with opaque controls |
 | Dialog | 28 | One temporary intent with explicit dismissal |
-| Bottom sheet upper corners | 32 | Soft contour, clear title and accessible close/action area |
-| Navigation selection / compact tint | 18 | Restrained active marker; no decorative oversizing |
-| Floating navigation shell | 32 | Clipped frosted material with an opaque fallback |
+| Bottom sheet upper corners | 28 | Soft contour, clear title and accessible close/action area |
+| Navigation selection / compact tint | 14 | Restrained active marker; no decorative oversizing |
+| Reserved navigation bar | 0 | Solid white, subtle top divider; never covers content |
 | Avatar, duty switch, dot / track | Circle or pill | Only where the control's meaning benefits |
 
 Avoid a blanket radius applied to every element. Group surfaces remain opaque
@@ -123,7 +122,7 @@ measurements. Planned map/overlay views are not made functional by a shape token
 
 ## Buttons and bottom geometry
 
-- Primary: one filled accent action for the current permitted intent, 52-unit minimum height and full width on compact forms/work shelves.
+- Primary: one filled accent action for the current permitted intent, 56-unit minimum height and full width on compact forms/work shelves.
 - Secondary: softly filled, borderless labelled control with visible focus, 48-unit minimum target. Directions, Call, Message and Retake are not competing saturated primary buttons.
 - Tertiary: readable text action with a 48-unit standalone interaction region; inline links retain their text semantics.
 - Destructive local action: explicit outcome wording and separation from Keep editing. It cannot cancel an assignment merely by dismissing a local draft.
@@ -148,24 +147,21 @@ Native gestures and disabled-state guards retain ownership of actions. Cancelled
 presses return to rest; no delayed dispatch or animation-produced success.
 [R17](SOURCE_REGISTER.md#r17)
 
-Finite navigation uses 320ms and sheets 380ms with a restrained easing overshoot;
+Finite navigation uses 240ms and sheets 280ms with a restrained ease-out curve;
 selection feedback uses 160ms. Scroll physics preserve momentum and elastic
 edges. These are authored motion parameters, not measured device performance.
 Reduced motion/accessible navigation removes scaling/travel and uses clamped
 scrolling. System reduced-motion signals are read where Flutter exposes them.
 
-Frosted floating navigation/header/sheet chrome uses a **clipped 18-unit blur**,
-a translucent white layer (approximately 94% to 72%) and a small soft shadow.
-Reading content and fields remain opaque. High contrast, accessible navigation
-and reduced effects use opaque white without blur; focus remains an accent
-indicator. Never claim an OS transparency preference was detected where the
-platform exposes no such signal. No infinite bounce or continuous decorative
-blur. [R19](SOURCE_REGISTER.md#r19)
+Navigation, headers and sheets use **solid white without backdrop blur**.
+The canvas is flat `#F7F7FA`. Depth comes from spacing and a small card shadow;
+readability does not depend on the map or content beneath a control. This replaces
+the earlier glass direction in every accessibility mode.
 
 **No solid black/dark outlines in ordinary UI.** Cards/groups use fill and spacing;
 resting fields and neutral buttons have no stroke. Accent focus and error/selected
 state indicators are deliberate exceptions for identification. Pale fills and
-translucency are not a claim of accessibility conformance: review rendered
+surface colors are not a claim of accessibility conformance: review rendered
 contrast and control discoverability under the actual system preferences.
 
 Pending state names the actual intent promptly. An upload selection, scan preview or spinner never becomes a successful handoff. Rejection points to the affected field; uncertain results reconcile before repeating an intent. A small result animation follows server acceptance only.

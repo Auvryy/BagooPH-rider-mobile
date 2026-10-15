@@ -262,14 +262,20 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
           _wide = constraints.maxWidth >= 1000;
           final focus = _region == null ? null : _focus(nav);
           _queueCamera(nav);
+          final handover = HandoverEntry(
+            home: widget.controller.homeData.data,
+            accountId: widget.account.id,
+            enabled: widget.controller.homeData.status == FeatureStatus.ready,
+          );
           final header = Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
                   'Welcome, ${widget.account.name}.',
-                  style: Theme.of(context).textTheme.titleMedium,
+                  style: Theme.of(context).textTheme.headlineMedium
+                      ?.copyWith(fontSize: 24),
                 ),
                 if (widget.controller.homeData.data == null)
                   const Padding(
@@ -282,14 +288,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                       ),
                     ),
                   ),
-                const SizedBox(height: 4),
-                WorkSummary(controller: widget.controller, compact: true),
-                HandoverEntry(
-                  home: widget.controller.homeData.data,
-                  accountId: widget.account.id,
-                  enabled:
-                      widget.controller.homeData.status == FeatureStatus.ready,
-                ),
+                WorkDutyControl(controller: widget.controller),
               ],
             ),
           );
@@ -311,7 +310,13 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                       children: [
                         SizedBox(
                           height:
-                              MediaQuery.textScalerOf(context).scale(14) > 20
+                              !geo.configured &&
+                                  (focus?.points.isEmpty ?? true) &&
+                                  !nav.active
+                              ? (MediaQuery.textScalerOf(context).scale(14) > 20
+                                    ? 260
+                                    : 160)
+                              : MediaQuery.textScalerOf(context).scale(14) > 20
                               ? (constraints.maxHeight * .33).clamp(
                                   160.0,
                                   240.0,
@@ -320,13 +325,32 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                                   200.0,
                                   320.0,
                                 ),
-                          child: _mapArea(nav, geo, focus),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: _mapArea(nav, geo, focus),
+                          ),
                         ),
                         _attribution(),
                       ],
                     ),
                   ),
                 SliverToBoxAdapter(child: _mapStatus(nav, geo, focus)),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                    child: WorkSummary(
+                      controller: widget.controller,
+                      compact: true,
+                      showDuty: false,
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: handover,
+                  ),
+                ),
                 if (!showMap) SliverToBoxAdapter(child: _attribution()),
                 _panel(nav, asSliver: true),
               ],
@@ -343,7 +367,22 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                 constraints: BoxConstraints(
                   maxHeight: (constraints.maxHeight * .3).clamp(72.0, 180.0),
                 ),
-                child: SingleChildScrollView(child: header),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      header,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: WorkSummary(
+                          controller: widget.controller,
+                          compact: true,
+                          showDuty: false,
+                        ),
+                      ),
+                      handover,
+                    ],
+                  ),
+                ),
               ),
               Expanded(
                 child: Padding(
@@ -415,7 +454,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
               ? points.first
               : PhilippinesMapRegion.cameraBounds.center);
       return ClipRRect(
-        borderRadius: BorderRadius.circular(_wide ? RiderRadii.media : 0),
+        borderRadius: BorderRadius.circular(RiderRadii.media),
         child: Stack(
           children: [
             FlutterMap(
@@ -540,6 +579,35 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                 ),
               ],
             ),
+            if (!geo.configured && tasks.isEmpty && !nav.active)
+              const Positioned.fill(
+                child: IgnorePointer(
+                  child: ColoredBox(
+                    key: ValueKey('home-map-unavailable'),
+                    color: Colors.white,
+                    child: Center(
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.all(20),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.map_outlined,
+                              size: 32,
+                              color: RiderColors.muted,
+                            ),
+                            SizedBox(height: 12),
+                            Text(
+                              'Map unavailable. Task addresses are still available.',
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       );
@@ -631,7 +699,9 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
             'Philippines outline could not load. Task addresses remain available.',
             Icons.map_outlined,
           ),
-        if (!geo.configured || geo.failure != null)
+        if (geo.failure != null ||
+            (!geo.configured &&
+                ((focus?.points.isNotEmpty ?? false) || nav.active)))
           _mapNote(
             geo.failure ??
                 'Map unavailable. Task addresses are still available.',

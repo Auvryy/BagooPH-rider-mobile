@@ -16,116 +16,71 @@ class AuthShell extends StatelessWidget {
   final ScrollController? scrollController;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: RiderCanvas(
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final wide =
-                  constraints.maxWidth >= 1024 &&
-                  MediaQuery.textScalerOf(context).scale(16) <= 23;
-              final pagePadding = constraints.maxWidth < 600 ? 16.0 : 24.0;
-              final form = ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: registering ? 720 : 520),
-                child: RiderSurface(
-                  padding: EdgeInsets.all(constraints.maxWidth < 420 ? 16 : 32),
-                  child: child,
-                ),
-              );
-              return SingleChildScrollView(
-                controller: scrollController,
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: EdgeInsets.all(pagePadding),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: (constraints.maxHeight - pagePadding * 2).clamp(
-                      0,
-                      double.infinity,
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: Colors.white,
+    body: SafeArea(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final wide =
+              constraints.maxWidth >= 1024 &&
+              MediaQuery.textScalerOf(context).scale(16) <= 23;
+          final inset = constraints.maxWidth < 360 ? 20.0 : 28.0;
+          final form = ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: registering ? 680 : 440),
+            child: child,
+          );
+          return SingleChildScrollView(
+            controller: scrollController,
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: EdgeInsets.fromLTRB(inset, 24, inset, 24),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1120),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: BrandLogo(),
                     ),
-                  ),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 1120),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
+                    SizedBox(height: wide ? 48 : 32),
+                    if (wide)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 24),
-                            child: Wrap(
-                              alignment: WrapAlignment.spaceBetween,
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              spacing: 16,
-                              runSpacing: 12,
-                              children: [
-                                const BrandLogo(),
-                                Semantics(
-                                  label: 'Rider account access',
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 7,
-                                    ),
-                                    decoration: ShapeDecoration(
-                                      color: RiderColors.controlFill,
-                                      shape: RoundedSuperellipseBorder(
-                                        borderRadius: BorderRadius.circular(
-                                          RiderRadii.selection,
-                                        ),
-                                      ),
-                                    ),
-                                    child: const Text(
-                                      'Rider access',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: RiderColors.muted,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                          Expanded(
+                            child: _BrandStory(registering: registering),
                           ),
-                          if (wide)
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Expanded(
-                                  flex: registering ? 4 : 1,
-                                  child: _BrandStory(registering: registering),
-                                ),
-                                SizedBox(width: registering ? 48 : 72),
-                                Expanded(
-                                  flex: registering ? 6 : 1,
-                                  child: form,
-                                ),
-                              ],
-                            )
-                          else
-                            form,
-                          const SizedBox(height: 24),
-                          const Text(
-                            'Your rider account is reviewed before work becomes available.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: RiderColors.muted,
-                            ),
-                          ),
+                          const SizedBox(width: 72),
+                          Expanded(flex: registering ? 2 : 1, child: form),
                         ],
+                      )
+                    else
+                      Center(child: form),
+                    const SizedBox(height: 28),
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 440),
+                        child: const Text(
+                          'Your rider account is reviewed before work becomes available.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 12,
+                            height: 1.5,
+                            color: RiderColors.muted,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              );
-            },
-          ),
-        ),
+              ),
+            ),
+          );
+        },
       ),
-    );
-  }
+    ),
+  );
 }
 
 class _BrandStory extends StatelessWidget {
@@ -133,69 +88,49 @@ class _BrandStory extends StatelessWidget {
   final bool registering;
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 28),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: ShapeDecoration(
-              color: RiderColors.controlFill,
-              shape: RoundedSuperellipseBorder(
-                borderRadius: BorderRadius.circular(RiderRadii.surface),
-              ),
-            ),
-            child: Icon(
-              registering ? Icons.route_outlined : Icons.inventory_2_outlined,
-              size: 36,
-              color: RiderColors.muted,
-            ),
-          ),
-          const SizedBox(height: 28),
-          Text(
-            registering
-                ? 'Your next chapter,\none clear step at a time.'
-                : 'A clear next step.\nEvery parcel,\nevery handoff.',
-            style: Theme.of(context).textTheme.headlineLarge,
-          ),
-          const SizedBox(height: 20),
-          Text(
-            registering
-                ? 'Join the rider workspace built around thoughtful pickups, '
-                      'clear destinations and responsible deliveries.'
-                : 'Your pickups, assigned deliveries and parcel details, '
-                      'together in one rider workspace.',
-            style: Theme.of(context).textTheme.bodyLarge
-                ?.copyWith(color: RiderColors.muted),
-          ),
-          const SizedBox(height: 32),
-          for (final item in [
-            (Icons.local_shipping_outlined, 'Pickup and delivery, one app'),
-            (Icons.location_on_outlined, 'The right stop, clearly shown'),
-            (Icons.task_alt_outlined, 'A useful next action at every step'),
-          ])
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Row(
-                children: [
-                  Icon(item.$1, size: 20, color: RiderColors.accentText),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      item.$2,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: RiderColors.muted,
-                      ),
-                    ),
+  Widget build(BuildContext context) => RiderSurface(
+    color: RiderColors.rose,
+    padding: const EdgeInsets.all(32),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Icon(Icons.route_rounded, size: 48, color: RiderColors.accent),
+        const SizedBox(height: 32),
+        Text(
+          registering
+              ? 'Your next chapter\nstarts here.'
+              : 'Every parcel.\nA clear next step.',
+          style: Theme.of(context).textTheme.headlineLarge,
+        ),
+        const SizedBox(height: 20),
+        Text(
+          registering
+              ? 'One rider workspace for pickups, deliveries and every handoff in between.'
+              : 'See your work, find the right stop and keep every handoff in view.',
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+        const SizedBox(height: 40),
+        for (final item in [
+          (Icons.inventory_2_outlined, 'Your parcels'),
+          (Icons.near_me_outlined, 'Your next stop'),
+          (Icons.task_alt_rounded, 'Your next action'),
+        ])
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Row(
+              children: [
+                Icon(item.$1, size: 22, color: RiderColors.accentText),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    item.$2,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-        ],
-      ),
-    );
-  }
+          ),
+      ],
+    ),
+  );
 }

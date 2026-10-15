@@ -10,34 +10,28 @@ void main() {
     const MediaQueryData(highContrast: true),
     const MediaQueryData(accessibleNavigation: true),
   ]) {
-    testWidgets('glass preserves content with effects $effects', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: buildRiderTheme(),
-          home: MediaQuery(
-            data: effects,
-            child: const RiderGlass(child: Text('Readable navigation')),
+    testWidgets(
+      'solid chrome preserves readable content with effects $effects',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: buildRiderTheme(),
+            home: MediaQuery(
+              data: effects,
+              child: const RiderChrome(child: Text('Readable navigation')),
+            ),
           ),
-        ),
-      );
-      final fallback =
-          effects.disableAnimations ||
-          effects.highContrast ||
-          effects.accessibleNavigation;
-      expect(
-        find.byType(BackdropFilter),
-        fallback ? findsNothing : findsOneWidget,
-      );
-      expect(find.text('Readable navigation'), findsOneWidget);
-      final clip = tester.widget<ClipPath>(find.byType(ClipPath).first);
-      expect(
-        (clip.clipper! as ShapeBorderClipper).shape,
-        isA<RoundedSuperellipseBorder>(),
-      );
-      expect(tester.takeException(), isNull);
-    });
+        );
+        expect(find.byType(BackdropFilter), findsNothing);
+        expect(find.text('Readable navigation'), findsOneWidget);
+        final clip = tester.widget<ClipPath>(find.byType(ClipPath).first);
+        expect(
+          (clip.clipper! as ShapeBorderClipper).shape,
+          isA<RoundedSuperellipseBorder>(),
+        );
+        expect(tester.takeException(), isNull);
+      },
+    );
   }
 
   for (final reduced in [false, true]) {

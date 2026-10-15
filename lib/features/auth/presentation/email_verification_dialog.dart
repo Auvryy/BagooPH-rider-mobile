@@ -100,11 +100,21 @@ class _EmailVerificationDialogState
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        const Align(
+          alignment: Alignment.centerLeft,
+          child: Icon(Icons.mark_email_read_outlined, size: 36),
+        ),
+        const SizedBox(height: 16),
         Text('Enter the six-digit code sent to ${widget.email}.'),
         const SizedBox(height: 20),
         TextField(
           key: const ValueKey('email-code-input'),
           controller: _code,
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 6,
+          ),
           maxLength: 6,
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],

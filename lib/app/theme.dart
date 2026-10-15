@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 
 abstract final class RiderColors {
   static const accent = Color(0xFFE00D42);
@@ -16,21 +15,21 @@ abstract final class RiderColors {
 }
 
 abstract final class RiderRadii {
-  static const surface = 24.0;
-  static const group = 24.0;
-  static const control = 16.0;
+  static const surface = 20.0;
+  static const group = 20.0;
+  static const control = 14.0;
   static const media = 20.0;
   static const dialog = 28.0;
-  static const sheet = 32.0;
-  static const selection = 18.0;
-  static const navigation = 32.0;
+  static const sheet = 28.0;
+  static const selection = 14.0;
+  static const navigation = 0.0;
   static const brand = 8.0;
 }
 
 abstract final class RiderMotion {
   static const pressed = Duration(milliseconds: 160);
-  static const navigation = Duration(milliseconds: 320);
-  static const sheet = Duration(milliseconds: 380);
+  static const navigation = Duration(milliseconds: 240);
+  static const sheet = Duration(milliseconds: 280);
   static const touchSpring = SpringDescription(
     mass: 1,
     stiffness: 380,
@@ -46,12 +45,7 @@ abstract final class RiderMotion {
 }
 
 abstract final class RiderTypography {
-  static String family(TargetPlatform platform) => switch (platform) {
-    TargetPlatform.linux => 'sans-serif',
-    TargetPlatform.windows => 'Segoe UI',
-    TargetPlatform.iOS || TargetPlatform.macOS => '.SF UI Text',
-    _ => 'Roboto',
-  };
+  static const family = 'Plus Jakarta Sans';
 }
 
 class RiderScrollBehavior extends MaterialScrollBehavior {
@@ -151,7 +145,7 @@ class RiderPageTransitionsBuilder extends PageTransitionsBuilder {
         position: Tween<Offset>(
           begin: const Offset(.08, 0),
           end: Offset.zero,
-        ).animate(animation.drive(CurveTween(curve: Curves.easeOutBack))),
+        ).animate(animation.drive(CurveTween(curve: Curves.easeOutCubic))),
         child: child,
       ),
     );
@@ -162,7 +156,7 @@ ThemeData buildRiderTheme({bool highContrast = false}) {
   const shape = RoundedSuperellipseBorder(
     borderRadius: BorderRadius.all(Radius.circular(RiderRadii.control)),
   );
-  final family = RiderTypography.family(defaultTargetPlatform);
+  const family = RiderTypography.family;
   final restingSide = highContrast
       ? const BorderSide(color: RiderColors.accentText, width: 1.5)
       : BorderSide.none;
@@ -184,7 +178,7 @@ ThemeData buildRiderTheme({bool highContrast = false}) {
     splashFactory: NoSplash.splashFactory,
     visualDensity: VisualDensity.standard,
     fontFamily: family,
-    fontFamilyFallback: const ['Plus Jakarta Sans'],
+    fontFamilyFallback: const ['sans-serif'],
     colorScheme: scheme,
     scaffoldBackgroundColor: RiderColors.canvas,
     dividerTheme: const DividerThemeData(
@@ -193,7 +187,7 @@ ThemeData buildRiderTheme({bool highContrast = false}) {
       space: 1,
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: RiderColors.canvas,
+      backgroundColor: Colors.white,
       foregroundColor: RiderColors.ink,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
@@ -226,21 +220,21 @@ ThemeData buildRiderTheme({bool highContrast = false}) {
       headlineLarge: TextStyle(
         fontSize: 38,
         height: 1.2,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w800,
         letterSpacing: -1.1,
         color: RiderColors.ink,
       ),
       headlineMedium: TextStyle(
         fontSize: 28,
-        height: 34 / 28,
-        fontWeight: FontWeight.w700,
+        height: 36 / 28,
+        fontWeight: FontWeight.w800,
         letterSpacing: -0.7,
         color: RiderColors.ink,
       ),
       titleLarge: TextStyle(
         fontSize: 18,
         height: 26 / 18,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
         color: RiderColors.ink,
       ),
       titleMedium: TextStyle(

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/theme.dart';
 import '../../../core/network/api_failure.dart';
 import '../../../core/ui/rider_surfaces.dart';
 import '../../home/presentation/task_stage_label.dart';
@@ -291,14 +292,33 @@ class _HandoverIssuesViewState extends State<HandoverIssuesView>
                       constraints: const BoxConstraints(maxWidth: 840),
                       child: ListView(
                         key: const ValueKey('handover-scroll'),
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
                         children: [
                           if (work.loading || work.detailLoading || work.busy)
                             const LinearProgressIndicator(
                               semanticsLabel: 'Checking handover records',
                             ),
                           const SizedBox(height: 12),
-                          Text(work.availability),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.only(top: 2),
+                                child: Icon(
+                                  Icons.info_outline_rounded,
+                                  size: 18,
+                                  color: RiderColors.muted,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  work.availability,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ),
+                            ],
+                          ),
                           if (work.failure != null) ...[
                             const SizedBox(height: 12),
                             Semantics(
@@ -360,12 +380,12 @@ class _HandoverIssuesViewState extends State<HandoverIssuesView>
   }
 
   Widget _section(String title, List<Widget> children) => RiderSurface(
-    padding: const EdgeInsets.all(16),
+    padding: const EdgeInsets.all(20),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(title, style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 12),
+        Text(title, style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 16),
         ...children,
       ],
     ),
@@ -448,7 +468,23 @@ class _HandoverIssuesViewState extends State<HandoverIssuesView>
       ),
       const SizedBox(height: 16),
       if (!work.loading && work.page != null && work.items.isEmpty)
-        const Text('No involved handover issues in this status.'),
+        const RiderSurface(
+          padding: EdgeInsets.all(24),
+          child: Column(
+            children: [
+              Icon(
+                Icons.fact_check_outlined,
+                size: 32,
+                color: RiderColors.muted,
+              ),
+              SizedBox(height: 12),
+              Text(
+                'No involved handover issues in this status.',
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
       if (work.failure != null && work.items.isNotEmpty)
         const Text(
           'These are the last checked records. Refresh before acting.',
@@ -467,19 +503,54 @@ class _HandoverIssuesViewState extends State<HandoverIssuesView>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: RiderColors.rose,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.assignment_outlined,
+                            size: 22,
+                            color: RiderColors.accentText,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            handoverStateLabel(issue.state),
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ),
+                        const Icon(
+                          Icons.chevron_right_rounded,
+                          size: 20,
+                          color: RiderColors.muted,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
                     Text(
-                      handoverStateLabel(issue.state),
+                      issue.tracking,
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
-                    const SizedBox(height: 8),
-                    Text(issue.tracking),
                     const SizedBox(height: 4),
-                    Text(issue.reference),
-                    const SizedBox(height: 8),
+                    Text(
+                      issue.reference,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 12),
                     Text(
                       issue.held
                           ? 'Recovery hold active'
                           : 'No active recovery hold',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: issue.held
+                            ? RiderColors.accentText
+                            : RiderColors.muted,
+                      ),
                     ),
                   ],
                 ),

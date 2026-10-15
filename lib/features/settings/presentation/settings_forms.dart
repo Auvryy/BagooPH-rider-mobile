@@ -667,6 +667,7 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
         if (!didPop) unawaited(_close());
       },
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text(title),
           leading: RiderPressFeedback(
@@ -677,106 +678,111 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
             ),
           ),
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 560),
-              child: AutofillGroup(
-                child: Form(
-                  key: _form,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (widget.identity.preview) ...[
-                        const WorkspaceBadge(
-                          'Preview · sample changes only',
-                          accent: true,
-                        ),
-                        const SizedBox(height: 20),
-                      ],
-                      if (!state.available) ...[
-                        const Text(
-                          'Settings are unavailable for this session. Sign out and sign in again to refresh your account access.',
-                        ),
-                        const SizedBox(height: 20),
-                        if (!widget.identity.preview)
+        body: SafeArea(
+          top: false,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 560),
+                child: AutofillGroup(
+                  child: Form(
+                    key: _form,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (widget.identity.preview) ...[
+                          const WorkspaceBadge(
+                            'Preview · sample changes only',
+                            accent: true,
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                        if (!state.available) ...[
+                          const Text(
+                            'Settings are unavailable for this session. Sign out and sign in again to refresh your account access.',
+                          ),
+                          const SizedBox(height: 20),
+                          if (!widget.identity.preview)
+                            RiderPressFeedback(
+                              child: OutlinedButton(
+                                key: const ValueKey('settings-sign-in-again'),
+                                onPressed:
+                                    ref.watch(authControllerProvider).busy
+                                    ? null
+                                    : () => ref
+                                          .read(authControllerProvider.notifier)
+                                          .logout(),
+                                child: const Text('Sign out and sign in again'),
+                              ),
+                            ),
+                        ] else if (data == null) ...[
+                          if (state.loading)
+                            const Center(child: CircularProgressIndicator()),
+                          if (!state.loading)
+                            RiderPressFeedback(
+                              child: OutlinedButton(
+                                onPressed: state.load,
+                                child: const Text('Retry account settings'),
+                              ),
+                            ),
+                        ] else
+                          ...switch (widget.flow) {
+                            SettingsFlow.contact => _contact(data),
+                            SettingsFlow.password => _password(data),
+                            SettingsFlow.emails => _emailsOverview(data),
+                            SettingsFlow.addEmail => _addEmail(data),
+                            SettingsFlow.manageEmail => _manageEmail(data),
+                          },
+                        if (state.failure != null) ...[
+                          const SizedBox(height: 20),
+                          Semantics(
+                            liveRegion: true,
+                            child: Text(
+                              state.failure!.message,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                            ),
+                          ),
+                        ],
+                        if (state.needsRefresh) ...[
+                          const SizedBox(height: 12),
+                          const Text(
+                            'Refresh saved details before trying again. The previous update was not confirmed.',
+                          ),
                           RiderPressFeedback(
                             child: OutlinedButton(
-                              key: const ValueKey('settings-sign-in-again'),
-                              onPressed: ref.watch(authControllerProvider).busy
+                              onPressed: state.busy
                                   ? null
-                                  : () => ref
-                                        .read(authControllerProvider.notifier)
-                                        .logout(),
-                              child: const Text('Sign out and sign in again'),
+                                  : () async {
+                                      final loaded = await state.load();
+                                      if (loaded && mounted) {
+                                        setState(() {
+                                          _revision = state.data!.revision;
+                                          _initialPhone =
+                                              state.data!.phone ?? '';
+                                        });
+                                      }
+                                    },
+                              child: const Text('Refresh saved details'),
                             ),
                           ),
-                      ] else if (data == null) ...[
-                        if (state.loading)
-                          const Center(child: CircularProgressIndicator()),
-                        if (!state.loading)
-                          RiderPressFeedback(
-                            child: OutlinedButton(
-                              onPressed: state.load,
-                              child: const Text('Retry account settings'),
+                        ],
+                        if (state.result != null) ...[
+                          const SizedBox(height: 20),
+                          Semantics(
+                            liveRegion: true,
+                            child: Text(
+                              widget.identity.preview
+                                  ? 'Preview only · ${state.result}'
+                                  : state.result!,
                             ),
                           ),
-                      ] else
-                        ...switch (widget.flow) {
-                          SettingsFlow.contact => _contact(data),
-                          SettingsFlow.password => _password(data),
-                          SettingsFlow.emails => _emailsOverview(data),
-                          SettingsFlow.addEmail => _addEmail(data),
-                          SettingsFlow.manageEmail => _manageEmail(data),
-                        },
-                      if (state.failure != null) ...[
-                        const SizedBox(height: 20),
-                        Semantics(
-                          liveRegion: true,
-                          child: Text(
-                            state.failure!.message,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                          ),
-                        ),
+                        ],
+                        const SizedBox(height: 24),
                       ],
-                      if (state.needsRefresh) ...[
-                        const SizedBox(height: 12),
-                        const Text(
-                          'Refresh saved details before trying again. The previous update was not confirmed.',
-                        ),
-                        RiderPressFeedback(
-                          child: OutlinedButton(
-                            onPressed: state.busy
-                                ? null
-                                : () async {
-                                    final loaded = await state.load();
-                                    if (loaded && mounted) {
-                                      setState(() {
-                                        _revision = state.data!.revision;
-                                        _initialPhone = state.data!.phone ?? '';
-                                      });
-                                    }
-                                  },
-                            child: const Text('Refresh saved details'),
-                          ),
-                        ),
-                      ],
-                      if (state.result != null) ...[
-                        const SizedBox(height: 20),
-                        Semantics(
-                          liveRegion: true,
-                          child: Text(
-                            widget.identity.preview
-                                ? 'Preview only · ${state.result}'
-                                : state.result!,
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 24),
-                    ],
+                    ),
                   ),
                 ),
               ),

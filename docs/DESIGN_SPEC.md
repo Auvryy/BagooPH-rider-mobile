@@ -1,50 +1,38 @@
 # Rider frontend design specification
 
-Reviewed **October 9, 2026**. This is the target appearance and interaction system
-for the Rider app. The account flow and compact Settings hierarchy are already
-implemented; the wider counted page catalogue remains planning coverage.
-Existing screens now use borderless filled controls, continuous contours,
-frosted floating chrome, system sans-serif typography and spring touch feedback.
-The wider screen catalogue and dark candidate remain planning coverage; styling
-does not implement new backend features or views.
+Reviewed **October 15, 2026**. The current visual direction is a delivery-focused
+mobile interface: clear headings, compact work cards, a useful map and calm white
+surfaces. It supersedes the October 9 frosted-chrome/system-font direction.
+The [redesign plan](plans/rider-ui-redesign/README.md) records implementation and
+verification of every existing page. The wider counted catalogue remains a
+proposal; visual work does not implement its missing APIs or workflows.
 
 ## Design direction
 
-Use a **content-first, tactile mobile interface**: neutral white/light-gray
-reading space, strong readable text, smooth continuous contours and translucent
-floating controls. **Solid black or dark outlines are not an accepted default**
-for cards, fields, secondary buttons or navigation. Use fill, spacing, subtle
-shadow and labels to establish structure; keep an accent focus indicator and
-explicit error/selection feedback when needed.
+The three user-selected delivery/ride references inform composition, not copied
+artwork: a compact identity header, bold readable titles, grouped work summaries,
+map emphasis and one clear next action. Adapt these patterns to Bagoo's existing
+logo and **red `#E00D42`**. Keep status colors semantic and labelled.
 
-The four design principles are:
+1. **Clear hierarchy.** A screen has one leading title and one primary action.
+   Short contextual labels, strong values and restrained icons help scanning.
+   Avoid repeated identity cards, nested boxes and paragraphs above routine tasks.
+2. **Quiet surfaces.** Use opaque white cards on `#F7F7FA`, soft neutral fields,
+   fine separators and minimal elevation. Navigation and overlays use solid white,
+   without blur, gradients or glass. Red marks actions and selected responsibility.
+3. **Consistent typography.** Use the bundled Plus Jakarta Sans throughout all
+   platforms. Headings are confident, body text stays comfortably readable, and
+   monetary values retain their exact server formatting. Do not shrink large text.
+4. **Predictable movement.** Reserve bottom navigation space; do not float it
+   over content. Home is an ordinary scrolling page, never a draggable sheet.
+   Temporary sheets retain explicit dismissal. Press feedback, focus, Back,
+   keyboard clearance and reduced-motion behavior remain available.
 
-1. **Direct touch and physics.** Pressed controls compress gently and return
-   with a finite spring. Scrolling carries momentum; sheets move from their
-   origin and remain draggable. Touch must not delay a request, obscure its
-   actual result or require a gesture without a labelled alternative.
-2. **Translucency and layering.** Frosted navigation/header chrome and temporary
-   sheets sit above a neutral background. Use clipped backdrop blur, light
-   translucent fill and soft depth rather than heavy framed boxes. Reading
-   surfaces stay opaque. Glass has an opaque fallback under reduced effects,
-   accessible navigation or high contrast. [R02](design/SOURCE_REGISTER.md#r02),
-   [R19](design/SOURCE_REGISTER.md#r19)
-3. **Content first.** Text, field labels, current responsibility and the next
-   action earn attention. Red primarily marks an actionable control or active
-   selection; semantic errors/waiting/results retain their labelled meanings.
-   Avoid decorative accent panels and repeated branding.
-4. **System typography and continuous corners.** Prefer each platform's native
-   sans-serif family; the bundled typeface is a fallback. Use continuous
-   superellipse contours, not an ordinary circular corner on every component.
-   Larger page titles and stable body sizes preserve hierarchy at enlarged text.
-   [R18](design/SOURCE_REGISTER.md#r18)
-
-Primary red stays **`#E00D42`**; small accent text uses `#C20836`. The canvas is
-**`#F7F7FA`**, reading surfaces are white and resting fields use **`#EEF0F4`**.
-Continuous contours use **24-unit surfaces/groups, 16-unit controls, 20-unit
-media, 28-unit dialogs and 32-unit sheets/navigation**. Selection contours use
-18 units. The supplied brand artwork keeps its own contour. The design system
-and `tokens.json` provide canonical values and platform-family choices.
+Small accent text uses `#C20836`. Resting fields use `#EEF0F4`. Continuous
+contours use **20-unit surfaces/groups, 14-unit controls/selection, 20-unit maps,
+28-unit dialogs/sheets**. The bottom navigation has a straight edge and subtle
+divider; its selected item has a soft red fill. The original logo is unchanged.
+The canonical values live in [tokens.json](design/tokens.json).
 
 The mobile app shares the website's business meanings, data, branding and
 permissions. It owns its own presentation: do not copy portal CSS, desktop
@@ -63,10 +51,8 @@ before decoration. Group everyday choices into short labelled rows. Reveal
 account/vehicle records, identity guidance and operation-specific fields only
 when needed; this does not hide essential task or safety information.
 
-Navigation chrome uses bounded translucency only
-where contrast, performance and reduced-effects preferences support it. Proof,
-addresses, amounts, fields and task content stay opaque. Every enhanced material
-has a readable flat fallback. The reasoning is documented in
+Navigation, addresses, amounts, fields and task content are opaque in every
+mode. The rationale is recorded in
 [RESEARCH_AND_RATIONALE.md](design/RESEARCH_AND_RATIONALE.md).
 
 ## Mobile composition rules
@@ -87,7 +73,7 @@ has a readable flat fallback. The reasoning is documented in
   never covers the main action, keyboard, system gesture area or focused field.
 - Sheets use a clear title, explicit dismissal and visible intent, with a soft
   upper contour. Use finite transitions that preserve origin and focus; provide
-  reduced-motion and opaque fallbacks. Do not add blur or animation to evidence
+  reduced-motion behavior. Do not add blur or animation to evidence
   that must remain readable.
 - Use shape, hierarchy and whitespace for polish while preserving 48-unit touch
   targets, 56-unit grouped rows, labelled feedback and the actual server state.
@@ -101,7 +87,7 @@ has a readable flat fallback. The reasoning is documented in
 | [PAGE_BLUEPRINTS.md](design/PAGE_BLUEPRINTS.md) | Composition, navigation, button placement, color/borders, responsiveness and recovery for every page |
 | [RESEARCH_AND_RATIONALE.md](design/RESEARCH_AND_RATIONALE.md) | Jakob, Hick, Fitts, von Restorff, grouping, memory and thumb-reach application with limits |
 | [IMPROVED_DESIGN_BRIEF.md](design/IMPROVED_DESIGN_BRIEF.md) | Review requirements for the mobile visual direction and honest implementation status |
-| [Storyboard](design/visuals/storyboard.png) | Eight illustrative visual compositions with sample values |
+| [Historical storyboard](design/visuals/storyboard.png) | Eight October 9 proposal compositions; superseded styling, not app screenshots |
 | [SOURCE_REGISTER.md](design/SOURCE_REGISTER.md) | Dated evidence and original references |
 
 ## Theoretical page count
@@ -207,21 +193,21 @@ the focused field. Test both hands and a two-handed grip while stopped.
 
 ## How Home should look
 
-Top to bottom: compact identity/hub/duty → Your tasks → phase filters →
-prominent current/continuing task → remaining queue → small recorded activity.
-The current task gets a white softly rounded surface with stage, destination, parcel
-identity and one Open Stop Mode action. Less urgent rows stay unboxed with
-clear spacing/dividers. Operational counts appear once where useful.
+The implemented phone Home is map-first: compact identity and duty → bounded
+map and attribution → map controls/status → hub, eligibility and refresh →
+counted queue tabs and task cards. The page scrolls normally. Short windows omit
+the map and keep all work controls reachable; large text reduces the map height.
+Wide windows place the queue beside the map. Bottom navigation reserves space.
 
-The canvas supplies warmth. Crimson marks the real primary action and active
-navigation/filter; dark text makes the stop/address readable. A sand inset
-explains waiting for another actor. Do not fill all cards with status colors.
-A bounded map appears in Stop Mode or its expanded saved-stop view; it should
-not displace the work queue on an empty or short Home screen.
+The selected task uses a white surface with its full destination, parcel identity
+and Open Stop Mode action. Queue cards use white, with soft rose selection.
+Counts come from the server; an unavailable count is never invented as zero.
+Missing coordinates retain the address. No destination or route is guessed.
 
-The detailed composition and each alternative state are
-[P05](design/PAGE_BLUEPRINTS.md#p05). Every other page receives the same level
-of structure in the blueprints.
+The [Home/navigation implementation](plans/home-dashboard-navigation/README.md)
+and [redesign coverage](plans/rider-ui-redesign/README.md) describe current runtime
+behavior. [P05](design/PAGE_BLUEPRINTS.md#p05) remains a broader future blueprint;
+it does not override this implemented map-first extension.
 
 ## Selected feature compositions
 
@@ -231,8 +217,10 @@ of structure in the blueprints.
 | Parcel Finder | Owned parcel list → small labelled bag diagram → selected slot → Set/Clear. The diagram supports recognition and stays supplementary to identity/scanning. |
 | Doorstep Guide | Original destination → entrance/landmark → unit/access details → directions/contact fallback. Plain readable sections beat decorative cards around each sentence. |
 
-The saved pin is stationary and labelled. Moving rider dots, optimized lines,
-travel times and arrival promises require their own accepted services.
+The saved target is labelled. The accepted Home/navigation extension draws
+provider road geometry and an explicitly started location marker; Linux uses
+a labelled manual origin. Multi-stop optimization, spoken directions inside
+Rider and automatic arrival/outcomes remain outside this scope.
 Tile failure preserves the address and actions. Zoom/Show stop controls have
 large labelled touch targets and opaque backplates. Attribution stays visible.
 
@@ -260,11 +248,17 @@ system. Each blueprint gives its own color/border reason.
 
 ## Visual layout studies
 
+See [current runtime captures](plans/rider-ui-redesign/RENDER_REVIEW.md) for the
+implemented October 15–16 design.
+
 ![Adaptive composition sketches](design/visuals/adaptive-layouts.png)
 
 ![Both-handed action placement proposal](design/visuals/action-placement.png)
 
-These are editable documentation sketches, not rendered layout/device checks.
+These are historical October 9 documentation sketches, not current runtime
+screenshots or rendered layout/device checks. The October 15 redesign and
+[render-review instructions](plans/rider-ui-redesign/README.md) supersede their
+old visual treatment.
 They illustrate content-driven adaptation and inset-aware action placement.
 
 ## Operational meanings the design must preserve

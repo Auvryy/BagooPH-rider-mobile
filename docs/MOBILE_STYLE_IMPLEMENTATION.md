@@ -1,8 +1,10 @@
-# Existing app mobile styling
+# Historical mobile styling — October 9
 
-Revised October 9, 2026 after review of the earlier flat/outlined presentation.
-[The design specification](DESIGN_SPEC.md) now requires a tactile, layered style
-on existing screens. Backend operations work remains separate.
+This is historical implementation evidence. Its frosted chrome, platform-first
+font, floating dock and old radii were **superseded by the October 15 redesign**.
+Use [DESIGN_SPEC.md](DESIGN_SPEC.md), [the design system](design/DESIGN_SYSTEM.md)
+and [current runtime coverage](plans/rider-ui-redesign/README.md) for new work.
+The dated changes and checks below describe the earlier branch only.
 
 ## Runtime changes
 

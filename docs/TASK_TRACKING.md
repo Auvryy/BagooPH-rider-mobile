@@ -272,8 +272,8 @@ operational states or the physical Android baseline. See [AUTH_PREVIEW.md](AUTH_
    checks; do not assume they are already installed.
 2. Build reusable fields, buttons, status/error panels and accessible sheets.
    Use the mobile design target: primary `#E00D42`, neutral `#F7F7FA`, role-specific
-   continuous superellipse shapes, platform sans-serif typography, borderless
-   filled controls and accessible frosted chrome. Apply target tokens only in the
+   continuous shapes, bundled Plus Jakarta Sans, borderless
+   filled controls and solid reserved navigation. Apply target tokens only in the
    selected implementation slice, with explicit checks against existing runtime.
 3. Wire explicit development fixtures behind replaceable repositories; retain
    debug Linux Device Preview and establish the physical Android baseline.
@@ -290,6 +290,15 @@ use borderless filled controls, continuous contours, platform type, frosted
 floating chrome and finite spring feedback. Fresh local tests, render review and
 ordinary builds passed; physical-device and operational API gates remain separate.
 See [the implementation record](MOBILE_STYLE_IMPLEMENTATION.md).
+
+**October 15–16 visual redesign:** the [existing-screen redesign](plans/rider-ui-redesign/README.md)
+is implemented across account entry, Home/Stop Mode, Trips, Messages, Profile,
+Settings and Handover. Bundled typography, solid reserved navigation, compact
+records and white surfaces supersede October 9 appearance rules. Analysis,
+348 full-suite tests (four configuration skips), targeted layout/render checks
+and Linux/Android builds passed. [Runtime examples](plans/rider-ui-redesign/RENDER_REVIEW.md)
+use synthetic data. Backend/device gates and the planned feature catalogue remain
+separate; this does not mark whole feature areas complete.
 
 ### M03 — Authentication and account holding
 

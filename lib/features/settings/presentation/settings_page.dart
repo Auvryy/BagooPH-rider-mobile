@@ -104,7 +104,7 @@ class ProfileSettingsPage extends ConsumerWidget {
                     padding: const EdgeInsets.all(16),
                     child: Row(
                       children: [
-                        WorkspaceAvatar(account.name, size: 48),
+                        WorkspaceAvatar(account.name, size: 56),
                         const SizedBox(width: 14),
                         Expanded(
                           child: Column(
@@ -112,7 +112,7 @@ class ProfileSettingsPage extends ConsumerWidget {
                             children: [
                               Text(
                                 account.name,
-                                style: Theme.of(context).textTheme.titleMedium,
+                                style: Theme.of(context).textTheme.titleLarge,
                               ),
                               const SizedBox(height: 3),
                               Text(
@@ -435,7 +435,7 @@ class _SettingsGroup extends StatelessWidget {
     child: Column(
       children: [
         for (var i = 0; i < children.length; i++) ...[
-          if (i > 0) const Divider(height: 1, indent: 52, endIndent: 16),
+          if (i > 0) const Divider(height: 1, indent: 66, endIndent: 16),
           children[i],
         ],
       ],
@@ -461,15 +461,24 @@ class _SettingsRow extends StatelessWidget {
     child: InkWell(
       onTap: onTap,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 56),
+        constraints: const BoxConstraints(minHeight: 64),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              Icon(
-                icon,
-                size: 22,
-                color: destructive ? RiderColors.accentText : RiderColors.muted,
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: destructive ? RiderColors.rose : RiderColors.canvas,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  icon,
+                  size: 20,
+                  color: destructive
+                      ? RiderColors.accentText
+                      : RiderColors.muted,
+                ),
               ),
               const SizedBox(width: 14),
               Expanded(

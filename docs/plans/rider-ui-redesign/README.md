@@ -57,3 +57,14 @@ compact/200% text and wide layout checks; targeted/full Flutter tests; analysis;
 ordinary Linux and Android builds; privacy/diff review and focused local commits.
 Render fixtures do not establish new live operational or physical-device acceptance.
 No changes to API or device gates are claimed by this work.
+
+## Verification log
+
+- Shared visual foundation: 14 theme/surface tests passed; design catalogue
+  generator validated unchanged counts and stable IDs.
+- Account/navigation slice: 36 account, lifecycle, workspace and render checks
+  passed. After refining login spacing and loading actual icon fonts, the
+  22 account/render checks passed again. Synthetic captures include login, all
+  three registration stages, holding and the four workspace roots. Compact
+  320–430, 200% text, wide layouts and message keyboard behavior are covered.
+- Whole-app review, operational-page redesign and native builds remain pending.

@@ -796,31 +796,32 @@ class _StepNavigation extends StatelessWidget {
     Widget item(int index) {
       final active = index == step;
       final circle = Container(
-        width: 48,
-        height: 48,
+        key: ValueKey('registration-step-circle-$index'),
+        width: 32,
+        height: 32,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: active ? RiderColors.rose : Colors.transparent,
+          color: active
+              ? RiderColors.accent
+              : index < step
+              ? RiderColors.rose
+              : RiderColors.controlFill,
         ),
-        child: Container(
-          key: ValueKey('registration-step-circle-$index'),
-          width: 36,
-          height: 36,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: active ? RiderColors.accent : RiderColors.controlFill,
-          ),
-          child: Text(
-            '${index + 1}',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: active ? Colors.white : RiderColors.muted,
-            ),
-          ),
-        ),
+        child: index < step
+            ? const Icon(
+                Icons.check_rounded,
+                size: 18,
+                color: RiderColors.accentText,
+              )
+            : Text(
+                '${index + 1}',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: active ? Colors.white : RiderColors.muted,
+                ),
+              ),
       );
       final label = Text(
         labels[index],
@@ -849,7 +850,7 @@ class _StepNavigation extends StatelessWidget {
               borderRadius: BorderRadius.circular(RiderRadii.control),
               child: ExcludeSemantics(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
                   child: stacked
                       ? Row(
                           children: [
@@ -881,7 +882,7 @@ class _StepNavigation extends StatelessWidget {
       builder: (context, constraints) => Stack(
         children: [
           Positioned(
-            top: 27,
+            top: 19,
             left: constraints.maxWidth / 6 + 24,
             right: constraints.maxWidth / 6 + 24,
             child: const SizedBox(

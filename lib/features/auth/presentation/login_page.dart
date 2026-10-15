@@ -59,13 +59,23 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const Text(
+                'LET’S GET MOVING',
+                style: TextStyle(
+                  fontSize: 11,
+                  letterSpacing: 1.6,
+                  fontWeight: FontWeight.w700,
+                  color: RiderColors.accentText,
+                ),
+              ),
+              const SizedBox(height: 12),
               Text(
                 'Welcome back.',
-                style: Theme.of(context).textTheme.headlineMedium,
+                style: Theme.of(context).textTheme.headlineLarge,
               ),
               const SizedBox(height: 8),
               Text(
-                'Sign in to your rider workspace.',
+                'Your next pickup starts here. Sign in to continue.',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 32),
@@ -142,7 +152,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       ),
                     ),
                   );
-                  if (constraints.maxWidth < 340 ||
+                  if (constraints.maxWidth < 300 ||
                       MediaQuery.textScalerOf(context).scale(13) > 18) {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,15 +181,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 const SizedBox(height: 16),
               ],
               RiderPressFeedback(
-                child: FilledButton(
+                child: FilledButton.icon(
                   key: const ValueKey('sign-in-button'),
                   onPressed: session.busy ? null : _signIn,
-                  child: Text(session.busy ? 'Signing in…' : 'Sign in'),
+                  icon: const Icon(Icons.arrow_forward_rounded, size: 20),
+                  iconAlignment: IconAlignment.end,
+                  label: Text(session.busy ? 'Signing in…' : 'Sign in'),
                 ),
               ),
               const SizedBox(height: 24),
-              const Divider(),
-              const SizedBox(height: 12),
               const Text('New to BagooPH Rider?', textAlign: TextAlign.center),
               const SizedBox(height: 4),
               RiderPressFeedback(

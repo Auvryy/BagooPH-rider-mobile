@@ -180,7 +180,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
           },
           child: Scaffold(
             key: const ValueKey('rider-workspace'),
-            extendBody: destination != 0 && !rail && !typing,
+            extendBody: false,
             bottomNavigationBar: !rail && !typing
                 ? SafeArea(top: false, child: _navigation(vertical: false))
                 : null,
@@ -256,7 +256,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                                     : Offset(
                                         18 *
                                             (1 -
-                                                Curves.easeOutBack.transform(
+                                                Curves.easeOutCubic.transform(
                                                   _arrival.value,
                                                 )),
                                         0,
@@ -322,7 +322,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
   Widget _header(bool busy) => RiderChrome(
     radius: 0,
     child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
       child: Row(
         children: [
           Expanded(
@@ -397,7 +397,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
   Widget _navigation({required bool vertical}) => LayoutBuilder(
     builder: (context, constraints) {
       final wide = MediaQuery.sizeOf(context).width >= 1200;
-      final availableWidth = constraints.maxWidth - 32;
+      final availableWidth = constraints.maxWidth - 16;
       final itemWidth = _navigationItemWidth(context);
       final compactLabels = !vertical && availableWidth / 4 < itemWidth;
       final children = [
@@ -405,7 +405,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: vertical ? 8 : 4,
-              vertical: 8,
+              vertical: 4,
             ),
             child: Semantics(
               selected: destination == index,
@@ -424,15 +424,15 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                       duration: RiderMotion.reduced(context)
                           ? Duration.zero
                           : RiderMotion.pressed,
-                      constraints: const BoxConstraints(minHeight: 64),
+                      constraints: const BoxConstraints(minHeight: 56),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 6,
-                        vertical: 10,
+                        vertical: 8,
                       ),
                       curve: Curves.easeOutCubic,
                       decoration: ShapeDecoration(
                         color: destination == index
-                            ? Colors.white.withValues(alpha: .92)
+                            ? RiderColors.rose
                             : Colors.transparent,
                         shape: RoundedSuperellipseBorder(
                           borderRadius: BorderRadius.circular(
@@ -501,7 +501,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
           ),
       ];
       final navigation = RiderChrome(
-        radius: RiderRadii.navigation,
+        radius: vertical ? RiderRadii.surface : 0,
         child: vertical
             ? SingleChildScrollView(
                 child: Column(
@@ -541,11 +541,19 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                 ),
               ),
       );
-      return Padding(
-        padding: vertical
-            ? const EdgeInsets.all(8)
-            : const EdgeInsets.fromLTRB(12, 6, 12, 8),
-        child: navigation,
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: vertical
+              ? null
+              : const Border(top: BorderSide(color: RiderColors.divider)),
+        ),
+        child: Padding(
+          padding: vertical
+              ? const EdgeInsets.all(8)
+              : const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          child: navigation,
+        ),
       );
     },
   );

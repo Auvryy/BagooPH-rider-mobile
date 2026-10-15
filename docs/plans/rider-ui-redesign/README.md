@@ -67,4 +67,8 @@ No changes to API or device gates are claimed by this work.
   22 account/render checks passed again. Synthetic captures include login, all
   three registration stages, holding and the four workspace roots. Compact
   320–430, 200% text, wide layouts and message keyboard behavior are covered.
-- Whole-app review, operational-page redesign and native builds remain pending.
+- Home/Stop Mode slice: 38 Home/overview checks passed after adapting lazy-scroll
+  assertions to the map-first order. Stop Mode and navigation checks passed in
+  the preceding targeted run. Reviewed phone overview and address-only directions
+  captures; map test tiles are synthetic and do not establish live routing.
+- Whole-app review, remaining operational pages and native builds remain pending.

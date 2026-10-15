@@ -154,15 +154,19 @@ void main() {
       await tester.tap(find.byTooltip('Select ${owned.tracking}'));
       await tester.pumpAndSettle();
       expect(controller.selectedTask?.id, owned.id);
-      expect(
-        find.byKey(const ValueKey('home-selected-details')),
-        findsOneWidget,
-      );
       final camera = tester
           .widget<FlutterMap>(find.byType(FlutterMap, skipOffstage: false))
           .mapController!
           .camera;
       expect(camera.zoom, greaterThan(12));
+      await revealHome(
+        tester,
+        find.byKey(const ValueKey('home-selected-details')),
+      );
+      expect(
+        find.byKey(const ValueKey('home-selected-details')),
+        findsOneWidget,
+      );
       await tester.ensureVisible(
         find.byKey(const ValueKey('home-selected-details')),
       );
@@ -418,6 +422,14 @@ void main() {
       await tapHome(tester, row);
       expect(find.text('Address only · no saved map pin'), findsOneWidget);
       expect(find.text(h.task.stop.address!), findsWidgets);
+      final page = find
+          .descendant(
+            of: find.byKey(const ValueKey('home-page-scroll')),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      tester.state<ScrollableState>(page).position.jumpTo(0);
+      await tester.pumpAndSettle();
       expect(
         tester.widget<MarkerLayer>(find.byType(MarkerLayer)).markers,
         isEmpty,

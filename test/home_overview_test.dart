@@ -328,11 +328,15 @@ void main() {
             longText: true,
           );
           expect(find.byType(DraggableScrollableSheet), findsNothing);
+          expect(find.byType(Switch), findsOneWidget);
+          await _reveal(
+            tester,
+            find.byKey(const ValueKey('home-refresh-tasks')),
+          );
           expect(
             find.byKey(const ValueKey('home-refresh-tasks')),
             findsOneWidget,
           );
-          expect(find.byType(Switch), findsOneWidget);
           if (width < 840) {
             expect(
               find.byKey(const ValueKey('home-page-scroll')),

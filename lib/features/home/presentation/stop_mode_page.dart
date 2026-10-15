@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../../../core/platform/stop_actions.dart';
 import '../../../core/ui/rider_surfaces.dart';
+import '../../../app/theme.dart';
 import '../../navigation/presentation/navigation_controller.dart';
 import '../../navigation/presentation/navigation_controls.dart';
 import '../../workspace/data/workspace_models.dart';
@@ -433,7 +434,7 @@ class _StopModePageState extends State<StopModePage>
   }
 
   Widget _details(OperationTask task) => RiderSurface(
-    padding: const EdgeInsets.all(16),
+    padding: const EdgeInsets.all(20),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -442,51 +443,84 @@ class _StopModePageState extends State<StopModePage>
           runSpacing: 8,
           children: [WorkspaceBadge(taskStageLabel(task.stage), accent: true)],
         ),
-        const SizedBox(height: 16),
-        const Text('Tracking number'),
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            const Icon(
+              Icons.place_outlined,
+              size: 18,
+              color: RiderColors.accentText,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                stopKindLabel(task.stop.kind),
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: RiderColors.accentText,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          _text(task.stop.name) ?? 'Stop name unavailable',
+          style: Theme.of(context).textTheme.headlineMedium
+              ?.copyWith(fontSize: 22),
+        ),
+        const SizedBox(height: 8),
+        SelectableText(
+          _text(task.stop.address) ?? 'Address unavailable',
+          key: const ValueKey('stop-address'),
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+        if (task.stop.latitude == null || task.stop.longitude == null) ...[
+          const SizedBox(height: 8),
+          Text(
+            'Address only · no saved map pin',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+        const SizedBox(height: 20),
+        const Divider(),
+        const SizedBox(height: 20),
+        Text('Tracking number', style: Theme.of(context).textTheme.bodySmall),
+        const SizedBox(height: 4),
         SelectableText(
           task.tracking,
           key: const ValueKey('stop-tracking'),
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 12),
-        const Text('Order number'),
+        Text('Order number', style: Theme.of(context).textTheme.bodySmall),
+        const SizedBox(height: 4),
         SelectableText(task.order, key: const ValueKey('stop-order')),
         const SizedBox(height: 16),
-        Text(custodyLabel(task), key: const ValueKey('stop-custody')),
-        const SizedBox(height: 16),
         Text(
-          stopKindLabel(task.stop.kind),
-          style: Theme.of(context).textTheme.titleSmall,
+          custodyLabel(task),
+          key: const ValueKey('stop-custody'),
+          style: Theme.of(context).textTheme.bodySmall,
         ),
-        const SizedBox(height: 8),
-        Text(
-          _text(task.stop.name) ?? 'Stop name unavailable',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 8),
-        SelectableText(
-          _text(task.stop.address) ?? 'Address unavailable',
-          key: const ValueKey('stop-address'),
-        ),
-        if (task.stop.latitude == null || task.stop.longitude == null) ...[
-          const SizedBox(height: 8),
-          const Text('Address only · no saved map pin'),
-        ],
         if (!task.preview && task.codDueCents != null) ...[
           const SizedBox(height: 16),
-          Text('Recorded COD to collect: ${exactPesos(task.codDueCents!)}'),
+          Text(
+            'Recorded COD to collect: ${exactPesos(task.codDueCents!)}',
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
         ],
       ],
     ),
   );
 
   Widget _guidance(OperationTask task) => RiderSurface(
-    padding: const EdgeInsets.all(16),
+    color: RiderColors.rose,
+    padding: const EdgeInsets.all(20),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Next step', style: Theme.of(context).textTheme.titleMedium),
+        Text('Next step', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
         Text(task.nextInstruction, key: const ValueKey('stop-instruction')),
         const SizedBox(height: 12),

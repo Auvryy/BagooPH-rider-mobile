@@ -350,8 +350,8 @@ void main() {
     'available pickup remains a public preview without private stop actions',
     (tester) async {
       final h = await _open(tester, preview: true);
-      await _reveal(tester, find.byKey(const ValueKey('stop-claim')));
       expect(find.text('Pickup preview'), findsOneWidget);
+      await _reveal(tester, find.byKey(const ValueKey('stop-claim')));
       expect(_enabled(tester, 'stop-claim'), isFalse);
       for (final key in [
         'stop-copy-address',

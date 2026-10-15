@@ -87,7 +87,7 @@ mode. The rationale is recorded in
 | [PAGE_BLUEPRINTS.md](design/PAGE_BLUEPRINTS.md) | Composition, navigation, button placement, color/borders, responsiveness and recovery for every page |
 | [RESEARCH_AND_RATIONALE.md](design/RESEARCH_AND_RATIONALE.md) | Jakob, Hick, Fitts, von Restorff, grouping, memory and thumb-reach application with limits |
 | [IMPROVED_DESIGN_BRIEF.md](design/IMPROVED_DESIGN_BRIEF.md) | Review requirements for the mobile visual direction and honest implementation status |
-| [Storyboard](design/visuals/storyboard.png) | Eight illustrative visual compositions with sample values |
+| [Historical storyboard](design/visuals/storyboard.png) | Eight October 9 proposal compositions; superseded styling, not app screenshots |
 | [SOURCE_REGISTER.md](design/SOURCE_REGISTER.md) | Dated evidence and original references |
 
 ## Theoretical page count
@@ -193,21 +193,21 @@ the focused field. Test both hands and a two-handed grip while stopped.
 
 ## How Home should look
 
-Top to bottom: compact identity/hub/duty → Your tasks → phase filters →
-prominent current/continuing task → remaining queue → small recorded activity.
-The current task gets a white softly rounded surface with stage, destination, parcel
-identity and one Open Stop Mode action. Less urgent rows stay unboxed with
-clear spacing/dividers. Operational counts appear once where useful.
+The implemented phone Home is map-first: compact identity and duty → bounded
+map and attribution → map controls/status → hub, eligibility and refresh →
+counted queue tabs and task cards. The page scrolls normally. Short windows omit
+the map and keep all work controls reachable; large text reduces the map height.
+Wide windows place the queue beside the map. Bottom navigation reserves space.
 
-The canvas supplies warmth. Crimson marks the real primary action and active
-navigation/filter; dark text makes the stop/address readable. A sand inset
-explains waiting for another actor. Do not fill all cards with status colors.
-A bounded map appears in Stop Mode or its expanded saved-stop view; it should
-not displace the work queue on an empty or short Home screen.
+The selected task uses a white surface with its full destination, parcel identity
+and Open Stop Mode action. Queue cards use white, with soft rose selection.
+Counts come from the server; an unavailable count is never invented as zero.
+Missing coordinates retain the address. No destination or route is guessed.
 
-The detailed composition and each alternative state are
-[P05](design/PAGE_BLUEPRINTS.md#p05). Every other page receives the same level
-of structure in the blueprints.
+The [Home/navigation implementation](plans/home-dashboard-navigation/README.md)
+and [redesign coverage](plans/rider-ui-redesign/README.md) describe current runtime
+behavior. [P05](design/PAGE_BLUEPRINTS.md#p05) remains a broader future blueprint;
+it does not override this implemented map-first extension.
 
 ## Selected feature compositions
 
@@ -217,8 +217,10 @@ of structure in the blueprints.
 | Parcel Finder | Owned parcel list → small labelled bag diagram → selected slot → Set/Clear. The diagram supports recognition and stays supplementary to identity/scanning. |
 | Doorstep Guide | Original destination → entrance/landmark → unit/access details → directions/contact fallback. Plain readable sections beat decorative cards around each sentence. |
 
-The saved pin is stationary and labelled. Moving rider dots, optimized lines,
-travel times and arrival promises require their own accepted services.
+The saved target is labelled. The accepted Home/navigation extension draws
+provider road geometry and an explicitly started location marker; Linux uses
+a labelled manual origin. Multi-stop optimization, spoken directions inside
+Rider and automatic arrival/outcomes remain outside this scope.
 Tile failure preserves the address and actions. Zoom/Show stop controls have
 large labelled touch targets and opaque backplates. Attribution stays visible.
 
@@ -246,11 +248,17 @@ system. Each blueprint gives its own color/border reason.
 
 ## Visual layout studies
 
+See [current runtime captures](plans/rider-ui-redesign/RENDER_REVIEW.md) for the
+implemented October 15–16 design.
+
 ![Adaptive composition sketches](design/visuals/adaptive-layouts.png)
 
 ![Both-handed action placement proposal](design/visuals/action-placement.png)
 
-These are editable documentation sketches, not rendered layout/device checks.
+These are historical October 9 documentation sketches, not current runtime
+screenshots or rendered layout/device checks. The October 15 redesign and
+[render-review instructions](plans/rider-ui-redesign/README.md) supersede their
+old visual treatment.
 They illustrate content-driven adaptation and inset-aware action placement.
 
 ## Operational meanings the design must preserve

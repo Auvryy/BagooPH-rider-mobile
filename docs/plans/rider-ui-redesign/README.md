@@ -1,6 +1,6 @@
 # Rider interface redesign
 
-Status: in progress on `feat/rider-ui-redesign`.
+Status: implemented and locally verified on `feat/rider-ui-redesign`, October 16, 2026.
 
 ## Scope and authority
 
@@ -30,15 +30,15 @@ M03/M04/M09/M10/M11/M13/M14 presentation surfaces. Follow the
 
 ## Implemented-screen coverage
 
-- [ ] Login, registration stages, documents, verification dialog and holding.
-- [ ] Persistent bottom bar, wide rail, keyboard/Back behavior and sign-out.
-- [ ] Live Home summary, queues, selected task, available claim and address fallback.
-- [ ] Map controls/attribution, route states, manual origin/profile and Stop Mode.
-- [ ] Trips list, filters, summaries and trip details.
-- [ ] Messages list, thread, compose, errors and restricted states.
-- [ ] Profile, Settings, managed records, help and contact/password/email forms.
-- [ ] Handover list, detail, report, acknowledgement and private evidence viewer.
-- [ ] Shared empty/loading/error/unavailable states, dialogs and sheets.
+- [x] Login, registration stages, documents, verification dialog and holding.
+- [x] Persistent bottom bar, wide rail, keyboard/Back behavior and sign-out.
+- [x] Live Home summary, queues, selected task, available claim and address fallback.
+- [x] Map controls/attribution, route states, manual origin/profile and Stop Mode.
+- [x] Trips list, filters, summaries and trip details.
+- [x] Messages list, thread, compose, errors and restricted states.
+- [x] Profile, Settings, managed records, help and contact/password/email forms.
+- [x] Handover list, detail, report, acknowledgement and private evidence viewer.
+- [x] Shared empty/loading/error/unavailable states, dialogs and sheets.
 
 ## Behavior invariants
 
@@ -52,11 +52,17 @@ keyboard focus, labelled controls, 48-unit targets and reduced motion.
 
 ## Finish evidence
 
-Pending: rendered real-font reviews of every screen family at phone dimensions;
-compact/200% text and wide layout checks; targeted/full Flutter tests; analysis;
-ordinary Linux and Android builds; privacy/diff review and focused local commits.
-Render fixtures do not establish new live operational or physical-device acceptance.
-No changes to API or device gates are claimed by this work.
+Actual real-font phone captures were reviewed across account, workspace, forms,
+Home/Stop Mode and handover families. [Runtime captures and reproduction](RENDER_REVIEW.md)
+include four checked-in examples; full generated screenshots remain ignored.
+Compact/200% text, keyboard, wide layouts, shared motion and functional regression
+checks passed. Ordinary Linux release and Android debug builds passed with the
+existing private map configuration. Original logo bytes, API/data repositories,
+command gates and dependencies are unchanged.
+
+This completes presentation work on the implemented pages. Synthetic render
+fixtures and desktop builds do not establish new live operational or physical
+Android acceptance. API and device gates remain with their owning plans.
 
 ## Verification log
 
@@ -76,4 +82,30 @@ No changes to API or device gates are claimed by this work.
   and acknowledgement, private-evidence denial, large text and keyboard clearance.
   Registration step numbers no longer imply validation when a later step is opened.
   Solid white app bars finish the shared navigation treatment.
-- Full-suite regression, final analysis and native builds remain pending.
+- Full regression: **348 tests passed, four explicit-configuration skips**.
+  Three opt-in render scenarios were separately run in the 51-check pass; the
+  custom-API configuration scenario is intentionally skipped in an ordinary run.
+- Final Home fallback: **38 checks passed**, including the explanation fitting at
+  200% text; selected-stop and destination capture checks then passed (2 tests).
+- `flutter analyze --no-pub`: no issues. Design and backlog generators pass
+  `--check` with unchanged 48-view/180-subtask counts. Changed-document links and
+  `git diff --check` pass. No backend files, real records or secrets were changed.
+- `flutter build linux --release --no-pub --dart-define-from-file=.env.geoapify.json`
+  and `flutter build apk --debug --no-pub --dart-define-from-file=.env.geoapify.json`
+  pass. Android emits a host SDK XML-version warning; the APK still builds.
+- The first remaining-pages run hit the host temporary-storage quota. Re-running
+  with an ignored project build directory as `TMPDIR` passed; no app workaround
+  or dependency change was needed.
+
+## Run on a PC in the phone frame
+
+From the Rider Mobile repository root:
+
+```sh
+flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.geoapify.json
+```
+
+Device Preview supplies the frame; ordinary Azure login remains available.
+Use your authorized account to review Home, then Trips, Messages and Profile.
+Availability still depends on the server's advertised capabilities. No new API
+key, account or backend deployment is required specifically for this redesign.

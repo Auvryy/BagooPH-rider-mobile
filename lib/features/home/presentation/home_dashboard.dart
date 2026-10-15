@@ -310,7 +310,13 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                       children: [
                         SizedBox(
                           height:
-                              MediaQuery.textScalerOf(context).scale(14) > 20
+                              !geo.configured &&
+                                  (focus?.points.isEmpty ?? true) &&
+                                  !nav.active
+                              ? (MediaQuery.textScalerOf(context).scale(14) > 20
+                                    ? 260
+                                    : 160)
+                              : MediaQuery.textScalerOf(context).scale(14) > 20
                               ? (constraints.maxHeight * .33).clamp(
                                   160.0,
                                   240.0,
@@ -573,6 +579,35 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                 ),
               ],
             ),
+            if (!geo.configured && tasks.isEmpty && !nav.active)
+              const Positioned.fill(
+                child: IgnorePointer(
+                  child: ColoredBox(
+                    key: ValueKey('home-map-unavailable'),
+                    color: Colors.white,
+                    child: Center(
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.all(20),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.map_outlined,
+                              size: 32,
+                              color: RiderColors.muted,
+                            ),
+                            SizedBox(height: 12),
+                            Text(
+                              'Map unavailable. Task addresses are still available.',
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       );
@@ -664,7 +699,9 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
             'Philippines outline could not load. Task addresses remain available.',
             Icons.map_outlined,
           ),
-        if (!geo.configured || geo.failure != null)
+        if (geo.failure != null ||
+            (!geo.configured &&
+                ((focus?.points.isNotEmpty ?? false) || nav.active)))
           _mapNote(
             geo.failure ??
                 'Map unavailable. Task addresses are still available.',

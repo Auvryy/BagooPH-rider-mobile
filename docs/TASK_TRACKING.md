@@ -291,9 +291,14 @@ floating chrome and finite spring feedback. Fresh local tests, render review and
 ordinary builds passed; physical-device and operational API gates remain separate.
 See [the implementation record](MOBILE_STYLE_IMPLEMENTATION.md).
 
-**October 15 visual redesign:** a separate [existing-screen redesign](plans/rider-ui-redesign/README.md)
-is in progress across the implemented app. It supersedes the October 9 appearance
-rules while preserving backend gates and the planned feature catalogue.
+**October 15–16 visual redesign:** the [existing-screen redesign](plans/rider-ui-redesign/README.md)
+is implemented across account entry, Home/Stop Mode, Trips, Messages, Profile,
+Settings and Handover. Bundled typography, solid reserved navigation, compact
+records and white surfaces supersede October 9 appearance rules. Analysis,
+348 full-suite tests (four configuration skips), targeted layout/render checks
+and Linux/Android builds passed. [Runtime examples](plans/rider-ui-redesign/RENDER_REVIEW.md)
+use synthetic data. Backend/device gates and the planned feature catalogue remain
+separate; this does not mark whole feature areas complete.
 
 ### M03 — Authentication and account holding
 

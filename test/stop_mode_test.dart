@@ -889,23 +889,29 @@ void main() {
             greaterThan(0),
           );
           if (width == 390 && scale == 1) {
-            final boundary = tester.firstRenderObject<RenderObject>(
-              find.byType(RepaintBoundary),
-            );
-            if (boundary is RenderRepaintBoundary) {
-              await tester.runAsync(() async {
-                final image = await boundary.toImage();
-                final bytes = await image.toByteData(
-                  format: ui.ImageByteFormat.png,
-                );
-                if (bytes != null) {
-                  Directory('build/stop-mode-verification')
-                      .createSync(recursive: true);
-                  File('build/stop-mode-verification/stop-mode-phone.png')
-                      .writeAsBytesSync(bytes.buffer.asUint8List());
-                }
-                image.dispose();
-              });
+            for (final name in ['stop-mode-phone', 'stop-mode-destination']) {
+              if (name == 'stop-mode-destination') {
+                tester.state<ScrollableState>(pageScroll).position.jumpTo(0);
+                await tester.pumpAndSettle();
+              }
+              final boundary = tester.firstRenderObject<RenderObject>(
+                find.byType(RepaintBoundary),
+              );
+              if (boundary is RenderRepaintBoundary) {
+                await tester.runAsync(() async {
+                  final image = await boundary.toImage();
+                  final bytes = await image.toByteData(
+                    format: ui.ImageByteFormat.png,
+                  );
+                  if (bytes != null) {
+                    Directory('build/stop-mode-verification')
+                        .createSync(recursive: true);
+                    File('build/stop-mode-verification/$name.png')
+                        .writeAsBytesSync(bytes.buffer.asUint8List());
+                  }
+                  image.dispose();
+                });
+              }
             }
           }
         },

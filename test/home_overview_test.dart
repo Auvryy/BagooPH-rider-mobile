@@ -329,6 +329,20 @@ void main() {
           );
           expect(find.byType(DraggableScrollableSheet), findsNothing);
           expect(find.byType(Switch), findsOneWidget);
+          final mapFallback = find.byKey(
+            const ValueKey('home-map-unavailable'),
+          );
+          if (mapFallback.evaluate().isNotEmpty) {
+            final message = find.descendant(
+              of: mapFallback,
+              matching: find.byType(Text),
+            );
+            expect(
+              tester.getRect(message).bottom,
+              lessThanOrEqualTo(tester.getRect(mapFallback).bottom),
+              reason: 'The unavailable map explanation must fit at large text.',
+            );
+          }
           await _reveal(
             tester,
             find.byKey(const ValueKey('home-refresh-tasks')),
@@ -380,14 +394,14 @@ void main() {
                 .data,
             h.task.tracking,
           );
+          if (width == 390 && scale == 1) {
+            await _capture(tester, 'phone-selected-stop');
+          }
           await _tap(
             tester,
             find.byKey(const ValueKey('home-selected-details')),
           );
           await _tap(tester, find.byKey(const ValueKey('stop-back')));
-          if (width == 390 && scale == 1) {
-            await _capture(tester, 'phone-selected-stop');
-          }
           await _tap(tester, find.byTooltip('Search tasks'));
           h.keyboard.value = 300;
           await tester.pumpAndSettle();

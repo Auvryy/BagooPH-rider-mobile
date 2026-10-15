@@ -10,7 +10,7 @@ A full view has a distinct task and designed composition. Reusable Stop Mode sta
 - **8 external views/panels:** existing first-party application/recovery steps; these are not eight new native screens or necessarily eight web URLs.
 - **20 app overlays**, **3 device-owned surfaces**, **15 shared states** and **8 Stop Mode stage variants**.
 - **12 unselected future concepts:** 5 full views, 5 sheets and 2 components. If all five future full views were later chosen, the theoretical native full-view pool would be **53**. That is not current implementation scope.
-- Current native operational screen implementation remains absent from the starter. The existing 180-card baseline is unchanged.
+- This is the original proposal catalogue, not a runtime coverage report. See [the current redesign coverage](../plans/rider-ui-redesign/README.md) and [major task map](../TASK_TRACKING.md) for implemented screens. The 180-card baseline is unchanged.
 
 ## Primary navigation
 

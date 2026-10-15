@@ -104,3 +104,14 @@ proprietary font. Reduced effects, accessible navigation and high contrast have
 readable opaque fallbacks. Physical device performance and preference mapping
 remain acceptance checks. [R17](SOURCE_REGISTER.md#r17),
 [R18](SOURCE_REGISTER.md#r18), [R19](SOURCE_REGISTER.md#r19)
+
+## October 15 user-selected delivery references
+
+The current direction supersedes the earlier material study: the three supplied
+delivery/ride compositions favor compact summaries, strong headings, useful maps
+and quiet white task panels. This is a product design choice, not a measured
+usability claim. Use the existing Bagoo logo and red palette, bundled Plus Jakarta
+Sans, solid reserved navigation and conventional scrolling. Preserve full address
+labels and access/error messages while removing repeated decorative explanations.
+Review all implemented pages in rendered phone layouts and large-text states.
+The original reference artwork is not redistributed or copied into app assets.

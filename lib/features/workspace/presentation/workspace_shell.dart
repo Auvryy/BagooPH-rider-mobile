@@ -319,7 +319,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
     );
   }
 
-  Widget _header(bool busy) => RiderGlass(
+  Widget _header(bool busy) => RiderChrome(
     radius: 0,
     child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -500,7 +500,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
             ),
           ),
       ];
-      final navigation = RiderGlass(
+      final navigation = RiderChrome(
         radius: RiderRadii.navigation,
         child: vertical
             ? SingleChildScrollView(

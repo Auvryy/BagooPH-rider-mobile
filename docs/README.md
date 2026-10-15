@@ -43,11 +43,14 @@ they do not authorize changing the backend or implementing every proposed featur
 ## Mobile visual direction
 
 The current design documents define an independent modern mobile presentation:
-neutral `#F7F7FA`, borderless filled controls, continuous inset groups, system type, frosted floating
-chrome, spring feedback and
+neutral `#F7F7FA`, borderless filled controls, compact task groups, bundled Plus Jakarta Sans, solid reserved
+navigation, finite press feedback and
 primary red `#E00D42`. The website supplies business rules and shared branding;
 its CSS/layout does not govern mobile screens. Core visual tokens now apply to
 existing runtime screens; the wider design inventory remains planned. See [the design specification](DESIGN_SPEC.md).
+
+See the [full existing-screen redesign](plans/rider-ui-redesign/README.md) for
+its coverage and verification status.
 
 ## Current code versus target
 

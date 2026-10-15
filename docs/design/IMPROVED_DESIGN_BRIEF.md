@@ -10,9 +10,11 @@ target is described in [the design specification](../DESIGN_SPEC.md) and
 - Reject solid black/dark control or card frames. Use softly filled fields,
   borderless secondary actions, accent focus/error indicators and smooth
   continuous superellipse contours.
-- Use system sans-serif type, spring touch feedback and momentum scrolling.
-  Frosted floating chrome sits above neutral reading space; data stays opaque.
-  Reduced effects/high contrast remove blur and nonessential motion.
+- Use bundled Plus Jakarta Sans, confident headings and compact task cards.
+- Use solid white navigation/sheets, a flat neutral canvas and restrained red
+  selections. No frosted material, background gradient or decorative blur.
+- Keep finite press feedback and reduced-motion support. Home scrolls normally;
+  bottom navigation reserves space and never covers the last task or form action.
 
 - Independent modern mobile presentation with calm neutral canvas, white inset
   groups, smooth component-specific shapes, crisp type and minimal chrome.

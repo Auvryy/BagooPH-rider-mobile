@@ -1,50 +1,38 @@
 # Rider frontend design specification
 
-Reviewed **October 9, 2026**. This is the target appearance and interaction system
-for the Rider app. The account flow and compact Settings hierarchy are already
-implemented; the wider counted page catalogue remains planning coverage.
-Existing screens now use borderless filled controls, continuous contours,
-frosted floating chrome, system sans-serif typography and spring touch feedback.
-The wider screen catalogue and dark candidate remain planning coverage; styling
-does not implement new backend features or views.
+Reviewed **October 15, 2026**. The current visual direction is a delivery-focused
+mobile interface: clear headings, compact work cards, a useful map and calm white
+surfaces. It supersedes the October 9 frosted-chrome/system-font direction.
+The [redesign plan](plans/rider-ui-redesign/README.md) records implementation and
+verification of every existing page. The wider counted catalogue remains a
+proposal; visual work does not implement its missing APIs or workflows.
 
 ## Design direction
 
-Use a **content-first, tactile mobile interface**: neutral white/light-gray
-reading space, strong readable text, smooth continuous contours and translucent
-floating controls. **Solid black or dark outlines are not an accepted default**
-for cards, fields, secondary buttons or navigation. Use fill, spacing, subtle
-shadow and labels to establish structure; keep an accent focus indicator and
-explicit error/selection feedback when needed.
+The three user-selected delivery/ride references inform composition, not copied
+artwork: a compact identity header, bold readable titles, grouped work summaries,
+map emphasis and one clear next action. Adapt these patterns to Bagoo's existing
+logo and **red `#E00D42`**. Keep status colors semantic and labelled.
 
-The four design principles are:
+1. **Clear hierarchy.** A screen has one leading title and one primary action.
+   Short contextual labels, strong values and restrained icons help scanning.
+   Avoid repeated identity cards, nested boxes and paragraphs above routine tasks.
+2. **Quiet surfaces.** Use opaque white cards on `#F7F7FA`, soft neutral fields,
+   fine separators and minimal elevation. Navigation and overlays use solid white,
+   without blur, gradients or glass. Red marks actions and selected responsibility.
+3. **Consistent typography.** Use the bundled Plus Jakarta Sans throughout all
+   platforms. Headings are confident, body text stays comfortably readable, and
+   monetary values retain their exact server formatting. Do not shrink large text.
+4. **Predictable movement.** Reserve bottom navigation space; do not float it
+   over content. Home is an ordinary scrolling page, never a draggable sheet.
+   Temporary sheets retain explicit dismissal. Press feedback, focus, Back,
+   keyboard clearance and reduced-motion behavior remain available.
 
-1. **Direct touch and physics.** Pressed controls compress gently and return
-   with a finite spring. Scrolling carries momentum; sheets move from their
-   origin and remain draggable. Touch must not delay a request, obscure its
-   actual result or require a gesture without a labelled alternative.
-2. **Translucency and layering.** Frosted navigation/header chrome and temporary
-   sheets sit above a neutral background. Use clipped backdrop blur, light
-   translucent fill and soft depth rather than heavy framed boxes. Reading
-   surfaces stay opaque. Glass has an opaque fallback under reduced effects,
-   accessible navigation or high contrast. [R02](design/SOURCE_REGISTER.md#r02),
-   [R19](design/SOURCE_REGISTER.md#r19)
-3. **Content first.** Text, field labels, current responsibility and the next
-   action earn attention. Red primarily marks an actionable control or active
-   selection; semantic errors/waiting/results retain their labelled meanings.
-   Avoid decorative accent panels and repeated branding.
-4. **System typography and continuous corners.** Prefer each platform's native
-   sans-serif family; the bundled typeface is a fallback. Use continuous
-   superellipse contours, not an ordinary circular corner on every component.
-   Larger page titles and stable body sizes preserve hierarchy at enlarged text.
-   [R18](design/SOURCE_REGISTER.md#r18)
-
-Primary red stays **`#E00D42`**; small accent text uses `#C20836`. The canvas is
-**`#F7F7FA`**, reading surfaces are white and resting fields use **`#EEF0F4`**.
-Continuous contours use **24-unit surfaces/groups, 16-unit controls, 20-unit
-media, 28-unit dialogs and 32-unit sheets/navigation**. Selection contours use
-18 units. The supplied brand artwork keeps its own contour. The design system
-and `tokens.json` provide canonical values and platform-family choices.
+Small accent text uses `#C20836`. Resting fields use `#EEF0F4`. Continuous
+contours use **20-unit surfaces/groups, 14-unit controls/selection, 20-unit maps,
+28-unit dialogs/sheets**. The bottom navigation has a straight edge and subtle
+divider; its selected item has a soft red fill. The original logo is unchanged.
+The canonical values live in [tokens.json](design/tokens.json).
 
 The mobile app shares the website's business meanings, data, branding and
 permissions. It owns its own presentation: do not copy portal CSS, desktop
@@ -63,10 +51,8 @@ before decoration. Group everyday choices into short labelled rows. Reveal
 account/vehicle records, identity guidance and operation-specific fields only
 when needed; this does not hide essential task or safety information.
 
-Navigation chrome uses bounded translucency only
-where contrast, performance and reduced-effects preferences support it. Proof,
-addresses, amounts, fields and task content stay opaque. Every enhanced material
-has a readable flat fallback. The reasoning is documented in
+Navigation, addresses, amounts, fields and task content are opaque in every
+mode. The rationale is recorded in
 [RESEARCH_AND_RATIONALE.md](design/RESEARCH_AND_RATIONALE.md).
 
 ## Mobile composition rules
@@ -87,7 +73,7 @@ has a readable flat fallback. The reasoning is documented in
   never covers the main action, keyboard, system gesture area or focused field.
 - Sheets use a clear title, explicit dismissal and visible intent, with a soft
   upper contour. Use finite transitions that preserve origin and focus; provide
-  reduced-motion and opaque fallbacks. Do not add blur or animation to evidence
+  reduced-motion behavior. Do not add blur or animation to evidence
   that must remain readable.
 - Use shape, hierarchy and whitespace for polish while preserving 48-unit touch
   targets, 56-unit grouped rows, labelled feedback and the actual server state.

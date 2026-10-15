@@ -38,8 +38,8 @@ class WorkspaceAvatar extends StatelessWidget {
     return ExcludeSemantics(
       child: CircleAvatar(
         radius: size / 2,
-        backgroundColor: RiderColors.controlFill,
-        foregroundColor: RiderColors.ink,
+        backgroundColor: RiderColors.rose,
+        foregroundColor: RiderColors.accentText,
         child: Text(
           initials.isEmpty ? 'R' : initials,
           style: TextStyle(fontSize: size * .34, fontWeight: FontWeight.w700),
@@ -278,6 +278,8 @@ class WorkspaceEmpty extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const Icon(Icons.inbox_outlined, size: 32, color: RiderColors.muted),
+        const SizedBox(height: 16),
         Text(title, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
         Text(description),

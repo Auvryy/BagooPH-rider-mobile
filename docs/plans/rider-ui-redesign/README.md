@@ -71,4 +71,9 @@ No changes to API or device gates are claimed by this work.
   assertions to the map-first order. Stop Mode and navigation checks passed in
   the preceding targeted run. Reviewed phone overview and address-only directions
   captures; map test tiles are synthetic and do not establish live routing.
-- Whole-app review, remaining operational pages and native builds remain pending.
+- Trips/Messages/Profile/Settings/Handover slice: 51 targeted functional, layout
+  and opt-in render checks passed, including all Settings flows, handover report
+  and acknowledgement, private-evidence denial, large text and keyboard clearance.
+  Registration step numbers no longer imply validation when a later step is opened.
+  Solid white app bars finish the shared navigation treatment.
+- Full-suite regression, final analysis and native builds remain pending.

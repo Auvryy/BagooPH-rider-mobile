@@ -129,15 +129,11 @@ class _HandoverEvidencePageState extends State<HandoverEvidencePage>
         child: _loading
             ? const Center(child: CircularProgressIndicator())
             : _error != null
-            ? Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Text(_error!),
-                ),
-              )
+            ? _EvidenceNotice(Icons.lock_outline_rounded, _error!)
             : document == null
-            ? const Center(
-                child: Text('Return to Rider to revalidate this evidence.'),
+            ? const _EvidenceNotice(
+                Icons.lock_outline_rounded,
+                'Return to Rider to revalidate this evidence.',
               )
             : widget.documentBuilder != null
             ? widget.documentBuilder!(document)
@@ -174,4 +170,29 @@ class _HandoverEvidencePageState extends State<HandoverEvidencePage>
       ),
     );
   }
+}
+
+/// Status text stays readable without revealing or retaining document bytes.
+class _EvidenceNotice extends StatelessWidget {
+  const _EvidenceNotice(this.icon, this.message);
+  final IconData icon;
+  final String message;
+  @override
+  Widget build(BuildContext context) => Center(
+    child: SingleChildScrollView(
+      padding: const EdgeInsets.all(28),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 36, color: RiderColors.muted),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+        ],
+      ),
+    ),
+  );
 }

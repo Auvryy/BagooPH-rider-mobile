@@ -808,20 +808,14 @@ class _StepNavigation extends StatelessWidget {
               ? RiderColors.rose
               : RiderColors.controlFill,
         ),
-        child: index < step
-            ? const Icon(
-                Icons.check_rounded,
-                size: 18,
-                color: RiderColors.accentText,
-              )
-            : Text(
-                '${index + 1}',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: active ? Colors.white : RiderColors.muted,
-                ),
-              ),
+        child: Text(
+          '${index + 1}',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: active ? Colors.white : RiderColors.muted,
+          ),
+        ),
       );
       final label = Text(
         labels[index],

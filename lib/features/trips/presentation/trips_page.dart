@@ -172,71 +172,15 @@ class _TripsPageState extends State<TripsPage> {
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ),
-                  WorkspacePanel(
-                    padding: EdgeInsets.zero,
-                    child: RiderPressFeedback(
-                      child: InkWell(
-                        key: ValueKey('trip-${records[i].id}'),
-                        borderRadius: BorderRadius.circular(RiderRadii.media),
-                        onTap: () => showRiderSheet<void>(
-                          context: context,
-                          sheetAnimationStyle: RiderMotion.sheetStyle(context),
-                          isScrollControlled: true,
-                          builder: (_) => _TripDetails(
-                            trip: records[i],
-                            preview: widget.preview,
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      records[i].tracking,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  const Icon(Icons.chevron_right_rounded),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: [
-                                  WorkspaceBadge(
-                                    records[i].outcome,
-                                    accent: records[i].outcome == 'Delivered',
-                                  ),
-                                  WorkspaceBadge(
-                                    records[i].payment == PaymentFilter.cod
-                                        ? 'COD record'
-                                        : 'Prepaid',
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                records[i].recipient,
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(records[i].address),
-                              const SizedBox(height: 12),
-                              Text(
-                                'Recorded at ${timeLabel(records[i].recordedAt)}',
-                              ),
-                            ],
-                          ),
-                        ),
+                  _TripCard(
+                    trip: records[i],
+                    onTap: () => showRiderSheet<void>(
+                      context: context,
+                      sheetAnimationStyle: RiderMotion.sheetStyle(context),
+                      isScrollControlled: true,
+                      builder: (_) => _TripDetails(
+                        trip: records[i],
+                        preview: widget.preview,
                       ),
                     ),
                   ),
@@ -282,6 +226,93 @@ class _TripsPageState extends State<TripsPage> {
   }
 }
 
+class _TripCard extends StatelessWidget {
+  const _TripCard({required this.trip, required this.onTap});
+  final RiderTrip trip;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) => WorkspacePanel(
+    padding: EdgeInsets.zero,
+    child: RiderPressFeedback(
+      child: InkWell(
+        key: ValueKey('trip-${trip.id}'),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: RiderColors.controlFill,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.route_outlined,
+                      size: 22,
+                      color: RiderColors.muted,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          trip.recipient,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          trip.tracking,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: RiderColors.muted,
+                    size: 20,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(trip.address, style: Theme.of(context).textTheme.bodyMedium),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  WorkspaceBadge(
+                    trip.outcome,
+                    accent: trip.outcome == 'Delivered',
+                  ),
+                  WorkspaceBadge(
+                    trip.payment == PaymentFilter.cod
+                        ? 'COD record'
+                        : 'Prepaid',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Recorded at ${timeLabel(trip.recordedAt)}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 class _TripDetails extends StatelessWidget {
   const _TripDetails({required this.trip, required this.preview});
   final RiderTrip trip;
@@ -309,14 +340,23 @@ class _TripDetails extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 8),
-                Text(trip.recipient),
+                Text(
+                  trip.recipient,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
                 const SizedBox(height: 8),
                 Text(trip.address),
                 const SizedBox(height: 16),
-                Text('Final-mile record · ${dayLabel(trip.recordedAt)}'),
+                Text(
+                  'Final-mile record · ${dayLabel(trip.recordedAt)}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
                 if (trip.cashCentavos != null) ...[
                   const SizedBox(height: 12),
-                  Text('Recorded collection: ${pesos(trip.cashCentavos!)}'),
+                  Text(
+                    'Recorded collection: ${pesos(trip.cashCentavos!)}',
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
                 ],
                 const SizedBox(height: 16),
                 RiderPressFeedback(

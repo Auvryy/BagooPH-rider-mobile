@@ -125,8 +125,8 @@ class _MessagesPageState extends State<MessagesPage> {
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Material(
                   color: thread.id == c.selectedConversationId
-                      ? Colors.white
-                      : Colors.transparent,
+                      ? RiderColors.rose
+                      : Colors.white,
                   shape: RoundedSuperellipseBorder(
                     borderRadius: BorderRadius.circular(RiderRadii.surface),
                   ),
@@ -156,7 +156,7 @@ class _MessagesPageState extends State<MessagesPage> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    thread.phaseLabel,
+                                    '${thread.tracking} · ${thread.phaseLabel}',
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodySmall,
@@ -168,13 +168,6 @@ class _MessagesPageState extends State<MessagesPage> {
                                         : thread.messages.last.text,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    thread.tracking,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall,
                                   ),
                                   if (!thread.canSend) ...[
                                     const SizedBox(height: 8),
@@ -468,11 +461,22 @@ class _ConversationThreadState extends State<_ConversationThread> {
                           padding: const EdgeInsets.all(16),
                           decoration: ShapeDecoration(
                             color: message.fromRider
-                                ? RiderColors.controlFill
+                                ? RiderColors.rose
                                 : Colors.white,
                             shape: RoundedSuperellipseBorder(
-                              borderRadius: BorderRadius.circular(
-                                RiderRadii.surface,
+                              borderRadius: BorderRadius.only(
+                                topLeft: const Radius.circular(
+                                  RiderRadii.surface,
+                                ),
+                                topRight: const Radius.circular(
+                                  RiderRadii.surface,
+                                ),
+                                bottomLeft: Radius.circular(
+                                  message.fromRider ? RiderRadii.surface : 4,
+                                ),
+                                bottomRight: Radius.circular(
+                                  message.fromRider ? 4 : RiderRadii.surface,
+                                ),
                               ),
                             ),
                           ),

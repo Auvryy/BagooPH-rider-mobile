@@ -187,7 +187,7 @@ ThemeData buildRiderTheme({bool highContrast = false}) {
       space: 1,
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: RiderColors.canvas,
+      backgroundColor: Colors.white,
       foregroundColor: RiderColors.ink,
       surfaceTintColor: Colors.transparent,
       elevation: 0,

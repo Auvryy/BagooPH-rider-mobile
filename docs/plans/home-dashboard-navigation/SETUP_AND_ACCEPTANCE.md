@@ -42,6 +42,12 @@ Primary references: [flutter_map](https://pub.dev/packages/flutter_map),
 
 ## Backend-owner handoff
 
+October 16: [HDB-05 verification preparation](../home-dashboard-branch-plan/HDB-05-EVIDENCE.md)
+has begun from merged mobile main. A fresh native session/Home read succeeded;
+exact rollout/migrations, designated pickup and live duty/claim acceptance remain
+open. Further testing and Flutter windows are deferred at the user's request.
+The operational-write flag remains disabled.
+
 Before enabling `OPERATIONS_WRITES_VERIFIED`, obtain and record:
 
 1. Actual deployed commit compared with backend source `1d785aa`, and verification

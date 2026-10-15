@@ -1,6 +1,10 @@
 # HDB-05 — Accept one live duty and pickup-claim workflow
 
-State: **planned, not activated**. Branch: `feat/home-duty-claim-acceptance`.
+State: **activated; read-check preparation, live writes not accepted**.
+Branch: `feat/home-duty-claim-acceptance`.
+See [current evidence and the deferred verification handoff](HDB-05-EVIDENCE.md).
+The user requested no further tests or Flutter windows during class; verification
+resumes only when requested. The ordinary operational-write gate stays disabled.
 Planning effort: **3–6 client hours**, including selected checks,
 excluding owner/API/device waiting. Recommended model/effort: **GPT-6.1 Sol / High**.
 Re-estimate from current evidence before activation; assign a 1–14 inclusive-day

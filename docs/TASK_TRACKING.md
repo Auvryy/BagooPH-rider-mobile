@@ -18,7 +18,7 @@ to the Laravel account adapter. M02 has its account transport, secure-store
 adapter and presentation foundation; M03 has the bounded account slice described
 in [ACCOUNT_ACCESS.md](ACCOUNT_ACCESS.md). Azure and physical Android account
 checks are recorded in [AZURE_ACCOUNT_ACCESS.md](AZURE_ACCOUNT_ACCESS.md).
-The selected [Home dashboard/navigation extension](plans/home-dashboard-navigation/README.md) now has local v1 Home/queue/detail and durable duty/claim adapters, a map-first panel, road routing and explicit navigation lifecycle. The [Home refinement](plans/home-dashboard-navigation/HOME_POLISH.md) adds compact counted queues, fresh stop/map selection, ordinary phone page scrolling clear of bottom navigation, wide-window panels and verified Azure Home/queue reads. Live owned detail/write and physical-device acceptance remain outstanding. Account checks do not finish
+The selected [Home dashboard/navigation extension](plans/home-dashboard-navigation/README.md) now has local v1 Home/queue/detail and durable duty/claim adapters, a map-first panel, road routing and explicit navigation lifecycle. The [Home refinement](plans/home-dashboard-navigation/HOME_POLISH.md) adds compact counted queues, fresh stop/map selection, ordinary phone page scrolling clear of bottom navigation, wide-window panels and verified Azure Home/queue reads. [HDB-05](plans/home-dashboard-branch-plan/HDB-05-EVIDENCE.md) adds accepted controlled native/website owned-detail/duty/claim checks and enables the approved local build profile. Physical-device and later operation acceptance remain outstanding. Account checks do not finish
 a major area or clear unrelated backend gates.
 
 **October 13 Home planning review:** the [Home branch plan](plans/home-dashboard-branch-plan/README.md)
@@ -370,6 +370,18 @@ completion. Recent activity samples are not lifetime metrics. This area owns
 read presentation; M06–M08 own the individual custody commands.
 
 ### M05 — Duty and operational eligibility
+
+**October 16 selected native acceptance:**
+[HDB-05](plans/home-dashboard-branch-plan/HDB-05-EVIDENCE.md) starts from merged
+mobile main. Owner-confirmed deployed revision/migrations and isolated resources
+enabled passing native Azure Home/queues/owned-detail and controlled duty/claim
+checks. Off-duty preserves existing work; replay, protected-intent recovery and
+stale/changed-body rejection passed. Strict duty-result agreement also passed
+26 selected local checks. The owning website's fresh 20/20 confirmation matches
+the original commands and single assignment. Final review enables duty/claim in
+the accepted local configuration; the shared default and handover gate stay false.
+Simultaneous two-rider and physical Android acceptance remain separate. This
+does not complete M05 or M06.
 
 **Outcome:** a clear, confirmed availability control with custody preserved.
 

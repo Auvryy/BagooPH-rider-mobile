@@ -1,9 +1,12 @@
 # Deployment and activation gate
 
-**Current state: unverified.** This task organizes the handoff; it does not deploy,
-run migrations, log in a real rider or mutate parcels/cash. Future integration
-can prepare local DTOs while evidence is outstanding, with production actions
-still unavailable.
+**October 16 selected state: HDB-05 duty/claim accepted.**
+[Dated native and website evidence](../home-dashboard-branch-plan/HDB-05-EVIDENCE.md)
+records running revision/migrations, fresh Home/queues/owned detail, controlled
+duty/claim/recovery and the owning website's 20/20 confirmation. Final review
+enables only the approved local Azure duty/claim build profile. Other operation
+batches, simultaneous two-rider and physical Android acceptance remain separate.
+The original October 9 handoff did not establish any of these later results.
 
 ## Evidence required before live operational testing
 
@@ -36,12 +39,12 @@ separate from a Linux layout frame or a successful APK build.
 
 | Field | Current value |
 |---|---|
-| Reviewed source | `1d785aa`; full identity in [source review](SOURCE_REVIEW.md) |
-| Deployed source / migrations | Not verified |
-| Fresh operational bearer / Home | Not verified |
-| Native client / cross-role checks | Not performed |
+| Reviewed source | Initial `1d785aa` in [source review](SOURCE_REVIEW.md); HDB-05 reviewed clean `4b9f610` |
+| Deployed source / migrations | Owner verified `c262473`, 75 migrations applied, none pending, required command constraints/routes present |
+| Fresh operational bearer / Home | Approved version-1 native sign-in, Home capabilities/limits, all three queues and owned detail passed |
+| Native client / cross-role checks | Controlled duty/claim/replay/recovery passed; independent website post-check 20/20 |
 | Actual Android checks | Not performed |
-| Blocker and owning follow-up | To be recorded precisely when a batch is selected |
+| Activation / later follow-up | Accepted local duty/claim profile enabled; broader parcel/proof/finance/device gates remain with their selected batches |
 
 Report a specific endpoint, response code/request ID, schema mismatch or missing
 migration/configuration rather than declaring the whole backend unavailable.

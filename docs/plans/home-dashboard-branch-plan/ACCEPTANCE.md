@@ -56,13 +56,21 @@ a Linux phone frame or an APK build as a physical Android or Azure acceptance.
 
 ## API and cross-role acceptance
 
+- [x] HDB-05 controlled native duty/claim and the independent website post-check
+  match original command keys, saved duty and one assignment while preserving
+  seller custody and existing work. Its accepted local configuration enables
+  only duty/claim. [Dated evidence](HDB-05-EVIDENCE.md) preserves broader
+  simultaneous-rider, physical Android and later operation boundaries below.
 - [ ] Record actual deployed revision/migrations and fresh operational abilities,
   Home flags/limits, authorized queues and a positive owned detail result.
 - [ ] Verify account/Settings regression and denied/old/wrong/restricted sessions.
 - [ ] Use expressly authorized isolated test actor/parcel/cash resources through
   normal seller/hub/rider/buyer workflows; record safe request IDs, no secrets.
-- [ ] Duty changes desired state once, off duty retains existing responsibilities,
-  one pickup claim wins and same-key replay/reconciliation keeps one assignment.
+- [x] Duty changes desired state once, off duty retains existing responsibilities,
+  the designated pickup is assigned once and same-key replay/reconciliation keeps
+  that original assignment.
+- [ ] Simultaneous competing-rider claims retain one assignment and the correct
+  capacity while both clients reconcile their original intents.
 - [ ] Actual scan collection changes seller custody, then authenticated origin-hub
   intake ends pickup responsibility; Mother-Hub transport stays hub/logistics-owned.
 - [ ] Hub-assigned final-mile departure changes the current stop to the frozen buyer

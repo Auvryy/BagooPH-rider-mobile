@@ -1,10 +1,17 @@
 # HDB-05 — Accept one live duty and pickup-claim workflow
 
-State: **planned, not activated**. Branch: `feat/home-duty-claim-acceptance`.
+State: **native and website checks passed; local build profile activated**.
+Branch: `feat/home-duty-claim-acceptance`.
+See [the native results and website verification boundary](HDB-05-EVIDENCE.md).
+The approved native Linux read and controlled duty/claim checks passed against
+the owner-verified deployment, including replay, retained-intent recovery and
+stale/changed-body rejection. The website's fresh 20/20 post-check matches the
+commands and single assignment. The accepted local build profile enables duty
+and claims; unconfigured builds and handover writes remain disabled by default.
 Planning effort: **3–6 client hours**, including selected checks,
 excluding owner/API/device waiting. Recommended model/effort: **GPT-6.1 Sol / High**.
 Re-estimate from current evidence before activation; assign a 1–14 inclusive-day
-window ending by November 20. No runtime result is claimed by this brief.
+window ending by November 20. Dated results live in the linked evidence.
 
 ## Dependencies and API needs
 
@@ -46,15 +53,21 @@ code/docs, its branch and unrelated work remain read only for this mobile slice.
 
 ## Finish evidence
 
-- [ ] Explicit duty is replayable and off-duty preserves existing work.
-- [ ] Competing/stale claim cannot create two assignments; uncertain response reconciles the persisted original UUID/body.
-- [ ] Claim opens fresh owned detail and is observed as assignment on the owning website, not collection.
-- [ ] No secret/config key, operational actor credentials or real personal parcel data enter tests, logs or Git.
-- [ ] Run analysis and the meaningful selected contract/controller/widget checks;
+- [x] Explicit duty is replayable and off-duty preserves existing work.
+- [x] Stale claim is rejected; uncertain response reconciles the persisted original UUID/body.
+- [x] Claim opens fresh owned detail and is observed as assignment on the owning website, not collection.
+- [x] Review and record ordinary-build write activation after the fresh website result.
+- [x] No secret/config key, operational actor credentials or real personal parcel data enter tests, logs or Git.
+- [x] Run analysis and the meaningful selected contract/controller/widget checks;
   add ordinary native builds when runtime/platform/integration risk requires them.
-- [ ] Record local versus authorized Azure versus physical Android evidence,
+- [x] Record local versus authorized Azure versus physical Android evidence,
   remaining gates, reviewed source and coherent local commits in the owning plan.
-- [ ] Review scope/privacy and the staged diff; the user handles push/PR/merge.
+- [x] Review scope/privacy and the staged diff; the user handles push/PR/merge.
+
+The selected isolated case uses one designated rider. Simultaneous competing
+actors remain an unchecked broader API acceptance item; the observed stale and
+same-intent checks establish the selected single-rider workflow only. Physical
+Android and later parcel/cash actions remain in their selected deliveries.
 
 ## Stop boundary
 

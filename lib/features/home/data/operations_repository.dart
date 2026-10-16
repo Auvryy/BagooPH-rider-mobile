@@ -177,7 +177,9 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
     Wire.boolean(result['replayed']);
     final value = Wire.object(result['result']);
     if (intent.action == 'duty') {
-      Wire.boolean(value['on_duty']);
+      if (Wire.boolean(value['on_duty']) != intent.body['on_duty']) {
+        Wire.invalid();
+      }
     } else if (Wire.taskId(value['task_id']) != intent.resource ||
         Wire.id(value['delivery_id']) != intent.resource.substring(7)) {
       Wire.invalid();

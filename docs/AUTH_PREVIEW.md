@@ -34,14 +34,12 @@ browser layout. The browser hash routes are `/#/login` and `/#/register`.
 
 ## Design and source alignment
 
-The slice follows [P01 and E01–E03](design/PAGE_BLUEPRINTS.md), adapted to a native
+The slice adapts registration and sign-in to a native
 registration preview at the user's request. The live onboarding recommendation
 remains first-party web until a separate API scope is accepted.
 
-Colors and geometry follow [the design system](design/DESIGN_SYSTEM.md):
-`#E00D42` primary, `#FFFAFB` canvas, `#C20836` small accent text on rose,
-`#64748B` control boundaries, 8-unit corners, 48-unit secondary controls and
-52-unit primary actions. Labels persist above fields. Wide layouts add a brand
+Brand color `#E00D42` and bundled `Plus Jakarta Sans` follow [DESIGN_SPEC.md](DESIGN_SPEC.md).
+Labels persist above fields. Wide layouts add a brand
 introduction while giving the registration form more space than login.
 
 Registration's first stage separates **About you**, **Contact details** and

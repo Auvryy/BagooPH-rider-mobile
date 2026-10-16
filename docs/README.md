@@ -14,14 +14,13 @@ they do not authorize changing the backend or implementing every proposed featur
 |---|---|
 | [PRODUCT_SCOPE.md](PRODUCT_SCOPE.md) | Who uses this app, what belongs in the presentation, and what stays outside? |
 | [FEATURE_DIRECTION.md](FEATURE_DIRECTION.md) | Which selected frontend features do we want, how will they work, and how do pickup claims differ from final-mile assignment? |
-| [DESIGN_SPEC.md](DESIGN_SPEC.md) | How should every page, overlay, map and state look and behave, with responsive navigation, visual rules and research rationale? |
+| [DESIGN_SPEC.md](DESIGN_SPEC.md) | What is the brand color and font statement for BagooPH Rider Mobile? |
 | [AUTH_PREVIEW.md](AUTH_PREVIEW.md) | How can I open and review the implemented login and registration design previews? |
 | [ACCOUNT_ACCESS.md](ACCOUNT_ACCESS.md) | How do real Laravel login, verified registration, authenticated home and logout work locally? |
 | [HOME_PREVIEW.md](HOME_PREVIEW.md) | Which historical Home fixtures remain covered by automated layout tests? |
 | [RIDER_PAGES.md](RIDER_PAGES.md) | How do Home/Tasks, Trips, Messages and Profile-to-Settings work, with honest live-data availability and an isolated full-page preview? |
 | [SETTINGS.md](SETTINGS.md) | How are profile contact, password and additional-email forms prepared, and which backend/live checks remain? |
 | [SETTINGS_UX.md](SETTINGS_UX.md) | How does the compact mobile Settings hierarchy reduce scrolling and preserve readable actions? |
-| [Historical mobile styling](MOBILE_STYLE_IMPLEMENTATION.md) | What did the superseded October 9 appearance branch change and verify? |
 | [AZURE_ACCOUNT_ACCESS.md](AZURE_ACCOUNT_ACCESS.md) | How do I run the native app against the deployed HTTPS account API, and which live/device checks passed? |
 | [TASK_TRACKING.md](TASK_TRACKING.md) | What are the 16 major work areas, which screens belong to them, and how will later tasks/branches build and verify them? |
 | [SUBTASK_BACKLOG.md](SUBTASK_BACKLOG.md) | Which of the 180 detailed cards or 63 suggested batches can a later prompt select, with what dependencies, steps, checks and effort? |
@@ -42,15 +41,7 @@ they do not authorize changing the backend or implementing every proposed featur
 
 ## Mobile visual direction
 
-The current design documents define an independent modern mobile presentation:
-neutral `#F7F7FA`, borderless filled controls, compact task groups, bundled Plus Jakarta Sans, solid reserved
-navigation, finite press feedback and
-primary red `#E00D42`. The website supplies business rules and shared branding;
-its CSS/layout does not govern mobile screens. Core visual tokens now apply to
-existing runtime screens; the wider design inventory remains planned. See [the design specification](DESIGN_SPEC.md).
-
-See the [full existing-screen redesign](plans/rider-ui-redesign/README.md) for
-its coverage and verification status.
+BagooPH Rider Mobile uses brand color `#E00D42` and the `Plus Jakarta Sans` font. See [DESIGN_SPEC.md](DESIGN_SPEC.md).
 
 ## Current code versus target
 

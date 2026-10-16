@@ -153,43 +153,64 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                       selected: active,
                       button: true,
                       label: '${queue.label}, $countLabel',
-                      child: RiderPressFeedback(
-                        child: TextButton(
-                          key: ValueKey('task-queue-${queue.name}'),
-                          onPressed: () {
-                            controller.selectQueue(queue);
-                            _search.clear();
-                            if (_scroll.hasClients) _scroll.jumpTo(0);
-                            widget.onQueueChanged?.call(queue);
-                          },
-                          style: TextButton.styleFrom(
-                            foregroundColor: active
-                                ? RiderColors.accentText
-                                : RiderColors.muted,
-                            backgroundColor: active
-                                ? RiderColors.rose
-                                : Colors.white,
-                            minimumSize: Size(0, stack ? 52 : 72),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 10,
+                      child: DecoratedBox(
+                        decoration: ShapeDecoration(
+                          shape: RoundedSuperellipseBorder(
+                            borderRadius: BorderRadius.circular(
+                              RiderRadii.control,
+                            ),
+                            side: BorderSide(
+                              color: active ? RiderColors.accent : Colors.white,
+                              width: 1.5,
                             ),
                           ),
-                          child: stack
-                              ? Row(
-                                  children: [
-                                    Expanded(child: label),
-                                    badge,
-                                  ],
-                                )
-                              : Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    badge,
-                                    const SizedBox(height: 6),
-                                    label,
-                                  ],
+                          shadows: active
+                              ? RiderShadows.neumorphicAccent
+                              : RiderShadows.neumorphicElevated,
+                        ),
+                        child: RiderPressFeedback(
+                          child: TextButton(
+                            key: ValueKey('task-queue-${queue.name}'),
+                            onPressed: () {
+                              controller.selectQueue(queue);
+                              _search.clear();
+                              if (_scroll.hasClients) _scroll.jumpTo(0);
+                              widget.onQueueChanged?.call(queue);
+                            },
+                            style: TextButton.styleFrom(
+                              foregroundColor: active
+                                  ? RiderColors.accentText
+                                  : RiderColors.muted,
+                              backgroundColor: active
+                                  ? RiderColors.rose
+                                  : RiderColors.neumorphicSurface,
+                              minimumSize: Size(0, stack ? 52 : 76),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 10,
+                              ),
+                              shape: RoundedSuperellipseBorder(
+                                borderRadius: BorderRadius.circular(
+                                  RiderRadii.control,
                                 ),
+                              ),
+                            ),
+                            child: stack
+                                ? Row(
+                                    children: [
+                                      Expanded(child: label),
+                                      badge,
+                                    ],
+                                  )
+                                : Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      badge,
+                                      const SizedBox(height: 6),
+                                      label,
+                                    ],
+                                  ),
+                          ),
                         ),
                       ),
                     );
@@ -201,7 +222,7 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                           children: [
                             for (final queue in TaskQueue.values)
                               Padding(
-                                padding: const EdgeInsets.only(bottom: 6),
+                                padding: const EdgeInsets.only(bottom: 8),
                                 child: choice(queue),
                               ),
                           ],
@@ -213,7 +234,7 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                               Expanded(
                                 child: Padding(
                                   padding: EdgeInsets.only(
-                                    right: queue == TaskQueue.delivery ? 0 : 6,
+                                    right: queue == TaskQueue.delivery ? 0 : 8,
                                   ),
                                   child: choice(queue),
                                 ),
@@ -298,7 +319,7 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                 children: [
                   for (final task in tasks)
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.only(bottom: 10),
                       child: HomeTaskRow(
                         task: selected?.id == task.id
                             ? OperationsRepository.asRiderTask(selected!)
@@ -348,18 +369,18 @@ class HomeTaskRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) => RiderSurface(
     radius: RiderRadii.selection,
-    color: selected ? RiderColors.rose : Colors.white,
+    color: selected ? RiderColors.rose : RiderColors.neumorphicSurface,
     child: InkWell(
       key: ValueKey('home-task-${task.id}'),
       onTap: onSelect,
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(16),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: 42,
+              height: 42,
               decoration: BoxDecoration(
                 color: selected ? RiderColors.accent : RiderColors.rose,
                 borderRadius: BorderRadius.circular(14),
@@ -393,7 +414,7 @@ class HomeTaskRow extends StatelessWidget {
                         task.tracking,
                         style: const TextStyle(
                           fontSize: 11,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                       Text(
@@ -409,7 +430,7 @@ class HomeTaskRow extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 11,
                             color: RiderColors.accentText,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
                     ],
@@ -441,7 +462,7 @@ class _SelectedStop extends StatelessWidget {
   final VoidCallback? onShowStop;
   @override
   Widget build(BuildContext context) => RiderSurface(
-    color: Colors.white,
+    color: RiderColors.neumorphicSurface,
     padding: const EdgeInsets.all(20),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -453,7 +474,7 @@ class _SelectedStop extends StatelessWidget {
                 stopKindLabel(task.stop.kind),
                 style: const TextStyle(
                   color: RiderColors.accentText,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w800,
                   fontSize: 12,
                 ),
               ),
@@ -497,7 +518,7 @@ class _SelectedStop extends StatelessWidget {
             padding: const EdgeInsets.only(top: 8),
             child: Text(
               'COD to collect: ${exactPesos(task.codDueCents!)}',
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
             ),
           ),
         if (task.stop.latitude == null || task.stop.longitude == null)
@@ -508,7 +529,7 @@ class _SelectedStop extends StatelessWidget {
               style: TextStyle(fontSize: 12, color: RiderColors.muted),
             ),
           ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         Wrap(
           spacing: 8,
           runSpacing: 4,

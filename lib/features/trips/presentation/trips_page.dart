@@ -108,7 +108,10 @@ class _TripsPageState extends State<TripsPage> {
                     style: OutlinedButton.styleFrom(
                       backgroundColor: c.payment == filter
                           ? RiderColors.rose
-                          : Colors.white,
+                          : RiderColors.neumorphicSurface,
+                      foregroundColor: c.payment == filter
+                          ? RiderColors.accentText
+                          : RiderColors.ink,
                     ),
                     child: Text(switch (filter) {
                       PaymentFilter.all => 'All payments',
@@ -251,13 +254,13 @@ class _TripCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: RiderColors.controlFill,
-                      borderRadius: BorderRadius.circular(12),
+                      color: RiderColors.rose,
+                      borderRadius: BorderRadius.circular(14),
                     ),
                     child: const Icon(
                       Icons.route_outlined,
                       size: 22,
-                      color: RiderColors.muted,
+                      color: RiderColors.accentText,
                     ),
                   ),
                   const SizedBox(width: 12),

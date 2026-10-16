@@ -319,63 +319,87 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
     );
   }
 
-  Widget _header(bool busy) => RiderChrome(
-    radius: 0,
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-      child: Row(
-        children: [
-          Expanded(
-            child: Row(
-              children: [
-                Semantics(
-                  image: true,
-                  label: 'BagooPH Rider',
-                  child: ExcludeSemantics(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(RiderRadii.brand),
-                      child: Image.asset(
-                        'assets/branding/gooriders-icon.png',
-                        width: 32,
-                        height: 32,
+  static const activeIcons = [
+    Icons.inventory_2_rounded,
+    Icons.route_rounded,
+    Icons.forum_rounded,
+    Icons.person_rounded,
+  ];
+
+  Widget _header(bool busy) => Padding(
+    padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+    child: RiderChrome(
+      radius: RiderRadii.pill,
+      color: RiderColors.neumorphicSurface,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+        child: Row(
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  Semantics(
+                    image: true,
+                    label: 'BagooPH Rider',
+                    child: ExcludeSemantics(
+                      child: Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: ShapeDecoration(
+                          color: Colors.white,
+                          shape: RoundedSuperellipseBorder(
+                            borderRadius: BorderRadius.circular(
+                              RiderRadii.brand,
+                            ),
+                            side: const BorderSide(color: RiderColors.border),
+                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.asset(
+                            'assets/branding/gooriders-icon.png',
+                            width: 26,
+                            height: 26,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                const Flexible(
-                  child: Text(
-                    'BagooPH Rider',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: RiderColors.ink,
+                  const SizedBox(width: 10),
+                  const Flexible(
+                    child: Text(
+                      'BagooPH Rider',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.3,
+                        color: RiderColors.ink,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          if (destination != 3)
-            RiderPressFeedback(
-              child: IconButton(
-                tooltip: 'Open Profile',
-                onPressed: () => select(3),
-                icon: WorkspaceAvatar(widget.account.name, size: 32),
+                ],
               ),
             ),
-          if (destination != 3)
-            RiderPressFeedback(
-              child: IconButton(
-                key: const ValueKey('logout-button'),
-                tooltip: widget.preview ? 'Exit preview' : 'Log out',
-                onPressed: busy && !widget.preview ? null : logout,
-                icon: Icon(
-                  widget.preview ? Icons.close_rounded : Icons.logout_rounded,
+            if (destination != 3)
+              RiderPressFeedback(
+                child: IconButton(
+                  tooltip: 'Open Profile',
+                  onPressed: () => select(3),
+                  icon: WorkspaceAvatar(widget.account.name, size: 32),
                 ),
               ),
-            ),
-        ],
+            if (destination != 3)
+              RiderPressFeedback(
+                child: IconButton(
+                  key: const ValueKey('logout-button'),
+                  tooltip: widget.preview ? 'Exit preview' : 'Log out',
+                  onPressed: busy && !widget.preview ? null : logout,
+                  icon: Icon(
+                    widget.preview ? Icons.close_rounded : Icons.logout_rounded,
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     ),
   );
@@ -418,7 +442,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                     key: ValueKey('nav-${labels[index].toLowerCase()}'),
                     onTap: () => select(index),
                     customBorder: RoundedSuperellipseBorder(
-                      borderRadius: BorderRadius.circular(RiderRadii.selection),
+                      borderRadius: BorderRadius.circular(RiderRadii.pill),
                     ),
                     child: AnimatedContainer(
                       duration: RiderMotion.reduced(context)
@@ -436,16 +460,33 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                             : Colors.transparent,
                         shape: RoundedSuperellipseBorder(
                           borderRadius: BorderRadius.circular(
-                            RiderRadii.selection,
+                            RiderRadii.pill,
                           ),
+                          side: destination == index
+                              ? const BorderSide(
+                                  color: Colors.white,
+                                  width: 1.5,
+                                )
+                              : BorderSide.none,
                         ),
+                        shadows: destination == index
+                            ? const [
+                                BoxShadow(
+                                  color: Color(0x1EE00D42),
+                                  blurRadius: 12,
+                                  offset: Offset(0, 4),
+                                ),
+                              ]
+                            : const [],
                       ),
                       child: ExcludeSemantics(
                         child: wide && vertical
                             ? Row(
                                 children: [
                                   Icon(
-                                    icons[index],
+                                    destination == index
+                                        ? activeIcons[index]
+                                        : icons[index],
                                     color: destination == index
                                         ? RiderColors.accentText
                                         : RiderColors.muted,
@@ -458,7 +499,9 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                                         color: destination == index
                                             ? RiderColors.accentText
                                             : RiderColors.muted,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: destination == index
+                                            ? FontWeight.w800
+                                            : FontWeight.w600,
                                       ),
                                     ),
                                   ),
@@ -468,7 +511,9 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(
-                                    icons[index],
+                                    destination == index
+                                        ? activeIcons[index]
+                                        : icons[index],
                                     color: destination == index
                                         ? RiderColors.accentText
                                         : RiderColors.muted,
@@ -485,8 +530,8 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                                             ? RiderColors.accentText
                                             : RiderColors.muted,
                                         fontWeight: destination == index
-                                            ? FontWeight.w700
-                                            : FontWeight.w500,
+                                            ? FontWeight.w800
+                                            : FontWeight.w600,
                                       ),
                                     ),
                                   ],
@@ -501,7 +546,8 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
           ),
       ];
       final navigation = RiderChrome(
-        radius: vertical ? RiderRadii.surface : 0,
+        radius: vertical ? RiderRadii.surface : RiderRadii.pill,
+        color: RiderColors.neumorphicSurface,
         child: vertical
             ? SingleChildScrollView(
                 child: Column(
@@ -532,7 +578,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                               color: RiderColors.accentText,
                               fontSize: 12,
                               height: 1.3,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
                         ),
@@ -543,10 +589,8 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
       );
       return DecoratedBox(
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: vertical
-              ? null
-              : const Border(top: BorderSide(color: RiderColors.divider)),
+          color: RiderColors.canvas,
+          boxShadow: vertical ? null : RiderShadows.floatingDock,
         ),
         child: Padding(
           padding: vertical

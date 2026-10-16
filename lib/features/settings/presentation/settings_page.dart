@@ -484,16 +484,21 @@ class _SettingsRow extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: destructive ? RiderColors.rose : RiderColors.canvas,
-                  borderRadius: BorderRadius.circular(10),
+                decoration: ShapeDecoration(
+                  color: destructive
+                      ? RiderColors.rose
+                      : RiderColors.controlFill,
+                  shape: RoundedSuperellipseBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: Colors.white),
+                  ),
                 ),
                 child: Icon(
                   icon,
                   size: 20,
                   color: destructive
                       ? RiderColors.accentText
-                      : RiderColors.muted,
+                      : RiderColors.ink,
                 ),
               ),
               const SizedBox(width: 14),
@@ -501,7 +506,7 @@ class _SettingsRow extends StatelessWidget {
                 child: Text(
                   title,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                     color: destructive
                         ? RiderColors.accentText
                         : RiderColors.ink,

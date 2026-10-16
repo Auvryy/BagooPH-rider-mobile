@@ -269,43 +269,49 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
             enabled: widget.controller.homeData.status == FeatureStatus.ready,
           );
           final header = Padding(
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 6,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    const LiquidGlassOrb(size: 34, blurSigma: 10),
-                    DieCutStickerWidget.speechBubble(
-                      text: "Let's roll.",
-                      backgroundColor: RiderColors.accent,
-                      rotationDegrees: -4,
-                      leadingIcon: Icons.bolt_rounded,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Welcome, ${widget.account.name}.',
-                  style: Theme.of(context).textTheme.headlineMedium
-                      ?.copyWith(fontSize: 24),
-                ),
-                if (widget.controller.homeData.data == null)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 4),
-                    child: Text(
-                      'Rider account approved',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: RiderColors.accentText,
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            child: RiderSurface(
+              color: RiderColors.neumorphicSurface,
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 6,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      const LiquidGlassOrb(size: 34, blurSigma: 10),
+                      DieCutStickerWidget.speechBubble(
+                        text: "Let's roll.",
+                        backgroundColor: RiderColors.accent,
+                        rotationDegrees: -3,
+                        leadingIcon: Icons.bolt_rounded,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Welcome, ${widget.account.name}.',
+                    style: Theme.of(context).textTheme.headlineMedium
+                        ?.copyWith(fontSize: 24),
+                  ),
+                  if (widget.controller.homeData.data == null)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 4),
+                      child: Text(
+                        'Rider account approved',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: RiderColors.accentText,
+                        ),
                       ),
                     ),
-                  ),
-                WorkDutyControl(controller: widget.controller),
-              ],
+                  const SizedBox(height: 6),
+                  WorkDutyControl(controller: widget.controller),
+                ],
+              ),
             ),
           );
           if (!_wide || constraints.maxHeight < 360) {

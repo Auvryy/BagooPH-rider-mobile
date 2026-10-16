@@ -22,8 +22,9 @@ require fresh evidence and must not be cleared by local fixtures.
 75 applied migrations with none pending and the isolated rider/pickup case.
 Controlled native Azure Home/queues/detail, desired duty, one claim, original-key
 replay/reconciliation and stale/changed-body rejection passed. The owning website
-post-check, ordinary-build activation and broader device/feature checks remain
-open. See [dated native evidence](../plans/home-dashboard-branch-plan/HDB-05-EVIDENCE.md).
+post-check passed all 20 checks at 04:41 UTC, and final review enables the local
+Azure duty/claim profile. Broader device/feature and simultaneous two-rider checks
+remain open. See [dated native evidence](../plans/home-dashboard-branch-plan/HDB-05-EVIDENCE.md).
 
 ## What to ask for first
 
@@ -90,9 +91,10 @@ reads. Report current deployment rather than treating either dated result as tod
   destination-hub receipt authority.
 - [ ] Supply retained Trip/private proof, permitted seller/buyer conversation,
   delivered durable notice and retained rider cash responsibility for later branches.
-- [ ] Observe native command results in the owning website/hub/buyer/cash records.
-  Record assignment, collection, hub intake, delivery, buyer completion and cash
-  recipient receipt as separate events.
+- [x] Observe the designated native duty and claim in the owning website records,
+  with one original assignment and preserved seller custody/existing work.
+- [ ] Observe later collection, hub intake, delivery, buyer completion and cash
+  recipient receipt as separate events in their owning records.
 
 Resources must be isolated and authorized through the real owning workflows.
 No production reseed/reset, forced status/ownership or direct seller-to-buyer

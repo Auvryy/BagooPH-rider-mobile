@@ -13,10 +13,12 @@ Example file contents:
 ```json
 {
   "GEOAPIFY_API_KEY": "<dedicated-client-key>",
-  "OPERATIONS_WRITES_VERIFIED": false
+  "OPERATIONS_WRITES_VERIFIED": true
 }
 ```
 
+The true operations flag applies to the accepted Azure profile documented below;
+unverified environments keep it false. Handover activation is a separate flag.
 Keep real keys out of source, screenshots, logs and commits. This key remains
 extractable from an installed application and is not a protected server secret.
 A dedicated key has now been supplied privately and verified against real tiles
@@ -46,9 +48,11 @@ October 16: [HDB-05 native verification](../home-dashboard-branch-plan/HDB-05-EV
 passed against owner-verified Azure revision `c262473`, with current migrations
 and an authorized isolated pickup. Native Home/queues/detail, explicit duty,
 one claim, original-key replay, protected-intent recovery and stale/changed-body
-rejection passed. Fresh owning-website confirmation remains pending. The
-ordinary operational-write flag stays disabled until that result and activation
-review are recorded. Physical Android acceptance remains separate.
+rejection passed. The owning website's 04:41 UTC post-check passed all 20 checks,
+matching the native commands and single assignment with seller custody intact.
+Final review enables duty/claim in the existing ignored local build profile.
+The shared default remains disabled; handover writes and physical Android
+acceptance stay separate. The accepted local builds are rebuilt with that profile.
 
 Before enabling `OPERATIONS_WRITES_VERIFIED`, obtain and record:
 
@@ -63,15 +67,17 @@ Before enabling `OPERATIONS_WRITES_VERIFIED`, obtain and record:
    Confirm competing/stale claims cannot assign twice and interrupted writes
    reconcile/replay the original key/body. Record safe request IDs, not tokens.
 
-The app defaults to disabled production duty/claim writes until these checks are
-accepted. Read-only Home connects when the approved account discovers version 1.
+The app defaults to disabled production duty/claim writes. The accepted local
+Azure profile now explicitly sets the flag true after these checks; other
+configurations require their own acceptance. Read-only Home connects when the
+approved account discovers version 1.
 The flag is a release acceptance gate, never a substitute for server authorization.
 It does not change account approval, placement, capability or capacity checks.
 
 For a Linux launch with the saved key:
 
 ```sh
-flutter run -d linux --dart-define-from-file=.env.geoapify.json
+flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.geoapify.json
 ```
 
 For an Android debug build with the saved key:

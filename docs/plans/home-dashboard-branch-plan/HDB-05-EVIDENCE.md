@@ -6,8 +6,9 @@ Scanning, delivery, Trips, Messages and cash remain separate deliveries.
 
 ## Current result
 
-**Controlled native Azure duty/claim acceptance passed. Website confirmation and
-ordinary-build write activation remain pending.** The native observation was
+**Controlled native Azure duty/claim acceptance and the website post-check
+passed. The approved local build configuration now enables duty and claims.**
+The native observation was
 October 16 at 04:09:30 UTC (12:09:30 Asia/Manila). A virtual Linux display kept
 the test window off the user's desktop. No physical phone acceptance is claimed.
 
@@ -22,8 +23,9 @@ was performed.
 The sanitized result, original UUIDs and safe server request references were
 saved privately for the backend maintainer. Real actor/parcel identifiers,
 sign-in input, contacts, proof and provider configuration are excluded here.
-The maintainer must still observe the actual owning website/controller after
-these commands. Its preparation baseline is not post-mobile evidence.
+The maintainer independently checked the actual owning website/controller at
+04:41:00 UTC (12:41:00 Asia/Manila), after the native commands. All 20 checks
+passed. This is fresh post-mobile evidence, separate from preparation.
 
 ## Deployment and source evidence
 
@@ -67,9 +69,35 @@ these commands. Its preparation baseline is not post-mobile evidence.
 
 The response suppression is **local fault injection after a real server commit**.
 It is not an observed network outage, process-kill test or physical-device result.
-Two-rider simultaneous competition was not exercised. The website owner must
-still confirm one original assignment checkpoint and absent physical collection
-and hub receipt from its own records.
+Two-rider simultaneous competition was not exercised. The website owner confirmed
+one original assignment checkpoint and absent physical collection/hub receipt
+from its own records. Its saved three command keys and assignment reference match
+the private native receipt exactly; the rejected stale probe has no command row.
+
+## Website confirmation and activation review
+
+The independent read-only transaction and existing Courier/Deliveries controller
+confirmed saved duty on, the same owned pickup, exactly one original assignment,
+unchanged other two pickups, seller custody and ready-for-pickup commercial state.
+The final-mile queue remains empty; no collection, hub receipt, delivery,
+completion or cash event was added. Website preservation checks used existing
+timestamps/checkpoints/queue membership; native checks separately compared the
+original other-task versions. Neither maintainer reset or repeated the claim.
+
+The review accepts **only duty and pickup-claim activation for the current Azure
+build profile**. The existing ignored project-local map configuration sets
+`OPERATIONS_WRITES_VERIFIED: true`; the provider key is unchanged. The shared
+configuration default stays false, other environments require their own
+acceptance and `HANDOVER_WRITES_VERIFIED` stays false. A fresh approved v1 session,
+Home capability, placement, capacity, durable-intent and server authorization
+checks still govern every command. Enabling this profile starts no tracking and
+adds no automatic domain write.
+
+The selected controlled single-rider workflow is accepted; simultaneous
+two-rider contention remains separate broader API acceptance. Physical Android,
+scanning, parcel outcomes and finance retain their own later acceptance. The
+read-only website owner reported 20/20 checks; mobile did not independently
+deploy, rerun that transaction or test browser rendering.
 
 The first live-read attempt rejected valid headers because its test demanded
 `no-cache` specifically inside Cache-Control. The backend contract uses
@@ -95,13 +123,28 @@ reconciliation.
 - Native Azure controlled duty/claim adapter: **1 test passed**, including native
   protected intent storage, real HTTP and explicit same-key recovery/replay.
 
-Full headless suite: **350 tests passed**, with four expected skips (three
+Before activation, the full headless suite had **350 tests passed**, with four expected skips (three
 opt-in visual checks and the explicit alternate-API configuration case).
 Ordinary configured **Linux release** and **Android ARM64 debug APK** builds
-passed with domain-write gates disabled. The Android build emitted an installed
+initially passed with domain-write gates disabled. The Android build emitted an installed
 SDK XML-version warning and still completed successfully.
 None of these checks accepts Android permissions, camera, GPS, minimized service
 updates or screen-off navigation.
+
+Final activation verification adds
+[two build-profile regressions](../../../test/operations_activation_test.dart).
+With the default disabled profile they send no writes. With the operations flag
+enabled, the actual duty widget persists the requested Boolean while preserving
+owned work; the claim controller sends the retained preview version and opens
+fresh owned detail only after confirmation. The final enabled-profile full suite
+passes **352 tests**, with the same four expected skips. The default-profile
+activation suite also passes **2 tests**, and full analysis is clean. All these
+responses are isolated test data; activation verification does not repeat any
+live duty or claim command.
+
+The ordinary configured **Linux release** and **Android ARM64 debug APK** were
+both rebuilt successfully with the accepted flag true. No app window was opened
+for activation verification and no live command was repeated.
 
 ## Opt-in acceptance adapters
 
@@ -144,19 +187,32 @@ The read check requires both write flags false; the controlled check explicitly
 enables only operations. Both are skipped without opt-in. Neither needs map keys.
 These are controlled acceptance tools, not instructions to repeat live writes.
 
-## Remaining boundary
+## Use the accepted local configuration
 
-1. Have the backend maintainer read the sanitized result and run its prepared
-   read-only website verification. Confirm saved duty, one original assignment,
-   preserved other work, seller custody and no collection/hub receipt.
-2. Record that fresh cross-role result, review ordinary-build write activation
-   and produce the accepted configuration. The ordinary default and existing
-   private map configuration still leave operational writes disabled.
-3. Keep physical scanning, delivery, cash and actual Android/GPS acceptance in
-   their selected later work. No extra API or provider key is needed for this gate.
+From the Rider Mobile repository root, start the PC phone frame with:
+
+```sh
+flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.geoapify.json
+```
+
+Sign in normally, refresh Home and use the duty control. Eligible available
+pickups expose Claim pickup; a successful claim refreshes owned detail. These
+actions change real assignments. The completed isolated acceptance parcel is
+already in My pickups and must not be claimed or reset again for this check.
+Seller/hub stops still have no native coordinates and keep their address fallback.
+
+The configured ordinary Linux/Android builds must be rebuilt for this flag.
+The map configuration is private and untracked; pushing this branch does not
+distribute its key or enable writes in another developer's configuration.
+
+## Later acceptance
+
+Keep physical scanning, delivery, cash, simultaneous competing-rider and actual
+Android/GPS checks in their selected later work. No extra API, provider key,
+backend push or deployment is needed for this accepted duty/claim profile.
 
 See [the API checklist](../../api/HOME_DASHBOARD_NEEDS.md#api-h02),
 [deployment gate](../native-operations/DEPLOYMENT_GATE.md),
 [setup](../home-dashboard-navigation/SETUP_AND_ACCEPTANCE.md) and
-[acceptance matrix](ACCEPTANCE.md). HDB-05 remains unfinished until its cross-role
-verification and activation review are recorded.
+[acceptance matrix](ACCEPTANCE.md). This record accepts the HDB-05 workflow;
+it does not complete the wider five-batch plan, M05/M06 or Android acceptance.

@@ -310,7 +310,7 @@ class _HandoverIssuesViewState extends State<HandoverIssuesView>
                                 text: 'CUSTODY CHECK',
                                 backgroundColor: RiderColors.rose,
                                 textColor: RiderColors.accentText,
-                                rotationDegrees: -3,
+                                rotationDegrees: 0,
                                 leadingIcon: Icons.fact_check_outlined,
                               ),
                             ],

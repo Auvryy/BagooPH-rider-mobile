@@ -300,7 +300,7 @@ class _StopModePageState extends State<StopModePage>
                             DieCutStickerWidget.speechBubble(
                               text: preview ? 'PICKUP PREVIEW' : 'STOP MODE',
                               backgroundColor: RiderColors.accent,
-                              rotationDegrees: -3,
+                              rotationDegrees: 0,
                               leadingIcon: Icons.location_on_rounded,
                             ),
                           ],

@@ -35,15 +35,15 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Verify pure white canvas, 12 floating die-cut stickers, 72x72 LiquidGlassOrb,
+      // Verify pure white canvas, 6 curated die-cut stickers, 72x72 LiquidGlassOrb,
       // AnimatedStrikeText editorial core, and pill CTA button.
       final scaffold = tester.widget<Scaffold>(
         find.byKey(const ValueKey('rider-onboarding-page')),
       );
       expect(scaffold.backgroundColor, const Color(0xFFFFFFFF));
 
-      expect(RiderOnboardingPage.buildStickers().length, 12);
-      expect(find.byType(DieCutStickerWidget), findsAtLeastNWidgets(12));
+      expect(RiderOnboardingPage.buildStickers().length, 6);
+      expect(find.byType(DieCutStickerWidget), findsAtLeastNWidgets(6));
       expect(find.text("Let's roll."), findsOneWidget);
       expect(find.text('Every stop clear!'), findsOneWidget);
 

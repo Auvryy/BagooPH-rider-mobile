@@ -65,7 +65,7 @@ class HomePage extends ConsumerWidget {
                                 textColor: needsCorrection
                                     ? Colors.white
                                     : RiderColors.ink,
-                                rotationDegrees: -4,
+                                rotationDegrees: 0,
                                 leadingIcon: needsCorrection
                                     ? Icons.assignment_outlined
                                     : Icons.fact_check_outlined,

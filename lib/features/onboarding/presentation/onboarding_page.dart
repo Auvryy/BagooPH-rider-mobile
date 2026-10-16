@@ -39,16 +39,16 @@ class RiderOnboardingPage extends ConsumerStatefulWidget {
   final bool enableContinuousDriftInTests;
   final double? ambientTimeOverride;
 
-  /// The 12 BagooPH courier-themed die-cut stickers arranged in a funnel vortex
-  /// cascading from the top edges toward the central 72x72 LiquidGlassOrb.
+  /// The 6 curated, uncluttered courier-themed die-cut stickers arranged with
+  /// generous breathing room around the central 72x72 LiquidGlassOrb.
   static List<ArgonStickerSpec> buildStickers() => [
     ArgonStickerSpec(
       id: 'speech-roll',
-      alignment: const Alignment(-0.62, -0.78),
-      rotationDegrees: -8,
-      zIndex: 1.30,
+      alignment: const Alignment(-0.55, -0.68),
+      rotationDegrees: 0,
+      zIndex: 1.25,
       phaseOffset: 0.0,
-      driftSpeed: 1.8,
+      driftSpeed: 1.6,
       semanticLabel: "Let's roll.",
       child: DieCutStickerWidget.speechBubble(
         key: const ValueKey('sticker-speech-roll'),
@@ -61,11 +61,11 @@ class RiderOnboardingPage extends ConsumerStatefulWidget {
     ),
     ArgonStickerSpec(
       id: 'speech-clear',
-      alignment: const Alignment(0.58, -0.74),
-      rotationDegrees: -12,
-      zIndex: 1.25,
+      alignment: const Alignment(0.55, -0.68),
+      rotationDegrees: 0,
+      zIndex: 1.20,
       phaseOffset: 1.1,
-      driftSpeed: 2.1,
+      driftSpeed: 1.8,
       semanticLabel: 'Every stop clear!',
       child: DieCutStickerWidget.speechBubble(
         key: const ValueKey('sticker-speech-clear'),
@@ -77,28 +77,12 @@ class RiderOnboardingPage extends ConsumerStatefulWidget {
       ),
     ),
     ArgonStickerSpec(
-      id: 'parcel-box',
-      alignment: const Alignment(-0.82, -0.44),
-      rotationDegrees: 11,
-      zIndex: 1.05,
-      phaseOffset: 2.0,
-      driftSpeed: 1.6,
-      semanticLabel: 'Sealed pickup parcel',
-      child: DieCutStickerWidget.iconCutout(
-        key: const ValueKey('sticker-parcel-box'),
-        icon: Icons.inventory_2_rounded,
-        fill: RiderColors.surface,
-        iconColor: RiderColors.ink,
-        rotationDegrees: 0,
-      ),
-    ),
-    ArgonStickerSpec(
       id: 'flash-dispatch',
-      alignment: const Alignment(-0.34, -0.52),
-      rotationDegrees: -14,
-      zIndex: 1.18,
+      alignment: const Alignment(-0.58, -0.15),
+      rotationDegrees: 0,
+      zIndex: 1.15,
       phaseOffset: 0.6,
-      driftSpeed: 2.3,
+      driftSpeed: 1.7,
       semanticLabel: 'Express route priority',
       child: DieCutStickerWidget.iconCutout(
         key: const ValueKey('sticker-flash-dispatch'),
@@ -111,11 +95,11 @@ class RiderOnboardingPage extends ConsumerStatefulWidget {
     ),
     ArgonStickerSpec(
       id: 'waybill-tag',
-      alignment: const Alignment(0.32, -0.46),
-      rotationDegrees: 15,
-      zIndex: 1.22,
+      alignment: const Alignment(0.58, -0.15),
+      rotationDegrees: 0,
+      zIndex: 1.15,
       phaseOffset: 1.7,
-      driftSpeed: 1.9,
+      driftSpeed: 1.5,
       semanticLabel: 'Waybill verified tag',
       child: DieCutStickerWidget.iconCutout(
         key: const ValueKey('sticker-waybill-tag'),
@@ -127,45 +111,12 @@ class RiderOnboardingPage extends ConsumerStatefulWidget {
       ),
     ),
     ArgonStickerSpec(
-      id: 'verified-star',
-      alignment: const Alignment(0.82, -0.38),
-      rotationDegrees: -6,
-      zIndex: 0.95,
-      phaseOffset: 2.8,
-      driftSpeed: 1.7,
-      semanticLabel: 'Approved courier star badge',
-      child: DieCutStickerWidget.iconCutout(
-        key: const ValueKey('sticker-verified-star'),
-        icon: Icons.stars_rounded,
-        fill: RiderColors.redTint,
-        iconColor: RiderColors.accent,
-        rotationDegrees: 0,
-      ),
-    ),
-    ArgonStickerSpec(
-      id: 'mother-hub',
-      alignment: const Alignment(-0.68, -0.08),
-      rotationDegrees: 9,
-      zIndex: 1.12,
-      phaseOffset: 3.4,
-      driftSpeed: 2.0,
-      semanticLabel: 'Mother Hub intake node',
-      child: DieCutStickerWidget.iconCutout(
-        key: const ValueKey('sticker-mother-hub'),
-        icon: Icons.warehouse_rounded,
-        fill: RiderColors.carbon,
-        iconColor: Colors.white,
-        badgeText: 'HUB',
-        rotationDegrees: 0,
-      ),
-    ),
-    ArgonStickerSpec(
       id: 'delivery-scooter',
-      alignment: const Alignment(-0.22, -0.14),
-      rotationDegrees: -10,
-      zIndex: 1.35,
-      phaseOffset: 4.1,
-      driftSpeed: 2.4,
+      alignment: const Alignment(-0.35, 0.32),
+      rotationDegrees: 0,
+      zIndex: 1.10,
+      phaseOffset: 2.5,
+      driftSpeed: 1.9,
       semanticLabel: 'Delivery scooter',
       child: DieCutStickerWidget.iconCutout(
         key: const ValueKey('sticker-delivery-scooter'),
@@ -177,64 +128,15 @@ class RiderOnboardingPage extends ConsumerStatefulWidget {
     ),
     ArgonStickerSpec(
       id: 'route-pin',
-      alignment: const Alignment(0.24, -0.12),
-      rotationDegrees: 14,
-      zIndex: 1.28,
-      phaseOffset: 4.9,
-      driftSpeed: 2.2,
+      alignment: const Alignment(0.35, 0.32),
+      rotationDegrees: 0,
+      zIndex: 1.10,
+      phaseOffset: 3.2,
+      driftSpeed: 1.8,
       semanticLabel: 'Live Stop Mode GPS pin',
       child: DieCutStickerWidget.iconCutout(
         key: const ValueKey('sticker-route-pin'),
         icon: Icons.location_on_rounded,
-        fill: RiderColors.redTint,
-        iconColor: RiderColors.accent,
-        rotationDegrees: 0,
-      ),
-    ),
-    ArgonStickerSpec(
-      id: 'cod-pouch',
-      alignment: const Alignment(0.70, -0.04),
-      rotationDegrees: -15,
-      zIndex: 1.08,
-      phaseOffset: 5.5,
-      driftSpeed: 1.85,
-      semanticLabel: 'COD custody pouch',
-      child: DieCutStickerWidget.iconCutout(
-        key: const ValueKey('sticker-cod-pouch'),
-        icon: Icons.payments_rounded,
-        fill: RiderColors.carbon,
-        iconColor: Colors.white,
-        badgeText: '₱ COD',
-        rotationDegrees: 0,
-      ),
-    ),
-    ArgonStickerSpec(
-      id: 'qr-scan',
-      alignment: const Alignment(-0.44, 0.24),
-      rotationDegrees: 18,
-      zIndex: 0.88,
-      phaseOffset: 1.4,
-      driftSpeed: 1.65,
-      semanticLabel: 'Custody barcode scan',
-      child: DieCutStickerWidget.iconCutout(
-        key: const ValueKey('sticker-qr-scan'),
-        icon: Icons.qr_code_scanner_rounded,
-        fill: RiderColors.surface,
-        iconColor: RiderColors.ink,
-        rotationDegrees: 0,
-      ),
-    ),
-    ArgonStickerSpec(
-      id: 'proof-shield',
-      alignment: const Alignment(0.46, 0.22),
-      rotationDegrees: 7,
-      zIndex: 0.92,
-      phaseOffset: 3.8,
-      driftSpeed: 1.75,
-      semanticLabel: 'Buyer handover proof shield',
-      child: DieCutStickerWidget.iconCutout(
-        key: const ValueKey('sticker-proof-shield'),
-        icon: Icons.verified_user_rounded,
         fill: RiderColors.redTint,
         iconColor: RiderColors.accent,
         rotationDegrees: 0,
@@ -515,13 +417,13 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage>
           text: 'COURIER V4',
           backgroundColor: RiderColors.redTint,
           textColor: RiderColors.accentText,
-          rotationDegrees: 2,
+          rotationDegrees: 0,
         ),
       ],
     );
   }
 
-  /// Zone A (Top 55%): Funnel-shaped constellation of 12 courier stickers
+  /// Zone A (Top 55%): Funnel-shaped constellation of courier stickers
   /// cascading toward the central 72x72 LiquidGlassOrb.
   Widget _buildZoneAVortex({
     required BuildContext context,
@@ -576,7 +478,7 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage>
                 ),
               ),
 
-              // 12 E-Commerce / Courier Stickers (Stage 2 Reverse-Gravity Cascade + Stage 3 Drift)
+              // Curated E-Commerce / Courier Stickers (Stage 2 Cascade + Stage 3 Drift)
               for (var i = 0; i < _stickers.length; i++)
                 _buildAnimatedSticker(
                   spec: _stickers[i],
@@ -620,8 +522,8 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage>
     required bool reduced,
   }) {
     // Stage 2 (300ms – 1100ms): Staggered eruption from behind the central orb
-    final staggerStart = (300 + index * 38) / 1300;
-    final staggerEnd = (760 + index * 42).clamp(300, 1100) / 1300;
+    final staggerStart = (300 + index * 48) / 1300;
+    final staggerEnd = (760 + index * 52).clamp(300, 1100) / 1300;
     final rawCascade = ((masterTime - staggerStart) /
             (staggerEnd - staggerStart))
         .clamp(0.0, 1.0);
@@ -640,10 +542,9 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage>
 
     final eruptedOffset = Offset.lerp(orbAnchor, targetOffset, cascadeCurve)!;
 
-    // Stage 3: Ambient Zero-Gravity Drift (Y-axis ±6px, rotation ±3°)
+    // Stage 3: Ambient Zero-Gravity Drift (Y-axis ±4px, rotation 0°)
     final phase = ambientSeconds * spec.driftSpeed + spec.phaseOffset;
-    final bobY = reduced ? 0.0 : math.sin(phase) * 6.0;
-    final driftDeg = reduced ? 0.0 : math.cos(phase * 0.85) * 3.0;
+    final bobY = reduced ? 0.0 : math.sin(phase) * 4.0;
 
     // Interactive 2D Magnetic Parallax + Orb Tap Scatter (15px radial impulse)
     final parallaxOffset = Offset(
@@ -667,10 +568,7 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage>
         opacity: rawCascade.clamp(0.0, 1.0),
         child: Transform.scale(
           scale: (0.35 + 0.65 * cascadeCurve).clamp(0.0, 1.25),
-          child: Transform.rotate(
-            angle: (spec.rotationDegrees + driftDeg) * (math.pi / 180.0),
-            child: Center(child: spec.child),
-          ),
+          child: Center(child: spec.child),
         ),
       ),
     );

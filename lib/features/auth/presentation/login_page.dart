@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
-import '../../../core/ui/argon_widgets.dart';
 import 'widgets/auth_field.dart';
 import 'widgets/auth_shell.dart';
 import 'auth_controller.dart';
@@ -60,31 +59,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: ShapeDecoration(
-                  color: RiderColors.controlFill,
-                  shape: RoundedSuperellipseBorder(
-                    borderRadius: BorderRadius.circular(RiderRadii.control),
-                    side: const BorderSide(color: Colors.white, width: 1.5),
-                  ),
-                ),
-                child: Wrap(
-                  spacing: 12,
-                  runSpacing: 8,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    const LiquidGlassOrb(size: 42, blurSigma: 12),
-                    DieCutStickerWidget.speechBubble(
-                      text: 'LET’S GET MOVING',
-                      backgroundColor: RiderColors.accent,
-                      rotationDegrees: -2,
-                      leadingIcon: Icons.bolt_rounded,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
               Text(
                 'Welcome back.',
                 style: Theme.of(context).textTheme.headlineLarge,

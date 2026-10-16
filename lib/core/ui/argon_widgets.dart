@@ -50,7 +50,7 @@ class DieCutStickerWidget extends StatelessWidget {
     required String text,
     Color backgroundColor = RiderColors.accent,
     Color textColor = Colors.white,
-    double rotationDegrees = -8,
+    double rotationDegrees = 0,
     IconData? leadingIcon,
   }) {
     return DieCutStickerWidget(
@@ -93,7 +93,7 @@ class DieCutStickerWidget extends StatelessWidget {
     required Color fill,
     required Color iconColor,
     String? badgeText,
-    double rotationDegrees = 8,
+    double rotationDegrees = 0,
     double size = 44,
     String? semanticLabel,
   }) {
@@ -156,30 +156,34 @@ class DieCutStickerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radians = rotationDegrees * (math.pi / 180.0);
-    final body = Transform.rotate(
-      angle: radians,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(borderRadius),
-          border: Border.all(color: Colors.white, width: borderWidth),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 12,
-              offset: Offset(0, 6),
-            ),
-            BoxShadow(
-              color: Color(0x0A0F172A),
-              blurRadius: 4,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Padding(padding: padding, child: child),
+    final decorated = DecoratedBox(
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: Border.all(color: Colors.white, width: borderWidth),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x12111827),
+            blurRadius: 16,
+            spreadRadius: -2,
+            offset: Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Color(0x08111827),
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
+      child: Padding(padding: padding, child: child),
     );
+
+    final body = rotationDegrees == 0
+        ? decorated
+        : Transform.rotate(
+            angle: rotationDegrees * (math.pi / 180.0),
+            child: decorated,
+          );
     if (semanticLabel == null) return ExcludeSemantics(child: body);
     return Semantics(
       label: semanticLabel,
@@ -674,14 +678,14 @@ class ArgonPageCluster extends StatelessWidget {
         DieCutStickerWidget.speechBubble(
           text: pillText,
           backgroundColor: RiderColors.accent,
-          rotationDegrees: -3,
+          rotationDegrees: 0,
           leadingIcon: primaryIcon,
         ),
         DieCutStickerWidget.speechBubble(
           text: secondaryStickerText,
           backgroundColor: const Color(0xFFFFFDF7),
           textColor: RiderColors.ink,
-          rotationDegrees: 3.5,
+          rotationDegrees: 0,
           leadingIcon: secondaryIcon,
         ),
         ?trailingAction,

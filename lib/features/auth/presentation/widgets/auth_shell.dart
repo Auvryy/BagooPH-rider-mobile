@@ -65,7 +65,7 @@ class AuthShell extends StatelessWidget {
                               text: registering ? 'APPLY NOW' : 'COURIER SHIFT',
                               backgroundColor: RiderColors.rose,
                               textColor: RiderColors.accentText,
-                              rotationDegrees: -2,
+                              rotationDegrees: 0,
                               leadingIcon: Icons.two_wheeler_rounded,
                             ),
                           ],
@@ -145,7 +145,7 @@ class _BrandStory extends StatelessWidget {
             DieCutStickerWidget.speechBubble(
               text: "Let's roll.",
               backgroundColor: RiderColors.accent,
-              rotationDegrees: -5,
+              rotationDegrees: 0,
               leadingIcon: Icons.bolt_rounded,
             ),
           ],

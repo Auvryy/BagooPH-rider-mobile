@@ -285,7 +285,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                       DieCutStickerWidget.speechBubble(
                         text: "Let's roll.",
                         backgroundColor: RiderColors.accent,
-                        rotationDegrees: -3,
+                        rotationDegrees: 0,
                         leadingIcon: Icons.bolt_rounded,
                       ),
                     ],

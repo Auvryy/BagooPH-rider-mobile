@@ -99,7 +99,7 @@ class ProfileSettingsPage extends ConsumerWidget {
               text: 'COURIER ID',
               backgroundColor: RiderColors.rose,
               textColor: RiderColors.accentText,
-              rotationDegrees: -3,
+              rotationDegrees: 0,
               leadingIcon: Icons.verified_user_rounded,
             ),
           ],

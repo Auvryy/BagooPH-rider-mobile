@@ -18,6 +18,13 @@ needs owner clarification. None of this identifies the deployed Azure commit.
 Checked source items below establish implementation only; unchecked live items
 require fresh evidence and must not be cleared by local fixtures.
 
+**October 16 HDB-05 update:** the owner verified running revision `c262473`,
+75 applied migrations with none pending and the isolated rider/pickup case.
+Controlled native Azure Home/queues/detail, desired duty, one claim, original-key
+replay/reconciliation and stale/changed-body rejection passed. The owning website
+post-check, ordinary-build activation and broader device/feature checks remain
+open. See [dated native evidence](../plans/home-dashboard-branch-plan/HDB-05-EVIDENCE.md).
+
 ## What to ask for first
 
 Verify current Azure deployment and provide authorized isolated resources for
@@ -45,13 +52,13 @@ missing field/behavior after comparing the current owner contract and code.
 
 ## API-H02 — Deployment and fresh authorization evidence
 
-- [ ] Obtain the actual deployed revision, target-relative migration status and
+- [x] Obtain the actual deployed revision, target-relative migration status and
   runtime route availability, including rider_commands and the required Settings,
   checkpoint/attempt/COD journal sources such as cod_cash_events.
 - [ ] Obtain a fresh approved native session with operations_api_version: 1 and
   the narrow read/work/messages/notifications/cash abilities; preserve holding,
   account, logout and Settings compatibility.
-- [ ] Read Home capabilities and limits too; version discovery alone does not
+- [x] Read Home capabilities and limits too; version discovery alone does not
   prove that every later feature schema/service is available.
 - [ ] Verify private first-party HTTPS JSON, no-store/no-cache/nosniff, safe
   request IDs and numeric cooldown/error semantics, including proof reads.
@@ -73,7 +80,7 @@ reads. Report current deployment rather than treating either dated result as tod
 
 ## API-H03 — Authorized test resources and cross-role observations
 
-- [ ] Supply an approved placed rider with eligible company/hub/coverage/vehicle,
+- [x] Supply an approved placed rider with eligible company/hub/coverage/vehicle,
   and a genuine ready-for-pickup parcel in that origin-hub scope.
 - [ ] Supply the actual waybill and authorized seller/origin-hub actors for
   collection followed by real hub intake.
@@ -102,8 +109,10 @@ shortcut is requested. Share credentials/resource context privately, not in this
   retained result remains readable after retry expiry.
 - [x] Parcel/claim versions are opaque lowercase 64-character hex; cash offer
   versions are journal-sequence ID strings. Decimal IDs and exact cents stay strings.
-- [ ] Verify native desired duty/claim, same-key replay/reconciliation,
-  changed-body rejection and stale/competing assignment on accepted deployed source.
+- [x] Verify native desired duty/claim, same-key replay/reconciliation,
+  changed-body rejection and stale assignment on accepted deployed source.
+- [ ] Verify simultaneous claims by competing actors separately; the controlled
+  native case used one authorized rider and does not establish that result.
 - [ ] Verify later multipart/message/read/cash command results under the same
   recovery rules; no silent new key after timeout or COMMAND_UNKNOWN.
 - [ ] Confirm the shared native IP budget and write cooldowns during combined

@@ -42,11 +42,13 @@ Primary references: [flutter_map](https://pub.dev/packages/flutter_map),
 
 ## Backend-owner handoff
 
-October 16: [HDB-05 verification preparation](../home-dashboard-branch-plan/HDB-05-EVIDENCE.md)
-has begun from merged mobile main. A fresh native session/Home read succeeded;
-exact rollout/migrations, designated pickup and live duty/claim acceptance remain
-open. Resumed selected headless checks passed; native Flutter windows and live
-write acceptance remain deferred. The operational-write flag remains disabled.
+October 16: [HDB-05 native verification](../home-dashboard-branch-plan/HDB-05-EVIDENCE.md)
+passed against owner-verified Azure revision `c262473`, with current migrations
+and an authorized isolated pickup. Native Home/queues/detail, explicit duty,
+one claim, original-key replay, protected-intent recovery and stale/changed-body
+rejection passed. Fresh owning-website confirmation remains pending. The
+ordinary operational-write flag stays disabled until that result and activation
+review are recorded. Physical Android acceptance remains separate.
 
 Before enabling `OPERATIONS_WRITES_VERIFIED`, obtain and record:
 

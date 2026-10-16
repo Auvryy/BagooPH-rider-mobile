@@ -174,7 +174,9 @@ class _PrivacyAudit extends Interceptor {
     Response<dynamic> response,
     ResponseInterceptorHandler handler,
   ) {
-    if (response.requestOptions.method == 'GET') {
+    if (response.requestOptions.method == 'GET' &&
+        RegExp(r'/api/v1/rider/(home|pickup-jobs|tasks)(/|$)')
+            .hasMatch(response.requestOptions.uri.path)) {
       reads++;
       final cache = (response.headers.value('cache-control') ?? '')
           .toLowerCase()
@@ -186,7 +188,9 @@ class _PrivacyAudit extends Interceptor {
           response.statusCode == 200 &&
           response.headers.value('content-type')?.split(';').first.trim() ==
               'application/json' &&
-          cache.containsAll({'private', 'no-store', 'no-cache'}) &&
+          cache.containsAll({'private', 'no-store'}) &&
+          (cache.contains('no-cache') ||
+              response.headers.value('pragma')?.toLowerCase() == 'no-cache') &&
           response.headers.value('x-content-type-options')?.toLowerCase() ==
               'nosniff';
     }

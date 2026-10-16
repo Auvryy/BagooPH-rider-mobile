@@ -15,13 +15,33 @@ class BrandLogo extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(RiderRadii.brand),
-              child: Image.asset(
-                'assets/branding/gooriders-icon.png',
-                width: size,
-                height: size,
-                filterQuality: FilterQuality.high,
+            Container(
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(RiderRadii.brand + 3),
+                border: Border.all(color: Colors.white, width: 1.5),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0xFFFFFFFF),
+                    blurRadius: 8,
+                    offset: Offset(-3, -3),
+                  ),
+                  BoxShadow(
+                    color: Color(0x22E00D42),
+                    blurRadius: 14,
+                    offset: Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(RiderRadii.brand),
+                child: Image.asset(
+                  'assets/branding/gooriders-icon.png',
+                  width: size,
+                  height: size,
+                  filterQuality: FilterQuality.high,
+                ),
               ),
             ),
             const SizedBox(width: 12),
@@ -47,14 +67,24 @@ class BrandLogo extends StatelessWidget {
                       height: 1.1,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'RIDER',
-                    style: TextStyle(
-                      fontSize: 10,
-                      letterSpacing: 2.2,
-                      fontWeight: FontWeight.w600,
-                      color: RiderColors.muted,
+                  const SizedBox(height: 3),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 1.5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: RiderColors.rose,
+                      borderRadius: BorderRadius.circular(RiderRadii.pill),
+                    ),
+                    child: const Text(
+                      'RIDER OS',
+                      style: TextStyle(
+                        fontSize: 9.5,
+                        letterSpacing: 1.8,
+                        fontWeight: FontWeight.w800,
+                        color: RiderColors.accentText,
+                      ),
                     ),
                   ),
                 ],

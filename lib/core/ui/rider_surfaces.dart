@@ -3,7 +3,8 @@ import 'package:flutter/physics.dart';
 
 import '../../app/theme.dart';
 
-/// Opaque reading surface; depth never depends on a dark outline.
+/// Tactile neumorphic reading surface with dual light/dark elevation and a
+/// crisp white specular edge; depth never depends on a dark outline.
 class RiderSurface extends StatelessWidget {
   const RiderSurface({
     super.key,
@@ -11,45 +12,70 @@ class RiderSurface extends StatelessWidget {
     this.padding = EdgeInsets.zero,
     this.radius = RiderRadii.surface,
     this.color = Colors.white,
+    this.accentGlow = false,
   });
   final Widget child;
   final EdgeInsetsGeometry padding;
   final double radius;
   final Color color;
+  final bool accentGlow;
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: ShapeDecoration(
-      shape: RoundedSuperellipseBorder(
-        borderRadius: BorderRadius.circular(radius),
-      ),
-      shadows: const [
-        BoxShadow(
-          color: Color(0x060F172A),
-          blurRadius: 16,
-          offset: Offset(0, 4),
+  Widget build(BuildContext context) {
+    final isRose = color == RiderColors.rose || accentGlow;
+    return DecoratedBox(
+      decoration: ShapeDecoration(
+        shape: RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.circular(radius),
+          side: BorderSide(
+            color: isRose
+                ? const Color(0x33E00D42)
+                : const Color(0xF2FFFFFF),
+            width: 1.5,
+          ),
         ),
-      ],
-    ),
-    child: Material(
-      color: color,
-      shape: RoundedSuperellipseBorder(
-        borderRadius: BorderRadius.circular(radius),
+        shadows: isRose
+            ? RiderShadows.neumorphicAccent
+            : RiderShadows.neumorphicElevated,
       ),
-      clipBehavior: Clip.antiAlias,
-      child: Padding(padding: padding, child: child),
-    ),
-  );
+      child: Material(
+        color: color,
+        shape: RoundedSuperellipseBorder(
+          borderRadius: BorderRadius.circular(radius),
+          side: BorderSide(
+            color: isRose
+                ? const Color(0x28E00D42)
+                : const Color(0xE6FFFFFF),
+            width: 1.2,
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Padding(padding: padding, child: child),
+      ),
+    );
+  }
 }
 
 class RiderCanvas extends StatelessWidget {
   const RiderCanvas({super.key, required this.child});
   final Widget child;
   @override
-  Widget build(BuildContext context) =>
-      ColoredBox(color: RiderColors.canvas, child: child);
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: const BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFFF8FAFF),
+          RiderColors.canvas,
+          Color(0xFFEEF2F9),
+        ],
+      ),
+    ),
+    child: child,
+  );
 }
 
-/// Solid chrome keeps navigation and temporary controls readable over a map.
+/// Solid sculpted chrome keeps navigation and temporary controls readable over a map.
 class RiderChrome extends StatelessWidget {
   const RiderChrome({
     super.key,
@@ -144,7 +170,7 @@ class _RiderPressFeedbackState extends State<RiderPressFeedback>
       if (mounted) setState(() => _focused = focused);
     },
     child: Listener(
-      onPointerDown: (_) => _move(.975),
+      onPointerDown: (_) => _move(.965),
       onPointerUp: (_) => _move(1),
       onPointerCancel: (_) => _move(1),
       child: AnimatedBuilder(
@@ -153,7 +179,7 @@ class _RiderPressFeedbackState extends State<RiderPressFeedback>
         builder: (context, child) => Transform.scale(
           scale: RiderMotion.reduced(context)
               ? 1
-              : _scale.value.clamp(.95, 1.02),
+              : _scale.value.clamp(.94, 1.03),
           transformHitTests: false,
           child: DecoratedBox(
             position: DecorationPosition.foreground,

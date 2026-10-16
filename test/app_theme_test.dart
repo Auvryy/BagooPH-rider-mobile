@@ -19,12 +19,12 @@ void main() {
       expect(theme.scaffoldBackgroundColor, RiderColors.canvas);
       expect(theme.colorScheme.primary, const Color(0xFFE00D42));
       expect(theme.textTheme.bodyLarge?.fontFamily, 'Plus Jakarta Sans');
-      expect(RiderRadii.surface, 20.0);
-      expect(RiderRadii.group, 20.0);
-      expect(RiderRadii.control, 14.0);
+      expect(RiderRadii.surface, 24.0);
+      expect(RiderRadii.group, 24.0);
+      expect(RiderRadii.control, 16.0);
       expect(RiderRadii.dialog, 28.0);
-      expect(RiderRadii.sheet, 28.0);
-      expect(RiderRadii.media, 20.0);
+      expect(RiderRadii.sheet, 30.0);
+      expect(RiderRadii.media, 24.0);
       expect(RiderRadii.pill, 999.0);
       final field =
           theme.inputDecorationTheme.enabledBorder! as OutlineInputBorder;

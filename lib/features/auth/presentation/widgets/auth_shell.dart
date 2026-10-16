@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme.dart';
+import '../../../../core/ui/argon_widgets.dart';
 import '../../../../core/ui/brand_logo.dart';
 import '../../../../core/ui/rider_surfaces.dart';
 
@@ -39,9 +40,21 @@ class AuthShell extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: BrandLogo(),
+                    Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 12,
+                      runSpacing: 8,
+                      children: [
+                        const BrandLogo(),
+                        DieCutStickerWidget.speechBubble(
+                          text: registering ? 'APPLY NOW' : 'COURIER SHIFT',
+                          backgroundColor: RiderColors.rose,
+                          textColor: RiderColors.accentText,
+                          rotationDegrees: -3,
+                          leadingIcon: Icons.two_wheeler_rounded,
+                        ),
+                      ],
                     ),
                     SizedBox(height: wide ? 48 : 32),
                     if (wide)
@@ -94,7 +107,20 @@ class _BrandStory extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(Icons.route_rounded, size: 48, color: RiderColors.accent),
+        Wrap(
+          spacing: 12,
+          runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            const LiquidGlassOrb(size: 56, blurSigma: 14),
+            DieCutStickerWidget.speechBubble(
+              text: "Let's roll.",
+              backgroundColor: RiderColors.accent,
+              rotationDegrees: -6,
+              leadingIcon: Icons.bolt_rounded,
+            ),
+          ],
+        ),
         const SizedBox(height: 32),
         Text(
           registering

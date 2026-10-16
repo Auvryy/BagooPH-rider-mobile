@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/platform/stop_actions.dart';
+import '../../../core/ui/argon_widgets.dart';
 import '../../../core/ui/rider_surfaces.dart';
 import '../../../app/theme.dart';
 import '../../navigation/presentation/navigation_controller.dart';
@@ -290,6 +291,21 @@ class _StopModePageState extends State<StopModePage>
                       key: const ValueKey('stop-mode-scroll'),
                       padding: const EdgeInsets.all(16),
                       children: [
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 6,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            const LiquidGlassOrb(size: 36, blurSigma: 10),
+                            DieCutStickerWidget.speechBubble(
+                              text: preview ? 'PICKUP PREVIEW' : 'STOP MODE',
+                              backgroundColor: RiderColors.accent,
+                              rotationDegrees: -3,
+                              leadingIcon: Icons.location_on_rounded,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
                         Text(
                           preview ? 'Pickup preview' : 'Work this stop',
                           key: const ValueKey('stop-mode-heading'),

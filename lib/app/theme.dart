@@ -5,10 +5,13 @@ abstract final class RiderColors {
   static const accentPressed = Color(0xFFA1052B);
   static const accentText = Color(0xFFC20836);
   static const canvas = Color(0xFFF7F7FA);
+  static const pureWhite = Color(0xFFFFFFFF);
   static const rose = Color(0xFFFFF2F4);
-  static const ink = Color(0xFF0F172A);
+  static const creamSticker = Color(0xFFFFFDF7);
+  static const ink = Color(0xFF111827);
   static const body = Color(0xFF1E293B);
   static const muted = Color(0xFF475569);
+  static const slateMuted = Color(0xFF9CA3AF);
   static const border = Color(0xFFE3E5EB);
   static const controlFill = Color(0xFFEEF0F4);
   static const divider = Color(0xFFE2E8F0);
@@ -22,6 +25,7 @@ abstract final class RiderRadii {
   static const dialog = 28.0;
   static const sheet = 28.0;
   static const selection = 14.0;
+  static const pill = 999.0;
   static const navigation = 0.0;
   static const brand = 8.0;
 }

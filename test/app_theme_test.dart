@@ -1,53 +1,49 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:bagoo_rider_mobile/app/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Color hex(String value) =>
-    Color(int.parse(value.substring(1), radix: 16) | 0xFF000000);
 void main() {
   test(
-    'existing app theme follows the accepted mobile color and shape tokens',
+    'DESIGN_SPEC.md keeps only the brand color #E00D42 and font Plus Jakarta Sans',
     () {
-      final tokens =
-          jsonDecode(File('docs/design/tokens.json').readAsStringSync()) as Map;
-      final light = tokens['light'] as Map;
-      final geometry = tokens['geometry'] as Map;
-      final radii = geometry['radii'] as Map;
+      final spec = File('docs/DESIGN_SPEC.md').readAsStringSync().trim();
+      expect(spec, contains('#E00D42'));
+      expect(spec, contains('Plus Jakarta Sans'));
+      expect(spec.split('\n').length, 1);
+
       final theme = buildRiderTheme();
-      expect(theme.scaffoldBackgroundColor, hex(light['canvas']));
-      expect(theme.colorScheme.primary, hex(light['accent']));
-      expect(
-        theme.textTheme.bodyLarge?.fontFamily,
-        (tokens['font_families'] as Map)[defaultTargetPlatform.name],
-      );
-      expect(RiderRadii.surface, radii['surface']);
-      expect(RiderRadii.group, radii['group']);
-      expect(RiderRadii.control, radii['control']);
-      expect(RiderRadii.dialog, radii['dialog']);
-      expect(RiderRadii.sheet, radii['sheet']);
-      expect(RiderRadii.media, radii['map']);
+      expect(RiderColors.accent, const Color(0xFFE00D42));
+      expect(RiderTypography.family, 'Plus Jakarta Sans');
+      expect(theme.scaffoldBackgroundColor, RiderColors.canvas);
+      expect(theme.colorScheme.primary, const Color(0xFFE00D42));
+      expect(theme.textTheme.bodyLarge?.fontFamily, 'Plus Jakarta Sans');
+      expect(RiderRadii.surface, 20.0);
+      expect(RiderRadii.group, 20.0);
+      expect(RiderRadii.control, 14.0);
+      expect(RiderRadii.dialog, 28.0);
+      expect(RiderRadii.sheet, 28.0);
+      expect(RiderRadii.media, 20.0);
+      expect(RiderRadii.pill, 999.0);
       final field =
           theme.inputDecorationTheme.enabledBorder! as OutlineInputBorder;
-      expect(field.borderRadius.topLeft.x, radii['control']);
+      expect(field.borderRadius.topLeft.x, RiderRadii.control);
       expect(field.borderSide, BorderSide.none);
       expect(field, isA<RiderInputBorder>());
-      expect(theme.inputDecorationTheme.fillColor, hex(light['control_fill']));
+      expect(theme.inputDecorationTheme.fillColor, RiderColors.controlFill);
       final dialog = theme.dialogTheme.shape! as RoundedSuperellipseBorder;
       expect(
         dialog.borderRadius.resolve(TextDirection.ltr).topLeft.x,
-        radii['dialog'],
+        RiderRadii.dialog,
       );
       expect(
         theme.filledButtonTheme.style!.minimumSize!.resolve({})!.height,
-        greaterThanOrEqualTo(geometry['primary_height']),
+        greaterThanOrEqualTo(56),
       );
       expect(
         theme.outlinedButtonTheme.style!.minimumSize!.resolve({})!.height,
-        greaterThanOrEqualTo(geometry['target_min']),
+        greaterThanOrEqualTo(48),
       );
     },
   );

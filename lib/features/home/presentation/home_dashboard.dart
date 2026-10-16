@@ -7,6 +7,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/ui/argon_widgets.dart';
 import '../../../core/ui/rider_surfaces.dart';
 import '../../auth/data/account.dart';
 import '../../navigation/data/geoapify_client.dart';
@@ -272,6 +273,21 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    const LiquidGlassOrb(size: 34, blurSigma: 10),
+                    DieCutStickerWidget.speechBubble(
+                      text: "Let's roll.",
+                      backgroundColor: RiderColors.accent,
+                      rotationDegrees: -4,
+                      leadingIcon: Icons.bolt_rounded,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
                 Text(
                   'Welcome, ${widget.account.name}.',
                   style: Theme.of(context).textTheme.headlineMedium

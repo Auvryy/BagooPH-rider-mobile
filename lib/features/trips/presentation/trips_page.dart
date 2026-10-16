@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/platform/rider_website.dart';
+import '../../../core/ui/argon_widgets.dart';
 import '../../workspace/data/workspace_models.dart';
 import '../../workspace/presentation/workspace_controller.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
@@ -69,7 +70,9 @@ class _TripsPageState extends State<TripsPage> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
+            const LiquidGlassOrb(size: 32, blurSigma: 10),
             WorkspaceBadge(
               widget.preview
                   ? 'Sample final-mile history'

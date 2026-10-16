@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/ui/argon_widgets.dart';
 import '../../../core/ui/brand_logo.dart';
 import '../../../core/ui/rider_surfaces.dart';
 import '../../auth/presentation/auth_controller.dart';
@@ -21,6 +22,7 @@ class HomePage extends ConsumerWidget {
     }
     final needsCorrection = user.kycStatus == 'rejected';
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -31,20 +33,29 @@ class HomePage extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const BrandLogo(),
-                  const SizedBox(height: 40),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: CircleAvatar(
-                      radius: 32,
-                      backgroundColor: RiderColors.rose,
-                      child: Icon(
-                        needsCorrection
+                  const SizedBox(height: 36),
+                  Wrap(
+                    spacing: 14,
+                    runSpacing: 10,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      const LiquidGlassOrb(size: 64, blurSigma: 14),
+                      DieCutStickerWidget.speechBubble(
+                        text: needsCorrection
+                            ? 'ACTION NEEDED'
+                            : 'UNDER REVIEW',
+                        backgroundColor: needsCorrection
+                            ? RiderColors.accent
+                            : RiderColors.creamSticker,
+                        textColor: needsCorrection
+                            ? Colors.white
+                            : RiderColors.ink,
+                        rotationDegrees: -5,
+                        leadingIcon: needsCorrection
                             ? Icons.assignment_outlined
                             : Icons.fact_check_outlined,
-                        size: 32,
-                        color: RiderColors.accentText,
                       ),
-                    ),
+                    ],
                   ),
                   const SizedBox(height: 24),
                   Text(
@@ -57,6 +68,7 @@ class HomePage extends ConsumerWidget {
                   ),
                   const SizedBox(height: 24),
                   RiderSurface(
+                    color: RiderColors.canvas,
                     padding: const EdgeInsets.all(24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -115,6 +127,10 @@ class HomePage extends ConsumerWidget {
                   ],
                   RiderPressFeedback(
                     child: FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                        shape: const StadiumBorder(),
+                        minimumSize: const Size(0, 56),
+                      ),
                       onPressed: state.busy
                           ? null
                           : () => ref

@@ -83,6 +83,8 @@ void main() {
         ),
       ),
     );
+    await capture(tester, 'onboarding-390');
+    await tap(tester, find.byKey(const ValueKey('onboarding-cta')));
     await capture(tester, 'login-390');
     final dialogContext = tester.element(find.byType(Scaffold).first);
     final verification = showDialog<void>(

@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/network/api_failure.dart';
+import '../../../core/ui/argon_widgets.dart';
 import '../../../core/ui/rider_surfaces.dart';
 import '../../home/presentation/task_stage_label.dart';
 import '../data/handover_intent.dart';
@@ -298,6 +299,22 @@ class _HandoverIssuesViewState extends State<HandoverIssuesView>
                             const LinearProgressIndicator(
                               semanticsLabel: 'Checking handover records',
                             ),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 10,
+                            runSpacing: 6,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              const LiquidGlassOrb(size: 34, blurSigma: 10),
+                              DieCutStickerWidget.speechBubble(
+                                text: 'CUSTODY CHECK',
+                                backgroundColor: RiderColors.rose,
+                                textColor: RiderColors.accentText,
+                                rotationDegrees: -3,
+                                leadingIcon: Icons.fact_check_outlined,
+                              ),
+                            ],
+                          ),
                           const SizedBox(height: 12),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,

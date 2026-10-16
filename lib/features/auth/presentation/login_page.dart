@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/ui/argon_widgets.dart';
 import 'widgets/auth_field.dart';
 import 'widgets/auth_shell.dart';
 import 'auth_controller.dart';
@@ -59,16 +60,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'LET’S GET MOVING',
-                style: TextStyle(
-                  fontSize: 11,
-                  letterSpacing: 1.6,
-                  fontWeight: FontWeight.w700,
-                  color: RiderColors.accentText,
-                ),
+              Wrap(
+                spacing: 10,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  const LiquidGlassOrb(size: 38, blurSigma: 12),
+                  DieCutStickerWidget.speechBubble(
+                    text: 'LET’S GET MOVING',
+                    backgroundColor: RiderColors.accent,
+                    rotationDegrees: -3,
+                    leadingIcon: Icons.bolt_rounded,
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 14),
               Text(
                 'Welcome back.',
                 style: Theme.of(context).textTheme.headlineLarge,
@@ -183,6 +189,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               RiderPressFeedback(
                 child: FilledButton.icon(
                   key: const ValueKey('sign-in-button'),
+                  style: FilledButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    minimumSize: const Size(0, 56),
+                  ),
                   onPressed: session.busy ? null : _signIn,
                   icon: const Icon(Icons.arrow_forward_rounded, size: 20),
                   iconAlignment: IconAlignment.end,

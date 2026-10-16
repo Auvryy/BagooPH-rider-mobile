@@ -55,19 +55,27 @@ class WorkspaceBadge extends StatelessWidget {
   final bool accent;
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+    padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
     decoration: ShapeDecoration(
       color: accent ? RiderColors.rose : const Color(0xFFF1F5F9),
       shape: RoundedSuperellipseBorder(
-        borderRadius: BorderRadius.circular(RiderRadii.selection),
+        borderRadius: BorderRadius.circular(RiderRadii.pill),
+        side: const BorderSide(color: Colors.white, width: 2.0),
       ),
+      shadows: const [
+        BoxShadow(
+          color: Color(0x120F172A),
+          blurRadius: 8,
+          offset: Offset(0, 3),
+        ),
+      ],
     ),
     child: Text(
       label,
       style: TextStyle(
         fontSize: 12,
         height: 1.4,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
         color: accent ? RiderColors.accentText : RiderColors.muted,
       ),
     ),

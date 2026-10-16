@@ -38,7 +38,7 @@ The slice adapts registration and sign-in to a native
 registration preview at the user's request. The live onboarding recommendation
 remains first-party web until a separate API scope is accepted.
 
-Brand color `#E00D42` and bundled `Plus Jakarta Sans` follow [DESIGN_SPEC.md](DESIGN_SPEC.md).
+Brand color `#E00D42` and bundled `Plus Jakarta Sans` follow [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md).
 Labels persist above fields. Wide layouts add a brand
 introduction while giving the registration form more space than login.
 

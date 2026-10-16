@@ -212,7 +212,7 @@ its own HTTP client, duplicate state machine or empty folder.
 
 ## Complete frontend design coverage
 
-[DESIGN_SPEC.md](DESIGN_SPEC.md) defines the brand color `#E00D42` and the
+[DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) defines the brand color `#E00D42` and the
 `Plus Jakarta Sans` font. The existing 180-card baseline and implementation
 evidence remain separate.
 
@@ -267,7 +267,7 @@ operational states or the physical Android baseline. See [AUTH_PREVIEW.md](AUTH_
    boundaries. Add proposed packages only when needed and after compatibility
    checks; do not assume they are already installed.
 2. Build reusable fields, buttons, status/error panels and accessible sheets.
-   Use the mobile design target in [DESIGN_SPEC.md](DESIGN_SPEC.md): primary `#E00D42`
+   Use the mobile design target in [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md): primary `#E00D42`
    and bundled `Plus Jakarta Sans`.
 3. Wire explicit development fixtures behind replaceable repositories; retain
    debug Linux Device Preview and establish the physical Android baseline.

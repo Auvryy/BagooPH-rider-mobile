@@ -145,8 +145,8 @@ service names, credentials, CLI paths, or remote task IDs.
   contract tests confirm them. Unsupported actions remain unavailable.
 - Keep fake repositories and scanner input in explicit development/test
   configurations. A production feature cannot report fixture success.
-- Follow the mobile design target in `docs/DESIGN_SPEC.md` and its tokens: primary
-  red `#E00D42`, neutral canvas `#F7F7FA`, borderless filled controls, continuous
+- Follow the mobile design target in `docs/DESIGN_SYSTEM.md` and its tokens: primary
+  red `#E00D42`, neutral canvas `#F8FAFC`, whisper-quiet 1px borders, continuous
   contours, bundled Plus Jakarta Sans and solid white navigation. Follow the
   October 15 delivery-reference direction: strong headings, compact work cards,
   clear map controls and ordinary Home scrolling. Reserve bottom navigation space.

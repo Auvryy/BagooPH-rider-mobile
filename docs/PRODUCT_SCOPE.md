@@ -86,7 +86,7 @@ be loaded. Missing hub data means unassigned/unknown, never a default city.
 
 The mobile target keeps primary red `#E00D42` and the bundled Plus Jakarta Sans.
 The mobile app has an independent presentation while sharing the web's
-business rules and branding. See [DESIGN_SPEC.md](DESIGN_SPEC.md).
+business rules and branding. See [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md).
 
 Use labelled Tasks/Trips/Messages/Profile navigation, 48 logical-pixel minimum
 standalone touch areas, wrapping addresses, safe areas, visible focus, and

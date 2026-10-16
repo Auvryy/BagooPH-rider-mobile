@@ -181,7 +181,7 @@ readiness claim.
 
 ## Complete frontend design
 
-[DESIGN_SPEC.md](DESIGN_SPEC.md) defines the brand color and font for these
+[DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) defines the brand color and font for these
 features and every related Rider view. These designs retain
 the dispatch and capability boundaries in this feature direction.
 

@@ -70,7 +70,7 @@ class RiderOnboardingPage extends ConsumerStatefulWidget {
       child: DieCutStickerWidget.speechBubble(
         key: const ValueKey('sticker-speech-clear'),
         text: 'Every stop clear!',
-        backgroundColor: RiderColors.creamSticker,
+        backgroundColor: RiderColors.surface,
         textColor: RiderColors.ink,
         rotationDegrees: 0,
         leadingIcon: Icons.verified_rounded,
@@ -87,8 +87,8 @@ class RiderOnboardingPage extends ConsumerStatefulWidget {
       child: DieCutStickerWidget.iconCutout(
         key: const ValueKey('sticker-parcel-box'),
         icon: Icons.inventory_2_rounded,
-        fill: const Color(0xFFFEF3C7),
-        iconColor: const Color(0xFFD97706),
+        fill: RiderColors.surface,
+        iconColor: RiderColors.ink,
         rotationDegrees: 0,
       ),
     ),
@@ -103,7 +103,7 @@ class RiderOnboardingPage extends ConsumerStatefulWidget {
       child: DieCutStickerWidget.iconCutout(
         key: const ValueKey('sticker-flash-dispatch'),
         icon: Icons.flash_on_rounded,
-        fill: const Color(0xFFFFE4EC),
+        fill: RiderColors.redTint,
         iconColor: RiderColors.accent,
         badgeText: 'EXPRESS',
         rotationDegrees: 0,
@@ -120,8 +120,8 @@ class RiderOnboardingPage extends ConsumerStatefulWidget {
       child: DieCutStickerWidget.iconCutout(
         key: const ValueKey('sticker-waybill-tag'),
         icon: Icons.local_offer_rounded,
-        fill: const Color(0xFFEFF6FF),
-        iconColor: const Color(0xFF1D4ED8),
+        fill: RiderColors.surface,
+        iconColor: RiderColors.carbon,
         badgeText: 'WAYBILL OK',
         rotationDegrees: 0,
       ),
@@ -137,8 +137,8 @@ class RiderOnboardingPage extends ConsumerStatefulWidget {
       child: DieCutStickerWidget.iconCutout(
         key: const ValueKey('sticker-verified-star'),
         icon: Icons.stars_rounded,
-        fill: const Color(0xFFFEF9C3),
-        iconColor: const Color(0xFFCA8A04),
+        fill: RiderColors.redTint,
+        iconColor: RiderColors.accent,
         rotationDegrees: 0,
       ),
     ),
@@ -153,8 +153,8 @@ class RiderOnboardingPage extends ConsumerStatefulWidget {
       child: DieCutStickerWidget.iconCutout(
         key: const ValueKey('sticker-mother-hub'),
         icon: Icons.warehouse_rounded,
-        fill: const Color(0xFFDBEAFE),
-        iconColor: const Color(0xFF2563EB),
+        fill: RiderColors.carbon,
+        iconColor: Colors.white,
         badgeText: 'HUB',
         rotationDegrees: 0,
       ),
@@ -170,7 +170,7 @@ class RiderOnboardingPage extends ConsumerStatefulWidget {
       child: DieCutStickerWidget.iconCutout(
         key: const ValueKey('sticker-delivery-scooter'),
         icon: Icons.two_wheeler_rounded,
-        fill: const Color(0xFFF3F4F6),
+        fill: RiderColors.surface,
         iconColor: RiderColors.ink,
         rotationDegrees: 0,
       ),
@@ -186,8 +186,8 @@ class RiderOnboardingPage extends ConsumerStatefulWidget {
       child: DieCutStickerWidget.iconCutout(
         key: const ValueKey('sticker-route-pin'),
         icon: Icons.location_on_rounded,
-        fill: const Color(0xFFD1FAE5),
-        iconColor: const Color(0xFF059669),
+        fill: RiderColors.redTint,
+        iconColor: RiderColors.accent,
         rotationDegrees: 0,
       ),
     ),
@@ -202,8 +202,8 @@ class RiderOnboardingPage extends ConsumerStatefulWidget {
       child: DieCutStickerWidget.iconCutout(
         key: const ValueKey('sticker-cod-pouch'),
         icon: Icons.payments_rounded,
-        fill: const Color(0xFFFFEDD5),
-        iconColor: const Color(0xFFEA580C),
+        fill: RiderColors.carbon,
+        iconColor: Colors.white,
         badgeText: '₱ COD',
         rotationDegrees: 0,
       ),
@@ -219,8 +219,8 @@ class RiderOnboardingPage extends ConsumerStatefulWidget {
       child: DieCutStickerWidget.iconCutout(
         key: const ValueKey('sticker-qr-scan'),
         icon: Icons.qr_code_scanner_rounded,
-        fill: const Color(0xFFEDE9FE),
-        iconColor: const Color(0xFF7C3AED),
+        fill: RiderColors.surface,
+        iconColor: RiderColors.ink,
         rotationDegrees: 0,
       ),
     ),
@@ -235,8 +235,8 @@ class RiderOnboardingPage extends ConsumerStatefulWidget {
       child: DieCutStickerWidget.iconCutout(
         key: const ValueKey('sticker-proof-shield'),
         icon: Icons.verified_user_rounded,
-        fill: const Color(0xFFCCFBF1),
-        iconColor: const Color(0xFF0D9488),
+        fill: RiderColors.redTint,
+        iconColor: RiderColors.accent,
         rotationDegrees: 0,
       ),
     ),
@@ -513,7 +513,7 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage>
         const BrandLogo(),
         DieCutStickerWidget.speechBubble(
           text: 'COURIER V4',
-          backgroundColor: const Color(0xFFFFF0F4),
+          backgroundColor: RiderColors.redTint,
           textColor: RiderColors.accentText,
           rotationDegrees: 2,
         ),
@@ -566,8 +566,8 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage>
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          RiderColors.accent.withValues(alpha: 0.07),
-                          const Color(0xFF06B6D4).withValues(alpha: 0.04),
+                          RiderColors.accent.withValues(alpha: 0.06),
+                          RiderColors.accent.withValues(alpha: 0.015),
                           Colors.white.withValues(alpha: 0.0),
                         ],
                       ),

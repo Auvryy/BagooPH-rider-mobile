@@ -67,7 +67,7 @@ on it. No new endpoint or contract revision was accepted by this review.
 
 ## October 6 complete frontend design review
 
-The [brand specification](DESIGN_SPEC.md) reviewed the Rider project's
+The [brand specification](DESIGN_SYSTEM.md) reviewed the Rider project's
 selected features and the relevant website sources at local revision
 `0e4839e773bdcf726933a22efd69c4400018d658`, with another maintainer's roadmap work
 in progress. It changed no website files or backend rules.

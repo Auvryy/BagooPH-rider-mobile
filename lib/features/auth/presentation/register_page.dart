@@ -1049,7 +1049,7 @@ class _DocumentCardState extends State<_DocumentCard> {
             const SizedBox(height: 8),
             Text(
               _error!,
-              style: const TextStyle(color: Color(0xFFBE123C), fontSize: 13),
+              style: const TextStyle(color: RiderColors.accent, fontSize: 13),
             ),
           ],
           const SizedBox(height: 12),

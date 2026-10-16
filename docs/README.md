@@ -14,7 +14,7 @@ they do not authorize changing the backend or implementing every proposed featur
 |---|---|
 | [PRODUCT_SCOPE.md](PRODUCT_SCOPE.md) | Who uses this app, what belongs in the presentation, and what stays outside? |
 | [FEATURE_DIRECTION.md](FEATURE_DIRECTION.md) | Which selected frontend features do we want, how will they work, and how do pickup claims differ from final-mile assignment? |
-| [DESIGN_SPEC.md](DESIGN_SPEC.md) | What is the brand color and font statement for BagooPH Rider Mobile? |
+| [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) | What is the design system, color tokens, and motion language for BagooPH Rider Mobile? |
 | [AUTH_PREVIEW.md](AUTH_PREVIEW.md) | How can I open and review the implemented login and registration design previews? |
 | [ACCOUNT_ACCESS.md](ACCOUNT_ACCESS.md) | How do real Laravel login, verified registration, authenticated home and logout work locally? |
 | [HOME_PREVIEW.md](HOME_PREVIEW.md) | Which historical Home fixtures remain covered by automated layout tests? |
@@ -41,7 +41,7 @@ they do not authorize changing the backend or implementing every proposed featur
 
 ## Mobile visual direction
 
-BagooPH Rider Mobile uses brand color `#E00D42` and the `Plus Jakarta Sans` font. See [DESIGN_SPEC.md](DESIGN_SPEC.md).
+BagooPH Rider Mobile uses the strict One Red monochrome + crimson system (`#E00D42`) and the `Plus Jakarta Sans` font. See [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md).
 
 ## Current code versus target
 

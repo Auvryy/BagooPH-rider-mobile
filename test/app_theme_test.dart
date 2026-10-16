@@ -6,12 +6,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test(
-    'DESIGN_SPEC.md keeps only the brand color #E00D42 and font Plus Jakarta Sans',
+    'DESIGN_SYSTEM.md defines the One Red #E00D42 standard and Plus Jakarta Sans',
     () {
-      final spec = File('docs/DESIGN_SPEC.md').readAsStringSync().trim();
+      final spec = File('docs/DESIGN_SYSTEM.md').readAsStringSync();
       expect(spec, contains('#E00D42'));
       expect(spec, contains('Plus Jakarta Sans'));
-      expect(spec.split('\n').length, 1);
 
       final theme = buildRiderTheme();
       expect(RiderColors.accent, const Color(0xFFE00D42));
@@ -19,12 +18,12 @@ void main() {
       expect(theme.scaffoldBackgroundColor, RiderColors.canvas);
       expect(theme.colorScheme.primary, const Color(0xFFE00D42));
       expect(theme.textTheme.bodyLarge?.fontFamily, 'Plus Jakarta Sans');
-      expect(RiderRadii.surface, 24.0);
-      expect(RiderRadii.group, 24.0);
-      expect(RiderRadii.control, 16.0);
-      expect(RiderRadii.dialog, 28.0);
-      expect(RiderRadii.sheet, 30.0);
-      expect(RiderRadii.media, 24.0);
+      expect(RiderRadii.surface, 18.0);
+      expect(RiderRadii.group, 18.0);
+      expect(RiderRadii.control, 12.0);
+      expect(RiderRadii.dialog, 20.0);
+      expect(RiderRadii.sheet, 20.0);
+      expect(RiderRadii.media, 16.0);
       expect(RiderRadii.pill, 999.0);
       final field =
           theme.inputDecorationTheme.enabledBorder! as OutlineInputBorder;

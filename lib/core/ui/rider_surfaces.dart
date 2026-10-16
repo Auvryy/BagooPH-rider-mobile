@@ -3,8 +3,8 @@ import 'package:flutter/physics.dart';
 
 import '../../app/theme.dart';
 
-/// Tactile neumorphic reading surface with dual light/dark elevation and a
-/// crisp white specular edge; depth never depends on a dark outline.
+/// Minimalist reading surface with whisper-quiet 1px border and soft ambient elevation.
+/// Eliminates dark muddy shadows; creates layered depth through subtle borders and light.
 class RiderSurface extends StatelessWidget {
   const RiderSurface({
     super.key,
@@ -19,35 +19,29 @@ class RiderSurface extends StatelessWidget {
   final double radius;
   final Color color;
   final bool accentGlow;
+
   @override
   Widget build(BuildContext context) {
-    final isRose = color == RiderColors.rose || accentGlow;
+    final isAccent = color == RiderColors.rose || accentGlow;
+    final shape = RoundedSuperellipseBorder(
+      borderRadius: BorderRadius.circular(radius),
+      side: BorderSide(
+        color: isAccent
+            ? const Color(0x33E00D42)
+            : RiderColors.border,
+        width: 1.0,
+      ),
+    );
     return DecoratedBox(
       decoration: ShapeDecoration(
-        shape: RoundedSuperellipseBorder(
-          borderRadius: BorderRadius.circular(radius),
-          side: BorderSide(
-            color: isRose
-                ? const Color(0x33E00D42)
-                : const Color(0xF2FFFFFF),
-            width: 1.5,
-          ),
-        ),
-        shadows: isRose
+        shape: shape,
+        shadows: isAccent
             ? RiderShadows.neumorphicAccent
-            : RiderShadows.neumorphicElevated,
+            : RiderShadows.ambient,
       ),
       child: Material(
         color: color,
-        shape: RoundedSuperellipseBorder(
-          borderRadius: BorderRadius.circular(radius),
-          side: BorderSide(
-            color: isRose
-                ? const Color(0x28E00D42)
-                : const Color(0xE6FFFFFF),
-            width: 1.2,
-          ),
-        ),
+        shape: shape,
         clipBehavior: Clip.antiAlias,
         child: Padding(padding: padding, child: child),
       ),
@@ -59,18 +53,8 @@ class RiderCanvas extends StatelessWidget {
   const RiderCanvas({super.key, required this.child});
   final Widget child;
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: const BoxDecoration(
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Color(0xFFF8FAFF),
-          RiderColors.canvas,
-          Color(0xFFEEF2F9),
-        ],
-      ),
-    ),
+  Widget build(BuildContext context) => Container(
+    color: RiderColors.canvas,
     child: child,
   );
 }
@@ -108,6 +92,7 @@ class RiderChrome extends StatelessWidget {
 }
 
 /// Observes pointers without taking the button's gestures or semantics.
+/// Provides snappy, tactile press scale down (`transform: scale(0.98)`) and crisp red focus ring.
 class RiderPressFeedback extends StatefulWidget {
   const RiderPressFeedback({super.key, required this.child});
   final Widget child;
@@ -172,16 +157,16 @@ class _RiderPressFeedbackState extends State<RiderPressFeedback>
       if (mounted) setState(() => _focused = focused);
     },
     child: Listener(
-      onPointerDown: (_) => _move(.965),
-      onPointerUp: (_) => _move(1),
-      onPointerCancel: (_) => _move(1),
+      onPointerDown: (_) => _move(0.98),
+      onPointerUp: (_) => _move(1.0),
+      onPointerCancel: (_) => _move(1.0),
       child: AnimatedBuilder(
         animation: _scale,
         child: widget.child,
         builder: (context, child) => Transform.scale(
           scale: RiderMotion.reduced(context)
-              ? 1
-              : _scale.value.clamp(.94, 1.03),
+              ? 1.0
+              : _scale.value.clamp(0.95, 1.02),
           transformHitTests: false,
           child: DecoratedBox(
             position: DecorationPosition.foreground,
@@ -189,7 +174,7 @@ class _RiderPressFeedbackState extends State<RiderPressFeedback>
               shape: RoundedSuperellipseBorder(
                 borderRadius: BorderRadius.circular(RiderRadii.control),
                 side: _focused
-                    ? const BorderSide(color: RiderColors.accentText, width: 2)
+                    ? const BorderSide(color: RiderColors.accent, width: 2)
                     : BorderSide.none,
               ),
             ),

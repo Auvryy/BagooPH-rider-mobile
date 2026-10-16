@@ -328,12 +328,11 @@ class _IridescentOrbBorderPainter extends CustomPainter {
       ..strokeWidth = strokeWidth
       ..shader = const SweepGradient(
         colors: [
-          Color(0xFF06B6D4), // Cyan refraction
-          Color(0xFFE00D42), // Bagoo Crimson
-          Color(0xFFEC4899), // Magenta refraction
-          Color(0xFFF59E0B), // Warm Amber refraction
-          Color(0xFF84CC16), // Lime refraction
-          Color(0xFF06B6D4), // Loop back to Cyan
+          RiderColors.accent,
+          Color(0x33E00D42),
+          Color(0xFFFFFFFF),
+          Color(0x33E00D42),
+          RiderColors.accent,
         ],
       ).createShader(rect);
     canvas.drawOval(oval, paint);
@@ -346,7 +345,7 @@ class _IridescentOrbBorderPainter extends CustomPainter {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Colors.white.withValues(alpha: 0.9),
+          Colors.white.withValues(alpha: 0.95),
           Colors.white.withValues(alpha: 0.0),
         ],
       ).createShader(rect);
@@ -380,8 +379,7 @@ class _ArgonStarBagHybridPainter extends CustomPainter {
       end: Alignment.bottomRight,
       colors: [
         RiderColors.accent,
-        Color(0xFFEC4899),
-        Color(0xFF2563EB),
+        Color(0xFF8B0829),
       ],
     ).createShader(Offset.zero & size);
 

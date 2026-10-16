@@ -1,98 +1,107 @@
 import 'package:flutter/material.dart';
 
 abstract final class RiderColors {
+  /// Primary Brand Accent (The ONLY Color)
   static const accent = Color(0xFFE00D42);
-  static const accentGlow = Color(0xFFFF2E63);
-  static const accentPressed = Color(0xFFA1052B);
-  static const accentText = Color(0xFFC20836);
-  static const canvas = Color(0xFFF3F5FA);
+
+  /// Soft Red Tint (Subtle Highlights): rgba(224, 13, 66, 0.08)
+  static const redTint = Color(0x14E00D42);
+  static const rose = Color(0x14E00D42);
+  static const accentGlow = Color(0x29E00D42);
+  static const accentPressed = Color(0xFFC20836);
+  static const accentText = Color(0xFFE00D42);
+
+  /// Canvas & Surfaces
+  static const canvas = Color(0xFFF8FAFC);
   static const pureWhite = Color(0xFFFFFFFF);
-  static const neumorphicSurface = Color(0xFFF9FAFD);
-  static const neumorphicRecessed = Color(0xFFEDF0F7);
-  static const rose = Color(0xFFFFEEF2);
-  static const creamSticker = Color(0xFFFFFDF7);
-  static const ink = Color(0xFF0F172A);
-  static const body = Color(0xFF1E293B);
-  static const muted = Color(0xFF475569);
+  static const surface = Color(0xFFFFFFFF);
+  static const carbon = Color(0xFF090A0F);
+  static const neumorphicSurface = Color(0xFFFFFFFF);
+  static const neumorphicRecessed = Color(0xFFF1F5F9);
+  static const creamSticker = Color(0xFFFFFFFF);
+
+  /// Typography Ink
+  static const ink = Color(0xFF111827);
+  static const body = Color(0xFF111827);
+  static const slate = Color(0xFF64748B);
+  static const muted = Color(0xFF64748B);
   static const slateMuted = Color(0xFF94A3B8);
+
+  /// Borders & Dividers: Whisper-quiet 1px borders
   static const border = Color(0xFFE2E8F0);
-  static const controlFill = Color(0xFFEDF1F7);
+  static const borderSubtle = Color(0x12111827);
+  static const controlFill = Color(0xFFF1F5F9);
   static const divider = Color(0xFFE2E8F0);
 }
 
 abstract final class RiderShadows {
-  /// Dual-light tactile neumorphic card elevation (top-left specular light + bottom-right soft depth).
-  static const neumorphicElevated = <BoxShadow>[
+  /// Soft ambient elevation: 0 4px 20px -2px rgba(17, 24, 39, 0.05)
+  static const ambient = <BoxShadow>[
     BoxShadow(
-      color: Color(0xFFFFFFFF),
-      blurRadius: 14,
-      offset: Offset(-5, -5),
-    ),
-    BoxShadow(
-      color: Color(0x160F172A),
-      blurRadius: 24,
+      color: Color(0x0D111827),
+      blurRadius: 20,
       spreadRadius: -2,
-      offset: Offset(6, 10),
+      offset: Offset(0, 4),
     ),
   ];
 
-  /// Crimson-tinted neumorphic elevation for active/prominent surfaces.
+  /// Layered depth without dark drop shadows: subtle 1px border + soft ambient elevation
+  static const neumorphicElevated = ambient;
+
+  /// Crimson-tinted ambient elevation for active/prominent surfaces
   static const neumorphicAccent = <BoxShadow>[
     BoxShadow(
-      color: Color(0xFFFFFFFF),
-      blurRadius: 12,
-      offset: Offset(-4, -4),
-    ),
-    BoxShadow(
-      color: Color(0x28E00D42),
-      blurRadius: 22,
+      color: Color(0x1CE00D42),
+      blurRadius: 20,
       spreadRadius: -2,
-      offset: Offset(0, 10),
+      offset: Offset(0, 4),
     ),
   ];
 
-  /// Floating dock shadow for the futuristic bottom navigation capsule.
+  /// Floating dock shadow for the bottom navigation capsule
   static const floatingDock = <BoxShadow>[
     BoxShadow(
-      color: Color(0xFFFFFFFF),
-      blurRadius: 12,
-      offset: Offset(0, -3),
-    ),
-    BoxShadow(
-      color: Color(0x1F0F172A),
-      blurRadius: 32,
+      color: Color(0x12111827),
+      blurRadius: 24,
       spreadRadius: -4,
-      offset: Offset(0, 14),
+      offset: Offset(0, 8),
     ),
     BoxShadow(
       color: Color(0x14E00D42),
-      blurRadius: 24,
-      offset: Offset(0, 6),
+      blurRadius: 16,
+      offset: Offset(0, 4),
     ),
   ];
 }
 
 abstract final class RiderRadii {
-  static const surface = 24.0;
-  static const group = 24.0;
-  static const control = 16.0;
-  static const media = 24.0;
-  static const dialog = 28.0;
-  static const sheet = 30.0;
-  static const selection = 18.0;
+  static const surface = 18.0;
+  static const group = 18.0;
+  static const control = 12.0;
+  static const media = 16.0;
+  static const dialog = 20.0;
+  static const sheet = 20.0;
+  static const selection = 12.0;
   static const pill = 999.0;
-  static const navigation = 28.0;
+  static const navigation = 999.0;
   static const brand = 12.0;
 }
 
 abstract final class RiderMotion {
-  static const pressed = Duration(milliseconds: 160);
-  static const navigation = Duration(milliseconds: 260);
-  static const sheet = Duration(milliseconds: 280);
+  /// Spring-like easing: cubic-bezier(0.16, 1, 0.3, 1) for natural deceleration
+  static const easeOutSpring = Cubic(0.16, 1.0, 0.3, 1.0);
+
+  /// Snappy timing: 150ms–250ms for press and navigation
+  static const pressed = Duration(milliseconds: 180);
+  static const navigation = Duration(milliseconds: 250);
+
+  /// Sheet/modal reveal: 300ms–450ms
+  static const sheet = Duration(milliseconds: 320);
+
   static const touchSpring = SpringDescription(
-    mass: 0.9,
-    stiffness: 420,
-    damping: 25,
+    mass: 0.8,
+    stiffness: 380,
+    damping: 24,
   );
   static bool reduced(BuildContext context) =>
       MediaQuery.disableAnimationsOf(context) ||
@@ -100,7 +109,11 @@ abstract final class RiderMotion {
       View.of(context).platformDispatcher.accessibilityFeatures.reduceMotion;
   static AnimationStyle sheetStyle(BuildContext context) => reduced(context)
       ? AnimationStyle.noAnimation
-      : const AnimationStyle(duration: sheet, reverseDuration: sheet);
+      : const AnimationStyle(
+          duration: sheet,
+          reverseDuration: Duration(milliseconds: 240),
+          curve: easeOutSpring,
+        );
 }
 
 abstract final class RiderTypography {

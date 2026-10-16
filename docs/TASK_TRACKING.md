@@ -374,10 +374,12 @@ read presentation; M06–M08 own the individual custody commands.
 **October 16 selected acceptance preparation:**
 [HDB-05](plans/home-dashboard-branch-plan/HDB-05-EVIDENCE.md) starts from merged
 mobile main with an existing native Azure login/Home read passing. An opt-in
-operations queue/detail read adapter is prepared but unexecuted. The user deferred
-further tests and Flutter windows; deployed revision/migration confirmation,
-designated test pickup and live duty/claim acceptance remain open. Runtime write
-gates are unchanged; this does not complete M05 or M06.
+operations queue/detail read adapter is prepared but unexecuted. On resumption,
+strict duty-result agreement and protected-intent retention passed 26 headless
+local checks; selected analysis is clean. Native Flutter windows, deployed
+revision/migration confirmation, designated test pickup and live duty/claim
+acceptance remain open. Runtime write gates are unchanged; this does not complete
+M05 or M06.
 
 **Outcome:** a clear, confirmed availability control with custody preserved.
 

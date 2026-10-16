@@ -161,6 +161,53 @@ void main() {
     expect(await restarted.reconcile(retryUnknown: true), {'on_duty': false});
     expect(journal.value, isNull);
   });
+  for (final desired in [true, false]) {
+    test(
+      'duty $desired retains its intent until the committed value agrees',
+      () async {
+        final api = Session(), journal = Journal();
+        final repo = OperationsRepository(
+          api,
+          accountId: '5',
+          journal: journal,
+          writesVerified: true,
+          isCurrent: () => true,
+        );
+        var mismatch = true;
+        api.respond = (path, method, data, headers) async {
+          if (path == 'rider/home') return fixture('home');
+          if (method == 'PATCH') expect(data, {'on_duty': desired});
+          final reply = command(journal.value!);
+          reply['data']['result']['on_duty'] = mismatch ? !desired : desired;
+          return reply;
+        };
+        await expectLater(
+          repo.duty(desired),
+          throwsA(
+            isA<AccountFailure>().having(
+              (e) => e.unconfirmed,
+              'unconfirmed',
+              true,
+            ),
+          ),
+        );
+        final original = journal.value!;
+        expect(original.body, {'on_duty': desired});
+        await expectLater(repo.reconcile(), throwsFormatException);
+        expect(journal.value!.key, original.key);
+        mismatch = false;
+        expect(await repo.reconcile(), {'on_duty': desired});
+        expect(journal.value, isNull);
+        expect(api.calls.where((call) => call.method == 'PATCH'), hasLength(1));
+        expect(
+          api.calls
+              .where((call) => call.path.startsWith('rider/commands/'))
+              .every((call) => call.path == 'rider/commands/${original.key}'),
+          isTrue,
+        );
+      },
+    );
+  }
   test('storage failure, unresolved intent, disabled deployment and changed account prevent writes', () async {
     final api = Session(), journal = Journal();
     bool current = true;

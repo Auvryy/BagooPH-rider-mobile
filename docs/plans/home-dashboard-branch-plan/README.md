@@ -72,8 +72,8 @@ HDB-01/02 and the separately selected
 [PH map-focus extension](../philippines-map-focus/README.md) are merged.
 HDB-03 is merged in PR 20. HDB-04 implementation and local evidence are also in
 the merged mobile main used for HDB-05;
-HDB-05 is activated for verification preparation; live writes and further testing
-are deferred as recorded in its evidence. Later dashboard/operations branches
+HDB-05 has selected headless local checks passing; native windows and live writes
+remain pending as recorded in its evidence. Later dashboard/operations branches
 remain planned. Creating this plan does not
 create 17 work records, 17 branches or authorization to implement them together.
 Backend code, docs, branch and uncommitted work remain read only in this task.

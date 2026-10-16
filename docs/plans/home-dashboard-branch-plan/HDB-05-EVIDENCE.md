@@ -21,11 +21,11 @@ An earlier unauthenticated Home probe with a native-style user agent returned
 401 JSON, and registration options returned 200 JSON. A generic probe received
 403 instead; generic probes are not treated as native acceptance evidence.
 
-The user deferred deployment/test-parcel confirmation, then explicitly requested
-no testing or Flutter windows during class. The test process has exited and no
-related native test app remains. No further app launch, analysis, test or build
-is authorized until verification is resumed. Local code/document preparation
-does not clear the remaining gates.
+The user deferred deployment/test-parcel confirmation, then requested no testing
+or Flutter windows during class. The native test process exited. After the goal
+was resumed, selected static analysis and headless local checks were completed;
+no native app window was opened. Native live execution and domain writes remain
+pending. Local checks do not clear deployment or test-resource gates.
 
 ## Source and scope review
 
@@ -43,6 +43,9 @@ does not clear the remaining gates.
 - Actual deployed revision and target-relative migrations remain unconfirmed.
   The user's confidence that Azure is updated is recorded as context, not
   substituted for operator evidence.
+- At resumption, backend main was clean at `4b9f610`, after the notification work
+  merged. Relevant operations sources remain the reference for this slice;
+  that merge does not identify the Azure revision.
 
 ## Prepared native operations read check
 
@@ -59,9 +62,30 @@ revoked. It saves aggregate counts/capabilities and verification facts in a
 mode-600 receipt beside its private input. It does not save tokens, credentials,
 addresses, contacts, parcel identities or proof in that receipt.
 
-This new adapter has been prepared but **not executed or analyzed**, in accordance
-with the testing deferral. Production runtime behavior, map configuration and
-default duty/claim activation are unchanged.
+This new adapter passes selected static analysis but **has not been executed**.
+Map configuration and default duty/claim activation remain unchanged. The client
+response validation correction below is verified locally.
+
+## Local duty-result validation
+
+Review found that a committed duty result was accepted whenever `on_duty` was a
+Boolean, even when it disagreed with the original requested value. The repository
+now requires agreement before clearing the protected intent or reporting success.
+A malformed/mismatched response retains the original key and desired state for
+reconciliation. It cannot cause another toggle to be sent automatically.
+
+Two regressions, for desired true and false, failed against the previous code:
+each wrong-state reply was returned as success. After the fix, both retain their
+intent through a mismatched command read, then clear it after a matching result.
+Each test verifies one PATCH and reconciliation using the original UUID.
+
+- Selected operations contract, transport and Home read-recovery suites:
+  **26 tests passed**, using the headless test engine with isolated responses.
+- `dart analyze` on the repository, contract tests and prepared live-read adapter:
+  **no issues found**.
+- No actual duty/claim request, native-window launch, build or physical Android
+  check was performed during this resumed slice. These checks do not replace
+  the live acceptance rows below.
 
 When testing is resumed, supply a mode-600 JSON file inside a mode-700 private
 directory, outside Git. Its fields are:

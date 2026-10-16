@@ -8,7 +8,7 @@ import '../../../app/theme.dart';
 import '../../../core/ui/argon_widgets.dart';
 import '../../../core/ui/brand_logo.dart';
 
-/// Tracks whether the user has completed or dismissed the initial Argon onboarding
+/// Tracks whether the user has completed or dismissed the initial onboarding
 /// greeting in the current app session.
 class OnboardingSeenNotifier extends Notifier<bool> {
   @override
@@ -22,9 +22,10 @@ final onboardingSeenProvider = NotifierProvider<OnboardingSeenNotifier, bool>(
   OnboardingSeenNotifier.new,
 );
 
-/// Production-ready 60fps interactive "Bagoo Argon" onboarding screen combining
-/// Neo-Skeuomorphic die-cut courier stickers, a 72x72 LiquidGlassOrb, animated
-/// editorial strikethrough typography, and 4-stage spring physics choreography.
+/// Production-ready 60fps interactive onboarding screen featuring a minimalist
+/// vector delivery route (Origin Hub pin, Stop pin, glowing crimson path, and
+/// animated courier motorcycle), a 72x72 LiquidGlassOrb anchor, animated
+/// editorial strikethrough typography, and spring physics micro-interactions.
 class RiderOnboardingPage extends ConsumerStatefulWidget {
   const RiderOnboardingPage({
     super.key,
@@ -39,125 +40,17 @@ class RiderOnboardingPage extends ConsumerStatefulWidget {
   final bool enableContinuousDriftInTests;
   final double? ambientTimeOverride;
 
-  /// The 6 curated, uncluttered courier-themed die-cut stickers arranged with
-  /// generous breathing room around the central 72x72 LiquidGlassOrb.
-  static List<ArgonStickerSpec> buildStickers() => [
-    ArgonStickerSpec(
-      id: 'speech-roll',
-      alignment: const Alignment(-0.55, -0.68),
-      rotationDegrees: 0,
-      zIndex: 1.25,
-      phaseOffset: 0.0,
-      driftSpeed: 1.6,
-      semanticLabel: "Let's roll.",
-      child: DieCutStickerWidget.speechBubble(
-        key: const ValueKey('sticker-speech-roll'),
-        text: "Let's roll.",
-        backgroundColor: RiderColors.accent,
-        textColor: Colors.white,
-        rotationDegrees: 0,
-        leadingIcon: Icons.bolt_rounded,
-      ),
-    ),
-    ArgonStickerSpec(
-      id: 'speech-clear',
-      alignment: const Alignment(0.55, -0.68),
-      rotationDegrees: 0,
-      zIndex: 1.20,
-      phaseOffset: 1.1,
-      driftSpeed: 1.8,
-      semanticLabel: 'Every stop clear!',
-      child: DieCutStickerWidget.speechBubble(
-        key: const ValueKey('sticker-speech-clear'),
-        text: 'Every stop clear!',
-        backgroundColor: RiderColors.surface,
-        textColor: RiderColors.ink,
-        rotationDegrees: 0,
-        leadingIcon: Icons.verified_rounded,
-      ),
-    ),
-    ArgonStickerSpec(
-      id: 'flash-dispatch',
-      alignment: const Alignment(-0.58, -0.15),
-      rotationDegrees: 0,
-      zIndex: 1.15,
-      phaseOffset: 0.6,
-      driftSpeed: 1.7,
-      semanticLabel: 'Express route priority',
-      child: DieCutStickerWidget.iconCutout(
-        key: const ValueKey('sticker-flash-dispatch'),
-        icon: Icons.flash_on_rounded,
-        fill: RiderColors.redTint,
-        iconColor: RiderColors.accent,
-        badgeText: 'EXPRESS',
-        rotationDegrees: 0,
-      ),
-    ),
-    ArgonStickerSpec(
-      id: 'waybill-tag',
-      alignment: const Alignment(0.58, -0.15),
-      rotationDegrees: 0,
-      zIndex: 1.15,
-      phaseOffset: 1.7,
-      driftSpeed: 1.5,
-      semanticLabel: 'Waybill verified tag',
-      child: DieCutStickerWidget.iconCutout(
-        key: const ValueKey('sticker-waybill-tag'),
-        icon: Icons.local_offer_rounded,
-        fill: RiderColors.surface,
-        iconColor: RiderColors.carbon,
-        badgeText: 'WAYBILL OK',
-        rotationDegrees: 0,
-      ),
-    ),
-    ArgonStickerSpec(
-      id: 'delivery-scooter',
-      alignment: const Alignment(-0.35, 0.32),
-      rotationDegrees: 0,
-      zIndex: 1.10,
-      phaseOffset: 2.5,
-      driftSpeed: 1.9,
-      semanticLabel: 'Delivery scooter',
-      child: DieCutStickerWidget.iconCutout(
-        key: const ValueKey('sticker-delivery-scooter'),
-        icon: Icons.two_wheeler_rounded,
-        fill: RiderColors.surface,
-        iconColor: RiderColors.ink,
-        rotationDegrees: 0,
-      ),
-    ),
-    ArgonStickerSpec(
-      id: 'route-pin',
-      alignment: const Alignment(0.35, 0.32),
-      rotationDegrees: 0,
-      zIndex: 1.10,
-      phaseOffset: 3.2,
-      driftSpeed: 1.8,
-      semanticLabel: 'Live Stop Mode GPS pin',
-      child: DieCutStickerWidget.iconCutout(
-        key: const ValueKey('sticker-route-pin'),
-        icon: Icons.location_on_rounded,
-        fill: RiderColors.redTint,
-        iconColor: RiderColors.accent,
-        rotationDegrees: 0,
-      ),
-    ),
-  ];
-
   @override
   ConsumerState<RiderOnboardingPage> createState() =>
       _RiderOnboardingPageState();
 }
 
 class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage>
-     with TickerProviderStateMixin {
-  static final List<ArgonStickerSpec> _stickers =
-      RiderOnboardingPage.buildStickers();
-
+    with TickerProviderStateMixin {
   /// Stage 1, 2, 4 master choreography timeline (`0ms – 1300ms`).
   late final AnimationController _choreography;
 
-  /// Stage 3 continuous sinusoidal zero-gravity drift clock.
+  /// Stage 3 continuous cruising loop clock.
   late final AnimationController _ambientDrift;
 
   /// Spring-driven 2D magnetic touch/drag parallax controllers.
@@ -179,7 +72,7 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage>
     );
     _ambientDrift = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 12),
+      duration: const Duration(seconds: 10),
     );
     _parallaxX = AnimationController.unbounded(vsync: this, value: 0);
     _parallaxY = AnimationController.unbounded(vsync: this, value: 0);
@@ -232,8 +125,7 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage>
     );
   }
 
-  /// Tapping the central 72x72 LiquidGlassOrb scatters stickers outward by 15px
-  /// before springing back via `SpringSimulation`.
+  /// Tapping the 72x72 LiquidGlassOrb triggers a tactile pulse across the route.
   void _triggerOrbScatter() {
     if (RiderMotion.reduced(context)) return;
     _scatterPulse.value = 1.0;
@@ -311,7 +203,7 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage>
                     widget.ambientTimeOverride ??
                     (_ambientDrift.value * 2 * math.pi);
 
-                final zoneA = _buildZoneAVortex(
+                final zoneA = _buildZoneAMapRoute(
                   context: context,
                   splashProgress: splashProgress,
                   masterTime: t,
@@ -354,14 +246,14 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage>
                   );
                 }
 
-                // Standard 3-Zone Top-to-Bottom Stack / Flex Architecture (55% / 25% / 20%)
+                // Standard 3-Zone Architecture (55% / 25% / 20%)
                 return Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 560),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Zone A: Top 55% of screen — Floating Sticker Vortex + Central 72x72 LiquidGlassOrb
+                        // Zone A: Top 55% of screen — Minimalist Map Route + Motor + Pins + LiquidGlassOrb
                         Expanded(
                           flex: 55,
                           child: Stack(
@@ -406,26 +298,15 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage>
   }
 
   Widget _topBar(BuildContext context) {
-    return Wrap(
-      alignment: WrapAlignment.spaceBetween,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        const BrandLogo(),
-        DieCutStickerWidget.speechBubble(
-          text: 'COURIER V4',
-          backgroundColor: RiderColors.redTint,
-          textColor: RiderColors.accentText,
-          rotationDegrees: 0,
-        ),
-      ],
+    return const Align(
+      alignment: Alignment.centerLeft,
+      child: BrandLogo(),
     );
   }
 
-  /// Zone A (Top 55%): Funnel-shaped constellation of courier stickers
-  /// cascading toward the central 72x72 LiquidGlassOrb.
-  Widget _buildZoneAVortex({
+  /// Zone A: Interactive Minimalist Map Route Canvas with Origin Hub Pin, Stop Pin,
+  /// glowing crimson delivery polyline, and animated courier motorcycle.
+  Widget _buildZoneAMapRoute({
     required BuildContext context,
     required double splashProgress,
     required double masterTime,
@@ -436,9 +317,49 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage>
       builder: (context, constraints) {
         final width = constraints.maxWidth;
         final height = constraints.maxHeight;
-        final orbAnchor = Offset(width * 0.50, height * 0.80);
 
-        // Stage 1 off-center bottom-left splash origin morphing to orbAnchor
+        final startPin = Offset(width * 0.18, height * 0.28);
+        final endPin = Offset(width * 0.82, height * 0.68);
+
+        final routePath = Path()
+          ..moveTo(startPin.dx, startPin.dy)
+          ..cubicTo(
+            width * 0.38,
+            height * 0.12,
+            width * 0.44,
+            height * 0.86,
+            endPin.dx,
+            endPin.dy,
+          );
+
+        final metric = routePath.computeMetrics().first;
+        final totalLength = metric.length;
+
+        // Dynamic route drawing progress (0.0 to 1.0)
+        final drawProgress = reduced
+            ? 1.0
+            : Curves.easeInOutCubic.transform(
+                (masterTime / (850 / 1300)).clamp(0.0, 1.0),
+              );
+        final drawnPath = metric.extractPath(0.0, totalLength * drawProgress);
+
+        // Motorcycle position along the route
+        final motorProgress = reduced
+            ? 0.72
+            : (masterTime < 0.75
+                ? (masterTime / 0.75).clamp(0.0, 0.72)
+                : (0.18 + 0.64 * ((math.sin(ambientSeconds * 1.2) + 1.0) / 2.0)));
+
+        final tangent = metric.getTangentForOffset(totalLength * motorProgress);
+        final motorPos =
+            tangent?.position ?? Offset.lerp(startPin, endPin, motorProgress)!;
+        final motorAngle = tangent?.angle ?? 0.0;
+
+        final parallax = Offset(_parallaxX.value, _parallaxY.value);
+        final pulse = _scatterPulse.value;
+
+        // Central LiquidGlassOrb anchor position
+        final orbAnchor = Offset(width * 0.50, height * 0.82);
         final splashOrigin = Offset(width * 0.14, height * 1.18);
         final currentOrbCenter = Offset.lerp(
           splashOrigin,
@@ -448,7 +369,7 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage>
         final orbScale = reduced ? 1.0 : (2.25 - 1.25 * splashProgress);
 
         return GestureDetector(
-          key: const ValueKey('onboarding-sticker-vortex'),
+          key: const ValueKey('onboarding-map-canvas'),
           behavior: HitTestBehavior.opaque,
           onPanUpdate: (details) =>
               _onPanUpdate(details, Size(width, height)),
@@ -456,51 +377,57 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage>
           child: Stack(
             clipBehavior: Clip.none,
             children: [
-              // Subtle funnel guide lines / ambient aura behind the stickers
-              Positioned(
-                left: orbAnchor.dx - 120,
-                top: orbAnchor.dy - 140,
-                child: IgnorePointer(
-                  child: Container(
-                    width: 240,
-                    height: 180,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          RiderColors.accent.withValues(alpha: 0.06),
-                          RiderColors.accent.withValues(alpha: 0.015),
-                          Colors.white.withValues(alpha: 0.0),
-                        ],
-                      ),
-                    ),
+              // 1. Vector Map Canvas: grid lines, streets, and dynamic glowing crimson path
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: _RiderMapRoutePainter(
+                    drawnPath: drawnPath,
+                    fullPath: routePath,
+                    startPin: startPin,
+                    endPin: endPin,
+                    parallax: parallax,
+                    pulse: pulse,
+                    reduced: reduced,
                   ),
                 ),
               ),
 
-              // Curated E-Commerce / Courier Stickers (Stage 2 Cascade + Stage 3 Drift)
-              for (var i = 0; i < _stickers.length; i++)
-                _buildAnimatedSticker(
-                  spec: _stickers[i],
-                  index: i,
-                  vortexSize: Size(width, height),
-                  orbAnchor: orbAnchor,
-                  masterTime: masterTime,
-                  ambientSeconds: ambientSeconds,
-                  reduced: reduced,
-                ),
-
-              // Central Anchor (Bottom of Vortex): 72x72 circular LiquidGlassOrb
+              // 2. Hub A Pin (Origin)
               Positioned(
-                left: currentOrbCenter.dx - 36,
-                top: currentOrbCenter.dy - 36,
+                left: startPin.dx + parallax.dx - 40,
+                top: startPin.dy + parallax.dy - 34,
+                child: _buildHubPin(),
+              ),
+
+              // 3. Stop 1 Pin (Destination)
+              Positioned(
+                left: endPin.dx + parallax.dx - 44,
+                top: endPin.dy + parallax.dy - 34,
+                child: _buildDestinationPin(),
+              ),
+
+              // 4. Animated Courier Motorcycle Marker
+              Positioned(
+                left: motorPos.dx + parallax.dx - 24,
+                top: motorPos.dy + parallax.dy - 24,
+                child: _buildMotorMarker(
+                  motorAngle: motorAngle,
+                  reduced: reduced,
+                  pulse: pulse,
+                ),
+              ),
+
+              // 5. Central 72x72 LiquidGlassOrb anchor control
+              Positioned(
+                left: currentOrbCenter.dx + parallax.dx * 0.4 - 36,
+                top: currentOrbCenter.dy + parallax.dy * 0.4 - 36,
                 child: Transform.scale(
                   scale: orbScale,
                   child: LiquidGlassOrb(
                     key: const ValueKey('onboarding-liquid-orb'),
                     size: 72,
                     blurSigma: 16.0,
-                    rippleProgress: _scatterPulse.value.clamp(0.0, 1.0),
+                    rippleProgress: pulse.clamp(0.0, 1.0),
                     onTap: _triggerOrbScatter,
                   ),
                 ),
@@ -512,63 +439,130 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage>
     );
   }
 
-  Widget _buildAnimatedSticker({
-    required ArgonStickerSpec spec,
-    required int index,
-    required Size vortexSize,
-    required Offset orbAnchor,
-    required double masterTime,
-    required double ambientSeconds,
-    required bool reduced,
-  }) {
-    // Stage 2 (300ms – 1100ms): Staggered eruption from behind the central orb
-    final staggerStart = (300 + index * 48) / 1300;
-    final staggerEnd = (760 + index * 52).clamp(300, 1100) / 1300;
-    final rawCascade = ((masterTime - staggerStart) /
-            (staggerEnd - staggerStart))
-        .clamp(0.0, 1.0);
-    final cascadeCurve = reduced
-        ? 1.0
-        : Curves.easeOutBack.transform(rawCascade);
-
-    // Target funnel coordinate inside Zone A
-    final targetX =
-        vortexSize.width * 0.5 +
-        spec.alignment.x * (vortexSize.width * 0.38);
-    final targetY =
-        vortexSize.height * 0.46 +
-        spec.alignment.y * (vortexSize.height * 0.34);
-    final targetOffset = Offset(targetX, targetY);
-
-    final eruptedOffset = Offset.lerp(orbAnchor, targetOffset, cascadeCurve)!;
-
-    // Stage 3: Ambient Zero-Gravity Drift (Y-axis ±4px, rotation 0°)
-    final phase = ambientSeconds * spec.driftSpeed + spec.phaseOffset;
-    final bobY = reduced ? 0.0 : math.sin(phase) * 4.0;
-
-    // Interactive 2D Magnetic Parallax + Orb Tap Scatter (15px radial impulse)
-    final parallaxOffset = Offset(
-      _parallaxX.value * spec.zIndex,
-      _parallaxY.value * spec.zIndex,
+  Widget _buildHubPin() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(RiderRadii.pill),
+        border: Border.all(color: RiderColors.outline, width: 1.0),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x10111827),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: const BoxDecoration(
+              color: RiderColors.accent,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 6),
+          const Text(
+            'HUB A',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              color: RiderColors.ink,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
     );
-    final radialVector = targetOffset - orbAnchor;
-    final radialDistance = radialVector.distance;
-    final unitRadial = radialDistance > 1
-        ? radialVector / radialDistance
-        : const Offset(0, -1);
-    final scatterOffset = unitRadial * (15.0 * _scatterPulse.value);
+  }
 
-    final finalCenter =
-        eruptedOffset + Offset(0, bobY) + parallaxOffset + scatterOffset;
+  Widget _buildDestinationPin() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: RiderColors.ink,
+        borderRadius: BorderRadius.circular(RiderRadii.pill),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x18111827),
+            blurRadius: 12,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.location_on_rounded,
+            color: RiderColors.accent,
+            size: 14,
+          ),
+          SizedBox(width: 4),
+          Text(
+            'STOP 1',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              color: Colors.white,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-    return Positioned(
-      left: finalCenter.dx - 54,
-      top: finalCenter.dy - 24,
-      child: Opacity(
-        opacity: rawCascade.clamp(0.0, 1.0),
-        child: Transform.scale(
-          scale: (0.35 + 0.65 * cascadeCurve).clamp(0.0, 1.25),
-          child: Center(child: spec.child),
+  Widget _buildMotorMarker({
+    required double motorAngle,
+    required bool reduced,
+    required double pulse,
+  }) {
+    return Semantics(
+      label: 'Courier motorcycle on route',
+      child: Transform.rotate(
+        angle: reduced ? 0.0 : motorAngle,
+        child: Container(
+          key: const ValueKey('onboarding-motor-marker'),
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+            border: Border.all(color: RiderColors.accent, width: 2.0),
+            boxShadow: [
+              BoxShadow(
+                color: RiderColors.accent.withValues(alpha: 0.24 + 0.16 * pulse),
+                blurRadius: 14 + 8 * pulse,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Positioned(
+                right: 3,
+                child: Container(
+                  width: 5,
+                  height: 5,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: RiderColors.accent,
+                  ),
+                ),
+              ),
+              const Icon(
+                Icons.two_wheeler_rounded,
+                color: RiderColors.accent,
+                size: 24,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -626,4 +620,124 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage>
       ),
     );
   }
+}
+
+/// Minimalist vector painter drawing architectural map grids, road avenues,
+/// and the glowing crimson polyline path.
+class _RiderMapRoutePainter extends CustomPainter {
+  const _RiderMapRoutePainter({
+    required this.drawnPath,
+    required this.fullPath,
+    required this.startPin,
+    required this.endPin,
+    required this.parallax,
+    required this.pulse,
+    required this.reduced,
+  });
+
+  final Path drawnPath;
+  final Path fullPath;
+  final Offset startPin;
+  final Offset endPin;
+  final Offset parallax;
+  final double pulse;
+  final bool reduced;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.save();
+    canvas.translate(parallax.dx * 0.45, parallax.dy * 0.45);
+
+    // 1. Minimalist architectural road network grid
+    final gridPaint = Paint()
+      ..color = const Color(0xFFF1F5F9)
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+
+    const spacing = 44.0;
+    for (double x = 0; x < size.width + spacing; x += spacing) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
+    }
+    for (double y = 0; y < size.height + spacing; y += spacing) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
+    }
+
+    // 2. Secondary avenue contours in light slate
+    final avenuePaint = Paint()
+      ..color = const Color(0xFFE2E8F0)
+      ..strokeWidth = 2.5
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    final avenue1 = Path()
+      ..moveTo(0, size.height * 0.22)
+      ..cubicTo(
+        size.width * 0.35,
+        size.height * 0.18,
+        size.width * 0.70,
+        size.height * 0.35,
+        size.width,
+        size.height * 0.30,
+      );
+    canvas.drawPath(avenue1, avenuePaint);
+
+    final avenue2 = Path()
+      ..moveTo(0, size.height * 0.75)
+      ..cubicTo(
+        size.width * 0.40,
+        size.height * 0.65,
+        size.width * 0.60,
+        size.height * 0.85,
+        size.width,
+        size.height * 0.78,
+      );
+    canvas.drawPath(avenue2, avenuePaint);
+
+    canvas.restore();
+
+    canvas.save();
+    canvas.translate(parallax.dx, parallax.dy);
+
+    // 3. Prospective / dashed track of the delivery route
+    final prospectivePaint = Paint()
+      ..color = const Color(0xFFF1F5F9)
+      ..strokeWidth = 3.5
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+    canvas.drawPath(fullPath, prospectivePaint);
+
+    // 4. Glowing ambient halo behind the active route
+    final glowPaint = Paint()
+      ..color = const Color(0x28E00D42)
+      ..strokeWidth = 10.0
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
+    canvas.drawPath(drawnPath, glowPaint);
+
+    // 5. Crisp Primary Crimson Delivery Polyline
+    final routePaint = Paint()
+      ..color = RiderColors.accent
+      ..strokeWidth = 3.5
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(drawnPath, routePaint);
+
+    // 6. Pulse ripples at Hub and Destination
+    if (!reduced && pulse > 0) {
+      final ripplePaint = Paint()
+        ..color = RiderColors.accent.withValues(alpha: (1.0 - pulse) * 0.35)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5;
+      canvas.drawCircle(startPin, 12 + 24 * pulse, ripplePaint);
+      canvas.drawCircle(endPin, 12 + 24 * pulse, ripplePaint);
+    }
+
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant _RiderMapRoutePainter oldDelegate) => true;
 }

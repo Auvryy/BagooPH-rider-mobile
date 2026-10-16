@@ -29,6 +29,7 @@ abstract final class RiderColors {
 
   /// Borders & Dividers: Whisper-quiet 1px borders
   static const border = Color(0xFFE2E8F0);
+  static const outline = Color(0xFFE2E8F0);
   static const borderSubtle = Color(0x12111827);
   static const controlFill = Color(0xFFF1F5F9);
   static const divider = Color(0xFFE2E8F0);

@@ -52,7 +52,7 @@ class AuthShell extends StatelessWidget {
                         radius: RiderRadii.pill,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
-                          vertical: 10,
+                          vertical: 8,
                         ),
                         child: Wrap(
                           alignment: WrapAlignment.spaceBetween,
@@ -61,13 +61,30 @@ class AuthShell extends StatelessWidget {
                           runSpacing: 8,
                           children: [
                             const BrandLogo(),
-                            DieCutStickerWidget.speechBubble(
-                              text: registering ? 'APPLY NOW' : 'COURIER SHIFT',
-                              backgroundColor: RiderColors.rose,
-                              textColor: RiderColors.accentText,
-                              rotationDegrees: 0,
-                              leadingIcon: Icons.two_wheeler_rounded,
-                            ),
+                            if (registering)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: RiderColors.rose,
+                                  borderRadius:
+                                      BorderRadius.circular(RiderRadii.pill),
+                                  border: Border.all(
+                                    color: RiderColors.outline,
+                                  ),
+                                ),
+                                child: const Text(
+                                  'REGISTRATION',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.8,
+                                    color: RiderColors.accentText,
+                                  ),
+                                ),
+                              ),
                           ],
                         ),
                       ),

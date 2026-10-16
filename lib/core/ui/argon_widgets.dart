@@ -194,7 +194,7 @@ class DieCutStickerWidget extends StatelessWidget {
 
 /// Circular Liquid Glass Orb (`72x72` default) with `ClipOval` + `BackdropFilter`
 /// (blur `16.0`), translucent white fill (`0.75`), `1.5px` iridescent gradient border,
-/// soft outer glow, and a crisp 4-point star / courier bag hybrid vector icon.
+/// soft outer glow, and courier dispatch iconography.
 class LiquidGlassOrb extends StatelessWidget {
   const LiquidGlassOrb({
     super.key,
@@ -202,6 +202,7 @@ class LiquidGlassOrb extends StatelessWidget {
     this.blurSigma = 16.0,
     this.onTap,
     this.rippleProgress = 0,
+    this.child,
     this.semanticLabel = 'Bagoo Argon pulse orb',
   });
 
@@ -209,6 +210,7 @@ class LiquidGlassOrb extends StatelessWidget {
   final double blurSigma;
   final VoidCallback? onTap;
   final double rippleProgress;
+  final Widget? child;
   final String semanticLabel;
 
   @override
@@ -289,10 +291,12 @@ class LiquidGlassOrb extends StatelessWidget {
                       ),
                     ),
                     child: Center(
-                      child: CustomPaint(
-                        size: Size.square(size * 0.46),
-                        painter: const _ArgonStarBagHybridPainter(),
-                      ),
+                      child: child ??
+                          Icon(
+                            Icons.two_wheeler_rounded,
+                            size: size * 0.44,
+                            color: RiderColors.accent,
+                          ),
                     ),
                   ),
                 ),
@@ -367,77 +371,7 @@ class _IridescentOrbBorderPainter extends CustomPainter {
       oldDelegate.strokeWidth != strokeWidth;
 }
 
-/// Custom vector icon combining a crisp 4-point Argon spark star with a
-/// courier parcel/bag silhouette in the center of the LiquidGlassOrb.
-class _ArgonStarBagHybridPainter extends CustomPainter {
-  const _ArgonStarBagHybridPainter();
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    final w = size.width;
-    final h = size.height;
-    final center = Offset(w / 2, h / 2);
-
-    final shader = const LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: [
-        RiderColors.accent,
-        Color(0xFF8B0829),
-      ],
-    ).createShader(Offset.zero & size);
-
-    // Rounded courier bag body at lower-center
-    final bagRect = RRect.fromRectAndRadius(
-      Rect.fromCenter(
-        center: Offset(center.dx, center.dy + h * 0.10),
-        width: w * 0.68,
-        height: h * 0.58,
-      ),
-      Radius.circular(w * 0.16),
-    );
-    final bagPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0
-      ..shader = shader;
-    canvas.drawRRect(bagRect, bagPaint);
-
-    // Bag handle arc at top
-    final handleRect = Rect.fromCenter(
-      center: Offset(center.dx, center.dy - h * 0.18),
-      width: w * 0.34,
-      height: h * 0.28,
-    );
-    canvas.drawArc(handleRect, math.pi, math.pi, false, bagPaint);
-
-    // Crisp 4-point Argon star gleaming at the center-top of the bag
-    final starCenter = Offset(center.dx, center.dy + h * 0.06);
-    final outerR = w * 0.28;
-    final innerR = w * 0.09;
-    final starPath = Path();
-    for (var i = 0; i < 8; i++) {
-      final angle = -math.pi / 2 + i * (math.pi / 4);
-      final r = i.isEven ? outerR : innerR;
-      final pt = Offset(
-        starCenter.dx + math.cos(angle) * r,
-        starCenter.dy + math.sin(angle) * r,
-      );
-      if (i == 0) {
-        starPath.moveTo(pt.dx, pt.dy);
-      } else {
-        starPath.lineTo(pt.dx, pt.dy);
-      }
-    }
-    starPath.close();
-    final starPaint = Paint()
-      ..style = PaintingStyle.fill
-      ..shader = shader;
-    canvas.drawPath(starPath, starPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
 
 /// Editorial Typography Core (`Zone B`) with animated `2px` horizontal strikethrough
 /// (`CustomPainter`) across the struck word and a spring-pop reveal of the replacement word.

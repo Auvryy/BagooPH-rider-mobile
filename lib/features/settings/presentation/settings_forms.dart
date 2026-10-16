@@ -669,7 +669,11 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text(title),
+          title: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(title),
+          ),
           leading: RiderPressFeedback(
             child: IconButton(
               tooltip: 'Back',

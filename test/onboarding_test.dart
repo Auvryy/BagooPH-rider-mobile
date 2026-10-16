@@ -1,5 +1,4 @@
 import 'package:bagoo_rider_mobile/app/theme.dart';
-import 'package:bagoo_rider_mobile/core/ui/argon_widgets.dart';
 import 'package:bagoo_rider_mobile/features/auth/presentation/auth_controller.dart';
 import 'package:bagoo_rider_mobile/features/onboarding/presentation/onboarding_page.dart';
 import 'package:bagoo_rider_mobile/main.dart';
@@ -35,17 +34,17 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Verify pure white canvas, 6 curated die-cut stickers, 72x72 LiquidGlassOrb,
-      // AnimatedStrikeText editorial core, and pill CTA button.
+      // Verify pure white canvas, interactive minimalist map route, Hub pin, Stop pin,
+      // animated courier motorcycle marker, 72x72 LiquidGlassOrb, and editorial typography.
       final scaffold = tester.widget<Scaffold>(
         find.byKey(const ValueKey('rider-onboarding-page')),
       );
       expect(scaffold.backgroundColor, const Color(0xFFFFFFFF));
 
-      expect(RiderOnboardingPage.buildStickers().length, 6);
-      expect(find.byType(DieCutStickerWidget), findsAtLeastNWidgets(6));
-      expect(find.text("Let's roll."), findsOneWidget);
-      expect(find.text('Every stop clear!'), findsOneWidget);
+      expect(find.byKey(const ValueKey('onboarding-map-canvas')), findsOneWidget);
+      expect(find.byKey(const ValueKey('onboarding-motor-marker')), findsOneWidget);
+      expect(find.text('HUB A'), findsOneWidget);
+      expect(find.text('STOP 1'), findsOneWidget);
 
       final orbFinder = find.byKey(const ValueKey('onboarding-liquid-orb'));
       expect(orbFinder, findsOneWidget);
@@ -109,48 +108,44 @@ void main() {
       );
       expect(settledOrbCenter.dy, lessThan(earlyOrbCenter.dy));
 
-      // Record sticker position before interactive drag parallax
-      final stickerFinder = find.byKey(const ValueKey('sticker-speech-roll'));
-      final beforeDrag = tester.getCenter(stickerFinder);
+      // Record motor marker position before interactive drag parallax
+      final motorFinder = find.byKey(const ValueKey('onboarding-motor-marker'));
+      final beforeDrag = tester.getCenter(motorFinder);
 
-      // Drag across the sticker vortex to apply 2D magnetic parallax offset
-      final vortex = find.byKey(const ValueKey('onboarding-sticker-vortex'));
-      final gesture = await tester.startGesture(tester.getCenter(vortex));
+      // Drag across the map canvas to apply 2D magnetic parallax offset
+      final mapCanvas = find.byKey(const ValueKey('onboarding-map-canvas'));
+      final gesture = await tester.startGesture(tester.getCenter(mapCanvas));
       await gesture.moveBy(const Offset(40, -25));
       await tester.pump();
-      final duringDrag = tester.getCenter(stickerFinder);
+      final duringDrag = tester.getCenter(motorFinder);
       expect(duringDrag, isNot(equals(beforeDrag)));
 
-      // Release finger: SpringSimulation returns sticker to settled coordinate
+      // Release finger: SpringSimulation returns motor to settled coordinate
       await gesture.up();
       await tester.pumpAndSettle();
-      final afterDragSpring = tester.getCenter(stickerFinder);
+      final afterDragSpring = tester.getCenter(motorFinder);
       expect(afterDragSpring.dx, closeTo(beforeDrag.dx, 0.5));
       expect(afterDragSpring.dy, closeTo(beforeDrag.dy, 0.5));
 
-      // Tap the central 72x72 LiquidGlassOrb: scatters stickers outward then springs back
+      // Tap the central 72x72 LiquidGlassOrb: triggers tactile spring pulse
       await tester.tap(find.byKey(const ValueKey('onboarding-liquid-orb')));
       await tester.pump(const Duration(milliseconds: 16));
-      final scatteredCenter = tester.getCenter(stickerFinder);
-      expect(scatteredCenter, isNot(equals(beforeDrag)));
+      expect(tester.takeException(), isNull);
 
       await tester.pumpAndSettle();
-      final recoveredCenter = tester.getCenter(stickerFinder);
-      expect(recoveredCenter.dx, closeTo(beforeDrag.dx, 0.5));
-      expect(recoveredCenter.dy, closeTo(beforeDrag.dy, 0.5));
 
-      // Stage 3 sinusoidal ambient drift changes vertical position when phase advances
+      // Stage 3 sinusoidal ambient drift changes position along the delivery curve
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
             theme: buildRiderTheme(),
-            home: const RiderOnboardingPage(ambientTimeOverride: 0.85),
+            home: const RiderOnboardingPage(ambientTimeOverride: 1.25),
           ),
         ),
       );
       await tester.pumpAndSettle();
-      final driftedCenter = tester.getCenter(stickerFinder);
-      expect(driftedCenter.dy, isNot(closeTo(beforeDrag.dy, 0.1)));
+      final driftedCenter = tester.getCenter(motorFinder);
+      expect(driftedCenter.dx, isNot(closeTo(beforeDrag.dx, 0.1)));
       expect(tester.takeException(), isNull);
     },
   );

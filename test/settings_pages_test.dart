@@ -40,6 +40,9 @@ Future<void> nativeSettings(
     ),
   );
   await tester.pumpAndSettle();
+  if (find.byKey(const ValueKey('onboarding-cta')).evaluate().isNotEmpty) {
+    await tap(tester, 'onboarding-cta');
+  }
   await tap(tester, 'nav-profile');
   await tap(tester, 'open-settings');
   addTearDown(() async {
@@ -94,6 +97,9 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      if (find.byKey(const ValueKey('onboarding-cta')).evaluate().isNotEmpty) {
+        await tap(tester, 'onboarding-cta');
+      }
       await tap(tester, 'nav-profile');
       expect(find.text('View details on the website'), findsNothing);
       expect(find.text('Assignment'), findsOneWidget);
@@ -140,6 +146,9 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      if (find.byKey(const ValueKey('onboarding-cta')).evaluate().isNotEmpty) {
+        await tap(tester, 'onboarding-cta');
+      }
       await tap(tester, 'nav-profile');
       await tap(tester, 'open-settings');
       await tap(tester, 'settings-contact');

@@ -83,11 +83,13 @@ class RiderChrome extends StatelessWidget {
     this.radius = RiderRadii.navigation,
     this.padding = EdgeInsets.zero,
     this.topOnly = false,
+    this.color = Colors.white,
   });
   final Widget child;
   final double radius;
   final EdgeInsetsGeometry padding;
   final bool topOnly;
+  final Color color;
   @override
   Widget build(BuildContext context) {
     final shape = RoundedSuperellipseBorder(
@@ -98,7 +100,7 @@ class RiderChrome extends StatelessWidget {
     return ClipPath(
       clipper: ShapeBorderClipper(shape: shape),
       child: Material(
-        color: Colors.white,
+        color: color,
         child: Padding(padding: padding, child: child),
       ),
     );

@@ -183,4 +183,37 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets(
+    'app open always pops up Argon onboarding even when a rider session is already saved',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      final repository = TestAuthRepository()
+        ..account = TestAuthRepository.approved;
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [authRepositoryProvider.overrideWithValue(repository)],
+          child: const BagooRiderApp(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Onboarding always appears first on app launch even when logged in
+      expect(
+        find.byKey(const ValueKey('rider-onboarding-page')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const ValueKey('rider-workspace')), findsNothing);
+
+      // Tapping Enter Rider Workspace opens the authenticated RiderWorkspaceShell
+      await tester.tap(find.byKey(const ValueKey('onboarding-cta')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('rider-workspace')), findsOneWidget);
+      expect(find.text('Welcome, Test Rider.'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

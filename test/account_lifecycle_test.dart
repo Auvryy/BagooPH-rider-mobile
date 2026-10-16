@@ -33,6 +33,11 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      final onboardingCta = find.byKey(const ValueKey('onboarding-cta'));
+      if (onboardingCta.evaluate().isNotEmpty) {
+        await tester.tap(onboardingCta);
+        await tester.pumpAndSettle();
+      }
       expect(find.text('Rider account approved'), findsOneWidget);
       repository.account = const RiderAccount(
         id: '7',

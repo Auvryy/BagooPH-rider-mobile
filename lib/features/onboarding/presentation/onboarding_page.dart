@@ -504,10 +504,13 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage>
   }
 
   Widget _topBar(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Wrap(
+      alignment: WrapAlignment.spaceBetween,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 8,
+      runSpacing: 8,
       children: [
-        const Flexible(child: BrandLogo()),
+        const BrandLogo(),
         DieCutStickerWidget.speechBubble(
           text: 'COURIER V4',
           backgroundColor: const Color(0xFFFFF0F4),

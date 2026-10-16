@@ -153,6 +153,9 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      if (find.byKey(const ValueKey('onboarding-cta')).evaluate().isNotEmpty) {
+        await tap(tester, 'onboarding-cta');
+      }
       await tester.ensureVisible(
         find.byType(HomeTaskPanel, skipOffstage: false),
       );
@@ -413,6 +416,12 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
+        if (find
+            .byKey(const ValueKey('onboarding-cta'))
+            .evaluate()
+            .isNotEmpty) {
+          await tap(tester, 'onboarding-cta');
+        }
         await tap(tester, 'home-task-pickup-1');
         await tap(tester, 'home-selected-details');
         expect(find.text('Work this stop'), findsOneWidget);

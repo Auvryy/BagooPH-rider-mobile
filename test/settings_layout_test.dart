@@ -87,6 +87,9 @@ Future<void> openApp(
     ),
   );
   await tester.pumpAndSettle();
+  if (find.byKey(const ValueKey('onboarding-cta')).evaluate().isNotEmpty) {
+    await tap(tester, 'onboarding-cta');
+  }
   await tap(tester, 'nav-profile');
   addTearDown(() async {
     await tester.pumpWidget(const SizedBox.shrink());

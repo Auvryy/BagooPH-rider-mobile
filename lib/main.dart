@@ -76,11 +76,13 @@ class _BagooRiderAppState extends ConsumerState<BagooRiderApp>
   @override
   Widget build(BuildContext context) {
     ref.listen(authControllerProvider, (previous, next) {
-      if (previous?.user != null || next.user != null) {
-        ref.read(onboardingSeenProvider.notifier).markSeen();
+      // Do not dismiss the welcome onboarding during initial cold-start session restore.
+      if (previous == null || previous.initializing) {
+        return;
       }
-      if (previous?.user?.id != next.user?.id ||
-          (previous?.user?.approved == true && next.user?.approved != true)) {
+      if (previous.user?.id != next.user?.id ||
+          (previous.user?.approved == true && next.user?.approved != true)) {
+        ref.read(onboardingSeenProvider.notifier).markSeen();
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
             // Account changes remove private routes without decorative delay.
@@ -128,6 +130,7 @@ class AccountGate extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(authControllerProvider);
     final seenOnboarding = ref.watch(onboardingSeenProvider);
+    if (onboarding && !seenOnboarding) return const RiderOnboardingPage();
     if (state.initializing) {
       return const Scaffold(
         body: Center(
@@ -139,7 +142,6 @@ class AccountGate extends ConsumerWidget {
     }
     if (state.user != null) return const HomePage();
     if (register) return const RegisterPage();
-    if (onboarding && !seenOnboarding) return const RiderOnboardingPage();
     return const LoginPage();
   }
 }

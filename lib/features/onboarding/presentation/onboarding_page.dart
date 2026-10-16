@@ -347,8 +347,6 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage>
     }
     if (Navigator.of(context).canPop()) {
       Navigator.of(context).pop();
-    } else {
-      Navigator.of(context).pushReplacementNamed('/login');
     }
   }
 

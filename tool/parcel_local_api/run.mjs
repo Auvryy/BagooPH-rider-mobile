@@ -9,7 +9,9 @@ import { once } from 'node:events';
 
 const project = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const backend = resolve(process.argv[2] ?? resolve(project, '../bagoo'));
-const evidenceRoot = resolve(project, 'build/operations-delivery-verification');
+const suite = process.argv[3] ?? 'parcel';
+if (!['parcel', 'messages'].includes(suite)) throw new Error('Select parcel or messages verification.');
+const evidenceRoot = resolve(project, suite === 'messages' ? 'build/messages-verification' : 'build/operations-delivery-verification');
 await mkdir(evidenceRoot, { recursive: true });
 const runtime = await mkdtemp(resolve(evidenceRoot, 'local-kernel-'));
 const diagnostic = await open(resolve(evidenceRoot, 'local-kernel.log'), 'w', 0o600);
@@ -55,7 +57,7 @@ createInterface({ input: php.stdout }).on('line', (line) => {
 php.on('error', (error) => { readyReject(error); pending.splice(0).forEach((p) => p.reject(error)); });
 php.on('exit', (code, signal) => {
   void diagnostic.write(`kernel exit code=${code} signal=${signal}\n`);
-  const error = new Error('The isolated kernel process stopped. See build/operations-delivery-verification/local-kernel.log.');
+  const error = new Error('The isolated kernel process stopped. See the selected local-kernel.log.');
   kernelFailure = error;
   readyReject(error); pending.splice(0).forEach((p) => p.reject(error));
 });
@@ -132,9 +134,10 @@ try {
   await ready; clearTimeout(timeout);
   server.listen(0, '127.0.0.1'); await once(server, 'listening');
   const api = `http://127.0.0.1:${server.address().port}`;
-  console.log(`Isolated SQLite :memory: parcel kernel at ${revision} ready; running the native Flutter client.`);
-  flutter = spawn('flutter', ['test', '--no-pub', 'integration_test/parcel_local_api_test.dart', '-d', 'linux',
-    `--dart-define=LOCAL_PARCEL_API_BASE=${api}`, `--dart-define=LOCAL_PARCEL_FIXTURE_TOKEN=${fixtureToken}`, '--reporter', 'expanded'],
+  console.log(`Isolated SQLite :memory: ${suite} kernel at ${revision} ready; running the native Flutter client.`);
+  const prefix = suite === 'messages' ? 'LOCAL_MESSAGES' : 'LOCAL_PARCEL';
+  flutter = spawn('flutter', ['test', '--no-pub', `integration_test/${suite === 'messages' ? 'messages' : 'parcel'}_local_api_test.dart`, '-d', 'linux',
+    `--dart-define=${prefix}_API_BASE=${api}`, `--dart-define=${prefix}_FIXTURE_TOKEN=${fixtureToken}`, '--reporter', 'expanded'],
   { cwd: project, stdio: 'inherit' });
   const [code] = await once(flutter, 'exit'); process.exitCode = code ?? 1;
 } catch (error) { console.error(error.message); process.exitCode = 1; }

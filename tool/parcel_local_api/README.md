@@ -6,6 +6,15 @@ From the Rider repository root, with the reviewed backend checkout alongside it:
 node tool/parcel_local_api/run.mjs ../bagoo
 ```
 
+The selected Messages suite reuses this bridge and isolation:
+
+```sh
+node tool/parcel_local_api/run.mjs ../bagoo messages
+```
+
+Its [acceptance notes](../../docs/plans/rider-assignment-messages/LOCAL_KERNEL.md)
+cover actual seller/buyer replies, exact read boundaries and retained commands.
+
 Requires Composer development dependencies in that backend, PHP with `pdo_sqlite`,
 Node 22 or newer and the Flutter/Linux toolchain. A Linux display and native
 secret service are needed for the native runner. A virtual display keeps the

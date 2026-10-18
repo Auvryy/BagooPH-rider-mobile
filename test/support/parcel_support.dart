@@ -12,7 +12,7 @@ import 'package:bagoo_rider_mobile/features/home/data/operations_repository.dart
 import 'package:bagoo_rider_mobile/features/parcels/data/parcel_photo_service.dart';
 
 Uint8List parcelTestPng() => base64Decode(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jfS8AAAAASUVORK5CYII=',
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGP4DwQACfsD/fteaysAAAAASUVORK5CYII=',
 );
 
 Map<String, dynamic> operationFixture(String name) =>

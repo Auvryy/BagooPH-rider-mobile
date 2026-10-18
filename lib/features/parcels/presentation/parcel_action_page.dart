@@ -150,7 +150,7 @@ class _ParcelActionPageState extends State<ParcelActionPage>
     return Scaffold(
       key: const ValueKey('parcel-action-page'),
       appBar: AppBar(
-        title: Text(action.label),
+        title: Text(action.label, maxLines: 2),
         toolbarHeight: (MediaQuery.textScalerOf(context).scale(22) * 1.4 + 16)
             .clamp(56.0, 96.0),
       ),
@@ -320,7 +320,11 @@ class _ParcelActionPageState extends State<ParcelActionPage>
                                 decoration: InputDecoration(
                                   labelText: action == ParcelAction.fail
                                       ? 'Attempt notes'
-                                      : 'Notes (optional)',
+                                      : 'Notes',
+                                  helperText: action == ParcelAction.fail
+                                      ? null
+                                      : 'Optional details about this handoff',
+                                  helperMaxLines: 3,
                                   hintText: 'Useful details about this handoff',
                                 ),
                                 validator: (value) {

@@ -313,6 +313,7 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields> {
             decoration: const InputDecoration(
               labelText: 'Recipient name',
               helperText: 'The person who actually receives this parcel',
+              helperMaxLines: 3,
             ),
             validator: (value) => _plain(value, 'recipient_name', min: 2),
             onChanged: (_) => _edit('recipient_name'),
@@ -324,7 +325,9 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields> {
             isExpanded: true,
             itemHeight: null,
             decoration: InputDecoration(
-              labelText: 'Relationship to buyer',
+              labelText: 'Relationship',
+              helperText: 'To the buyer',
+              helperMaxLines: 2,
               errorText: widget.errors['recipient_relationship'],
             ),
             items: [

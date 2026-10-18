@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:bagoo_rider_mobile/app/theme.dart';
 import 'package:bagoo_rider_mobile/core/commands/parcel_validation.dart';
 import 'package:bagoo_rider_mobile/core/network/api_failure.dart';
@@ -8,11 +11,41 @@ import 'package:bagoo_rider_mobile/features/parcels/presentation/parcel_action_p
 import 'package:bagoo_rider_mobile/features/workspace/presentation/workspace_controller.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/parcel_support.dart';
 import 'support/photo_support.dart';
+
+const _renderKey = ValueKey('parcel-form-render');
+Future<void> _render(
+  WidgetTester tester,
+  String name, {
+  bool top = false,
+}) async {
+  if (!const bool.fromEnvironment('RIDER_WORK_RENDER')) return;
+  if (top) {
+    tester
+        .state<ScrollableState>(find.byType(Scrollable).first)
+        .position
+        .jumpTo(0);
+    await tester.pumpAndSettle();
+  }
+  final boundary = tester.renderObject<RenderRepaintBoundary>(
+    find.byKey(_renderKey),
+  );
+  await tester.runAsync(() async {
+    final image = await boundary.toImage(pixelRatio: 1.5);
+    final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+    final folder = Directory('build/operations-delivery-verification/screens');
+    await folder.create(recursive: true);
+    await File('${folder.path}/$name.png')
+        .writeAsBytes(bytes!.buffer.asUint8List());
+    image.dispose();
+  });
+}
 
 class _Outcome {
   _Outcome(ParcelAction action) : domain = ParcelHarness(action: action) {
@@ -103,7 +136,7 @@ Future<void> _mount(WidgetTester tester, _Outcome h, {double scale = 1}) async {
           textScaler: TextScaler.linear(scale),
           disableAnimations: true,
         ),
-        child: child!,
+        child: RepaintBoundary(key: _renderKey, child: child!),
       ),
       home: ParcelActionPage(
         work: h.work,
@@ -137,6 +170,26 @@ Future<void> _deliveryFields(WidgetTester tester, _Outcome h) async {
 }
 
 void main() {
+  test('software-test proof decodes as an original image', () async {
+    final codec = await ui.instantiateImageCodec(parcelTestPng());
+    try {
+      final frame = await codec.getNextFrame();
+      expect(frame.image.width, 1);
+      expect(frame.image.height, 1);
+      frame.image.dispose();
+    } finally {
+      codec.dispose();
+    }
+  });
+  setUpAll(() async {
+    if (!const bool.fromEnvironment('RIDER_WORK_RENDER')) return;
+    await (FontLoader(
+      'Plus Jakarta Sans',
+    )..addFont(rootBundle.load('assets/fonts/PlusJakartaSans.ttf'))).load();
+    await (FontLoader(
+      'MaterialIcons',
+    )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
+  });
   setUp(() => FlutterSecureStorage.setMockInitialValues({}));
   for (final width in [320.0, 840.0]) {
     testWidgets(
@@ -149,7 +202,9 @@ void main() {
         final h = _Outcome(ParcelAction.deliver);
         addTearDown(h.dispose);
         await _mount(tester, h, scale: 2);
+        await _render(tester, 'parcel-deliver-${width.toInt()}-top', top: true);
         await _deliveryFields(tester, h);
+        await _render(tester, 'parcel-deliver-${width.toInt()}-confirm');
         expect(tester.takeException(), isNull);
         await _tap(tester, find.byKey(const ValueKey('parcel-submit')));
         expect(find.text('Delivery recorded'), findsOneWidget);
@@ -239,6 +294,7 @@ void main() {
       final h = _Outcome(ParcelAction.fail);
       addTearDown(h.dispose);
       await _mount(tester, h);
+      await _render(tester, 'parcel-failure-form', top: true);
       await _tap(tester, find.byKey(const ValueKey('parcel-submit')));
       expect(h.sent, isEmpty);
       expect(

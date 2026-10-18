@@ -45,6 +45,8 @@ window: **October 18–27** (10 inclusive calendar days), within the existing
 
 Each implementation commit includes its relevant tests and documentation.
 Later review fixes receive their own focused commits. The user handles pushes.
+See the [testing steps](TESTING.md) for PC review, local verification and the
+separate controlled Azure/Android acceptance procedure.
 
 ## Interaction and implementation decisions
 
@@ -175,6 +177,13 @@ mismatch rejection, safe correction after field rejection, required failure
 evidence and private display-cache eviction. A missing Material ancestor and test
 timer cleanup were corrected without suppressing widget assertions. These runs
 establish local behavior; Azure and actual Android capture remain outstanding.
+
+The later render review loads the bundled font and real image codec. It found
+an invalid checksum in the inherited synthetic PNG; the app correctly blocked
+that image. The parcel fixture now decodes successfully, and a codec assertion
+prevents that false positive. Review labels wrap or use shorter wording at large
+text sizes. The updated parcel/Trips regression selection passed **71 tests**,
+with the selected narrow/wide forms rendered and reviewed. No live proof was used.
 
 ## Retained Trips and private image evidence
 

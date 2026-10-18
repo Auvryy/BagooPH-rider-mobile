@@ -50,6 +50,9 @@ the November 20 development deadline. Measured work is recorded separately.
 3. Controller/widget regressions, rendered review, analysis and native builds.
 4. Verification record and cumulative external handoff.
 
-See [TESTING.md](TESTING.md). Local feature acceptance is distinct from the
+The selected client feature is implemented and locally verified. See
+[VERIFICATION.md](VERIFICATION.md) for 494 passing tests, clean analysis, rendered
+review and ordinary Linux/Android builds, and [TESTING.md](TESTING.md) for usage.
+Local feature acceptance is distinct from the
 already-pending deployed parcel/Messages and physical Android acceptance.
 No new backend work is requested by this feature. The user handles publication.

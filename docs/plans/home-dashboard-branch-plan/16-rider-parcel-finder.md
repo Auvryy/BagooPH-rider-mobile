@@ -1,13 +1,14 @@
 # HDB-16 — Add selected personal parcel-slot labels
 
-State: **selected October 19, 2026; client implementation active**. Branch: `feat/rider-parcel-finder`.
+State: **implemented and locally verified October 19, 2026**. Branch: `feat/rider-parcel-finder`.
 The [selected implementation package](../rider-parcel-finder/README.md) explicitly
-chooses session-only personal labels. It owns current implementation/evidence;
+chooses session-only personal labels. Its [verification record](../rider-parcel-finder/VERIFICATION.md)
+owns current runtime evidence;
 broader operational and physical acceptance remains separate.
 Planning effort: **3–5 client hours**, including selected checks,
 excluding owner/API/device waiting. Recommended model/effort: **GPT-6.1 Sol / Medium**.
-Re-estimate from current evidence before activation; assign a 1–14 inclusive-day
-window ending by November 20. No runtime result is claimed by this brief.
+The selected estimate was five client hours, October 19–25 inclusive. The wider
+backlog and operational/device acceptance are not completed by this slice.
 
 ## Dependencies and API needs
 
@@ -43,15 +44,15 @@ code/docs, its branch and unrelated work remain read only for this mobile slice.
 
 ## Finish evidence
 
-- [ ] Two parcels/same slot, refreshed task, changed assignment, logout/account change and terminal removal keep tags correctly scoped.
-- [ ] Preview/unverified ownership cannot create a misleading held-parcel label.
-- [ ] Wrong scan remains a rejected scan regardless of the label/suffix.
-- [ ] No backend mutation, location history or cross-account persisted label is introduced by the session-only scope.
-- [ ] Run analysis and the meaningful selected contract/controller/widget checks;
+- [x] Two parcels/same slot, refreshed task, changed assignment, logout/account change and terminal removal keep tags correctly scoped.
+- [x] Preview/unverified ownership cannot create a misleading held-parcel label.
+- [x] Wrong scan remains a rejected scan regardless of the label/suffix.
+- [x] No backend mutation, location history or cross-account persisted label is introduced by the session-only scope.
+- [x] Run analysis and the meaningful selected contract/controller/widget checks;
   add ordinary native builds when runtime/platform/integration risk requires them.
-- [ ] Record local versus authorized Azure versus physical Android evidence,
+- [x] Record local versus authorized Azure versus physical Android evidence,
   remaining gates, reviewed source and coherent local commits in the owning plan.
-- [ ] Review scope/privacy and the staged diff; the user handles push/PR/merge.
+- [x] Review scope/privacy and the staged diff; the user handles push/PR/merge.
 
 ## Stop boundary
 

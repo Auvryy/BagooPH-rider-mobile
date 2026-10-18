@@ -152,6 +152,17 @@ void main() {
               hasFocusAction: true,
             ),
           );
+          if (size.width == 375 && scale == 1) {
+            final left = find.byKey(const ValueKey('parcel-slot-topBoxLeft'));
+            await tester.ensureVisible(left);
+            await tester.pumpAndSettle();
+            Focus.of(tester.element(find.text('Left'))).requestFocus();
+            await tester.pump();
+            await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+            await tester.pumpAndSettle();
+            expect(saved, ParcelSlot.topBoxLeft);
+            await tap(tester, 'parcel-finder-edit');
+          }
           await tap(tester, 'parcel-finder-clear');
           expect(saved, isNull);
           expect(find.text('Location not set'), findsOneWidget);

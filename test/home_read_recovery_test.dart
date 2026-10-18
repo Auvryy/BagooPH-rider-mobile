@@ -152,7 +152,7 @@ void main() {
         expect(h.controller.selectedTask, isNull);
         expect(h.controller.taskData.data, isNull);
         expect(h.controller.tripData.data, isNull);
-        expect(h.controller.conversationData.data, isNull);
+        expect(h.controller.messages.inbox.data, isNull);
         expect(h.controller.canWrite, isFalse);
         cleanup.complete();
         await refreshing;

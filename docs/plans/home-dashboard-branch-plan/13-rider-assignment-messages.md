@@ -1,6 +1,10 @@
 # HDB-13 — Connect phase-bound Messages and the current-stop shortcut
 
-State: **planned, not activated**. Branch: `feat/rider-assignment-messages`.
+State: **selected client implementation; Azure/Android acceptance open**.
+Branch: `feat/rider-assignment-messages`. The
+[owning package](../rider-assignment-messages/README.md) records current source,
+scope, dependencies and actual evidence. HDB-12's notifications inbox is not
+implicitly selected or accepted; this delivery adds no global unread-chat badge.
 Planning effort: **6–10 client hours**, including selected checks,
 excluding owner/API/device waiting. Recommended model/effort: **GPT-6.1 Sol / High**.
 Re-estimate from current evidence before activation; assign a 1–14 inclusive-day

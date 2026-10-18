@@ -26,6 +26,23 @@ class ParcelMessage {
 }
 
 class ParcelConversation {
+  ParcelConversation._latest(ParcelConversation original, ParcelMessage message)
+    : id = original.id,
+      deliveryId = original.deliveryId,
+      assignmentReference = original.assignmentReference,
+      phase = original.phase,
+      tracking = original.tracking,
+      canSend = original.canSend,
+      sendDenial = original.sendDenial,
+      unreadCount = original.unreadCount,
+      lastMessage = message {
+    assignmentId = original.assignmentId;
+    participantId = original.participantId;
+    participantName = original.participantName;
+    participantRole = original.participantRole;
+    avatarPath = original.avatarPath;
+  }
+
   ParcelConversation.fromJson(Map<String, dynamic> json)
     : id = Wire.string(json['id']),
       deliveryId = Wire.id(json['delivery_id']),
@@ -68,6 +85,14 @@ class ParcelConversation {
       phase == 'pickup' ? 'Seller · Pickup' : 'Buyer · Delivery';
   String get taskId => '$phase-$deliveryId';
 
+  ParcelConversation withLatestMessage(ParcelMessage message) {
+    if (lastMessage != null &&
+        BigInt.parse(message.id) <= BigInt.parse(lastMessage!.id)) {
+      return this;
+    }
+    return ParcelConversation._latest(this, message);
+  }
+
   static String? _avatarPath(Object? value) {
     if (value == null) return null;
     final path = Wire.string(value);
@@ -108,6 +133,7 @@ class ConversationPage {
       ),
       pagination = MessagePagination.fromJson(Wire.object(json['pagination'])) {
     if (items.length > pagination.perPage ||
+        items.length > pagination.total ||
         items.map((item) => item.id).toSet().length != items.length) {
       Wire.invalid();
     }
@@ -124,6 +150,7 @@ class MessageHistoryPage {
       ),
       pagination = MessagePagination.fromJson(Wire.object(json['pagination'])) {
     if (items.length > pagination.perPage ||
+        items.length > pagination.total ||
         items.map((item) => item.id).toSet().length != items.length) {
       Wire.invalid();
     }

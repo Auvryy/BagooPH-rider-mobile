@@ -219,6 +219,7 @@ class MessagesController extends ChangeNotifier {
     if (!canRefresh) return;
     final epoch = _epoch;
     final generation = ++_listGeneration;
+    loadingMore = false;
     final cancellation = RiderReadCancellation();
     _listRead?.cancel();
     _listRead = cancellation;
@@ -300,7 +301,8 @@ class MessagesController extends ChangeNotifier {
       if (!_current(epoch) || generation != _listGeneration) return;
       final items = {for (final item in inbox.data!) item.id: item};
       for (final item in page.items) {
-        items[item.id] = item;
+        final known = items[item.id]?.lastMessage;
+        items[item.id] = known == null ? item : item.withLatestMessage(known);
       }
       inbox = FeatureData.ready(List.unmodifiable(items.values));
       inboxPagination = page.pagination;
@@ -375,7 +377,8 @@ class MessagesController extends ChangeNotifier {
         // A page begun before a committed receipt may arrive afterward. Reads
         // are monotonic; an older response cannot make that message unread.
         known[message.id] = known[message.id]?.isRead == true && !message.isRead
-            ? message.read() : message;
+            ? message.read()
+            : message;
       }
       final sorted = known.values.toList()
         ..sort((a, b) => BigInt.parse(b.id).compareTo(BigInt.parse(a.id)));
@@ -444,8 +447,23 @@ class MessagesController extends ChangeNotifier {
         }
       }
     }
-    if (id != selectedId || !active || !_verified) return;
+    if (!active) return;
+    if (result.message != null && inbox.data != null) {
+      final updated = List<ParcelConversation>.unmodifiable(
+        inbox.data!.map(
+          (item) =>
+              item.id == id ? item.withLatestMessage(result.message!) : item,
+        ),
+      );
+      inbox = switch (inbox.status) {
+        FeatureStatus.refreshing => FeatureData.refreshing(updated),
+        FeatureStatus.failed => FeatureData.failed(inbox.message, updated),
+        _ => FeatureData.ready(updated),
+      };
+    }
+    if (id != selectedId || !_verified) return;
     if (result.message != null) {
+      detail = FeatureData.ready(thread!.withLatestMessage(result.message!));
       final known = {
         for (final item in messages) item.id: item,
         result.message!.id: result.message!,
@@ -498,7 +516,7 @@ class MessagesController extends ChangeNotifier {
     } catch (error) {
       if (!_disposed && _current(epoch)) {
         await _error(error, selected: true);
-        sendError = failure?.message;
+        sendError = failure?.fields['text'] ?? failure?.message;
       }
       return false;
     } finally {

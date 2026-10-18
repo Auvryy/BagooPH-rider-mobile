@@ -81,54 +81,6 @@ class RiderTrip {
   final RetainedTrip? operation;
 }
 
-class RiderMessage {
-  const RiderMessage({
-    required this.id,
-    required this.text,
-    required this.fromRider,
-    required this.recordedAt,
-    this.localPreview = false,
-  });
-  final String id, text;
-  final bool fromRider, localPreview;
-  final DateTime recordedAt;
-}
-
-class RiderConversation {
-  const RiderConversation({
-    required this.id,
-    required this.tracking,
-    required this.participant,
-    required this.phase,
-    required this.canSend,
-    required this.messages,
-    this.unreadCount = 0,
-  });
-  final String id, tracking, participant, phase;
-  final bool canSend;
-  final List<RiderMessage> messages;
-  final int unreadCount;
-  String get phaseLabel =>
-      phase == 'pickup' ? 'Seller · Pickup' : 'Buyer · Final mile';
-  RiderConversation withMessage(RiderMessage message) => RiderConversation(
-    id: id,
-    tracking: tracking,
-    participant: participant,
-    phase: phase,
-    canSend: canSend,
-    unreadCount: unreadCount,
-    messages: List.unmodifiable([...messages, message]),
-  );
-  RiderConversation read() => RiderConversation(
-    id: id,
-    tracking: tracking,
-    participant: participant,
-    phase: phase,
-    canSend: canSend,
-    messages: messages,
-  );
-}
-
 String pesos(int centavos) {
   final negative = centavos < 0;
   final value = centavos.abs();

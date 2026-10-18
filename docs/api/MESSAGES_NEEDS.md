@@ -39,3 +39,13 @@ does not prove deployment or actual owning-role parity.
 The user will forward the cumulative handoff later. No new API is requested
 unless implementation/verification identifies a concrete gap. No additional map
 key is needed. Phone-only acceptance remains separate from these API checks.
+
+## Optional current-stop lookup improvement
+
+The current API supplies thread identity through conversation pages. The stop
+shortcut checks at most five pages (100 returned conversations); if no fresh
+matching assignment/participant is returned, it offers the Messages list fallback.
+It never guesses a thread. An allowlisted current `conversation_reference` on
+owned task detail would remove this bounded-search limitation. This is an
+optional API-owner decision, not a prerequisite for browsing or sending through
+the paged Messages screen.

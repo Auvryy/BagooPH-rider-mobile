@@ -1,5 +1,9 @@
 import 'dart:async';
 
+import 'package:bagoo_rider_mobile/features/messages/data/message_models.dart';
+
+import 'package:bagoo_rider_mobile/features/home/data/operations_models.dart';
+
 import 'package:bagoo_rider_mobile/core/network/api_failure.dart';
 import 'package:bagoo_rider_mobile/core/network/rider_api_client.dart';
 
@@ -295,6 +299,112 @@ void main() {
       expect(c.draft, isEmpty);
       expect(c.inbox.data, isNull);
       expect(c.messages, isEmpty);
+    },
+  );
+  test('the stop shortcut resolves returned assignment identity and refuses a changed reference', () async {
+    final h = MessagesHarness();
+    addTearDown(h.dispose);
+    await h.boot(select: false);
+    final data = ops.fixture('pickup-task')['data'] as Map<String, dynamic>;
+    data['id'] = 'pickup-31';
+    data['delivery_id'] = '31';
+    data['tracking_number'] = 'BGO-TEST31';
+    data['assignment_reference'] = 'CHK-41';
+    expect(
+      await h.controller.findForTask(OperationTask.fromJson(data)),
+      pickupThread,
+    );
+    data['assignment_reference'] = 'CHK-OTHER';
+    expect(
+      await h.controller.findForTask(OperationTask.fromJson(data)),
+      isNull,
+    );
+  });
+  test(
+    'field validation retains the exact draft and exposes its message error',
+    () async {
+      final h = MessagesHarness();
+      addTearDown(h.dispose);
+      await h.boot();
+      final c = h.controller;
+      c.updateDraft('A valid parcel update.');
+      h.api.respond = (path, method, body, headers) async {
+        if (method == 'POST') {
+          throw const AccountFailure(
+            'Check the highlighted fields.',
+            status: 422,
+            fields: {'text': 'This message was rejected.'},
+          );
+        }
+        return h.respond(path, method, body, headers);
+      };
+      expect(await c.sendDraft(), isFalse);
+      expect(c.draft, 'A valid parcel update.');
+      expect(c.sendError, 'This message was rejected.');
+      expect(c.pendingIntent, isNull);
+    },
+  );
+  test('a confirmed send updates its inbox preview while preserving server unread counts', () async {
+    final h = MessagesHarness();
+    addTearDown(h.dispose);
+    await h.boot();
+    final c = h.controller;
+    final before = c.inbox.data!
+        .firstWhere((item) => item.id == pickupThread)
+        .unreadCount;
+    c.updateDraft('At the reviewed pickup entrance.');
+    expect(await c.sendDraft(), isTrue);
+    final row = c.inbox.data!.firstWhere((item) => item.id == pickupThread);
+    expect(row.lastMessage!.text, 'At the reviewed pickup entrance.');
+    expect(row.unreadCount, before);
+    expect(c.thread!.lastMessage!.id, row.lastMessage!.id);
+    expect(
+      row
+          .withLatestMessage(
+            ParcelMessage.fromJson(parcelMessageJson(id: '50')),
+          )
+          .lastMessage!
+          .id,
+      row.lastMessage!.id,
+    );
+  });
+  test(
+    'refresh cancels an older list page and releases its load-more state',
+    () async {
+      final h = MessagesHarness();
+      addTearDown(h.dispose);
+      final older = Completer<Map<String, dynamic>>();
+      h.api.respond = (path, method, body, headers) async {
+        if (path.startsWith('rider/conversations?')) {
+          if (Uri.parse(path).queryParameters['page'] == '2') {
+            return older.future;
+          }
+          return conversationEnvelope([parcelConversationJson()], total: 21);
+        }
+        return h.respond(path, method, body, headers);
+      };
+      await h.boot(select: false);
+      final c = h.controller;
+      final request = c.loadMoreConversations();
+      await Future<void>.delayed(Duration.zero);
+      expect(c.loadingMore, isTrue);
+      await c.refresh();
+      expect(c.loadingMore, isFalse);
+      older.complete(
+        conversationEnvelope(
+          [parcelConversationJson(id: deliveryThread)],
+          page: 2,
+          total: 21,
+        ),
+      );
+      await request;
+      expect(c.inbox.data!.map((item) => item.id), [pickupThread]);
+      await c.loadMoreConversations();
+      expect(c.inbox.data!.map((item) => item.id), [
+        pickupThread,
+        deliveryThread,
+      ]);
+      expect(c.loadingMore, isFalse);
     },
   );
 }

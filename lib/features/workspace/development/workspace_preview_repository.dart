@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/data/account.dart';
+import '../../../core/commands/command_intent.dart';
+import '../../../core/network/rider_api_client.dart';
+import '../../messages/data/message_models.dart';
+import '../../messages/data/messages_repository.dart';
 import '../../home/development/home_preview_data.dart';
 import '../../settings/development/settings_preview_repository.dart';
 import '../../settings/data/settings_repository.dart';
@@ -41,8 +45,49 @@ class WorkspacePreviewPage extends StatelessWidget {
   );
 }
 
-class PreviewWorkspaceRepository implements WorkspaceRepository {
-  int _messageNumber = 0;
+class PreviewWorkspaceRepository
+    implements WorkspaceRepository, MessagesRepository {
+  int _messageNumber = 900;
+  final Map<String, List<Map<String, dynamic>>> _messages = {
+    'pickup-1-101-3': [
+      {
+        'id': '1',
+        'sender_id': '3',
+        'text': 'The parcel is ready at the shop counter.',
+        'from_rider': false,
+        'is_read': false,
+        'recorded_at': '2026-10-07T02:12:00.000Z',
+      },
+      {
+        'id': '2',
+        'sender_id': '7',
+        'text': 'Thank you. I will check the parcel when I arrive.',
+        'from_rider': true,
+        'is_read': true,
+        'recorded_at': '2026-10-07T02:14:00.000Z',
+      },
+    ],
+    'final_mile-2-102-4': [
+      {
+        'id': '3',
+        'sender_id': '4',
+        'text': 'Please use the entrance beside the garden.',
+        'from_rider': false,
+        'is_read': false,
+        'recorded_at': '2026-10-07T03:20:00.000Z',
+      },
+    ],
+    'final_mile-3-103-5': [
+      {
+        'id': '4',
+        'sender_id': '5',
+        'text': 'Thank you for the delivery.',
+        'from_rider': false,
+        'is_read': true,
+        'recorded_at': '2026-10-06T04:00:00.000Z',
+      },
+    ],
+  };
   @override
   Future<FeatureData<List<RiderTask>>> tasks(TaskQueue queue) async {
     final original = HomePreviewQueue.values[queue.index];
@@ -113,78 +158,140 @@ class PreviewWorkspaceRepository implements WorkspaceRepository {
     ),
   );
   @override
-  Future<FeatureData<List<RiderConversation>>> conversations() async =>
-      FeatureData.ready([
-        RiderConversation(
-          id: 'preview-pickup',
-          tracking: 'DEMO-P1003',
-          participant: 'Example grocery',
-          phase: 'pickup',
-          canSend: true,
-          unreadCount: 1,
-          messages: [
-            RiderMessage(
-              id: 'preview-m1',
-              text: 'The parcel is ready at the shop counter.',
-              fromRider: false,
-              recordedAt: DateTime.utc(2026, 10, 7, 2, 12),
-            ),
-            RiderMessage(
-              id: 'preview-m2',
-              text: 'Thank you. I will check the parcel when I arrive.',
-              fromRider: true,
-              recordedAt: DateTime.utc(2026, 10, 7, 2, 14),
-            ),
-          ],
-        ),
-        RiderConversation(
-          id: 'preview-delivery',
-          tracking: 'DEMO-D2001',
-          participant: 'Sample buyer',
-          phase: 'final_mile',
-          canSend: true,
-          unreadCount: 2,
-          messages: [
-            RiderMessage(
-              id: 'preview-m3',
-              text: 'Please use the entrance beside the garden.',
-              fromRider: false,
-              recordedAt: DateTime.utc(2026, 10, 7, 3, 20),
-            ),
-          ],
-        ),
-        RiderConversation(
-          id: 'preview-ended',
-          tracking: 'DEMO-D1999',
-          participant: 'Previous sample buyer',
-          phase: 'final_mile',
-          canSend: false,
-          messages: [
-            RiderMessage(
-              id: 'preview-m4',
-              text: 'Thank you for the delivery.',
-              fromRider: false,
-              recordedAt: DateTime.utc(2026, 10, 6, 4, 0),
-            ),
-          ],
-        ),
-      ]);
+  bool get writesVerified => true;
   @override
-  Future<RiderMessage> send(
-    String conversationId,
-    String phase,
-    String text,
-  ) async => RiderMessage(
-    id: 'preview-local-${++_messageNumber}',
-    text: text,
-    fromRider: true,
-    recordedAt: DateTime.now().toUtc(),
-    localPreview: true,
-  );
+  Uri? get avatarOrigin => null;
   @override
-  Future<void> acknowledge(
-    String conversationId,
-    String phase,
-    String latestMessageId,
-  ) async {}
+  Future<bool> available() async => true;
+  Map<String, dynamic> _thread(String id) {
+    final parts = id.split('-');
+    final items = _messages[id]!;
+    return {
+      'id': id,
+      'delivery_id': parts[1],
+      'assignment_reference': 'CHK-PREVIEW-${parts[2]}',
+      'phase': parts[0],
+      'tracking_number': switch (id) {
+        'pickup-1-101-3' => 'DEMO-P1003',
+        'final_mile-2-102-4' => 'DEMO-D2001',
+        _ => 'DEMO-D1999',
+      },
+      'participant': {
+        'id': parts[3],
+        'name': switch (id) {
+          'pickup-1-101-3' => 'Example grocery',
+          'final_mile-2-102-4' => 'Sample buyer',
+          _ => 'Previous sample buyer',
+        },
+        'role': parts[0] == 'pickup' ? 'seller' : 'buyer',
+        'avatar_url': null,
+      },
+      'can_send': id != 'final_mile-3-103-5',
+      'send_denial': id == 'final_mile-3-103-5' ? 'PHASE_NOT_ACTIVE' : null,
+      'unread_count': items
+          .where((m) => m['from_rider'] == false && m['is_read'] == false)
+          .length,
+      'last_message': items.isEmpty ? null : items.last,
+    };
+  }
+
+  @override
+  Future<ConversationPage> conversations({
+    int page = 1,
+    RiderReadCancellation? cancellation,
+  }) async => ConversationPage.fromJson({
+    'items': _messages.keys.map(_thread).toList(),
+    'pagination': {'page': 1, 'per_page': 20, 'total': 3, 'last_page': 1},
+  });
+  @override
+  Future<MessageHistoryPage> history(
+    String id, {
+    int page = 1,
+    RiderReadCancellation? cancellation,
+  }) async => MessageHistoryPage.fromJson({
+    'thread': _thread(id),
+    'items': _messages[id]!.reversed.toList(),
+    'pagination': {
+      'page': 1,
+      'per_page': 20,
+      'total': _messages[id]!.length,
+      'last_page': 1,
+    },
+  });
+  @override
+  Future<CommandIntent?> pending() async => null;
+  MessageCommandResult _result(
+    String action,
+    String id,
+    Map<String, dynamic> body,
+    Map<String, dynamic> result,
+  ) {
+    final intent = CommandIntent(
+      accountId: '7',
+      key: commandUuid(),
+      action: action,
+      resource: id,
+      body: body,
+      createdAt: DateTime.utc(2026, 10, 18),
+    );
+    return MessageCommandResult.fromJson({
+      'idempotency_key': intent.key,
+      'action': action,
+      'resource': id,
+      'state': 'committed',
+      'result': result,
+      'recorded_at': '2026-10-18T00:00:00.000Z',
+      'expires_at': '2026-10-25T00:00:00.000Z',
+      'retry_expired': false,
+      'replayed': false,
+    }, intent);
+  }
+
+  @override
+  Future<MessageCommandResult> send(
+    ParcelConversation thread,
+    String text, {
+    required bool Function() mayDispatch,
+  }) async {
+    final message = <String, dynamic>{
+      'id': '${++_messageNumber}',
+      'sender_id': '7',
+      'text': text,
+      'from_rider': true,
+      'is_read': false,
+      'recorded_at': DateTime.fromMillisecondsSinceEpoch(
+        DateTime.now().millisecondsSinceEpoch,
+        isUtc: true,
+      ).toIso8601String(),
+    };
+    _messages[thread.id]!.add(message);
+    return _result('message.send', thread.id, {'text': text}, message);
+  }
+
+  @override
+  Future<MessageCommandResult> acknowledge(
+    ParcelConversation thread,
+    String throughMessageId, {
+    required bool Function() mayDispatch,
+  }) async {
+    for (final message in _messages[thread.id]!) {
+      if (message['from_rider'] == false &&
+          BigInt.parse(message['id'] as String) <=
+              BigInt.parse(throughMessageId)) {
+        message['is_read'] = true;
+      }
+    }
+    return _result(
+      'message.read',
+      thread.id,
+      {'through_message_id': throughMessageId},
+      {'through_message_id': throughMessageId},
+    );
+  }
+
+  @override
+  Future<MessageCommandResult?> reconcile({
+    bool retryUnknown = false,
+    required bool Function() mayDispatch,
+  }) async => null;
 }

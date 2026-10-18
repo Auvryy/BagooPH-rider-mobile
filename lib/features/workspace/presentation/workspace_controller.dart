@@ -13,6 +13,8 @@ import '../../home/data/command_journal.dart';
 import '../../home/data/operations_models.dart';
 import '../../home/data/operations_repository.dart';
 import '../../parcels/data/parcel_photo_service.dart';
+import '../../messages/data/messages_repository.dart';
+import '../../messages/presentation/messages_controller.dart';
 import '../../trips/data/trip_models.dart';
 import '../data/workspace_models.dart';
 import '../data/workspace_repository.dart';
@@ -74,6 +76,28 @@ final workspaceRepositoryProvider = Provider<WorkspaceRepository>(
   ],
 );
 
+final messagesRepositoryProvider = Provider<MessagesRepository>((ref) {
+  final repository = ref.watch(workspaceRepositoryProvider);
+  if (repository is MessagesRepository) return repository as MessagesRepository;
+  if (repository is! OperationsRepository) {
+    return const UnavailableMessagesRepository();
+  }
+  final config = ref.watch(appConfigProvider);
+  return OperationsMessagesRepository(
+    repository.api,
+    accountId: repository.accountId,
+    journal: SecureCommandJournal(
+      origin: config.origin,
+      accountId: repository.accountId,
+      scope: 'messages',
+    ),
+    writesVerified: config.messagesWritesVerified,
+    isCurrent: repository.isCurrent,
+    readHome: repository.home,
+    avatarOrigin: config.origin,
+  );
+}, dependencies: [workspaceRepositoryProvider, appConfigProvider]);
+
 class WorkspaceIdentity {
   const WorkspaceIdentity(this.accountId, {this.preview = false});
   final String accountId;
@@ -88,27 +112,50 @@ class WorkspaceIdentity {
 }
 
 final workspaceControllerProvider = Provider.autoDispose
-    .family<WorkspaceController, WorkspaceIdentity>((ref, identity) {
-      final controller = WorkspaceController(
-        ref.watch(workspaceRepositoryProvider),
-        onSessionEnd: identity.preview
-            ? null
-            : (notice) => ref
-                  .read(authControllerProvider.notifier)
-                  .discardSession(notice),
-      );
-      ref.onDispose(controller.dispose);
-      return controller;
-    }, dependencies: [workspaceRepositoryProvider, authControllerProvider]);
+    .family<WorkspaceController, WorkspaceIdentity>(
+      (ref, identity) {
+        final controller = WorkspaceController(
+          ref.watch(workspaceRepositoryProvider),
+          messagesRepository: ref.watch(messagesRepositoryProvider),
+          onSessionEnd: identity.preview
+              ? null
+              : (notice) => ref
+                    .read(authControllerProvider.notifier)
+                    .discardSession(notice),
+        );
+        ref.onDispose(controller.dispose);
+        return controller;
+      },
+      dependencies: [
+        workspaceRepositoryProvider,
+        messagesRepositoryProvider,
+        authControllerProvider,
+      ],
+    );
 
 enum _WorkRead { home, tasks, detail, more, trips }
 
 class WorkspaceController extends ChangeNotifier {
-  WorkspaceController(this.repository, {this.onSessionEnd}) {
+  WorkspaceController(
+    this.repository, {
+    this.onSessionEnd,
+    MessagesRepository? messagesRepository,
+  }) {
+    messages = MessagesController(
+      messagesRepository ??
+          (repository is MessagesRepository
+              ? repository as MessagesRepository
+              : const UnavailableMessagesRepository()),
+      onSessionEnd: (notice) async {
+        await _workError(AccountFailure(notice, status: 401));
+      },
+    );
+    messages.addListener(_changed);
     if (operations?.photos != null) unawaited(operations!.photos!.restore());
     unawaited(operations == null ? refreshAll() : Future.microtask(refreshAll));
   }
   final WorkspaceRepository repository;
+  late final MessagesController messages;
   final Future<void> Function(String notice)? onSessionEnd;
   OperationsRepository? get operations => repository is OperationsRepository
       ? repository as OperationsRepository
@@ -182,6 +229,7 @@ class WorkspaceController extends ChangeNotifier {
       !_readFailures.containsKey(_WorkRead.detail);
 
   void setForeground(bool value) {
+    messages.setForeground(value);
     if (_foreground == value) return;
     _foreground = value;
     _poll?.cancel();
@@ -247,20 +295,17 @@ class WorkspaceController extends ChangeNotifier {
       retainedTrips = null;
       loadingTrips = false;
       _tripSearchTimer?.cancel();
-      conversationData = FeatureData.unavailable(failure.message);
+      messages.revoke(failure.message);
       selectedTask = null;
       pendingIntent = null;
       reconciledWorkKey = null;
       reconciledWorkResult = null;
       taskPage = null;
       selectingTask = loadingMore = false;
-      selectedConversationId = null;
-      _drafts.clear();
       _homeGeneration++;
       _detailGeneration++;
       _taskGeneration++;
       _tripGeneration++;
-      _conversationGeneration++;
       _moreGeneration++;
       _poll?.cancel();
       _cooldownTimer?.cancel();
@@ -289,6 +334,9 @@ class WorkspaceController extends ChangeNotifier {
     try {
       final result = await ops.home();
       if (_disposed || generation != _homeGeneration) return;
+      if (result.capabilities['messages'] != true) {
+        messages.capabilityUnavailable();
+      }
       _readFailures.remove(_WorkRead.home);
       if (result.capabilities['home'] != true) {
         workAccessUnavailable = true;
@@ -615,11 +663,9 @@ class WorkspaceController extends ChangeNotifier {
 
   FeatureData<List<RiderTask>> taskData = const FeatureData.loading();
   FeatureData<List<RiderTrip>> tripData = const FeatureData.loading();
-  FeatureData<List<RiderConversation>> conversationData =
-      const FeatureData.loading();
   TaskQueue queue = TaskQueue.available;
   bool _queueChosenByRider = false, _initialQueueChosen = false;
-  String taskSearch = '', tripSearch = '', conversationSearch = '';
+  String taskSearch = '', tripSearch = '';
   PaymentFilter payment = PaymentFilter.all;
   DateTime? fromDate, toDate;
   int tripPage = 0;
@@ -628,12 +674,8 @@ class WorkspaceController extends ChangeNotifier {
   bool loadingTrips = false;
   Timer? _tripSearchTimer;
   static const pageSize = 10;
-  String? selectedConversationId;
-  final Map<String, String> _drafts = {};
-  bool sending = false, acknowledging = false;
-  String? sendError, readError;
   bool _disposed = false;
-  int _taskGeneration = 0, _tripGeneration = 0, _conversationGeneration = 0;
+  int _taskGeneration = 0, _tripGeneration = 0;
 
   void _changed() {
     if (!_disposed) notifyListeners();
@@ -653,11 +695,7 @@ class WorkspaceController extends ChangeNotifier {
         homeData = const FeatureData.unavailable(
           'Work availability not connected',
         );
-        await Future.wait([
-          refreshTasks(),
-          refreshTrips(),
-          refreshConversations(),
-        ]);
+        await Future.wait([refreshTasks(), refreshTrips(), messages.refresh()]);
         return;
       }
       await refreshHome();
@@ -665,7 +703,13 @@ class WorkspaceController extends ChangeNotifier {
       if (operations == null || homeData.status == FeatureStatus.ready) {
         await refreshTasks();
       }
-      await Future.wait([refreshTrips(), refreshConversations()]);
+      await Future.wait([
+        refreshTrips(),
+        if (homeData.status == FeatureStatus.ready)
+          messages.refresh(
+            available: homeData.data!.capabilities['messages'] == true,
+          ),
+      ]);
     } finally {
       _refreshingAll = false;
       _schedulePoll();
@@ -879,39 +923,6 @@ class WorkspaceController extends ChangeNotifier {
     }
   }
 
-  Future<void> refreshConversations() async {
-    if (_disposed || _sessionEnded) return;
-    final generation = ++_conversationGeneration;
-    final previous = conversationData.data;
-    conversationData = previous == null
-        ? const FeatureData.loading()
-        : FeatureData.refreshing(previous);
-    _changed();
-    try {
-      final result = await repository.conversations();
-      if (!_disposed && generation == _conversationGeneration) {
-        conversationData = result;
-        final ids = result.data?.map((c) => c.id).toSet() ?? <String>{};
-        final draftScopes =
-            result.data?.where((c) => c.canSend).map(_scope).toSet() ??
-            <String>{};
-        _drafts.removeWhere((scope, _) => !draftScopes.contains(scope));
-        if (!ids.contains(selectedConversationId)) {
-          selectedConversationId = null;
-        }
-        _changed();
-      }
-    } catch (_) {
-      if (!_disposed && generation == _conversationGeneration) {
-        conversationData = FeatureData.failed(
-          'Could not load conversations. Your draft is kept for retry.',
-          previous,
-        );
-        _changed();
-      }
-    }
-  }
-
   void selectQueue(TaskQueue value) {
     if (_disposed || _sessionEnded) return;
     _queueChosenByRider = true;
@@ -970,11 +981,6 @@ class WorkspaceController extends ChangeNotifier {
     _tripQueryChanged();
   }
 
-  void searchConversations(String value) {
-    conversationSearch = value;
-    _changed();
-  }
-
   List<RiderTask> get visibleTasks => (taskData.data ?? [])
       .where(
         (t) => '${t.tracking} ${t.stop} ${t.address}'.toLowerCase().contains(
@@ -1020,130 +1026,6 @@ class WorkspaceController extends ChangeNotifier {
     }
   }
 
-  List<RiderConversation> get visibleConversations =>
-      (conversationData.data ?? [])
-          .where(
-            (c) => '${c.participant} ${c.tracking}'.toLowerCase().contains(
-              conversationSearch.trim().toLowerCase(),
-            ),
-          )
-          .toList();
-  RiderConversation? get selectedConversation {
-    for (final c in conversationData.data ?? <RiderConversation>[]) {
-      if (c.id == selectedConversationId) return c;
-    }
-    return null;
-  }
-
-  String _scope(RiderConversation c) => '${c.id}:${c.phase}';
-  String get draft => selectedConversation == null
-      ? ''
-      : _drafts[_scope(selectedConversation!)] ?? '';
-  void updateDraft(String value) {
-    final thread = selectedConversation;
-    if (thread != null && thread.canSend) _drafts[_scope(thread)] = value;
-    _changed();
-  }
-
-  void selectConversation(String? id) {
-    if (sending) return;
-    selectedConversationId = id;
-    sendError = null;
-    readError = null;
-    _changed();
-  }
-
-  Future<void> acknowledgeVisibleConversation(
-    String id, {
-    required String phase,
-    required String throughMessageId,
-  }) async {
-    final thread = selectedConversation;
-    if (acknowledging ||
-        thread?.id != id ||
-        thread!.unreadCount == 0 ||
-        thread.messages.isEmpty ||
-        thread.phase != phase ||
-        thread.messages.last.id != throughMessageId ||
-        conversationData.status != FeatureStatus.ready) {
-      return;
-    }
-    final generation = _conversationGeneration;
-    final scope = _scope(thread);
-    final latest = throughMessageId;
-    acknowledging = true;
-    readError = null;
-    _changed();
-    try {
-      await repository.acknowledge(id, thread.phase, latest);
-      if (!_disposed &&
-          generation == _conversationGeneration &&
-          selectedConversation != null &&
-          selectedConversation!.messages.isNotEmpty &&
-          selectedConversation!.messages.last.id == latest &&
-          _scope(selectedConversation!) == scope) {
-        conversationData = FeatureData.ready(
-          List.unmodifiable(
-            conversationData.data!.map(
-              (c) => _scope(c) == scope ? c.read() : c,
-            ),
-          ),
-        );
-      }
-    } catch (_) {
-      if (!_disposed && selectedConversationId == id) {
-        readError = 'Read status was not confirmed. Retry without resending.';
-      }
-    }
-    if (!_disposed) {
-      acknowledging = false;
-      _changed();
-    }
-  }
-
-  Future<bool> sendDraft() async {
-    final thread = selectedConversation;
-    final text = draft.trim();
-    if (sending ||
-        thread == null ||
-        !thread.canSend ||
-        conversationData.status != FeatureStatus.ready ||
-        text.isEmpty ||
-        text.length > 1000) {
-      return false;
-    }
-    final scope = _scope(thread);
-    sending = true;
-    sendError = null;
-    _changed();
-    try {
-      final message = await repository.send(thread.id, thread.phase, text);
-      if (_disposed ||
-          selectedConversation == null ||
-          _scope(selectedConversation!) != scope ||
-          !selectedConversation!.canSend) {
-        return false;
-      }
-      conversationData = FeatureData.ready(
-        List.unmodifiable(
-          conversationData.data!.map(
-            (c) => _scope(c) == scope ? c.withMessage(message) : c,
-          ),
-        ),
-      );
-      _drafts.remove(scope);
-      return true;
-    } catch (_) {
-      if (!_disposed) sendError = 'Sending was not confirmed. Your draft is kept; check the conversation before retrying.';
-      return false;
-    } finally {
-      if (!_disposed) {
-        sending = false;
-        _changed();
-      }
-    }
-  }
-
   @override
   void dispose() {
     _disposed = true;
@@ -1158,7 +1040,8 @@ class WorkspaceController extends ChangeNotifier {
     _unavailableTasks.clear();
     _readFailures.clear();
     _commandFailure = null;
-    _drafts.clear();
+    messages.removeListener(_changed);
+    messages.dispose();
     taskData = const FeatureData.loading();
     tripData = const FeatureData.loading();
     retainedTrips = null;
@@ -1166,7 +1049,6 @@ class WorkspaceController extends ChangeNotifier {
     tripPhase = null;
     fromDate = toDate = null;
     loadingTrips = false;
-    conversationData = const FeatureData.loading();
     super.dispose();
   }
 }

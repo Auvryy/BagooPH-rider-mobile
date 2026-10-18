@@ -55,6 +55,9 @@ external acceptance waiting. Measured work is recorded separately.
 
 See [TESTING.md](TESTING.md) for acceptance and
 [../../api/MESSAGES_NEEDS.md](../../api/MESSAGES_NEEDS.md) for API-owner evidence.
+Actual results live in [VERIFICATION.md](VERIFICATION.md); the opt-in
+[native kernel check](LOCAL_KERNEL.md) uses real services with isolated data.
+
 Local tests and builds cannot complete authorized Azure/cross-role or physical
 Android acceptance. The user controls publication.
 
@@ -82,3 +85,22 @@ native kernel, ordinary builds and external acceptance are tracked separately.
 MIT licence and `>=2.12.0 <4.0.0` Dart constraint were checked against the project's
 Dart 3.13.1 toolchain. Its pure-Dart NFKC normalization follows the accepted
 plain-text policy; no new platform permission or provider account is introduced.
+
+## Screen evidence
+
+Messages uses lazy paged list/history views, loaded-conversation search, stored
+avatars with initials fallback, a phone Back path and a wide split view. The
+composer stays above the simulated keyboard and app navigation; narrow large
+text keeps the participant readable and exposes parcel context in its details
+control. The owned-stop route resolves returned thread identity and closes
+private chat on account changes. Failed requests retain their draft and offer
+explicit original-request recovery.
+
+The optional skill searches returned no verified chat/keyboard-specific match.
+The screen follows the existing project design system and installed adaptive
+layout guidance, with actual-font renders inspected locally. No new theme or
+font direction was selected.
+
+Final local regression: **473 tests passed, four expected skips**. Confirmed
+sends update their original inbox preview without inventing unread counts;
+refresh cancels obsolete pagination and releases its loading state.

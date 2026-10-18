@@ -19,12 +19,14 @@ unassigned rider. Pending/rejected accounts keep their existing holding page
 and feedback. Losing approval or signing out closes private overlays and drops
 workspace state.
 
-The accepted operational slice still lacks task/trip/messaging APIs. Native
-Settings v1 is now deployed for eligible accounts. Production queues, trips
-and conversations therefore show **unavailable** states with a configured
-first-party website link. No fixture data or zero totals are presented as live
-records. No proposed operational URL is called. See the
-[backend handoff](api/WORKSPACE_HANDOFF.md) for the remaining native contracts.
+Operations v1 now supplies live Home/queues, retained Trips and assignment-bound
+Messages when a fresh native session and Home capabilities allow them. The
+[parcel/Trips slice](plans/rider-orders-delivery-trips/README.md) is merged; the
+[Messages slice](plans/rider-assignment-messages/README.md) connects paged threads,
+history and original send/read intents. Their Azure and physical acceptance stay
+separate, and their new writes retain independent default-false acceptance gates.
+Missing or denied resources show truthful unavailable states and the configured
+first-party website fallback. Fixtures never provide ordinary app success.
 
 Settings provides real account refresh/sign-out, privacy/security guidance,
 help, actual package version and open-source licenses. Native contact/password/email management opens in Flutter. Reviewed identity
@@ -70,9 +72,14 @@ buttons are removed; private password/email acceptance remains outstanding.
 Page controllers/repositories separate presentation from data access. Workspace
 instances are scoped by account and preview identity. Late obsolete queue
 responses cannot replace the selected queue; disposal ignores late responses.
-Conversation drafts are phase-bound and invalidated when a thread disappears
-or becomes read only. Failed refresh/send/read responses do not become success
-or clear a draft/unread count. Private state is memory-only.
+Conversation drafts stay in memory under the exact assignment/participant thread;
+a partial page's absence does not prove access loss. Fresh selected denial,
+read-only permission, account loss and disposal clear inappropriate drafts.
+Uncertain original send/read bodies and UUIDs use a separate account/API-scoped
+secure journal across restart. Failed responses do not become optimistic success.
+Only a selected foreground message rendered in the viewport can set a read
+boundary; confirmed reads cannot regress when an older history page arrives.
+Hidden/background/access changes cancel private list/history reads.
 
 Use `flutter analyze` and `flutter test`. The page checks cover authenticated
 unavailability, preview isolation, navigation, trip filters/pagination/detail,

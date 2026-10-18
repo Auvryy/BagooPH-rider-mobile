@@ -9,6 +9,7 @@ import 'package:bagoo_rider_mobile/features/workspace/development/workspace_prev
 import 'package:bagoo_rider_mobile/features/workspace/presentation/workspace_controller.dart';
 import 'package:bagoo_rider_mobile/features/workspace/presentation/workspace_shell.dart';
 import 'package:bagoo_rider_mobile/main.dart';
+import 'package:bagoo_rider_mobile/features/messages/data/message_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -96,12 +97,17 @@ class RecordingLauncher implements WebsiteLauncher {
 class RecordingPreviewRepository extends PreviewWorkspaceRepository {
   final reads = <String>[];
   @override
-  Future<void> acknowledge(
-    String id,
-    String phase,
-    String latestMessageId,
-  ) async {
-    reads.add('$id:$phase:$latestMessageId');
+  Future<MessageCommandResult> acknowledge(
+    ParcelConversation thread,
+    String throughMessageId, {
+    required bool Function() mayDispatch,
+  }) async {
+    reads.add('${thread.id}:${thread.phase}:$throughMessageId');
+    return super.acknowledge(
+      thread,
+      throughMessageId,
+      mayDispatch: mayDispatch,
+    );
   }
 }
 
@@ -221,7 +227,7 @@ void main() {
       await tap(tester, 'nav-trips');
       expect(find.text('Trips are not connected yet'), findsOneWidget);
       await tap(tester, 'nav-messages');
-      expect(find.text('Messages are not connected yet'), findsOneWidget);
+      expect(find.text('Messages unavailable'), findsOneWidget);
       await tap(tester, 'nav-profile');
       expect(find.text('rider@example.com'), findsOneWidget);
       await tap(tester, 'open-settings');
@@ -274,14 +280,14 @@ void main() {
     (tester) async {
       final auth = await preview(tester);
       await tap(tester, 'nav-messages');
-      await tap(tester, 'conversation-preview-pickup');
+      await tap(tester, 'conversation-pickup-1-101-3');
       await tester.enterText(
         find.byKey(const ValueKey('message-draft')),
         'Pickup draft',
       );
       await tester.pumpAndSettle();
       await tap(tester, 'conversation-back');
-      await tap(tester, 'conversation-preview-delivery');
+      await tap(tester, 'conversation-final_mile-2-102-4');
       expect(
         tester
             .widget<TextField>(find.byKey(const ValueKey('message-draft')))
@@ -294,7 +300,7 @@ void main() {
         'Delivery draft',
       );
       await tap(tester, 'conversation-back');
-      await tap(tester, 'conversation-preview-pickup');
+      await tap(tester, 'conversation-pickup-1-101-3');
       expect(
         tester
             .widget<TextField>(find.byKey(const ValueKey('message-draft')))
@@ -303,7 +309,7 @@ void main() {
         'Pickup draft',
       );
       await tap(tester, 'send-message');
-      expect(find.text('Preview · not sent'), findsOneWidget);
+      expect(find.text('Preview · not sent'), findsWidgets);
       expect(
         tester
             .widget<TextField>(find.byKey(const ValueKey('message-draft')))
@@ -312,7 +318,7 @@ void main() {
         isEmpty,
       );
       await tap(tester, 'conversation-back');
-      await tap(tester, 'conversation-preview-ended');
+      await tap(tester, 'conversation-final_mile-3-103-5');
       expect(find.byKey(const ValueKey('message-draft')), findsNothing);
       expect(
         find.text(
@@ -361,13 +367,13 @@ void main() {
           const WorkspaceIdentity('test-preview', preview: true),
         ),
       );
-      controller.selectConversation('preview-pickup');
+      controller.messages.selectConversation('pickup-1-101-3');
       await tester.pumpAndSettle();
       expect(repo.reads, isEmpty);
       await tap(tester, 'nav-messages');
-      expect(repo.reads, ['preview-pickup:pickup:preview-m2']);
+      expect(repo.reads, ['pickup-1-101-3:pickup:1']);
       await tap(tester, 'nav-trips');
-      controller.selectConversation('preview-delivery');
+      controller.messages.selectConversation('final_mile-2-102-4');
       await tester.pumpAndSettle();
       expect(repo.reads.length, 1);
       for (final state in [
@@ -387,7 +393,7 @@ void main() {
         tester.binding.handleAppLifecycleStateChanged(state);
       }
       await tester.pumpAndSettle();
-      expect(repo.reads.last, 'preview-delivery:final_mile:preview-m3');
+      expect(repo.reads.last, 'final_mile-2-102-4:final_mile:3');
     },
   );
   for (final lostVersion in [false, true]) {
@@ -523,7 +529,7 @@ void main() {
       });
       await preview(tester);
       await tap(tester, 'nav-messages');
-      await tap(tester, 'conversation-preview-pickup');
+      await tap(tester, 'conversation-pickup-1-101-3');
       tester.view.viewInsets = const FakeViewPadding(bottom: 300);
       await tester.enterText(
         find.byKey(const ValueKey('message-draft')),

@@ -35,6 +35,19 @@ Future<void> tap(WidgetTester tester, String key) async {
       await tester.scrollUntilVisible(target, 120, scrollable: scrollable);
     }
   }
+  final trips = find.byKey(const PageStorageKey('trips-scroll'));
+  if (target.evaluate().isEmpty &&
+      trips.evaluate().isNotEmpty &&
+      (key.startsWith('trip-') || key.startsWith('trips-'))) {
+    final scrollable = find
+        .descendant(of: trips, matching: find.byType(Scrollable))
+        .first;
+    if (key.startsWith('trip-payment-')) {
+      tester.state<ScrollableState>(scrollable).position.jumpTo(0);
+      await tester.pumpAndSettle();
+    }
+    await tester.scrollUntilVisible(target, 180, scrollable: scrollable);
+  }
   await tester.ensureVisible(target);
   await tester.pumpAndSettle();
   final ancestor = find.ancestor(of: target, matching: find.byType(Scrollable));
@@ -54,6 +67,19 @@ Future<void> tapFinder(WidgetTester tester, Finder target) async {
   await tester.ensureVisible(target);
   await tester.pumpAndSettle();
   await tester.tap(target);
+  await tester.pumpAndSettle();
+}
+
+Future<void> tripSummary(WidgetTester tester, String text) async {
+  final list = find.byKey(const PageStorageKey('trips-scroll'));
+  final scrollable = find
+      .descendant(of: list, matching: find.byType(Scrollable))
+      .first;
+  tester.state<ScrollableState>(scrollable).position.jumpTo(0);
+  await tester.pumpAndSettle();
+  await tester.scrollUntilVisible(find.text(text), 200, scrollable: scrollable);
+  expect(find.text(text), findsOneWidget);
+  tester.state<ScrollableState>(scrollable).position.jumpTo(0);
   await tester.pumpAndSettle();
 }
 
@@ -219,17 +245,17 @@ void main() {
     (tester) async {
       await preview(tester);
       await tap(tester, 'nav-trips');
-      expect(find.text('Showing 1–10 of 14 matching records'), findsOneWidget);
+      await tripSummary(tester, 'Showing 1–10 of 14 matching records');
       await tap(tester, 'trips-next');
-      expect(find.text('Showing 11–14 of 14 matching records'), findsOneWidget);
+      await tripSummary(tester, 'Showing 11–14 of 14 matching records');
       await tap(tester, 'trip-payment-cod');
-      expect(find.text('Showing 1–7 of 7 matching records'), findsOneWidget);
+      await tripSummary(tester, 'Showing 1–7 of 7 matching records');
       await tester.enterText(
         find.byKey(const ValueKey('trip-search')),
         'DEMO-T3001',
       );
       await tester.pumpAndSettle();
-      expect(find.text('Showing 1–1 of 1 matching records'), findsOneWidget);
+      await tripSummary(tester, 'Showing 1–1 of 1 matching records');
       await tap(tester, 'trip-preview-trip-0');
       expect(find.text('Recorded journey'), findsOneWidget);
       expect(find.text('Assigned by destination hub'), findsOneWidget);

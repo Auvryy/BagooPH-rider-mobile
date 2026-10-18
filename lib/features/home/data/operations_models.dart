@@ -1,61 +1,6 @@
-/// Accepted Rider operations v1 wire values. IDs and money never pass through
-/// floating point; unfamiliar state codes remain server text.
-class Wire {
-  static Never invalid() =>
-      throw const FormatException('The work response could not be verified.');
-  static Map<String, dynamic> object(Object? v) =>
-      v is Map<String, dynamic> ? v : invalid();
-  static String string(Object? v) => v is String ? v : invalid();
-  static String? nullableString(Object? v) => v == null ? null : string(v);
-  static bool boolean(Object? v) => v is bool ? v : invalid();
-  static int count(Object? v) => v is int && v >= 0 ? v : invalid();
-  static String id(Object? v) {
-    final s = string(v);
-    if (!RegExp(r'^[1-9][0-9]*$').hasMatch(s) ||
-        s.length > 19 ||
-        BigInt.parse(s) > BigInt.parse('9223372036854775807')) {
-      invalid();
-    }
-    return s;
-  }
+import '../../../core/network/wire.dart';
 
-  static String version(Object? v) {
-    final s = string(v);
-    if (!RegExp(r'^[a-f0-9]{64}$').hasMatch(s)) invalid();
-    return s;
-  }
-
-  static String uuid(Object? v) {
-    final s = string(v);
-    if (!RegExp(r'^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$').hasMatch(s)) {
-      invalid();
-    }
-    return s;
-  }
-
-  static DateTime time(Object? v) {
-    final s = string(v);
-    if (!RegExp(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$').hasMatch(s)) {
-      invalid();
-    }
-    final parsed = DateTime.tryParse(s);
-    if (parsed == null || parsed.toIso8601String() != s) invalid();
-    return parsed;
-  }
-
-  static String taskId(Object? v) {
-    final s = string(v);
-    final m = RegExp(r'^(pickup|final_mile)-([1-9][0-9]*)$').firstMatch(s);
-    if (m == null) invalid();
-    id(m[2]);
-    return s;
-  }
-
-  static Map<String, bool> flags(Object? v) =>
-      Map.unmodifiable(object(v).map((k, v) => MapEntry(k, boolean(v))));
-  static Map<String, int> counts(Object? v) =>
-      Map.unmodifiable(object(v).map((k, v) => MapEntry(k, count(v))));
-}
+export '../../../core/network/wire.dart';
 
 class OperationsHome {
   OperationsHome.fromJson(Map<String, dynamic> j)
@@ -184,6 +129,9 @@ class OperationTask {
       if (!actions.containsKey(k)) Wire.invalid();
     }
     final payment = j['payment'];
+    failurePolicy = j['failure_policy'] == null
+        ? null
+        : FailurePolicy.fromJson(Wire.object(j['failure_policy']));
     if (payment != null) {
       final p = Wire.object(payment);
       paymentMethod = Wire.string(p['method']);
@@ -230,6 +178,35 @@ class OperationTask {
   late final String? custodyHubId, paymentMethod, paymentStatus;
   late final bool heldByMe;
   late final BigInt? codDueCents;
+  late final FailurePolicy? failurePolicy;
+}
+
+class FailurePolicy {
+  FailurePolicy.fromJson(Map<String, dynamic> j)
+    : attemptLimit = Wire.count(j['attempt_limit']),
+      recordedAttempts = Wire.count(j['recorded_attempts']),
+      returnHubId = Wire.id(j['return_hub_id']),
+      retryAuthority = Wire.string(j['retry_authority']) {
+    if (attemptLimit < 1 || j['reasons'] is! List) Wire.invalid();
+    final labels = <String, String>{};
+    for (final value in j['reasons'] as List) {
+      final reason = Wire.object(value);
+      final code = Wire.string(reason['code']);
+      if (labels.containsKey(code)) Wire.invalid();
+      labels[code] = Wire.string(reason['label']);
+    }
+    reasons = Map.unmodifiable(labels);
+    for (final field in [
+      'requires_notes',
+      'requires_location',
+      'requires_private_image',
+    ]) {
+      Wire.boolean(j[field]);
+    }
+  }
+  final int attemptLimit, recordedAttempts;
+  final String returnHubId, retryAuthority;
+  late final Map<String, String> reasons;
 }
 
 class TaskPage {

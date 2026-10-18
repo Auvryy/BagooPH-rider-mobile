@@ -17,6 +17,8 @@ import 'home_task_panel.dart' show stopKindLabel;
 import 'stop_guidance.dart';
 import 'task_stage_label.dart';
 import '../../handover/presentation/handover_entry.dart';
+import '../../../core/commands/parcel_validation.dart';
+import '../../parcels/presentation/parcel_action_page.dart';
 
 class StopModePage extends StatefulWidget {
   const StopModePage({
@@ -400,6 +402,86 @@ class _StopModePageState extends State<StopModePage>
                                 !_busy)
                               const Text(
                                 'Refresh work and this stop before using its actions.',
+                              ),
+                            if (task.actions['pickup'] == true ||
+                                task.actions['depart'] == true) ...[
+                              FilledButton.icon(
+                                key: const ValueKey('stop-parcel-action'),
+                                onPressed: canAct && work.canWriteParcel
+                                    ? () => Navigator.of(context).push<void>(
+                                        MaterialPageRoute(
+                                          builder: (_) => ParcelActionPage(
+                                            work: work,
+                                            taskId: task.id,
+                                            action:
+                                                task.actions['pickup'] == true
+                                                ? ParcelAction.pickup
+                                                : ParcelAction.depart,
+                                          ),
+                                        ),
+                                      )
+                                    : null,
+                                icon: const Icon(Icons.qr_code_scanner_rounded),
+                                label: Text(
+                                  task.actions['pickup'] == true
+                                      ? 'Scan and collect parcel'
+                                      : 'Scan and start delivery',
+                                ),
+                              ),
+                              if (!work.canWriteParcel)
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 8),
+                                  child: Text(
+                                    'Parcel actions are awaiting live acceptance verification or a current work check.',
+                                  ),
+                                ),
+                              const SizedBox(height: 16),
+                            ],
+                            if (task.actions['deliver'] == true) ...[
+                              FilledButton.icon(
+                                key: const ValueKey('stop-deliver'),
+                                onPressed: canAct && work.canWriteParcel
+                                    ? () => Navigator.of(context).push<void>(
+                                        MaterialPageRoute(
+                                          builder: (_) => ParcelActionPage(
+                                            work: work,
+                                            taskId: task.id,
+                                            action: ParcelAction.deliver,
+                                          ),
+                                        ),
+                                      )
+                                    : null,
+                                icon: const Icon(Icons.inventory_2_outlined),
+                                label: const Text('Record recipient delivery'),
+                              ),
+                              const SizedBox(height: 12),
+                            ],
+                            if (task.actions['fail'] == true) ...[
+                              OutlinedButton.icon(
+                                key: const ValueKey('stop-fail'),
+                                onPressed: canAct && work.canWriteParcel
+                                    ? () => Navigator.of(context).push<void>(
+                                        MaterialPageRoute(
+                                          builder: (_) => ParcelActionPage(
+                                            work: work,
+                                            taskId: task.id,
+                                            action: ParcelAction.fail,
+                                          ),
+                                        ),
+                                      )
+                                    : null,
+                                icon: const Icon(Icons.report_problem_outlined),
+                                label: const Text('Report failed attempt'),
+                              ),
+                              const SizedBox(height: 12),
+                            ],
+                            if (task.actionDenials['deliver'] ==
+                                'UNSUPPORTED_PAYMENT_OUTCOME')
+                              const Padding(
+                                padding: EdgeInsets.only(bottom: 16),
+                                child: Text(
+                                  'Recording this payment type is not supported in the app yet. Contact your hub for the next step.',
+                                ),
                               ),
                             _stopActions(task),
                             const SizedBox(height: 16),

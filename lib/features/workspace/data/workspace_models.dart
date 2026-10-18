@@ -1,4 +1,5 @@
 import '../../home/data/operations_models.dart';
+import '../../trips/data/trip_models.dart';
 
 enum TaskQueue {
   available('Available pickups', 'Pickups are claimed by the rider.'),
@@ -70,12 +71,14 @@ class RiderTrip {
     required this.payment,
     required this.checkpoints,
     this.cashCentavos,
+    this.operation,
   });
   final String id, tracking, recipient, address, outcome;
   final DateTime recordedAt;
   final PaymentFilter payment;
   final int? cashCentavos;
   final List<TripCheckpoint> checkpoints;
+  final RetainedTrip? operation;
 }
 
 class RiderMessage {

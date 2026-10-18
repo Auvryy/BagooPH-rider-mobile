@@ -3,12 +3,17 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/commands/protected_proof_store.dart';
+import '../../../core/commands/parcel_proof.dart';
+import '../../../core/commands/parcel_validation.dart';
 import '../../../core/network/api_failure.dart';
 import '../../../core/network/rider_api_client.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../home/data/command_journal.dart';
 import '../../home/data/operations_models.dart';
 import '../../home/data/operations_repository.dart';
+import '../../parcels/data/parcel_photo_service.dart';
+import '../../trips/data/trip_models.dart';
 import '../data/workspace_models.dart';
 import '../data/workspace_repository.dart';
 
@@ -33,6 +38,21 @@ final workspaceRepositoryProvider = Provider<WorkspaceRepository>(
     }
     var alive = true;
     ref.onDispose(() => alive = false);
+    bool isCurrent() =>
+        alive &&
+        ref.read(authControllerProvider).user?.id == account.id &&
+        ref.read(authControllerProvider).user?.approved == true;
+    final proofs = ProtectedParcelProofStore(
+      origin: config.origin,
+      accountId: account.id!,
+    );
+    final photos = ParcelPhotoService(
+      origin: config.origin,
+      accountId: account.id!,
+      proofs: proofs,
+      isCurrent: isCurrent,
+    );
+    ref.onDispose(photos.dispose);
     return OperationsRepository(
       repository as RiderSessionApi,
       accountId: account.id!,
@@ -41,10 +61,10 @@ final workspaceRepositoryProvider = Provider<WorkspaceRepository>(
         accountId: account.id!,
       ),
       writesVerified: config.operationsWritesVerified,
-      isCurrent: () =>
-          alive &&
-          ref.read(authControllerProvider).user?.id == account.id &&
-          ref.read(authControllerProvider).user?.approved == true,
+      parcelWritesVerified: config.parcelWritesVerified,
+      proofStore: proofs,
+      photos: photos,
+      isCurrent: isCurrent,
     );
   },
   dependencies: [
@@ -81,10 +101,11 @@ final workspaceControllerProvider = Provider.autoDispose
       return controller;
     }, dependencies: [workspaceRepositoryProvider, authControllerProvider]);
 
-enum _WorkRead { home, tasks, detail, more }
+enum _WorkRead { home, tasks, detail, more, trips }
 
 class WorkspaceController extends ChangeNotifier {
   WorkspaceController(this.repository, {this.onSessionEnd}) {
+    if (operations?.photos != null) unawaited(operations!.photos!.restore());
     unawaited(operations == null ? refreshAll() : Future.microtask(refreshAll));
   }
   final WorkspaceRepository repository;
@@ -94,6 +115,8 @@ class WorkspaceController extends ChangeNotifier {
       : null;
   FeatureData<OperationsHome> homeData = const FeatureData.loading();
   CommandIntent? pendingIntent;
+  String? reconciledWorkKey;
+  Map<String, dynamic>? reconciledWorkResult;
   final _readFailures = <_WorkRead, AccountFailure>{};
   AccountFailure? _commandFailure;
   AccountFailure? get workFailure =>
@@ -129,8 +152,23 @@ class WorkspaceController extends ChangeNotifier {
       pendingIntent == null &&
       homeData.status == FeatureStatus.ready;
 
+  bool get canWriteParcel =>
+      !_disposed &&
+      !_sessionEnded &&
+      operations?.parcelWritesVerified == true &&
+      !working &&
+      !coolingDown &&
+      pendingIntent == null &&
+      homeData.status == FeatureStatus.ready &&
+      homeData.data?.capabilities['parcel_actions'] == true;
+
   bool get hasWorkAccess =>
       !_disposed && !_sessionEnded && !workAccessUnavailable;
+
+  bool get canReadTrips =>
+      !_disposed &&
+      !_sessionEnded &&
+      (operations == null || homeData.data?.capabilities['trips'] == true);
 
   bool canUseSelectedStop(String id) =>
       hasWorkAccess &&
@@ -147,6 +185,15 @@ class WorkspaceController extends ChangeNotifier {
     if (_foreground == value) return;
     _foreground = value;
     _poll?.cancel();
+    if (!value) {
+      _tripSearchTimer?.cancel();
+      _tripGeneration++;
+      loadingTrips = false;
+      if (tripData.status == FeatureStatus.refreshing) {
+        tripData = FeatureData.ready(tripData.data!);
+      }
+      _changed();
+    }
     if (value) unawaited(refreshAll());
   }
 
@@ -197,9 +244,14 @@ class WorkspaceController extends ChangeNotifier {
       homeData = FeatureData.unavailable(failure.message);
       taskData = FeatureData.unavailable(failure.message);
       tripData = FeatureData.unavailable(failure.message);
+      retainedTrips = null;
+      loadingTrips = false;
+      _tripSearchTimer?.cancel();
       conversationData = FeatureData.unavailable(failure.message);
       selectedTask = null;
       pendingIntent = null;
+      reconciledWorkKey = null;
+      reconciledWorkResult = null;
       taskPage = null;
       selectingTask = loadingMore = false;
       selectedConversationId = null;
@@ -276,6 +328,8 @@ class WorkspaceController extends ChangeNotifier {
           pendingIntent = await ops.pending();
           if (_disposed || generation != _homeGeneration) return;
           if (committed != null) {
+            reconciledWorkKey = pending.key;
+            reconciledWorkResult = committed;
             _commandFailure = null;
             workNotice = 'Work request confirmed.';
           }
@@ -398,6 +452,27 @@ class WorkspaceController extends ChangeNotifier {
       _command(() => operations!.duty(desired));
   Future<void> claimTask(OperationTask task) =>
       _command(() => operations!.claim(task));
+  Future<Map<String, dynamic>?> performParcel(
+    ParcelAction action,
+    OperationTask reviewed, {
+    required String barcode,
+    Map<String, dynamic> fields = const {},
+    ParcelProof? proof,
+  }) async {
+    Map<String, dynamic>? committed;
+    await _command(() async {
+      committed = await operations!.parcel(
+        action,
+        reviewed,
+        barcode: barcode,
+        fields: fields,
+        proof: proof,
+      );
+      return committed;
+    }, parcel: true);
+    return committed;
+  }
+
   Future<void> checkPending({bool retryUnknown = false}) => _command(
     () => operations!.reconcile(retryUnknown: retryUnknown),
     recovery: true,
@@ -405,18 +480,21 @@ class WorkspaceController extends ChangeNotifier {
   Future<void> _command(
     Future<Map<String, dynamic>?> Function() request, {
     bool recovery = false,
+    bool parcel = false,
   }) async {
     if (_disposed ||
         _sessionEnded ||
         operations == null ||
         working ||
         coolingDown ||
-        (!recovery && !canWrite)) {
+        (!recovery && !(parcel ? canWriteParcel : canWrite))) {
       return;
     }
     working = true;
     _commandFailure = null;
     workNotice = null;
+    final reviewedSelection = _detailGeneration;
+    final originalRecovery = recovery ? pendingIntent : null;
     _changed();
     try {
       final result = await request();
@@ -425,25 +503,52 @@ class WorkspaceController extends ChangeNotifier {
         workNotice =
             'No committed result is visible yet. The original request is kept.';
       } else {
-        workNotice = 'Work request confirmed.';
+        if (originalRecovery != null) {
+          reconciledWorkKey = originalRecovery.key;
+          reconciledWorkResult = result;
+        }
+        workNotice = switch (result['operational_stage']) {
+          'picked_up' =>
+            'Collection recorded. Bring the parcel to its origin hub.',
+          'out_for_delivery' =>
+            'Departure recorded. Follow the current buyer stop.',
+          'delivered' =>
+            'Delivery recorded. The buyer confirms receipt separately.',
+          'delivery_failed' =>
+            'Attempt recorded. Return the parcel to its destination hub.',
+          _ => 'Work request confirmed.',
+        };
         if (result['task_id'] is String) {
-          final generation = ++_detailGeneration;
-          try {
-            final owned = await operations!.detail(result['task_id']);
-            if (!_disposed && generation == _detailGeneration) {
-              selectedTask = owned;
-              selectingTask = false;
-              _readFailures.remove(_WorkRead.detail);
-              _unavailableTasks.remove(owned.id);
-              if (unavailableTaskId == owned.id) unavailableTaskId = null;
-              queue = TaskQueue.pickups;
-            }
-          } catch (error) {
-            if (!_disposed && generation == _detailGeneration) {
-              if (error is AccountFailure && error.status == 404) {
-                _invalidateTask(result['task_id']);
+          if (result['operational_stage'] == 'delivered') {
+            final id = result['task_id'] as String;
+            _unavailableTasks.add(id);
+            taskData = FeatureData.ready(
+              taskData.data?.where((task) => task.id != id).toList() ?? [],
+            );
+            _taskGeneration++;
+            if (selectedTask?.id == id) closeTask();
+            queue = TaskQueue.delivery;
+          } else if (_detailGeneration == reviewedSelection) {
+            final generation = ++_detailGeneration;
+            try {
+              final owned = await operations!.detail(result['task_id']);
+              if (!_disposed && generation == _detailGeneration) {
+                selectedTask = owned;
+                selectingTask = false;
+                _readFailures.remove(_WorkRead.detail);
+                _unavailableTasks.remove(owned.id);
+                if (unavailableTaskId == owned.id) unavailableTaskId = null;
+                queue = owned.phase == 'pickup'
+                    ? TaskQueue.pickups
+                    : TaskQueue.delivery;
               }
-              await _workError(error, read: _WorkRead.detail);
+            } catch (error) {
+              if (!_disposed && generation == _detailGeneration) {
+                if (error is AccountFailure && error.status == 404) {
+                  _invalidateTask(result['task_id']);
+                }
+                await _workError(error, read: _WorkRead.detail);
+              }
             }
           }
         }
@@ -518,6 +623,10 @@ class WorkspaceController extends ChangeNotifier {
   PaymentFilter payment = PaymentFilter.all;
   DateTime? fromDate, toDate;
   int tripPage = 0;
+  RetainedTripPage? retainedTrips;
+  String? tripPhase;
+  bool loadingTrips = false;
+  Timer? _tripSearchTimer;
   static const pageSize = 10;
   String? selectedConversationId;
   final Map<String, String> _drafts = {};
@@ -661,29 +770,112 @@ class WorkspaceController extends ChangeNotifier {
     }
   }
 
-  Future<void> refreshTrips() async {
-    if (_disposed || _sessionEnded) return;
+  Future<void> refreshTrips({int page = 1, bool append = false}) async {
+    if (_disposed || _sessionEnded || coolingDown || !_foreground) return;
+    _tripSearchTimer?.cancel();
+    final ops = operations;
+    if (ops != null && homeData.data?.capabilities['trips'] != true) {
+      _tripGeneration++;
+      tripData = const FeatureData.unavailable(
+        'Recorded Trips are unavailable for this account.',
+      );
+      retainedTrips = null;
+      loadingTrips = false;
+      _changed();
+      return;
+    }
     final generation = ++_tripGeneration;
     final previous = tripData.data;
+    loadingTrips = true;
     tripData = previous == null
         ? const FeatureData.loading()
         : FeatureData.refreshing(previous);
     _changed();
     try {
-      final result = await repository.trips();
+      RetainedTripPage? response;
+      FeatureData<List<RiderTrip>> result;
+      if (ops != null) {
+        response = await ops.tripPage(
+          page: page,
+          filters: TripFilters(
+            search: tripSearch,
+            phase: tripPhase,
+            payment: payment.name,
+            from: fromDate,
+            to: toDate,
+          ),
+        );
+        final unique = <String, RiderTrip>{
+          if (append && previous != null)
+            for (final trip in previous) trip.id: trip,
+          for (final trip in response.items)
+            trip.id: OperationsRepository.asRiderTrip(trip),
+        };
+        result = FeatureData.ready(List.unmodifiable(unique.values));
+      } else {
+        result = await repository.trips();
+      }
       if (!_disposed && generation == _tripGeneration) {
         tripData = result;
-        if (tripPage * pageSize >= filteredTrips.length) tripPage = 0;
+        if (response != null) {
+          retainedTrips = response;
+          tripPage = response.page - 1;
+          _readFailures.remove(_WorkRead.trips);
+        } else if (tripPage * pageSize >= filteredTrips.length) {
+          tripPage = 0;
+        }
         _changed();
       }
-    } catch (_) {
+    } catch (error) {
       if (!_disposed && generation == _tripGeneration) {
+        final failure = ops == null
+            ? null
+            : await _workError(error, read: _WorkRead.trips);
+        if (_disposed || _sessionEnded || generation != _tripGeneration) return;
         tripData = FeatureData.failed(
-          'Could not load trips. Try again.',
+          failure?.message ?? 'Could not load trips. Try again.',
           previous,
         );
         _changed();
       }
+    } finally {
+      if (!_disposed && generation == _tripGeneration) {
+        loadingTrips = false;
+        _changed();
+      }
+    }
+  }
+
+  Future<void> reportTripFailure(AccountFailure failure) async {
+    await _workError(failure, read: _WorkRead.trips);
+    _changed();
+  }
+
+  void _tripQueryChanged({bool debounce = false}) {
+    if (_disposed || _sessionEnded) return;
+    if (operations == null) {
+      _changed();
+      return;
+    }
+    _tripSearchTimer?.cancel();
+    _tripGeneration++;
+    tripPage = 0;
+    retainedTrips = null;
+    loadingTrips = false;
+    tripData = coolingDown
+        ? const FeatureData.failed(
+            'Wait for the request cooldown, then refresh Trips.',
+          )
+        : const FeatureData.loading();
+    _changed();
+    if (coolingDown) return;
+    if (debounce) {
+      _tripSearchTimer = Timer(
+        const Duration(milliseconds: 350),
+        () => unawaited(refreshTrips()),
+      );
+    } else {
+      unawaited(refreshTrips());
     }
   }
 
@@ -747,20 +939,35 @@ class WorkspaceController extends ChangeNotifier {
   void searchTrips(String value) {
     tripSearch = value;
     tripPage = 0;
-    _changed();
+    _tripQueryChanged(debounce: true);
   }
 
   void filterPayment(PaymentFilter value) {
     payment = value;
     tripPage = 0;
-    _changed();
+    _tripQueryChanged();
   }
 
   void filterDates(DateTime? from, DateTime? to) {
     fromDate = from;
     toDate = to;
     tripPage = 0;
-    _changed();
+    _tripQueryChanged();
+  }
+
+  void filterTripPhase(String? value) {
+    tripPhase = value;
+    _tripQueryChanged();
+  }
+
+  void clearTripFilters() {
+    tripSearch = '';
+    payment = PaymentFilter.all;
+    tripPhase = null;
+    fromDate = null;
+    toDate = null;
+    tripPage = 0;
+    _tripQueryChanged();
   }
 
   void searchConversations(String value) {
@@ -775,20 +982,31 @@ class WorkspaceController extends ChangeNotifier {
         ),
       )
       .toList();
-  List<RiderTrip> get filteredTrips => (tripData.data ?? []).where((t) {
-    final day = manilaTime(t.recordedAt);
-    final date = DateTime(day.year, day.month, day.day);
-    return '${t.tracking} ${t.recipient} ${t.address}'.toLowerCase().contains(
-          tripSearch.trim().toLowerCase(),
-        ) &&
-        (payment == PaymentFilter.all || t.payment == payment) &&
-        (fromDate == null || !date.isBefore(fromDate!)) &&
-        (toDate == null || !date.isAfter(toDate!));
-  }).toList();
-  List<RiderTrip> get visibleTrips =>
-      filteredTrips.skip(tripPage * pageSize).take(pageSize).toList();
-  bool get hasNextTripPage => (tripPage + 1) * pageSize < filteredTrips.length;
+  List<RiderTrip> get filteredTrips => operations != null
+      ? (tripData.data ?? [])
+      : (tripData.data ?? []).where((t) {
+          final day = manilaTime(t.recordedAt);
+          final date = DateTime(day.year, day.month, day.day);
+          return '${t.tracking} ${t.recipient} ${t.address}'
+                  .toLowerCase()
+                  .contains(tripSearch.trim().toLowerCase()) &&
+              (payment == PaymentFilter.all || t.payment == payment) &&
+              (fromDate == null || !date.isBefore(fromDate!)) &&
+              (toDate == null || !date.isAfter(toDate!));
+        }).toList();
+  List<RiderTrip> get visibleTrips => operations != null
+      ? filteredTrips
+      : filteredTrips.skip(tripPage * pageSize).take(pageSize).toList();
+  bool get hasNextTripPage => operations != null
+      ? retainedTrips?.hasNext == true
+      : (tripPage + 1) * pageSize < filteredTrips.length;
   void nextTripPage() {
+    if (operations != null) {
+      if (!loadingTrips && hasNextTripPage) {
+        unawaited(refreshTrips(page: tripPage + 2, append: true));
+      }
+      return;
+    }
     if (hasNextTripPage) {
       tripPage++;
       _changed();
@@ -931,6 +1149,7 @@ class WorkspaceController extends ChangeNotifier {
     _disposed = true;
     _poll?.cancel();
     _cooldownTimer?.cancel();
+    _tripSearchTimer?.cancel();
     _detailGeneration++;
     homeData = const FeatureData.loading();
     pendingIntent = null;
@@ -942,6 +1161,11 @@ class WorkspaceController extends ChangeNotifier {
     _drafts.clear();
     taskData = const FeatureData.loading();
     tripData = const FeatureData.loading();
+    retainedTrips = null;
+    tripSearch = '';
+    tripPhase = null;
+    fromDate = toDate = null;
+    loadingTrips = false;
     conversationData = const FeatureData.loading();
     super.dispose();
   }

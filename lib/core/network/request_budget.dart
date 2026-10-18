@@ -8,8 +8,26 @@ class NativeRequestBudget {
   NativeRequestBudget({DateTime Function()? now}) : now = now ?? DateTime.now;
   final DateTime Function() now;
   final _reads = Queue<DateTime>(), _writes = Queue<DateTime>();
+  DateTime? _serverCooldown;
+  void defer(int seconds) {
+    if (seconds < 1 || seconds > 86400) return;
+    final until = now().add(Duration(seconds: seconds));
+    if (_serverCooldown == null || until.isAfter(_serverCooldown!)) {
+      _serverCooldown = until;
+    }
+  }
+
   void reserve(String method) {
     final current = now();
+    if (_serverCooldown?.isAfter(current) == true) {
+      throw AccountFailure(
+        'Please wait before requesting more work data.',
+        status: 429,
+        code: 'SERVER_REQUEST_COOLDOWN',
+        retryAfterSeconds:
+            (_serverCooldown!.difference(current).inMilliseconds / 1000).ceil(),
+      );
+    }
     final boundary = current.subtract(const Duration(minutes: 1));
     for (final queue in [_reads, _writes]) {
       while (queue.isNotEmpty && !queue.first.isAfter(boundary)) {

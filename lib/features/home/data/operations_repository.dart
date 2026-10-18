@@ -1,7 +1,13 @@
+import 'package:dio/dio.dart';
+
+import '../../../core/commands/parcel_proof.dart';
+import '../../../core/commands/parcel_validation.dart';
 import '../../../core/network/api_failure.dart';
 import '../../../core/network/rider_api_client.dart';
 import '../../workspace/data/workspace_models.dart';
 import '../../workspace/data/workspace_repository.dart';
+import '../../parcels/data/parcel_photo_service.dart';
+import '../../trips/data/trip_models.dart';
 import 'command_journal.dart';
 import 'operations_models.dart';
 
@@ -11,6 +17,9 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
     required this.accountId,
     required this.journal,
     required this.writesVerified,
+    this.parcelWritesVerified = false,
+    this.proofStore,
+    this.photos,
     required this.isCurrent,
     DateTime Function()? now,
   }) : now = now ?? DateTime.now;
@@ -18,6 +27,9 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
   final String accountId;
   final CommandJournal journal;
   final bool writesVerified;
+  final bool parcelWritesVerified;
+  final ParcelProofStore? proofStore;
+  final ParcelPhotoService? photos;
   final bool Function() isCurrent;
   final DateTime Function() now;
   bool _writing = false;
@@ -96,6 +108,71 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
     return task;
   }
 
+  Future<RetainedTripPage> tripPage({
+    int page = 1,
+    TripFilters? filters,
+  }) async {
+    final path = Uri(
+      path: 'rider/trips',
+      queryParameters: (filters ?? TripFilters()).query(page),
+    ).toString();
+    final result = RetainedTripPage.fromJson(await _request(path));
+    if (result.page != page) Wire.invalid();
+    return result;
+  }
+
+  static RiderTrip asRiderTrip(RetainedTrip trip) => RiderTrip(
+    id: trip.id,
+    tracking: trip.tracking,
+    recipient: trip.recipient ?? 'Recipient not recorded',
+    address: trip.address ?? 'Handoff address not recorded',
+    outcome: tripOutcomeLabel(trip.outcome),
+    recordedAt: trip.assignedAt,
+    payment: trip.paymentMethod == 'cod'
+        ? PaymentFilter.cod
+        : PaymentFilter.prepaid,
+    checkpoints: [
+      for (final checkpoint in trip.checkpoints)
+        TripCheckpoint(
+          tripOutcomeLabel(checkpoint.kind),
+          checkpoint.recordedAt,
+        ),
+    ],
+    operation: trip,
+  );
+  @override
+  Future<FeatureData<List<RiderTrip>>> trips() async =>
+      FeatureData.ready((await tripPage()).items.map(asRiderTrip).toList());
+  Future<RetainedTrip> tripDetail(String id) async {
+    tripId(id);
+    final value = RetainedTrip.fromJson(await _request('rider/trips/$id'));
+    if (value.id != id) Wire.invalid();
+    return value;
+  }
+
+  Future<PrivateApiBytes> tripProof(String id, String path) async {
+    _guard();
+    final fresh = await tripDetail(id);
+    if (!fresh.proofPaths.contains(path) || api is! RiderEvidenceSessionApi) {
+      throw const AccountFailure(
+        'This proof is unavailable for the original assignment.',
+      );
+    }
+    final value = await (api as RiderEvidenceSessionApi).authenticatedEvidence(
+      path,
+    );
+    _guard();
+    if (!parcelProofMimes.values.contains(value.mimeType) ||
+        value.bytes.isEmpty ||
+        value.bytes.length > parcelProofLimit ||
+        !parcelProofSignature(value.bytes, value.mimeType)) {
+      throw const AccountFailure(
+        'The private proof response could not be verified.',
+      );
+    }
+    return value;
+  }
+
   Future<CommandIntent?> pending() async {
     _guard();
     final intent = await journal.read();
@@ -113,6 +190,134 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
       throw const AccountFailure('Refresh this pickup before claiming it.');
     }
     return _newIntent('claim', task.id, {'expected_version': task.version});
+  }
+
+  /// The review is tied to this exact assignment, version and submitted scan.
+  /// A fresh detail can reject a changed review; it never silently updates it.
+  Future<Map<String, dynamic>> parcel(
+    ParcelAction action,
+    OperationTask reviewed, {
+    required String barcode,
+    Map<String, dynamic> fields = const {},
+    ParcelProof? proof,
+  }) async {
+    if (_writing) {
+      throw const AccountFailure('A work request is already being checked.');
+    }
+    _writing = true;
+    ParcelProofReference? retained;
+    var persisted = false;
+    try {
+      _guard();
+      if (!parcelWritesVerified) {
+        throw const AccountFailure(
+          'Parcel actions are awaiting live acceptance verification.',
+        );
+      }
+      if (await pending() != null) {
+        throw const AccountFailure(
+          'Check the saved work request before starting another.',
+        );
+      }
+      final freshHome = await home();
+      if (freshHome.capabilities['parcel_actions'] != true) {
+        throw const AccountFailure(
+          'Parcel actions are unavailable for this account.',
+        );
+      }
+      if (reviewed.preview ||
+          reviewed.actions[action.name] != true ||
+          action.requiresProof != (proof != null)) {
+        throw const AccountFailure(
+          'Refresh this parcel before reviewing its action.',
+        );
+      }
+      final fresh = await detail(reviewed.id);
+      if (fresh.version != reviewed.version ||
+          fresh.assignmentReference != reviewed.assignmentReference ||
+          fresh.actions[action.name] != true) {
+        throw const AccountFailure(
+          'This parcel changed. Refresh it and review the current action.',
+          status: 409,
+          code: 'STALE_RESOURCE',
+        );
+      }
+      final scan = parcelWaybill(barcode);
+      if (scan != fresh.tracking) {
+        throw const AccountFailure(
+          'That waybill belongs to a different parcel.',
+          fields: {'barcode': 'Scan the waybill attached to this parcel.'},
+        );
+      }
+      if (fields.containsKey('expected_version') ||
+          fields.containsKey('barcode')) {
+        Wire.invalid();
+      }
+      if (action == ParcelAction.deliver &&
+          (fresh.paymentMethod != 'cod' ||
+              fresh.codDueCents == null ||
+              pesoInputCents(Wire.string(fields['cash_received'])) -
+                      pesoInputCents(
+                        Wire.string(fields['change_given']),
+                        field: 'change_given',
+                      ) !=
+                  fresh.codDueCents)) {
+        throw const AccountFailure(
+          'Received cash minus change must equal the recorded COD amount.',
+          fields: {
+            'cash_received': 'Check the received cash and change against COD.',
+          },
+        );
+      }
+      if (action == ParcelAction.fail &&
+          (fresh.failurePolicy == null ||
+              !fresh.failurePolicy!.reasons.containsKey(fields['reason']))) {
+        throw const AccountFailure(
+          'Refresh the permitted failure reasons before reporting an attempt.',
+        );
+      }
+      final key = commandUuid();
+      if (proof != null) {
+        final store = proofStore;
+        if (store == null) {
+          throw const AccountFailure('Protected proof storage is unavailable.');
+        }
+        retained = await store.save(key, proof);
+        _guard();
+      }
+      final intent = CommandIntent(
+        accountId: accountId,
+        key: key,
+        action: action.name,
+        resource: fresh.id,
+        body: {'expected_version': fresh.version, 'barcode': scan, ...fields},
+        createdAt: now().toUtc(),
+        proof: retained,
+      );
+      await journal.write(intent);
+      persisted = true;
+      _guard();
+      return await _dispatch(intent);
+    } finally {
+      // No request is dispatched if persistence fails. A persisted unresolved
+      // intent always keeps its original image, including through logout.
+      try {
+        if (!persisted && retained != null) {
+          // A failed secure-storage write can itself be uncertain. Remove only
+          // an image which a successful journal read proves is unreferenced.
+          try {
+            final saved = await journal.read();
+            if (saved?.proof?.key != retained.key) {
+              await proofStore!.delete(retained);
+            }
+          } catch (_) {
+            // Keep encrypted recovery evidence when storage cannot be checked.
+          }
+        }
+      } finally {
+        _writing = false;
+      }
+    }
   }
 
   Future<Map<String, dynamic>> _newIntent(
@@ -180,23 +385,75 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
       if (Wire.boolean(value['on_duty']) != intent.body['on_duty']) {
         Wire.invalid();
       }
-    } else if (Wire.taskId(value['task_id']) != intent.resource ||
-        Wire.id(value['delivery_id']) != intent.resource.substring(7)) {
-      Wire.invalid();
+    } else {
+      if (Wire.taskId(value['task_id']) != intent.resource ||
+          Wire.id(value['delivery_id']) != intent.deliveryId) {
+        Wire.invalid();
+      }
+      if (intent.parcelAction != null) {
+        Wire.string(value['commercial_status']);
+        Wire.id(value['checkpoint_id']);
+        final expectedStage = switch (intent.parcelAction!) {
+          ParcelAction.pickup => 'picked_up',
+          ParcelAction.depart => 'out_for_delivery',
+          ParcelAction.deliver => 'delivered',
+          ParcelAction.fail => 'delivery_failed',
+        };
+        if (Wire.string(value['operational_stage']) != expectedStage) {
+          Wire.invalid();
+        }
+      }
     }
     _guard();
-    await journal.clear();
+    await _clear(intent);
+    _guard();
     return value;
+  }
+
+  Future<void> _clear(CommandIntent intent) async {
+    if (intent.proof != null) {
+      final store = proofStore;
+      if (store == null) {
+        throw const AccountFailure(
+          'Protected proof cleanup is unavailable.',
+          unconfirmed: true,
+        );
+      }
+      await store.delete(intent.proof!);
+      _guard();
+    }
+    await journal.clear();
   }
 
   Future<Map<String, dynamic>> _dispatch(CommandIntent intent) async {
     try {
+      Object data = intent.body;
+      if (intent.proof != null) {
+        final store = proofStore;
+        if (store == null) {
+          throw const AccountFailure(
+            'The saved original proof is unavailable.',
+            unconfirmed: true,
+          );
+        }
+        final original = await store.read(intent.proof!);
+        _guard();
+        data = FormData.fromMap({
+          ...intent.body,
+          if (intent.body['cash_confirmed'] == true) 'cash_confirmed': '1',
+          'proof_image_file': MultipartFile.fromBytes(
+            original.bytes,
+            filename: original.filename,
+            contentType: DioMediaType.parse(original.mime),
+          ),
+        });
+      }
       return await _validateResult(
         intent,
         await _request(
           intent.path,
           method: intent.method,
-          data: intent.body,
+          data: data,
           headers: {
             'Idempotency-Key': intent.key,
             'X-Request-ID': commandUuid(),
@@ -207,7 +464,7 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
       if (!error.unconfirmed &&
           [404, 409, 422].contains(error.status) &&
           !['IDEMPOTENCY_CONFLICT', 'COMMAND_EXPIRED'].contains(error.code)) {
-        await journal.clear();
+        await _clear(intent);
       }
       rethrow;
     } catch (_) {
@@ -236,7 +493,9 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
       } on AccountFailure catch (error) {
         if (error.code != 'COMMAND_UNKNOWN' || error.status != 404) rethrow;
         if (!retryUnknown) return null;
-        if (!writesVerified ||
+        if (!(intent.parcelAction == null
+                ? writesVerified
+                : parcelWritesVerified) ||
             now().toUtc().difference(intent.createdAt) >=
                 const Duration(days: 7)) {
           throw const AccountFailure(

@@ -57,3 +57,28 @@ See [TESTING.md](TESTING.md) for acceptance and
 [../../api/MESSAGES_NEEDS.md](../../api/MESSAGES_NEEDS.md) for API-owner evidence.
 Local tests and builds cannot complete authorized Azure/cross-role or physical
 Android acceptance. The user controls publication.
+
+## Client foundation evidence
+
+The typed repository/controller now preserves complete thread references, paged
+history, exact text and a separate account/API-scoped secure journal. Existing
+work intents keep their original storage key; either journal rejects the other's
+command kind. Uncertain sends/reads keep their original UUID/body and can recover
+committed or expired results without starting another intent. New chat writes
+require `MESSAGES_WRITES_VERIFIED`, fresh Home capability and owned thread checks.
+
+Optional cancellable authenticated reads reuse the existing transport and
+request budget. Selection/background/access changes cancel real HTTP reads;
+cancelled requests retain consumed budget. Writes are never cancelled as reads.
+Confirmed read state survives an older paged response. Shared workspace polling
+remains the only periodic refresh loop.
+
+The initial selected run passed **70 tests**, including **34 message contract,
+command, controller and transport checks** plus responsive and existing workspace/
+duty/claim regressions. Analysis reported no issues. This is client evidence;
+native kernel, ordinary builds and external acceptance are tracked separately.
+
+[unorm_dart](https://pub.dev/packages/unorm_dart) resolved to 0.3.3. Its installed
+MIT licence and `>=2.12.0 <4.0.0` Dart constraint were checked against the project's
+Dart 3.13.1 toolchain. Its pure-Dart NFKC normalization follows the accepted
+plain-text policy; no new platform permission or provider account is introduced.

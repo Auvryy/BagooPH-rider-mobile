@@ -18,6 +18,21 @@ abstract interface class RiderSessionApi {
   });
 }
 
+/// Optional cancellable reads preserve the existing write/session interface.
+/// Cancellation never refunds a request budget reservation or cancels a write.
+class RiderReadCancellation {
+  final _token = CancelToken();
+  bool get cancelled => _token.isCancelled;
+  void cancel() => _token.cancel('The selected view changed.');
+}
+
+abstract interface class RiderReadSessionApi {
+  Future<Map<String, dynamic>> authenticatedRead(
+    String path, {
+    required RiderReadCancellation cancellation,
+  });
+}
+
 abstract interface class RiderEvidenceSessionApi {
   Future<PrivateApiBytes> authenticatedEvidence(String path);
 }
@@ -197,7 +212,14 @@ class RiderApiClient {
     Object? data,
     String? token,
     Map<String, String> headers = const {},
+    RiderReadCancellation? cancellation,
   }) async {
+    if (cancellation != null && (method != 'GET' || cancellation.cancelled)) {
+      throw const AccountFailure(
+        'This read was cancelled.',
+        code: 'REQUEST_CANCELLED',
+      );
+    }
     final relative = Uri.tryParse(path);
     if (relative == null ||
         relative.hasScheme ||
@@ -221,6 +243,7 @@ class RiderApiClient {
       final response = await _client.request(
         '${config.origin}/$path',
         data: data,
+        cancelToken: cancellation?._token,
         options: Options(
           method: method,
           headers: {
@@ -243,6 +266,12 @@ class RiderApiClient {
     } on FormatException catch (error) {
       throw AccountFailure(error.message, unconfirmed: method != 'GET');
     } on DioException catch (error) {
+      if (CancelToken.isCancel(error)) {
+        throw const AccountFailure(
+          'This read was cancelled.',
+          code: 'REQUEST_CANCELLED',
+        );
+      }
       throw _responseFailure(
         error.response?.data,
         error.response?.statusCode,

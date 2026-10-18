@@ -1,6 +1,9 @@
 # HDB-16 — Add selected personal parcel-slot labels
 
-State: **planned, not activated**. Branch: `feat/rider-parcel-finder`.
+State: **selected October 19, 2026; client implementation active**. Branch: `feat/rider-parcel-finder`.
+The [selected implementation package](../rider-parcel-finder/README.md) explicitly
+chooses session-only personal labels. It owns current implementation/evidence;
+broader operational and physical acceptance remains separate.
 Planning effort: **3–5 client hours**, including selected checks,
 excluding owner/API/device waiting. Recommended model/effort: **GPT-6.1 Sol / Medium**.
 Re-estimate from current evidence before activation; assign a 1–14 inclusive-day
@@ -23,7 +26,7 @@ gates remain mandatory. Unsupported release/recovery/earnings portions stay open
 ## Scope
 
 - Implement the already selected Parcel Finder as personal organization for owned pickup parcels and a single supported final-mile parcel.
-- Proposed first scope is session-only labels keyed by API/account/task plus authoritative assignment reference; decide this explicitly at activation.
+- Selected first scope is session-only labels keyed by API/account/task plus authoritative assignment reference and tracking identity.
 - Show full identifier, distinguishing suffix and an unset slot state; more than one parcel may share a slot.
 - Clear labels on logout, denied access, assignment change and terminal responsibility; editing a label never records scan/custody.
 - Persistent or server-synchronized labels require a separately selected retention/contract scope; no multi-stop dispatch change.

@@ -15,6 +15,7 @@ import '../../home/data/operations_repository.dart';
 import '../../parcels/data/parcel_photo_service.dart';
 import '../../messages/data/messages_repository.dart';
 import '../../messages/presentation/messages_controller.dart';
+import '../../parcel_finder/data/parcel_location_labels.dart';
 import '../../trips/data/trip_models.dart';
 import '../data/workspace_models.dart';
 import '../data/workspace_repository.dart';
@@ -114,9 +115,19 @@ class WorkspaceIdentity {
 final workspaceControllerProvider = Provider.autoDispose
     .family<WorkspaceController, WorkspaceIdentity>(
       (ref, identity) {
+        final repository = ref.watch(workspaceRepositoryProvider);
         final controller = WorkspaceController(
-          ref.watch(workspaceRepositoryProvider),
+          repository,
           messagesRepository: ref.watch(messagesRepositoryProvider),
+          parcelLocations:
+              !identity.preview &&
+                  repository is OperationsRepository &&
+                  repository.accountId == identity.accountId
+              ? ParcelLocationLabels(
+                  apiOrigin: ref.watch(appConfigProvider).origin,
+                  accountId: identity.accountId,
+                )
+              : null,
           onSessionEnd: identity.preview
               ? null
               : (notice) => ref
@@ -130,6 +141,7 @@ final workspaceControllerProvider = Provider.autoDispose
         workspaceRepositoryProvider,
         messagesRepositoryProvider,
         authControllerProvider,
+        appConfigProvider,
       ],
     );
 
@@ -140,7 +152,12 @@ class WorkspaceController extends ChangeNotifier {
     this.repository, {
     this.onSessionEnd,
     MessagesRepository? messagesRepository,
-  }) {
+    ParcelLocationLabels? parcelLocations,
+  }) : _parcelLocations = parcelLocations {
+    if (parcelLocations != null &&
+        operations?.accountId != parcelLocations.accountId) {
+      throw ArgumentError('Parcel labels require their owning work account.');
+    }
     messages = MessagesController(
       messagesRepository ??
           (repository is MessagesRepository
@@ -155,6 +172,7 @@ class WorkspaceController extends ChangeNotifier {
     unawaited(operations == null ? refreshAll() : Future.microtask(refreshAll));
   }
   final WorkspaceRepository repository;
+  final ParcelLocationLabels? _parcelLocations;
   late final MessagesController messages;
   final Future<void> Function(String notice)? onSessionEnd;
   OperationsRepository? get operations => repository is OperationsRepository
@@ -228,6 +246,61 @@ class WorkspaceController extends ChangeNotifier {
       !isTaskUnavailable(id) &&
       !_readFailures.containsKey(_WorkRead.detail);
 
+  bool get parcelFinderAvailable =>
+      _parcelLocations != null &&
+      hasWorkAccess &&
+      operations?.isCurrent() == true;
+
+  ParcelSlot? parcelLocationFor(OperationTask task) =>
+      parcelFinderAvailable ? _parcelLocations!.location(task) : null;
+
+  bool canSetParcelLocation(OperationTask task) =>
+      parcelFinderAvailable &&
+      !working &&
+      canUseSelectedStop(task.id) &&
+      selectedTask?.assignmentReference == task.assignmentReference &&
+      ParcelLocationLabels.supports(task);
+
+  /// A personal label is saved only after a current owned GET. It never enters
+  /// the operational command journal or changes the server's custody record.
+  Future<String?> setParcelLocation(
+    OperationTask reviewed,
+    ParcelSlot? slot, {
+    required bool Function() mayApply,
+  }) async {
+    if (!mayApply() || !canSetParcelLocation(reviewed)) {
+      return 'Refresh this owned stop before changing its location label.';
+    }
+    final fresh = await revalidateSelectedStop(reviewed.id);
+    if (fresh == null || !mayApply() || !canSetParcelLocation(fresh)) {
+      return 'The parcel could not be verified. Refresh the stop and try again.';
+    }
+    if (fresh.assignmentReference != reviewed.assignmentReference ||
+        fresh.tracking != reviewed.tracking) {
+      return 'The assignment changed. Review this parcel before choosing a location.';
+    }
+    _parcelLocations!.set(fresh, slot);
+    _changed();
+    return null;
+  }
+
+  void _observeParcelQueue() {
+    if (operations == null || taskData.status != FeatureStatus.ready) return;
+    _parcelLocations?.observeQueue(
+      switch (queue) {
+        TaskQueue.available => 'available',
+        TaskQueue.pickups => 'pickup',
+        TaskQueue.delivery => 'final_mile',
+      },
+      taskData.data!.map((task) => task.operation).whereType<OperationTask>(),
+      complete:
+          taskPage != null &&
+          taskPage!.page == taskPage!.lastPage &&
+          taskData.data!.map((task) => task.id).toSet().length ==
+              taskPage!.total,
+    );
+  }
+
   void setForeground(bool value) {
     messages.setForeground(value);
     if (_foreground == value) return;
@@ -296,6 +369,7 @@ class WorkspaceController extends ChangeNotifier {
       loadingTrips = false;
       _tripSearchTimer?.cancel();
       messages.revoke(failure.message);
+      _parcelLocations?.clear();
       selectedTask = null;
       pendingIntent = null;
       reconciledWorkKey = null;
@@ -339,6 +413,7 @@ class WorkspaceController extends ChangeNotifier {
       }
       _readFailures.remove(_WorkRead.home);
       if (result.capabilities['home'] != true) {
+        _parcelLocations?.clear();
         workAccessUnavailable = true;
         homeData = const FeatureData.unavailable(
           'Home work data is unavailable.',
@@ -376,6 +451,10 @@ class WorkspaceController extends ChangeNotifier {
           pendingIntent = await ops.pending();
           if (_disposed || generation != _homeGeneration) return;
           if (committed != null) {
+            if (committed['operational_stage'] == 'delivered' &&
+                committed['task_id'] is String) {
+              _parcelLocations?.forget(committed['task_id'] as String);
+            }
             reconciledWorkKey = pending.key;
             reconciledWorkResult = committed;
             _commandFailure = null;
@@ -409,6 +488,7 @@ class WorkspaceController extends ChangeNotifier {
           : await operations?.detail(task.id);
       if (!_disposed && generation == _detailGeneration) {
         selectedTask = result;
+        if (result != null) _parcelLocations?.observe(result);
         _readFailures.remove(_WorkRead.detail);
         _unavailableTasks.remove(task.id);
         if (unavailableTaskId == task.id) unavailableTaskId = null;
@@ -448,6 +528,7 @@ class WorkspaceController extends ChangeNotifier {
       final task = await operations!.detail(id);
       if (_disposed || generation != _detailGeneration) return null;
       selectedTask = task;
+      _parcelLocations?.observe(task);
       _readFailures.remove(_WorkRead.detail);
       _unavailableTasks.remove(id);
       if (unavailableTaskId == id) unavailableTaskId = null;
@@ -468,6 +549,7 @@ class WorkspaceController extends ChangeNotifier {
   }
 
   void _invalidateTask(String id) {
+    _parcelLocations?.forget(id);
     unavailableTaskId = id;
     _unavailableTasks.add(id);
     selectedTask = null;
@@ -569,6 +651,7 @@ class WorkspaceController extends ChangeNotifier {
         if (result['task_id'] is String) {
           if (result['operational_stage'] == 'delivered') {
             final id = result['task_id'] as String;
+            _parcelLocations?.forget(id);
             _unavailableTasks.add(id);
             taskData = FeatureData.ready(
               taskData.data?.where((task) => task.id != id).toList() ?? [],
@@ -582,6 +665,7 @@ class WorkspaceController extends ChangeNotifier {
               final owned = await operations!.detail(result['task_id']);
               if (!_disposed && generation == _detailGeneration) {
                 selectedTask = owned;
+                _parcelLocations?.observe(owned);
                 selectingTask = false;
                 _readFailures.remove(_WorkRead.detail);
                 _unavailableTasks.remove(owned.id);
@@ -648,6 +732,7 @@ class WorkspaceController extends ChangeNotifier {
         }
         taskData = FeatureData.ready(merged.values.toList());
         taskPage = result;
+        _observeParcelQueue();
         _readFailures.remove(_WorkRead.more);
       }
     } catch (error) {
@@ -749,6 +834,7 @@ class WorkspaceController extends ChangeNotifier {
         taskData = result;
         taskPage = page;
         if (result.status == FeatureStatus.ready) {
+          _observeParcelQueue();
           _readFailures.remove(_WorkRead.tasks);
           _readFailures.remove(_WorkRead.more);
           if (selectedTask == null) _readFailures.remove(_WorkRead.detail);
@@ -774,6 +860,7 @@ class WorkspaceController extends ChangeNotifier {
                 generation == _taskGeneration &&
                 detailGeneration == _detailGeneration) {
               selectedTask = detail;
+              _parcelLocations?.observe(detail);
               _readFailures.remove(_WorkRead.detail);
             }
           } catch (error) {
@@ -1029,6 +1116,7 @@ class WorkspaceController extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    _parcelLocations?.clear();
     _poll?.cancel();
     _cooldownTimer?.cancel();
     _tripSearchTimer?.cancel();

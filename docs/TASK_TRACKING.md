@@ -225,7 +225,7 @@ preserves the rider-claim pickup / hub-assignment final-mile distinction.
 | Selected experience | Major ownership | Current planning state |
 |---|---|---|
 | Stop Mode | M02, M04, M06–M09, M16 | Current-stop presentation locally verified in HDB-04; review pending; physical action consumers remain separate |
-| Parcel Finder | M04, M06/M07 scanning, M16 cleanup | Selected extension; tag storage and incremental estimate pending |
+| Parcel Finder | M04, M06/M07 scanning, M16 cleanup | [Session-only implementation](plans/rider-parcel-finder/README.md) selected October 19; five-hour estimate; labels preserve server-owned scans/custody |
 | Doorstep Guide | M01 task-detail contract, M04, M09, M16 | HDB-04 displays supplied buyer stop instructions; richer fields and physical acceptance remain separate |
 
 The 180 cards and 63 batches cover the existing baseline. Do not report the new

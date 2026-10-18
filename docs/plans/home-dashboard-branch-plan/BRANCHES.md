@@ -24,7 +24,7 @@ row now. Select one HDB ID per prompt. Current review/source and gates are in
 | [HDB-13](13-rider-assignment-messages.md) | `feat/rider-assignment-messages` | Connect phase-bound Messages and the current-stop shortcut | HDB-04, HDB-06, HDB-12 | 6–10 h | Planned |
 | [HDB-14](14-home-cash-responsibilities.md) | `feat/home-cash-responsibilities` | Add exact cash responsibility and recorded receipt views | HDB-03, HDB-06, HDB-11 | 4–7 h | Planned |
 | [HDB-15](15-rider-cash-remittance-offers.md) | `feat/rider-cash-remittance-offers` | Submit a remittance offer without claiming recipient receipt | HDB-06, HDB-14 | 4–7 h | Planned |
-| [HDB-16](16-rider-parcel-finder.md) | `feat/rider-parcel-finder` | Add selected personal parcel-slot labels | HDB-04, HDB-07 | 3–5 h | Planned |
+| [HDB-16](16-rider-parcel-finder.md) | `feat/rider-parcel-finder` | Add selected personal parcel-slot labels | HDB-04, HDB-07 | 5 h selected | Active session-only implementation; [scope](../rider-parcel-finder/README.md) |
 | [HDB-17](17-rider-home-device-acceptance.md) | `test/rider-home-device-acceptance` | Accept the complete selected Home workflow on real devices | HDB-01, HDB-02, HDB-03, HDB-04, HDB-05, HDB-06, HDB-07, HDB-08, HDB-09, HDB-10, HDB-11, HDB-12, HDB-13, HDB-14, HDB-15 | 6–10 h | Planned |
 
 HDB-01 and HDB-02 address confirmed defects first. HDB-03/04 make existing

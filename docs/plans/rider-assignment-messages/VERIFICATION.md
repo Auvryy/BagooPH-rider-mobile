@@ -20,19 +20,19 @@ revision establishes Azure's actual deployment.
 | Protected original intent | Separate account/API secure journal, normalized text and original UUID, persist before dispatch, work/message command-kind isolation | Unit and native secure-storage reconstruction passed |
 | Uncertain recovery | Lost committed send, retained replay, unknown read before dispatch and explicit original-key retry | Unit and real kernel passed |
 | Expiry | Expired retained lookup remains readable; unknown expired intent cannot start another write | Unit passed |
-| Current recipient/permission | Seller pickup, buyer final mile, read-only phase after actual hub intake, foreign thread/boundary denial | Unit and real kernel passed |
+| Current recipient/permission | Seller pickup, buyer final mile, read-only phase after actual hub intake, foreign thread/boundary denial; denied draft/history/inbox preview cleared and late inbox pages cancelled | Unit/controller and real kernel passed |
 | Displayed reads | Rendered incoming boundary, obsolete/offstage/background rejection, late arrival unread and monotonic committed read state | Controller/widget and real kernel passed |
 | Refresh and cancellation | One shared foreground poll, surface leases, actual cancellable authenticated GET and shared request/429 budget | Local tests passed |
 | Drafts and scrolling | Original-thread drafts, validation recovery, safe partial-list absence, preserved scroll anchor, confirmed inbox preview and cancelled-page loading recovery | Controller/widget passed |
 | Current-stop entry | Returned identity resolution, second stop revalidation, actual Stop Mode navigation and account-loss private route removal | Controller and route widget passed |
 | Responsive presentation | Actual bundled fonts/icons; 320/375 phones, 844/900 landscape, 1200 desktop; 200% text, simulated keyboard, reduced motion and 48dp send | Rendered and locally inspected |
-| Ordinary native builds | Azure-entry Linux/Android builds after the integration target | Final receipts pending |
+| Ordinary native builds | Final Azure-entry Linux debug and Android debug APK builds after the integration target and denial cleanup | Both passed |
 | Azure and owning website parity | Actual deployed commit/migrations, fresh authorized session, isolated seller/buyer cases and independent readbacks | Not established |
 | Physical Android | Actual keyboard, Back, background/resume, account changes and secure recovery on hardware | Not established |
 
 ## Recorded checks
 
-- Full Flutter suite: **473 passed, four expected skips**, in 2 minutes 17 seconds.
+- Full Flutter suite: **474 passed, four expected skips**, in 2 minutes 38 seconds.
   Skips: three opt-in historical redesign renders and the alternate-API
   configuration case when no API override is supplied.
 - Initial selected Messages/workspace/duty/claim regression: **70 passed**.
@@ -42,8 +42,14 @@ revision establishes Azure's actual deployment.
   Owning seller/buyer reply actions, read-only inbox payloads and saved rows
   agree: two intended sends and three read commands persist. Chat creates no
   delivered checkpoint or final-mile outcome.
-- PHP/Node fixture syntax and Git whitespace checks passed. Final analysis and
-  ordinary build receipts are recorded when complete.
+- Final focused controller suite: **16 passed**, including denial cleanup and
+  protection against late inbox pages restoring a denied private preview.
+- Final Flutter analysis: **no issues**, in 10.5 seconds.
+- Ordinary `flutter build linux --debug` and `flutter build apk --debug` passed
+  with the existing ignored configuration and default application target. Both
+  retain the real Azure account entrypoint and disabled new write gates.
+- PHP/Node fixture syntax, selected documentation links and Git whitespace
+  checks passed.
 
 The native fixture's deliberate duty, claim, collection and hub intake run only
 in SQLite `:memory:` to establish valid phases. They are not Azure or physical

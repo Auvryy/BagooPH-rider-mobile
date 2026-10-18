@@ -101,6 +101,8 @@ The screen follows the existing project design system and installed adaptive
 layout guidance, with actual-font renders inspected locally. No new theme or
 font direction was selected.
 
-Final local regression: **473 tests passed, four expected skips**. Confirmed
+Final local regression: **474 tests passed, four expected skips**. Confirmed
 sends update their original inbox preview without inventing unread counts;
 refresh cancels obsolete pagination and releases its loading state.
+Explicit thread denial clears its draft, history and cached inbox preview, and
+cancels older inbox pages so they cannot restore private text after access loss.

@@ -241,6 +241,63 @@ void main() {
     expect(c.messages, isEmpty);
     expect(h.ended, hasLength(1));
   });
+  test('denied history removes its inbox preview and an older page cannot restore it', () async {
+    final api = ReadSession();
+    final h = MessagesHarness(session: api);
+    addTearDown(h.dispose);
+    final older = Completer<Map<String, dynamic>>();
+    var denied = false;
+    h.api.respond = (path, method, body, headers) async {
+      if (path.startsWith('rider/conversations?')) {
+        if (Uri.parse(path).queryParameters['page'] == '2') {
+          return older.future;
+        }
+        return conversationEnvelope([
+          parcelConversationJson(last: parcelMessageJson()),
+          parcelConversationJson(id: deliveryThread),
+        ], total: 21);
+      }
+      if (denied && path.contains('/$pickupThread/messages?')) {
+        throw const AccountFailure(
+          'Conversation no longer available.',
+          status: 404,
+        );
+      }
+      return h.respond(path, method, body, headers);
+    };
+    await h.boot();
+    final c = h.controller;
+    c.updateDraft('Private original seller draft.');
+    final request = c.loadMoreConversations();
+    await Future<void>.delayed(Duration.zero);
+    final pageCancellation = api.cancellations.last;
+    expect(c.loadingMore, isTrue);
+    denied = true;
+    await c.refreshThread();
+    expect(pageCancellation.cancelled, isTrue);
+    expect(c.selectedId, pickupThread);
+    expect(c.detail.status, FeatureStatus.unavailable);
+    expect(c.messages, isEmpty);
+    expect(c.draft, isEmpty);
+    expect(c.inbox.data!.map((item) => item.id), [deliveryThread]);
+    expect(c.loadingMore, isFalse);
+    expect(c.hasMoreConversations, isFalse);
+    expect(c.canRefresh, isTrue);
+    older.complete(
+      conversationEnvelope(
+        [
+          parcelConversationJson(
+            last: parcelMessageJson(text: 'Denied private preview.'),
+          ),
+        ],
+        page: 2,
+        total: 21,
+      ),
+    );
+    await request;
+    expect(c.inbox.data!.map((item) => item.id), [deliveryThread]);
+    expect(c.loadingMore, isFalse);
+  });
   test('conversation and history pages append by stable ID without duplicate messages', () async {
     final h = MessagesHarness();
     addTearDown(h.dispose);

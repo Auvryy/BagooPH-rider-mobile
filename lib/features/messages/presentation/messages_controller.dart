@@ -163,6 +163,20 @@ class MessagesController extends ChangeNotifier {
       capabilityUnavailable();
     } else if (selected &&
         (problem.status == 404 || problem.code == 'STALE_CONVERSATION')) {
+      // Denied history also invalidates its private inbox preview. An older
+      // list page must not restore that preview after authorization is lost.
+      _listRead?.cancel();
+      _listGeneration++;
+      _refreshing = loadingMore = false;
+      inboxPagination = historyPagination = null;
+      final retained = inbox.data
+          ?.where((item) => item.id != selectedId)
+          .toList(growable: false);
+      if (retained != null) {
+        inbox = inbox.status == FeatureStatus.failed
+            ? FeatureData.failed(inbox.message, retained)
+            : FeatureData.ready(retained);
+      }
       _drafts.remove(selectedId);
       detail = FeatureData.unavailable(problem.message);
       messages = const [];

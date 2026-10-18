@@ -31,6 +31,8 @@ unless implementation or verification exposes a specific gap.
 - [ ] Operator designates isolated current pickup and hub-assigned final-mile
   parcels, permitted recipients and genuine software-test evidence for the
   agreed acceptance actions. Existing live customer parcels are not substitutes.
+  Prepare phases sequentially: active final-mile work blocks a new pickup,
+  and new hub assignments require on-duty eligibility.
 - [ ] Native reads establish Home, all queues, current owned detail, retained
   Trips and private-proof response behavior on that deployment.
 - [ ] Controlled pickup/departure/COD/failure and original-key replay agree with

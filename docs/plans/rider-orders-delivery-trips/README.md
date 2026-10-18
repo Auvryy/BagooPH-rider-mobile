@@ -47,6 +47,8 @@ Each implementation commit includes its relevant tests and documentation.
 Later review fixes receive their own focused commits. The user handles pushes.
 See the [testing steps](TESTING.md) for PC review, local verification and the
 separate controlled Azure/Android acceptance procedure.
+The [verification record](VERIFICATION.md) separates passed client/native checks
+from outstanding deployed and physical acceptance.
 
 ## Interaction and implementation decisions
 
@@ -80,15 +82,15 @@ separate controlled Azure/Android acceptance procedure.
 
 | Requirement | Evidence needed | Current state |
 |---|---|---|
-| Existing acceptance remains usable | Duty/claim regression, refreshed owned detail, original command replay | HDB-05 baseline; extension verification pending |
-| Protected parcel intent | Persist-before-dispatch, original-byte hash, interrupted upload, restart/logout/account isolation, unknown/expired/conflicting replay | Selected local tests passed; platform/live extension pending |
+| Existing acceptance remains usable | Duty/claim regression, refreshed owned detail, original command replay | HDB-05 baseline preserved; local regression and native kernel scenario passed; new live scope pending |
+| Protected parcel intent | Persist-before-dispatch, original-byte hash, interrupted upload, restart/logout/account isolation, unknown/expired/conflicting replay | Local tests and native Linux protected-storage/original-proof recovery passed; live/Android extension pending |
 | Pickup/departure | Correct/wrong scan, stale/reassigned task, action denials, duplicate taps, refreshed custody/stop and cancelled old route | Client connected; selected controller/layout regressions passed; actual camera/live checks pending |
 | COD delivery | Real image validation, recipient evidence, exact received-minus-change, one outcome/collection and separate buyer completion | Client connected; selected local form/command tests passed; live/physical verification pending |
 | Failed delivery | Server reasons/attempt count, proof and notes, retained rider return responsibility until hub receipt | Client connected; selected local tests passed; live hub return verification pending |
 | Trips | Original retained attribution, pickup/final-mile distinction, exact money, Manila assignment dates, server filters/pagination and late-result cancellation | Client connected; local contract/controller/layout checks passed; live acceptance pending |
-| Private proof | Same-origin approved path, no redirects/public URL, size/type/privacy checks, denied/changed bytes and visible-state cleanup | Client connected; local transport/privacy/cache checks passed; native/live acceptance pending |
+| Private proof | Same-origin approved path, no redirects/public URL, size/type/privacy checks, denied/changed bytes and visible-state cleanup | Local transport/privacy/cache checks and native kernel ownership/hash checks passed; live acceptance pending |
 | Responsive UI | Narrow phone and desktop, 200% text, keyboard/Back, loading/errors, bottom-nav clearance and render review | Selected local layout checks and synthetic Trips render review passed; physical acceptance pending |
-| Native verification | Relevant/full tests, analysis, ordinary Linux and Android builds | Full Flutter suite: 427 passed, four expected skips; analysis clean; ordinary builds and native backend check pending |
+| Native verification | Relevant/full tests, analysis, ordinary Linux and Android builds | Full suite: 428 passed, four expected skips; analysis clean; ordinary Linux/Android builds and native kernel scenario passed |
 | Azure and cross-role acceptance | Operator-confirmed deployment/migrations, authorized isolated parcels and owning hub/buyer/cash observations | Not established for this scope |
 | Android physical acceptance | Actual scan permission/cancel, camera and proof-picker lifecycle, successful stop/outcome flow | Not established |
 
@@ -205,6 +207,7 @@ The selected Trips and shared-budget checks passed **25 tests**, including large
 exact identifiers/money, null/unknown states, pagination, obsolete requests,
 changed/denied proof, server cooldown and immediate logout cleanup. Synthetic
 renders were reviewed at 375px and at 320px/900px with 200% text. The full Flutter
-suite passed **427 tests, four expected skips**; analysis was clean. Native
-client-to-kernel and ordinary Linux/Android build results are recorded separately
-after they finish. These checks do not activate Azure parcel writes.
+suite then passed **428 tests, four expected skips**; analysis was clean. Native
+client-to-kernel and ordinary Linux/Android builds also passed; see the
+[final verification record](VERIFICATION.md). These checks do not activate Azure
+parcel writes.

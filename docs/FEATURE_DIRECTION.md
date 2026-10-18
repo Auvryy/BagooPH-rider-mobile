@@ -2,8 +2,8 @@
 
 Selected for implementation planning on **October 6, 2026**: **Stop Mode,
 Parcel Finder, and Doorstep Guide**. The user wants these three experiences
-in the Rider app. Their selection is a product decision; the Flutter starter
-does not implement them yet.
+in the Rider app. Their selection is a product decision; current implementation
+evidence lives in the [plan registry](plans/README.md).
 
 Build them around the existing pickup, delivery, evidence and contact flows.
 [RIDER_FLOW.md](RIDER_FLOW.md) remains the operational contract.
@@ -45,6 +45,11 @@ or assignment mechanism.
   320–430 logical-pixel layouts and real Android use require verification.
 
 ## 2. Parcel Finder
+
+**October 19 selected implementation:** [session-only Parcel Finder](plans/rider-parcel-finder/README.md)
+binds personal slot labels to the current API/account/task/assignment. Before
+collection, the location is explicitly a plan; recorded custody stays separate.
+Persistent or synchronized labels remain outside this selected scope.
 
 **User outcome:** identify where an authorized parcel was placed without
 searching every compartment.

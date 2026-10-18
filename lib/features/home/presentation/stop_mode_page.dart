@@ -20,6 +20,8 @@ import '../../handover/presentation/handover_entry.dart';
 import '../../../core/commands/parcel_validation.dart';
 import '../../parcels/presentation/parcel_action_page.dart';
 import '../../messages/presentation/task_messages_page.dart';
+import '../../parcel_finder/data/parcel_location_labels.dart';
+import '../../parcel_finder/presentation/parcel_finder_card.dart';
 
 class StopModePage extends StatefulWidget {
   const StopModePage({
@@ -250,6 +252,15 @@ class _StopModePageState extends State<StopModePage>
     _notice = message;
   }
 
+  Future<String?> _setParcelLocation(OperationTask reviewed, ParcelSlot? slot) {
+    final epoch = _epoch;
+    return work.setParcelLocation(
+      reviewed,
+      slot,
+      mayApply: () => mounted && epoch == _epoch && canAct,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final task = current;
@@ -362,6 +373,25 @@ class _StopModePageState extends State<StopModePage>
                           if (widget.navigation != null) _fallbackStop(),
                         ] else ...[
                           _details(task),
+                          if (!preview && work.parcelFinderAvailable) ...[
+                            const SizedBox(height: 16),
+                            ParcelFinderCard(
+                              key: ValueKey(
+                                'parcel-finder-${task.id}-${task.assignmentReference}',
+                              ),
+                              task: task,
+                              location: work.parcelLocationFor(task),
+                              suffix: distinguishingTrackingSuffix(
+                                task.tracking,
+                                (work.taskData.data ?? []).map(
+                                  (item) => item.tracking,
+                                ),
+                              ),
+                              enabled:
+                                  canAct && work.canSetParcelLocation(task),
+                              save: (slot) => _setParcelLocation(task, slot),
+                            ),
+                          ],
                           if (!preview && work.operations != null)
                             HandoverEntry(
                               home: work.homeData.data,

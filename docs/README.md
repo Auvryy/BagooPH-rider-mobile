@@ -32,6 +32,7 @@ they do not authorize changing the backend or implementing every proposed featur
 | [Order, delivery and Trips API checklist](api/ORDER_DELIVERY_TRIPS_NEEDS.md) | Which existing backend contracts are available, and what must the API owner verify for live acceptance? |
 | [Assignment Messages](plans/rider-assignment-messages/README.md) | How will the requested Messages page preserve recipient identity, original commands and displayed reads? |
 | [Messages API checklist](api/MESSAGES_NEEDS.md) | Which chat APIs already exist and what deployment/cross-role checks remain? |
+| [Session Parcel Finder](plans/rider-parcel-finder/README.md) | How do personal location labels follow owned tasks without changing custody? |
 | [Native handover issues](plans/handover-issues/README.md) | How does the rider report a missed scan and acknowledge an independently authorized recovery while actual receipt stays hub-owned? |
 | [RIDER_FLOW.md](RIDER_FLOW.md) | What may a rider do at each stage, including failures and cash custody? |
 | [TECH_STACK.md](TECH_STACK.md) | Which tools are installed, which are proposed, and why choose them? |

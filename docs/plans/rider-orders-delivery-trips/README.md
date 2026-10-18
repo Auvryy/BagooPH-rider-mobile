@@ -79,7 +79,7 @@ Later review fixes receive their own focused commits. The user handles pushes.
 | Requirement | Evidence needed | Current state |
 |---|---|---|
 | Existing acceptance remains usable | Duty/claim regression, refreshed owned detail, original command replay | HDB-05 baseline; extension verification pending |
-| Protected parcel intent | Persist-before-dispatch, original-byte hash, interrupted upload, restart/logout/account isolation, unknown/expired/conflicting replay | Pending |
+| Protected parcel intent | Persist-before-dispatch, original-byte hash, interrupted upload, restart/logout/account isolation, unknown/expired/conflicting replay | Selected local tests passed; platform/live extension pending |
 | Pickup/departure | Correct/wrong scan, stale/reassigned task, action denials, duplicate taps, refreshed custody/stop and cancelled old route | Pending |
 | COD delivery | Real image validation, recipient evidence, exact received-minus-change, one outcome/collection and separate buyer completion | Pending |
 | Failed delivery | Server reasons/attempt count, proof and notes, retained rider return responsibility until hub receipt | Pending |
@@ -93,3 +93,33 @@ Later review fixes receive their own focused commits. The user handles pushes.
 This package records the full selected objective. Local checks or APK builds do
 not prove Azure/cross-role or physical-device acceptance. Outstanding acceptance
 is reported explicitly rather than replacing real operations with mock success.
+
+## Command/proof foundation evidence
+
+The existing secure journal now accepts typed selected parcel commands while
+preserving legacy duty/claim JSON. Original images use AES-256-GCM encrypted
+application-support files bound to the API, account, command key and SHA-256;
+the encryption key and original scalar intent fields use secure storage. No
+plaintext proof file or bearer token is added to the journal. Confirmed results
+and definitive rejections clean their referenced proof; unresolved requests
+retain it across logout. A missing/changed original prevents replay, while a
+retained committed result can reconcile without that local file.
+
+`PARCEL_WRITES_VERIFIED` is a separate default-false acceptance switch. Existing
+duty/claim activation does not enable physical parcel outcomes. Source Home
+capabilities, refreshed owned action hints and the reviewed assignment/version
+are also checked; received-minus-change uses exact integer cents.
+
+The selected foundation run passed **37 tests, one expected alternate-API skip**,
+including existing duty/claim, transport, token and configuration regressions.
+New checks cover all four parcel actions, multipart original bytes, interrupted
+upload/restart, account loss, changed result, expired/unknown/conflicting retry,
+wrong/stale scan, storage failure and encrypted cross-account/API isolation.
+No Azure parcel write or physical scan was performed by these tests.
+
+New runtime dependencies were checked against Flutter 3.47.1 / Dart 3.13.1:
+[cryptography 2.9.0](https://pub.dev/packages/cryptography) supplies authenticated
+AES-GCM; [path_provider 2.1.6](https://pub.dev/packages/path_provider) provides
+application-support directories on Android and Linux. Existing secure storage
+continues to own key protection. Scanner/proof-picker dependencies are selected
+in their implementation commit.

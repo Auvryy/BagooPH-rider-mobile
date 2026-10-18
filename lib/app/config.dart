@@ -6,6 +6,7 @@ class AppConfig {
     this.localAuth = false,
     this.riderWebsite = '',
     this.operationsWritesVerified = false,
+    this.parcelWritesVerified = false,
     this.handoverWritesVerified = false,
     this.geoapifyKey = '',
   });
@@ -15,6 +16,9 @@ class AppConfig {
 
   /// Enable only after the selected Azure deployment/account gate is recorded.
   final bool operationsWritesVerified;
+
+  /// Separate pickup/departure/COD/failure acceptance; duty/claim stays separate.
+  final bool parcelWritesVerified;
 
   /// Separate H04 deployment gate; does not enable duty or pickup claims.
   final bool handoverWritesVerified;
@@ -39,6 +43,7 @@ class AppConfig {
       operationsWritesVerified: bool.fromEnvironment(
         'OPERATIONS_WRITES_VERIFIED',
       ),
+      parcelWritesVerified: bool.fromEnvironment('PARCEL_WRITES_VERIFIED'),
       handoverWritesVerified: bool.fromEnvironment('HANDOVER_WRITES_VERIFIED'),
       geoapifyKey: String.fromEnvironment('GEOAPIFY_API_KEY'),
     );

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/commands/protected_proof_store.dart';
 import '../../../core/network/api_failure.dart';
 import '../../../core/network/rider_api_client.dart';
 import '../../auth/presentation/auth_controller.dart';
@@ -41,6 +42,11 @@ final workspaceRepositoryProvider = Provider<WorkspaceRepository>(
         accountId: account.id!,
       ),
       writesVerified: config.operationsWritesVerified,
+      parcelWritesVerified: config.parcelWritesVerified,
+      proofStore: ProtectedParcelProofStore(
+        origin: config.origin,
+        accountId: account.id!,
+      ),
       isCurrent: () =>
           alive &&
           ref.read(authControllerProvider).user?.id == account.id &&

@@ -19,6 +19,7 @@ import 'task_stage_label.dart';
 import '../../handover/presentation/handover_entry.dart';
 import '../../../core/commands/parcel_validation.dart';
 import '../../parcels/presentation/parcel_action_page.dart';
+import '../../messages/presentation/task_messages_page.dart';
 
 class StopModePage extends StatefulWidget {
   const StopModePage({
@@ -653,6 +654,18 @@ class _StopModePageState extends State<StopModePage>
         spacing: 8,
         runSpacing: 8,
         children: [
+          if (!task.preview &&
+              work.homeData.data?.capabilities['messages'] == true)
+            _button(
+              'stop-message',
+              task.phase == 'pickup' ? 'Message seller' : 'Message buyer',
+              Icons.chat_bubble_outline_rounded,
+              true,
+              () => _act((fresh) async {
+                await openTaskMessages(context, work, fresh);
+                return 'Parcel conversation closed.';
+              }, 'Could not open this parcel conversation.'),
+            ),
           _button(
             'stop-copy-tracking',
             'Copy tracking ID',

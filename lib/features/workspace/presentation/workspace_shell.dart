@@ -161,8 +161,11 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
       builder: (context, _) {
         final compactThread =
             destination == 2 &&
-            controller.selectedConversationId != null &&
-            size.width < 1000;
+            controller.messages.selectedId != null &&
+            !messagesUseSplitView(
+              size.width - (rail ? railWidth + 1 : 0),
+              MediaQuery.textScalerOf(context),
+            );
         final nested =
             destination == 3 && profileSection != ProfileSection.profile;
         return PopScope(
@@ -173,7 +176,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
             if (nested) {
               _section(profileSection.parent);
             } else if (compactThread) {
-              controller.selectConversation(null);
+              controller.messages.selectConversation(null);
             } else if (destination != 0) {
               select(0);
             }
@@ -459,9 +462,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                             ? RiderColors.rose
                             : Colors.transparent,
                         shape: RoundedSuperellipseBorder(
-                          borderRadius: BorderRadius.circular(
-                            RiderRadii.pill,
-                          ),
+                          borderRadius: BorderRadius.circular(RiderRadii.pill),
                           side: destination == index
                               ? const BorderSide(
                                   color: Colors.white,

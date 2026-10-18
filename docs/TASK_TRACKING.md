@@ -490,6 +490,16 @@ ETA, tracking dot, route optimization or new geocoding service enters this slice
 
 ### M10 — Messages and chat
 
+**October 18 selected implementation:** [assignment Messages](plans/rider-assignment-messages/README.md)
+connects the accepted native thread/history/send/read resources and an owned-stop
+entry. Paged identity, original intent recovery, displayed read boundaries and
+responsive/lifecycle behavior are implemented. Local verification passed 474
+tests with four expected skips, clean analysis, native Linux against the isolated
+real backend kernel, and ordinary Linux/Android debug builds. Explicit denial
+clears the cached preview as well as the draft/history. Azure and physical
+Android acceptance remain open; new chat writes stay disabled. The notifications
+inbox is not implicitly activated. See the [verification record](plans/rider-assignment-messages/VERIFICATION.md).
+
 **Outcome:** parcel communication reaches the right authorized person.
 
 1. Build a conversation list and one selected thread on phones, with a clear

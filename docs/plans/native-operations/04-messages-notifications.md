@@ -1,7 +1,10 @@
 # OPS-04 — Assignment-bound messages and notifications
 
-State: **planned, not activated**. Needs shared command/session/access lifecycle,
-current assignment resources and deployed durable notification workers/scheduler.
+State: **Messages client selected; notification client remains planned**.
+The [assignment Messages package](../rider-assignment-messages/README.md) owns the
+requested chat implementation and separate deployment/Android acceptance.
+Notification integration still needs deployed durable workers/scheduler and its
+own selected client slice; this update does not activate that inbox.
 Associations: B10-A–B10-D and B12-A–B12-C; inspect all transitive prerequisites.
 
 ## Contract and implementation slices

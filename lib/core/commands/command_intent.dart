@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import '../network/wire.dart';
+import 'message_validation.dart';
 import 'parcel_proof.dart';
 import 'parcel_validation.dart';
 
@@ -39,6 +40,15 @@ class CommandIntent {
         Wire.invalid();
       }
       Wire.version(body['expected_version']);
+    } else if (isMessage) {
+      messageThreadParts(resource);
+      if (proof != null || body.length != 1) Wire.invalid();
+      if (action == 'message.send') {
+        final text = Wire.string(body['text']);
+        if (messageText(text) != text) Wire.invalid();
+      } else {
+        Wire.id(body['through_message_id']);
+      }
     } else {
       final selected = parcelAction;
       if (selected == null ||
@@ -118,12 +128,17 @@ class CommandIntent {
   final Map<String, dynamic> body;
   final DateTime createdAt;
   final ParcelProofReference? proof;
+  bool get isMessage => action == 'message.send' || action == 'message.read';
   ParcelAction? get parcelAction =>
       ParcelAction.values.where((value) => value.name == action).firstOrNull;
-  String get deliveryId => resource.split('-').last;
+  String get deliveryId => isMessage
+      ? messageThreadParts(resource).deliveryId
+      : resource.split('-').last;
   String get path => switch (action) {
     'duty' => 'rider/duty',
     'claim' => 'rider/pickup-jobs/${resource.substring(7)}/claim',
+    'message.send' => 'rider/conversations/$resource/messages',
+    'message.read' => 'rider/conversations/$resource/read',
     _ => 'rider/tasks/$resource/$action',
   };
   String get method => action == 'duty' ? 'PATCH' : 'POST';

@@ -177,7 +177,9 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
     _guard();
     final intent = await journal.read();
     _guard();
-    if (intent != null && intent.accountId != accountId) Wire.invalid();
+    if (intent != null && (intent.accountId != accountId || intent.isMessage)) {
+      Wire.invalid();
+    }
     return intent;
   }
 

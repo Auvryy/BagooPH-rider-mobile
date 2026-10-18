@@ -98,6 +98,49 @@ class NativeParcelFixture extends Tests\Feature\Courier\RiderParcelApiTest
                     'events' => $cash->events()->count(), 'reconciled' => $cash->reconciled_at !== null])->all(),
                 'public_proofs' => Illuminate\Support\Facades\Storage::disk('public')->allFiles('delivery-proofs')];
         }
+        if ($operation === 'message_reply') {
+            $phase = $message['phase'];
+            $this->assertContains($phase, ['pickup', 'final_mile']);
+            $p = $this->parcels[$phase === 'pickup' ? 'pickup' : 'delivery']->fresh();
+            $sender = $phase === 'pickup' ? $p->order->items->first()->product->shop->user : $p->order->buyer;
+            // Reply through the actual owning seller/buyer action, never by
+            // changing the messages table or forging a Rider participant.
+            $reply = $this->actingAs($sender)->postJson(route('chat.send'), [
+                'receiver_id' => $this->holder->id, 'order_id' => $p->order_id,
+                'message' => $message['text'],
+            ])->assertOk()->json('message');
+            return ['id' => (string) $reply['id'], 'sender_id' => (string) $sender->id];
+        }
+        if ($operation === 'messages_snapshot') {
+            $state = [];
+            foreach (['pickup', 'delivery'] as $kind) {
+                if (! isset($this->parcels[$kind])) continue;
+                $p = $this->parcels[$kind]->fresh();
+                $participant = $kind === 'pickup' ? $p->order->items->first()->product->shop->user : $p->order->buyer;
+                $rows = App\Models\Message::where('order_id', $p->order_id)
+                    ->where(fn ($query) => $query->where('sender_id', $this->holder->id)->orWhere('receiver_id', $this->holder->id))
+                    ->orderBy('id')->get();
+                // These owning inbox GETs only inspect state; ChatController's
+                // separate getMessages endpoint would acknowledge messages.
+                $path = $kind === 'pickup' ? '/seller/messages' : '/buyer/messages';
+                $this->actingAs($participant)->get($path)->assertOk()->assertInertia(
+                    fn (Inertia\Testing\AssertableInertia $page) => $page
+                        ->component($kind === 'pickup' ? 'Seller/Messages' : 'Buyer/Messages')
+                        ->where('conversations', function ($conversations) use ($rows) {
+                            $visible = collect($conversations)->flatMap(fn ($thread) => $thread['messages'])->pluck('id');
+                            return $rows->every(fn ($row) => $visible->contains($row->id));
+                        })
+                );
+                $state[$kind] = ['participant_id' => (string) $participant->id, 'stage' => $p->status,
+                    'messages' => $rows->map(fn ($row) => ['id' => (string) $row->id,
+                        'sender_id' => (string) $row->sender_id, 'receiver_id' => (string) $row->receiver_id,
+                        'text' => $row->message, 'is_read' => (bool) $row->is_read])->all()];
+            }
+            return ['parcels' => $state,
+                'sends' => App\Models\RiderCommand::where('action', 'message.send')->count(),
+                'reads' => App\Models\RiderCommand::where('action', 'message.read')->count(),
+                'outcomes' => App\Models\DeliveryCheckpoint::where('checkpoint_type', 'delivered')->count()];
+        }
         if (in_array($operation, ['prepare_delivery', 'prepare_failure'], true)) {
             $kind = $operation === 'prepare_delivery' ? 'delivery' : 'failure';
             $this->parcels[$kind] ??= $this->flowDelivery(

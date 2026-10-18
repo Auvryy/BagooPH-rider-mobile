@@ -11,6 +11,7 @@ roadmap and backlog; it does not replace their scope, stable IDs or deadlines.
 | Native handover issues | Involved reports, private evidence and named-holder possession acknowledgement over merged backend H04 | Client/local checks and Azure discovery/list passed; real writes/device acceptance open | [Plan](handover-issues/README.md) |
 | Native operations | Consume the completed backend Rider API in five Flutter batches | Planned; Azure/device acceptance outstanding | [Plan](native-operations/README.md) |
 | Pickup, delivery and Trips | Selected shared command/proof foundation, real pickup/departure, COD/failure and retained history | Active implementation; Azure/physical acceptance separate | [Plan](rider-orders-delivery-trips/README.md) |
+| Assignment Messages | Phase-bound parcel conversations, protected send/read intents and displayed reads | Client locally verified; Azure/physical Android acceptance open | [Plan](rider-assignment-messages/README.md) |
 
 ## Rules for future plans
 

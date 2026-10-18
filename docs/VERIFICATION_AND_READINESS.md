@@ -160,8 +160,8 @@ Physical Android and cross-role operational checks remain future acceptance work
 
 ## Complete frontend design review: October 6, 2026
 
-The [design specification](DESIGN_SPEC.md) supplies 48 native full-view
-blueprints, 8 external entry views/panels, 20 app overlays, 3 device-owned
+The [design system](DESIGN_SYSTEM.md) supplies the visual language,
+brand tokens, motion curves, and core surface standards. It separately documents
 surfaces, 15 shared states and 8 Stop Mode variants. It separately documents
 12 unselected future concepts and maps all 16 major areas and all 40 earlier
 ideas. The selected three features and baseline task catalog retain their

@@ -3,7 +3,8 @@ import 'package:flutter/physics.dart';
 
 import '../../app/theme.dart';
 
-/// Opaque reading surface; depth never depends on a dark outline.
+/// Minimalist reading surface with whisper-quiet 1px border and soft ambient elevation.
+/// Eliminates dark muddy shadows; creates layered depth through subtle borders and light.
 class RiderSurface extends StatelessWidget {
   const RiderSurface({
     super.key,
@@ -11,45 +12,54 @@ class RiderSurface extends StatelessWidget {
     this.padding = EdgeInsets.zero,
     this.radius = RiderRadii.surface,
     this.color = Colors.white,
+    this.accentGlow = false,
   });
   final Widget child;
   final EdgeInsetsGeometry padding;
   final double radius;
   final Color color;
+  final bool accentGlow;
+
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: ShapeDecoration(
-      shape: RoundedSuperellipseBorder(
-        borderRadius: BorderRadius.circular(radius),
+  Widget build(BuildContext context) {
+    final isAccent = color == RiderColors.rose || accentGlow;
+    final shape = RoundedSuperellipseBorder(
+      borderRadius: BorderRadius.circular(radius),
+      side: BorderSide(
+        color: isAccent
+            ? const Color(0x33E00D42)
+            : RiderColors.border,
+        width: 1.0,
       ),
-      shadows: const [
-        BoxShadow(
-          color: Color(0x060F172A),
-          blurRadius: 16,
-          offset: Offset(0, 4),
-        ),
-      ],
-    ),
-    child: Material(
-      color: color,
-      shape: RoundedSuperellipseBorder(
-        borderRadius: BorderRadius.circular(radius),
+    );
+    return DecoratedBox(
+      decoration: ShapeDecoration(
+        shape: shape,
+        shadows: isAccent
+            ? RiderShadows.neumorphicAccent
+            : RiderShadows.ambient,
       ),
-      clipBehavior: Clip.antiAlias,
-      child: Padding(padding: padding, child: child),
-    ),
-  );
+      child: Material(
+        color: color,
+        shape: shape,
+        clipBehavior: Clip.antiAlias,
+        child: Padding(padding: padding, child: child),
+      ),
+    );
+  }
 }
 
 class RiderCanvas extends StatelessWidget {
   const RiderCanvas({super.key, required this.child});
   final Widget child;
   @override
-  Widget build(BuildContext context) =>
-      ColoredBox(color: RiderColors.canvas, child: child);
+  Widget build(BuildContext context) => Container(
+    color: RiderColors.canvas,
+    child: child,
+  );
 }
 
-/// Solid chrome keeps navigation and temporary controls readable over a map.
+/// Solid sculpted chrome keeps navigation and temporary controls readable over a map.
 class RiderChrome extends StatelessWidget {
   const RiderChrome({
     super.key,
@@ -57,11 +67,13 @@ class RiderChrome extends StatelessWidget {
     this.radius = RiderRadii.navigation,
     this.padding = EdgeInsets.zero,
     this.topOnly = false,
+    this.color = Colors.white,
   });
   final Widget child;
   final double radius;
   final EdgeInsetsGeometry padding;
   final bool topOnly;
+  final Color color;
   @override
   Widget build(BuildContext context) {
     final shape = RoundedSuperellipseBorder(
@@ -72,7 +84,7 @@ class RiderChrome extends StatelessWidget {
     return ClipPath(
       clipper: ShapeBorderClipper(shape: shape),
       child: Material(
-        color: Colors.white,
+        color: color,
         child: Padding(padding: padding, child: child),
       ),
     );
@@ -80,6 +92,7 @@ class RiderChrome extends StatelessWidget {
 }
 
 /// Observes pointers without taking the button's gestures or semantics.
+/// Provides snappy, tactile press scale down (`transform: scale(0.98)`) and crisp red focus ring.
 class RiderPressFeedback extends StatefulWidget {
   const RiderPressFeedback({super.key, required this.child});
   final Widget child;
@@ -144,16 +157,16 @@ class _RiderPressFeedbackState extends State<RiderPressFeedback>
       if (mounted) setState(() => _focused = focused);
     },
     child: Listener(
-      onPointerDown: (_) => _move(.975),
-      onPointerUp: (_) => _move(1),
-      onPointerCancel: (_) => _move(1),
+      onPointerDown: (_) => _move(0.98),
+      onPointerUp: (_) => _move(1.0),
+      onPointerCancel: (_) => _move(1.0),
       child: AnimatedBuilder(
         animation: _scale,
         child: widget.child,
         builder: (context, child) => Transform.scale(
           scale: RiderMotion.reduced(context)
-              ? 1
-              : _scale.value.clamp(.95, 1.02),
+              ? 1.0
+              : _scale.value.clamp(0.95, 1.02),
           transformHitTests: false,
           child: DecoratedBox(
             position: DecorationPosition.foreground,
@@ -161,7 +174,7 @@ class _RiderPressFeedbackState extends State<RiderPressFeedback>
               shape: RoundedSuperellipseBorder(
                 borderRadius: BorderRadius.circular(RiderRadii.control),
                 side: _focused
-                    ? const BorderSide(color: RiderColors.accentText, width: 2)
+                    ? const BorderSide(color: RiderColors.accent, width: 2)
                     : BorderSide.none,
               ),
             ),

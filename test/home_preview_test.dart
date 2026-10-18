@@ -47,6 +47,10 @@ Future<TestAuthRepository> openApp(
     ),
   );
   await tester.pumpAndSettle();
+  final onboardingCta = find.byKey(const ValueKey('onboarding-cta'));
+  if (onboardingCta.evaluate().isNotEmpty) {
+    await tap(tester, 'onboarding-cta');
+  }
   return repository;
 }
 

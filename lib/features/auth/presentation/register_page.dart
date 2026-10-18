@@ -244,35 +244,54 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                RiderPressFeedback(
-                  child: IconButton(
-                    tooltip: 'Back to sign in',
-                    onPressed: _backToLogin,
-                    icon: const Icon(Icons.arrow_back_rounded, size: 20),
-                  ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              decoration: ShapeDecoration(
+                color: RiderColors.controlFill,
+                shape: const StadiumBorder(
+                  side: BorderSide(color: Colors.white, width: 1.4),
                 ),
-                const SizedBox(width: 4),
-                const Expanded(
-                  child: Text(
-                    'Rider application',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: RiderColors.muted,
+              ),
+              child: Row(
+                children: [
+                  RiderPressFeedback(
+                    child: IconButton(
+                      tooltip: 'Back to sign in',
+                      onPressed: _backToLogin,
+                      icon: const Icon(Icons.arrow_back_rounded, size: 20),
                     ),
                   ),
-                ),
-                Text(
-                  '${_step + 1} / 3',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: RiderColors.accentText,
+                  const SizedBox(width: 4),
+                  const Expanded(
+                    child: Text(
+                      'Rider application',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: RiderColors.muted,
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    decoration: const ShapeDecoration(
+                      color: RiderColors.rose,
+                      shape: StadiumBorder(),
+                    ),
+                    child: Text(
+                      '${_step + 1} / 3',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: RiderColors.accentText,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 16),
             _StepNavigation(step: _step, onSelect: _setStep),
@@ -308,20 +327,26 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
               ),
               const SizedBox(height: 12),
             ],
-            RiderPressFeedback(
-              child: FilledButton(
-                key: const ValueKey('registration-next'),
-                onPressed: session.busy
-                    ? null
-                    : _step < 2
-                    ? _next
-                    : _submitApplication,
-                child: Text(
-                  session.busy
-                      ? 'Submitting…'
-                      : _step == 2
-                      ? 'Submit application'
-                      : 'Continue',
+            DecoratedBox(
+              decoration: const ShapeDecoration(
+                shape: StadiumBorder(),
+                shadows: RiderShadows.neumorphicAccent,
+              ),
+              child: RiderPressFeedback(
+                child: FilledButton(
+                  key: const ValueKey('registration-next'),
+                  onPressed: session.busy
+                      ? null
+                      : _step < 2
+                      ? _next
+                      : _submitApplication,
+                  child: Text(
+                    session.busy
+                        ? 'Submitting…'
+                        : _step == 2
+                        ? 'Submit application'
+                        : 'Continue',
+                  ),
                 ),
               ),
             ),
@@ -467,7 +492,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 const Icon(
                   Icons.calendar_today_outlined,
                   size: 20,
-                  color: RiderColors.muted,
+                  color: RiderColors.accentText,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -477,7 +502,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         : '${_birthday!.day.toString().padLeft(2, '0')}/'
                               '${_birthday!.month.toString().padLeft(2, '0')}/'
                               '${_birthday!.year}',
-                    style: const TextStyle(fontSize: 15),
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: RiderColors.ink,
+                    ),
                   ),
                 ),
               ],
@@ -499,7 +528,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         'Vehicle type',
         style: TextStyle(
           fontSize: 14,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           color: RiderColors.ink,
         ),
       ),
@@ -536,7 +565,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         onTap: () => setState(() => _vehicle = vehicle.$1),
                         borderRadius: BorderRadius.circular(RiderRadii.control),
                         child: Container(
-                          constraints: const BoxConstraints(minHeight: 96),
+                          constraints: const BoxConstraints(minHeight: 98),
                           padding: const EdgeInsets.all(16),
                           decoration: ShapeDecoration(
                             color: _vehicle == vehicle.$1
@@ -546,12 +575,16 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               borderRadius: BorderRadius.circular(
                                 RiderRadii.control,
                               ),
-                              side: _vehicle == vehicle.$1
-                                  ? const BorderSide(
-                                      color: RiderColors.accentText,
-                                    )
-                                  : BorderSide.none,
+                              side: BorderSide(
+                                color: _vehicle == vehicle.$1
+                                    ? RiderColors.accent
+                                    : Colors.white,
+                                width: 1.5,
+                              ),
                             ),
+                            shadows: _vehicle == vehicle.$1
+                                ? RiderShadows.neumorphicElevated
+                                : const [],
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -579,7 +612,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               Text(
                                 vehicle.$1,
                                 style: TextStyle(
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w700,
                                   color: _vehicle == vehicle.$1
                                       ? RiderColors.accentText
                                       : RiderColors.ink,
@@ -627,9 +660,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       const SizedBox(height: 20),
       Container(
         padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
+        decoration: ShapeDecoration(
           color: RiderColors.controlFill,
-          borderRadius: BorderRadius.circular(RiderRadii.control),
+          shape: RoundedSuperellipseBorder(
+            borderRadius: BorderRadius.circular(RiderRadii.control),
+            side: const BorderSide(color: Colors.white, width: 1.4),
+          ),
         ),
         child: const Text(
           'Your company, hub and work assignment are managed separately '
@@ -719,7 +755,22 @@ class _FormSection extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      Text(title, style: Theme.of(context).textTheme.titleMedium),
+      Row(
+        children: [
+          Container(
+            width: 4,
+            height: 18,
+            decoration: BoxDecoration(
+              color: RiderColors.accent,
+              borderRadius: BorderRadius.circular(999),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(title, style: Theme.of(context).textTheme.titleMedium),
+          ),
+        ],
+      ),
       const SizedBox(height: 12),
       child,
     ],
@@ -797,8 +848,8 @@ class _StepNavigation extends StatelessWidget {
       final active = index == step;
       final circle = Container(
         key: ValueKey('registration-step-circle-$index'),
-        width: 32,
-        height: 32,
+        width: 34,
+        height: 34,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
@@ -807,12 +858,14 @@ class _StepNavigation extends StatelessWidget {
               : index < step
               ? RiderColors.rose
               : RiderColors.controlFill,
+          border: Border.all(color: Colors.white, width: 1.5),
+          boxShadow: active ? RiderShadows.neumorphicAccent : const [],
         ),
         child: Text(
           '${index + 1}',
           style: TextStyle(
             fontSize: 13,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w800,
             color: active ? Colors.white : RiderColors.muted,
           ),
         ),
@@ -822,7 +875,7 @@ class _StepNavigation extends StatelessWidget {
         textAlign: stacked ? TextAlign.start : TextAlign.center,
         style: TextStyle(
           fontSize: 12,
-          fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+          fontWeight: active ? FontWeight.w800 : FontWeight.w600,
           color: active ? RiderColors.accentText : RiderColors.muted,
         ),
       );
@@ -876,11 +929,11 @@ class _StepNavigation extends StatelessWidget {
       builder: (context, constraints) => Stack(
         children: [
           Positioned(
-            top: 19,
+            top: 24,
             left: constraints.maxWidth / 6 + 24,
             right: constraints.maxWidth / 6 + 24,
             child: const SizedBox(
-              height: 2,
+              height: 3,
               child: ColoredBox(color: RiderColors.divider),
             ),
           ),
@@ -965,10 +1018,12 @@ class _DocumentCardState extends State<_DocumentCard> {
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: RiderColors.rose,
-                  borderRadius: BorderRadius.circular(RiderRadii.control),
+                  borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Icon(
-                  Icons.description_outlined,
+                child: Icon(
+                  widget.selectedName != null
+                      ? Icons.verified_rounded
+                      : Icons.description_outlined,
                   size: 22,
                   color: RiderColors.accentText,
                 ),
@@ -978,7 +1033,7 @@ class _DocumentCardState extends State<_DocumentCard> {
                 child: Text(
                   widget.title,
                   style: const TextStyle(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                     fontSize: 14,
                   ),
                 ),
@@ -994,7 +1049,7 @@ class _DocumentCardState extends State<_DocumentCard> {
             const SizedBox(height: 8),
             Text(
               _error!,
-              style: const TextStyle(color: Color(0xFFBE123C), fontSize: 13),
+              style: const TextStyle(color: RiderColors.accent, fontSize: 13),
             ),
           ],
           const SizedBox(height: 12),

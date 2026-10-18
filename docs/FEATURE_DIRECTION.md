@@ -181,11 +181,8 @@ readiness claim.
 
 ## Complete frontend design
 
-[DESIGN_SPEC.md](DESIGN_SPEC.md) defines the complete responsive screen system
-for these three selected features and every related Rider view. Its
-[page blueprints](design/PAGE_BLUEPRINTS.md) specify control placement,
-color/border rationale, recovery and adaptation; the inventory separates full
-views, overlays, states and unselected future concepts. These designs retain
+[DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) defines the brand color and font for these
+features and every related Rider view. These designs retain
 the dispatch and capability boundaries in this feature direction.
 
 ## Integration and planning

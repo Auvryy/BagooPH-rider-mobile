@@ -5,7 +5,6 @@ roadmap and backlog; it does not replace their scope, stable IDs or deadlines.
 
 | Plan | Scope | State | Entry |
 |---|---|---|---|
-| Rider interface redesign | All implemented pages, shared visual system and canonical design docs | In progress | [Plan](rider-ui-redesign/README.md) |
 | Home dashboard/navigation | Selected map/location extension; live Home foundation first | Foundation/map implemented; live-write, owned-task and device acceptance open | [Plan](home-dashboard-navigation/README.md) |
 | Philippines map focus | Country mask/bounds, retained current-stop pins, route framing and readable tiles | Merged in PR 19; physical performance and hub coordinates separate | [Plan](philippines-map-focus/README.md) |
 | Home dashboard branch plan | Current screen/bug review, useful dashboard additions and sequential mobile delivery briefs | HDB-01–04 merged; HDB-05 native/website acceptance passed and local profile activated | [Plan](home-dashboard-branch-plan/README.md) |

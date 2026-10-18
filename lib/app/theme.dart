@@ -1,39 +1,108 @@
 import 'package:flutter/material.dart';
 
 abstract final class RiderColors {
+  /// Primary Brand Accent (The ONLY Color)
   static const accent = Color(0xFFE00D42);
-  static const accentPressed = Color(0xFFA1052B);
-  static const accentText = Color(0xFFC20836);
-  static const canvas = Color(0xFFF7F7FA);
-  static const rose = Color(0xFFFFF2F4);
-  static const ink = Color(0xFF0F172A);
-  static const body = Color(0xFF1E293B);
-  static const muted = Color(0xFF475569);
-  static const border = Color(0xFFE3E5EB);
-  static const controlFill = Color(0xFFEEF0F4);
+
+  /// Soft Red Tint (Subtle Highlights): rgba(224, 13, 66, 0.08)
+  static const redTint = Color(0x14E00D42);
+  static const rose = Color(0x14E00D42);
+  static const accentGlow = Color(0x29E00D42);
+  static const accentPressed = Color(0xFFC20836);
+  static const accentText = Color(0xFFE00D42);
+
+  /// Canvas & Surfaces
+  static const canvas = Color(0xFFF8FAFC);
+  static const pureWhite = Color(0xFFFFFFFF);
+  static const surface = Color(0xFFFFFFFF);
+  static const carbon = Color(0xFF090A0F);
+  static const neumorphicSurface = Color(0xFFFFFFFF);
+  static const neumorphicRecessed = Color(0xFFF1F5F9);
+  static const creamSticker = Color(0xFFFFFFFF);
+
+  /// Typography Ink
+  static const ink = Color(0xFF111827);
+  static const body = Color(0xFF111827);
+  static const slate = Color(0xFF64748B);
+  static const muted = Color(0xFF64748B);
+  static const slateMuted = Color(0xFF94A3B8);
+
+  /// Borders & Dividers: Whisper-quiet 1px borders
+  static const border = Color(0xFFE2E8F0);
+  static const outline = Color(0xFFE2E8F0);
+  static const borderSubtle = Color(0x12111827);
+  static const controlFill = Color(0xFFF1F5F9);
   static const divider = Color(0xFFE2E8F0);
 }
 
+abstract final class RiderShadows {
+  /// Soft ambient elevation: 0 4px 20px -2px rgba(17, 24, 39, 0.05)
+  static const ambient = <BoxShadow>[
+    BoxShadow(
+      color: Color(0x0D111827),
+      blurRadius: 20,
+      spreadRadius: -2,
+      offset: Offset(0, 4),
+    ),
+  ];
+
+  /// Layered depth without dark drop shadows: subtle 1px border + soft ambient elevation
+  static const neumorphicElevated = ambient;
+
+  /// Crimson-tinted ambient elevation for active/prominent surfaces
+  static const neumorphicAccent = <BoxShadow>[
+    BoxShadow(
+      color: Color(0x1CE00D42),
+      blurRadius: 20,
+      spreadRadius: -2,
+      offset: Offset(0, 4),
+    ),
+  ];
+
+  /// Floating dock shadow for the bottom navigation capsule
+  static const floatingDock = <BoxShadow>[
+    BoxShadow(
+      color: Color(0x12111827),
+      blurRadius: 24,
+      spreadRadius: -4,
+      offset: Offset(0, 8),
+    ),
+    BoxShadow(
+      color: Color(0x14E00D42),
+      blurRadius: 16,
+      offset: Offset(0, 4),
+    ),
+  ];
+}
+
 abstract final class RiderRadii {
-  static const surface = 20.0;
-  static const group = 20.0;
-  static const control = 14.0;
-  static const media = 20.0;
-  static const dialog = 28.0;
-  static const sheet = 28.0;
-  static const selection = 14.0;
-  static const navigation = 0.0;
-  static const brand = 8.0;
+  static const surface = 18.0;
+  static const group = 18.0;
+  static const control = 12.0;
+  static const media = 16.0;
+  static const dialog = 20.0;
+  static const sheet = 20.0;
+  static const selection = 12.0;
+  static const pill = 999.0;
+  static const navigation = 999.0;
+  static const brand = 12.0;
 }
 
 abstract final class RiderMotion {
-  static const pressed = Duration(milliseconds: 160);
-  static const navigation = Duration(milliseconds: 240);
-  static const sheet = Duration(milliseconds: 280);
+  /// Spring-like easing: cubic-bezier(0.16, 1, 0.3, 1) for natural deceleration
+  static const easeOutSpring = Cubic(0.16, 1.0, 0.3, 1.0);
+
+  /// Snappy timing: 150ms–250ms for press and navigation
+  static const pressed = Duration(milliseconds: 180);
+  static const navigation = Duration(milliseconds: 250);
+
+  /// Sheet/modal reveal: 300ms–450ms
+  static const sheet = Duration(milliseconds: 320);
+
   static const touchSpring = SpringDescription(
-    mass: 1,
+    mass: 0.8,
     stiffness: 380,
-    damping: 26,
+    damping: 24,
   );
   static bool reduced(BuildContext context) =>
       MediaQuery.disableAnimationsOf(context) ||
@@ -41,7 +110,11 @@ abstract final class RiderMotion {
       View.of(context).platformDispatcher.accessibilityFeatures.reduceMotion;
   static AnimationStyle sheetStyle(BuildContext context) => reduced(context)
       ? AnimationStyle.noAnimation
-      : const AnimationStyle(duration: sheet, reverseDuration: sheet);
+      : const AnimationStyle(
+          duration: sheet,
+          reverseDuration: Duration(milliseconds: 240),
+          curve: easeOutSpring,
+        );
 }
 
 abstract final class RiderTypography {
@@ -143,7 +216,7 @@ class RiderPageTransitionsBuilder extends PageTransitionsBuilder {
       opacity: curve,
       child: SlideTransition(
         position: Tween<Offset>(
-          begin: const Offset(.08, 0),
+          begin: const Offset(.06, 0),
           end: Offset.zero,
         ).animate(animation.drive(CurveTween(curve: Curves.easeOutCubic))),
         child: child,
@@ -155,6 +228,9 @@ class RiderPageTransitionsBuilder extends PageTransitionsBuilder {
 ThemeData buildRiderTheme({bool highContrast = false}) {
   const shape = RoundedSuperellipseBorder(
     borderRadius: BorderRadius.all(Radius.circular(RiderRadii.control)),
+  );
+  const pillShape = RoundedSuperellipseBorder(
+    borderRadius: BorderRadius.all(Radius.circular(RiderRadii.pill)),
   );
   const family = RiderTypography.family;
   final restingSide = highContrast
@@ -187,7 +263,7 @@ ThemeData buildRiderTheme({bool highContrast = false}) {
       space: 1,
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: Colors.white,
+      backgroundColor: RiderColors.canvas,
       foregroundColor: RiderColors.ink,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
@@ -196,7 +272,8 @@ ThemeData buildRiderTheme({bool highContrast = false}) {
         fontFamily: family,
         fontSize: 20,
         height: 1.35,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.4,
         color: RiderColors.ink,
       ),
     ),
@@ -218,35 +295,37 @@ ThemeData buildRiderTheme({bool highContrast = false}) {
     ),
     textTheme: const TextTheme(
       headlineLarge: TextStyle(
-        fontSize: 38,
-        height: 1.2,
+        fontSize: 36,
+        height: 1.16,
         fontWeight: FontWeight.w800,
         letterSpacing: -1.1,
         color: RiderColors.ink,
       ),
       headlineMedium: TextStyle(
-        fontSize: 28,
-        height: 36 / 28,
+        fontSize: 27,
+        height: 1.24,
         fontWeight: FontWeight.w800,
-        letterSpacing: -0.7,
+        letterSpacing: -0.75,
         color: RiderColors.ink,
       ),
       titleLarge: TextStyle(
         fontSize: 18,
         height: 26 / 18,
         fontWeight: FontWeight.w700,
+        letterSpacing: -0.3,
         color: RiderColors.ink,
       ),
       titleMedium: TextStyle(
         fontSize: 16,
-        height: 1.5,
+        height: 1.45,
         fontWeight: FontWeight.w600,
+        letterSpacing: -0.2,
         color: RiderColors.ink,
       ),
       bodyLarge: TextStyle(fontSize: 16, height: 1.5, color: RiderColors.body),
       bodyMedium: TextStyle(
         fontSize: 14,
-        height: 10 / 7,
+        height: 1.45,
         fontWeight: FontWeight.w400,
         color: RiderColors.muted,
       ),
@@ -258,13 +337,13 @@ ThemeData buildRiderTheme({bool highContrast = false}) {
       labelLarge: TextStyle(
         fontSize: 15,
         height: 1.3,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: RiderColors.controlFill,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
       hintStyle: const TextStyle(fontSize: 15, color: RiderColors.muted),
       border: RiderInputBorder(borderSide: restingSide),
       enabledBorder: RiderInputBorder(borderSide: restingSide),
@@ -283,8 +362,9 @@ ThemeData buildRiderTheme({bool highContrast = false}) {
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         minimumSize: const Size(0, 56),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        shape: shape,
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+        shape: pillShape,
+        elevation: 0,
         backgroundColor: RiderColors.accent,
         foregroundColor: Colors.white,
       ).copyWith(side: focusSide),
@@ -292,8 +372,8 @@ ThemeData buildRiderTheme({bool highContrast = false}) {
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         minimumSize: const Size(0, 48),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        shape: shape,
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        shape: pillShape,
         side: BorderSide.none,
         backgroundColor: RiderColors.controlFill,
         foregroundColor: RiderColors.ink,
@@ -303,21 +383,21 @@ ThemeData buildRiderTheme({bool highContrast = false}) {
       style: TextButton.styleFrom(
         minimumSize: const Size(48, 48),
         foregroundColor: RiderColors.accentText,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-        shape: shape,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        shape: pillShape,
       ),
     ),
     iconButtonTheme: IconButtonThemeData(
       style: IconButton.styleFrom(
         minimumSize: const Size(48, 48),
         shape: shape,
-        foregroundColor: RiderColors.muted,
+        foregroundColor: RiderColors.ink,
       ).copyWith(side: focusSide),
     ),
     segmentedButtonTheme: SegmentedButtonThemeData(
       style: ButtonStyle(
         side: const WidgetStatePropertyAll(BorderSide.none),
-        shape: const WidgetStatePropertyAll(shape),
+        shape: const WidgetStatePropertyAll(pillShape),
         minimumSize: const WidgetStatePropertyAll(Size(0, 48)),
         backgroundColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
@@ -333,13 +413,13 @@ ThemeData buildRiderTheme({bool highContrast = false}) {
     ),
     chipTheme: const ChipThemeData(
       side: BorderSide.none,
-      shape: shape,
+      shape: pillShape,
       backgroundColor: RiderColors.controlFill,
       selectedColor: RiderColors.rose,
     ),
     checkboxTheme: CheckboxThemeData(
       shape: const RoundedSuperellipseBorder(
-        borderRadius: BorderRadius.all(Radius.circular(6)),
+        borderRadius: BorderRadius.all(Radius.circular(7)),
       ),
       side: BorderSide.none,
       fillColor: WidgetStateProperty.resolveWith(
@@ -347,6 +427,19 @@ ThemeData buildRiderTheme({bool highContrast = false}) {
             ? RiderColors.accent
             : RiderColors.controlFill,
       ),
+    ),
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? Colors.white
+            : RiderColors.muted,
+      ),
+      trackColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? RiderColors.accent
+            : RiderColors.controlFill,
+      ),
+      trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
     ),
     dialogTheme: const DialogThemeData(
       shape: RoundedSuperellipseBorder(

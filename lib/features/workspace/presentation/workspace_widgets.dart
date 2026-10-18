@@ -11,12 +11,14 @@ class WorkspacePanel extends StatelessWidget {
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(20),
+    this.accentGlow = false,
   });
   final Widget child;
   final EdgeInsetsGeometry padding;
+  final bool accentGlow;
   @override
   Widget build(BuildContext context) =>
-      RiderSurface(padding: padding, child: child);
+      RiderSurface(padding: padding, accentGlow: accentGlow, child: child);
 }
 
 class WorkspaceAvatar extends StatelessWidget {
@@ -36,13 +38,42 @@ class WorkspaceAvatar extends StatelessWidget {
         .join()
         .toUpperCase();
     return ExcludeSemantics(
-      child: CircleAvatar(
-        radius: size / 2,
-        backgroundColor: RiderColors.rose,
-        foregroundColor: RiderColors.accentText,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              RiderColors.accentGlow,
+              RiderColors.accent,
+            ],
+          ),
+          border: Border.all(color: Colors.white, width: 2.2),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0xFFFFFFFF),
+              blurRadius: 6,
+              offset: Offset(-2, -2),
+            ),
+            BoxShadow(
+              color: Color(0x28E00D42),
+              blurRadius: 12,
+              offset: Offset(0, 5),
+            ),
+          ],
+        ),
+        alignment: Alignment.center,
         child: Text(
           initials.isEmpty ? 'R' : initials,
-          style: TextStyle(fontSize: size * .34, fontWeight: FontWeight.w700),
+          style: TextStyle(
+            fontSize: size * .34,
+            fontWeight: FontWeight.w800,
+            color: Colors.white,
+            letterSpacing: -0.3,
+          ),
         ),
       ),
     );
@@ -55,19 +86,43 @@ class WorkspaceBadge extends StatelessWidget {
   final bool accent;
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
     decoration: ShapeDecoration(
-      color: accent ? RiderColors.rose : const Color(0xFFF1F5F9),
+      gradient: accent
+          ? const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFFFFF0F4), Color(0xFFFFE2EA)],
+            )
+          : const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Colors.white, Color(0xFFF1F5FB)],
+            ),
       shape: RoundedSuperellipseBorder(
-        borderRadius: BorderRadius.circular(RiderRadii.selection),
+        borderRadius: BorderRadius.circular(RiderRadii.pill),
+        side: const BorderSide(color: Colors.white, width: 2.0),
       ),
+      shadows: [
+        const BoxShadow(
+          color: Color(0xFFFFFFFF),
+          blurRadius: 6,
+          offset: Offset(-2, -2),
+        ),
+        BoxShadow(
+          color: accent ? const Color(0x1FE00D42) : const Color(0x120F172A),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ],
     ),
     child: Text(
       label,
       style: TextStyle(
         fontSize: 12,
-        height: 1.4,
-        fontWeight: FontWeight.w600,
+        height: 1.35,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.1,
         color: accent ? RiderColors.accentText : RiderColors.muted,
       ),
     ),
@@ -96,7 +151,20 @@ class WorkspaceHeading extends StatelessWidget {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ),
-          if (action != null) ...[const SizedBox(width: 8), action!],
+          if (action != null) ...[
+            const SizedBox(width: 8),
+            DecoratedBox(
+              decoration: ShapeDecoration(
+                color: Colors.white,
+                shape: RoundedSuperellipseBorder(
+                  borderRadius: BorderRadius.circular(RiderRadii.control),
+                  side: const BorderSide(color: Colors.white, width: 1.5),
+                ),
+                shadows: RiderShadows.neumorphicElevated,
+              ),
+              child: action!,
+            ),
+          ],
         ],
       ),
       if (description.isNotEmpty) ...[
@@ -124,9 +192,9 @@ class WorkspaceBody extends StatelessWidget {
     key: storageKey == null ? null : PageStorageKey(storageKey),
     padding: EdgeInsets.fromLTRB(
       MediaQuery.sizeOf(context).width < 360 ? 16 : 24,
-      24,
+      20,
       MediaQuery.sizeOf(context).width < 360 ? 16 : 24,
-      24 + MediaQuery.paddingOf(context).bottom,
+      28 + MediaQuery.paddingOf(context).bottom,
     ),
     child: Center(
       child: ConstrainedBox(
@@ -236,12 +304,18 @@ class FeatureStateView<T> extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: ShapeDecoration(
-              color: RiderColors.controlFill,
-              shape: RoundedSuperellipseBorder(
-                borderRadius: BorderRadius.circular(RiderRadii.surface),
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [RiderColors.rose, Colors.white],
               ),
+              shape: RoundedSuperellipseBorder(
+                borderRadius: BorderRadius.circular(RiderRadii.control),
+                side: const BorderSide(color: Colors.white, width: 1.5),
+              ),
+              shadows: RiderShadows.neumorphicElevated,
             ),
-            child: Icon(icon, color: RiderColors.muted, size: 28),
+            child: Icon(icon, color: RiderColors.accentText, size: 28),
           ),
           const SizedBox(height: 20),
           Text(
@@ -278,7 +352,21 @@ class WorkspaceEmpty extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(Icons.inbox_outlined, size: 32, color: RiderColors.muted),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: ShapeDecoration(
+            color: RiderColors.rose,
+            shape: RoundedSuperellipseBorder(
+              borderRadius: BorderRadius.circular(14),
+              side: const BorderSide(color: Colors.white, width: 1.5),
+            ),
+          ),
+          child: const Icon(
+            Icons.inbox_outlined,
+            size: 26,
+            color: RiderColors.accentText,
+          ),
+        ),
         const SizedBox(height: 16),
         Text(title, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),

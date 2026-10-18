@@ -59,16 +59,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'LET’S GET MOVING',
-                style: TextStyle(
-                  fontSize: 11,
-                  letterSpacing: 1.6,
-                  fontWeight: FontWeight.w700,
-                  color: RiderColors.accentText,
-                ),
-              ),
-              const SizedBox(height: 12),
               Text(
                 'Welcome back.',
                 style: Theme.of(context).textTheme.headlineLarge,
@@ -78,7 +68,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 'Your next pickup starts here. Sign in to continue.',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               AuthField(
                 label: 'Email address',
                 controller: _email,
@@ -96,7 +86,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               AuthField(
                 label: 'Password',
                 controller: _password,
@@ -108,12 +98,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 textInputAction: TextInputAction.done,
                 onSubmitted: (_) => _signIn(),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 14),
               LayoutBuilder(
                 builder: (context, constraints) {
                   final remember = RiderPressFeedback(
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(RiderRadii.control),
+                      borderRadius: BorderRadius.circular(RiderRadii.pill),
                       onTap: () =>
                           setState(() => _rememberEmail = !_rememberEmail),
                       child: Row(
@@ -129,6 +119,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               'Remember email',
                               style: TextStyle(
                                 fontSize: 13,
+                                fontWeight: FontWeight.w600,
                                 color: RiderColors.muted,
                               ),
                             ),
@@ -148,7 +139,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       ),
                       child: const Text(
                         'Forgot password?',
-                        style: TextStyle(fontSize: 13),
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   );
@@ -170,7 +164,25 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
               const SizedBox(height: 20),
               if (session.notice != null) ...[
-                Semantics(liveRegion: true, child: Text(session.notice!)),
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: ShapeDecoration(
+                    color: RiderColors.rose,
+                    shape: RoundedSuperellipseBorder(
+                      borderRadius: BorderRadius.circular(RiderRadii.control),
+                    ),
+                  ),
+                  child: Semantics(
+                    liveRegion: true,
+                    child: Text(
+                      session.notice!,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: RiderColors.accentText,
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 16),
               ],
               if (session.error != null) ...[
@@ -180,23 +192,59 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 ),
                 const SizedBox(height: 16),
               ],
-              RiderPressFeedback(
-                child: FilledButton.icon(
-                  key: const ValueKey('sign-in-button'),
-                  onPressed: session.busy ? null : _signIn,
-                  icon: const Icon(Icons.arrow_forward_rounded, size: 20),
-                  iconAlignment: IconAlignment.end,
-                  label: Text(session.busy ? 'Signing in…' : 'Sign in'),
+              DecoratedBox(
+                decoration: const ShapeDecoration(
+                  shape: StadiumBorder(),
+                  shadows: RiderShadows.neumorphicAccent,
+                ),
+                child: RiderPressFeedback(
+                  child: FilledButton.icon(
+                    key: const ValueKey('sign-in-button'),
+                    style: FilledButton.styleFrom(
+                      shape: const StadiumBorder(),
+                      minimumSize: const Size(0, 56),
+                    ),
+                    onPressed: session.busy ? null : _signIn,
+                    icon: const Icon(Icons.arrow_forward_rounded, size: 20),
+                    iconAlignment: IconAlignment.end,
+                    label: Text(session.busy ? 'Signing in…' : 'Sign in'),
+                  ),
                 ),
               ),
-              const SizedBox(height: 24),
-              const Text('New to BagooPH Rider?', textAlign: TextAlign.center),
-              const SizedBox(height: 4),
-              RiderPressFeedback(
-                child: TextButton(
-                  key: const ValueKey('open-register'),
-                  onPressed: () => Navigator.of(context).pushNamed('/register'),
-                  child: const Text('Apply as a rider'),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                decoration: ShapeDecoration(
+                  color: RiderColors.controlFill,
+                  shape: RoundedSuperellipseBorder(
+                    borderRadius: BorderRadius.circular(RiderRadii.control),
+                    side: const BorderSide(color: Colors.white, width: 1.4),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    const Text(
+                      'New to BagooPH Rider?',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: RiderColors.muted,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    RiderPressFeedback(
+                      child: TextButton(
+                        key: const ValueKey('open-register'),
+                        onPressed: () =>
+                            Navigator.of(context).pushNamed('/register'),
+                        child: const Text('Apply as a rider'),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

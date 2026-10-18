@@ -69,15 +69,22 @@ class WorkSummary extends StatelessWidget {
                 final placement = Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.only(top: 3),
-                      child: Icon(
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: ShapeDecoration(
+                        color: RiderColors.rose,
+                        shape: RoundedSuperellipseBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          side: const BorderSide(color: Colors.white),
+                        ),
+                      ),
+                      child: const Icon(
                         Icons.warehouse_outlined,
                         size: 20,
                         color: RiderColors.accentText,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,7 +93,7 @@ class WorkSummary extends StatelessWidget {
                             _placement('Hub', home.hubId, home.hub),
                             key: const ValueKey('home-hub'),
                             style: Theme.of(context).textTheme.titleSmall
-                                ?.copyWith(fontWeight: FontWeight.w700),
+                                ?.copyWith(fontWeight: FontWeight.w800),
                           ),
                           Text(
                             _placement('Company', home.companyId, home.company),
@@ -232,26 +239,40 @@ class WorkDutyControl extends StatelessWidget {
   Widget build(BuildContext context) {
     final home = controller.homeData.data;
     if (home == null) return const SizedBox.shrink();
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Flexible(
-          child: Text(
-            home.onDuty ? 'On duty' : 'Off duty',
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-          ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+      decoration: ShapeDecoration(
+        color: home.onDuty ? RiderColors.rose : RiderColors.controlFill,
+        shape: const StadiumBorder(
+          side: BorderSide(color: Colors.white, width: 1.4),
         ),
-        const SizedBox(width: 4),
-        Semantics(
-          label: 'Duty availability',
-          child: Switch(
-            value: home.onDuty,
-            onChanged: controller.canWrite && home.capabilities['duty'] == true
-                ? controller.setDuty
-                : null,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              home.onDuty ? 'On duty' : 'Off duty',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: home.onDuty ? RiderColors.accentText : RiderColors.ink,
+              ),
+            ),
           ),
-        ),
-      ],
+          const SizedBox(width: 4),
+          Semantics(
+            label: 'Duty availability',
+            child: Switch(
+              value: home.onDuty,
+              onChanged:
+                  controller.canWrite && home.capabilities['duty'] == true
+                  ? controller.setDuty
+                  : null,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -84,23 +84,15 @@ be loaded. Missing hub data means unassigned/unknown, never a default city.
 
 ## Presentation and accessibility
 
-The mobile target keeps primary red `#E00D42` and the bundled Plus Jakarta Sans,
-with neutral `#F7F7FA` canvas, white inset groups and component-specific rounded
-shapes. The mobile app has an independent presentation while sharing the web's
-business rules and branding. See [the design system](design/DESIGN_SYSTEM.md)
-for target tokens; this documentation revision does not change runtime styling.
+The mobile target keeps primary red `#E00D42` and the bundled Plus Jakarta Sans.
+The mobile app has an independent presentation while sharing the web's
+business rules and branding. See [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md).
 
 Use labelled Tasks/Trips/Messages/Profile navigation, 48 logical-pixel minimum
 standalone touch areas, wrapping addresses, safe areas, visible focus, and
 accessible status text. Validate 320–430 logical-pixel layouts, large text up to
 200%, keyboard access on previews, screen-reader labels, and reduced motion.
 Do not copy desktop web breakpoints into native navigation automatically.
-
-The [frontend design specification](DESIGN_SPEC.md) and its
-[counted screen inventory](design/SCREEN_INVENTORY.md) expand these presentation
-rules into all planned pages, external entry, overlays and state variants.
-The 48 native design views include optional/conditional views; their count is
-not a promise of implemented routes or an expanded baseline effort estimate.
 
 ## Outside the baseline
 

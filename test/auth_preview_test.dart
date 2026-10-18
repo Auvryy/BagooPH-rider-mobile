@@ -23,6 +23,7 @@ Future<void> openApp(
   double keyboard = 0,
   String route = '/',
   TestAuthRepository? repository,
+  bool skipOnboarding = true,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -46,6 +47,10 @@ Future<void> openApp(
     ),
   );
   await tester.pumpAndSettle();
+  final onboardingCta = find.byKey(const ValueKey('onboarding-cta'));
+  if (skipOnboarding && onboardingCta.evaluate().isNotEmpty) {
+    await tapVisible(tester, onboardingCta);
+  }
 }
 
 Future<void> tapVisible(WidgetTester tester, Finder target) async {

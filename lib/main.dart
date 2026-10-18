@@ -11,6 +11,7 @@ import 'features/auth/presentation/login_page.dart';
 import 'features/auth/presentation/register_page.dart';
 import 'features/auth/presentation/auth_controller.dart';
 import 'features/home/presentation/home_page.dart';
+import 'features/onboarding/presentation/onboarding_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -75,8 +76,13 @@ class _BagooRiderAppState extends ConsumerState<BagooRiderApp>
   @override
   Widget build(BuildContext context) {
     ref.listen(authControllerProvider, (previous, next) {
-      if (previous?.user?.id != next.user?.id ||
-          (previous?.user?.approved == true && next.user?.approved != true)) {
+      // Do not dismiss the welcome onboarding during initial cold-start session restore.
+      if (previous == null || previous.initializing) {
+        return;
+      }
+      if (previous.user?.id != next.user?.id ||
+          (previous.user?.approved == true && next.user?.approved != true)) {
+        ref.read(onboardingSeenProvider.notifier).markSeen();
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
             // Account changes remove private routes without decorative delay.
@@ -103,7 +109,8 @@ class _BagooRiderAppState extends ConsumerState<BagooRiderApp>
       highContrastTheme: buildRiderTheme(highContrast: true),
       scrollBehavior: const RiderScrollBehavior(),
       routes: {
-        '/': (_) => const AccountGate(),
+        '/': (_) => const AccountGate(onboarding: true),
+        '/onboarding': (_) => const RiderOnboardingPage(),
         '/login': (_) => const AccountGate(),
         '/register': (_) => const AccountGate(register: true),
       },
@@ -112,11 +119,18 @@ class _BagooRiderAppState extends ConsumerState<BagooRiderApp>
 }
 
 class AccountGate extends ConsumerWidget {
-  const AccountGate({super.key, this.register = false});
+  const AccountGate({
+    super.key,
+    this.register = false,
+    this.onboarding = false,
+  });
   final bool register;
+  final bool onboarding;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(authControllerProvider);
+    final seenOnboarding = ref.watch(onboardingSeenProvider);
+    if (onboarding && !seenOnboarding) return const RiderOnboardingPage();
     if (state.initializing) {
       return const Scaffold(
         body: Center(
@@ -127,6 +141,7 @@ class AccountGate extends ConsumerWidget {
       );
     }
     if (state.user != null) return const HomePage();
-    return register ? const RegisterPage() : const LoginPage();
+    if (register) return const RegisterPage();
+    return const LoginPage();
   }
 }

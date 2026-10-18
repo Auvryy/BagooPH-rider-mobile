@@ -1,0 +1,214 @@
+import 'package:bagoo_rider_mobile/app/theme.dart';
+import 'package:bagoo_rider_mobile/features/auth/presentation/auth_controller.dart';
+import 'package:bagoo_rider_mobile/features/onboarding/presentation/onboarding_page.dart';
+import 'package:bagoo_rider_mobile/main.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import 'support/test_auth_repository.dart';
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() async {
+    final font = FontLoader('Plus Jakarta Sans')
+      ..addFont(rootBundle.load('assets/fonts/PlusJakartaSans.ttf'));
+    await font.load();
+  });
+
+  testWidgets(
+    'first app launch greets unauthenticated rider with Bagoo Argon onboarding',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            authRepositoryProvider.overrideWithValue(TestAuthRepository()),
+          ],
+          child: const BagooRiderApp(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Verify pure white canvas, interactive minimalist map route, Hub pin, Stop pin,
+      // animated courier motorcycle marker, 72x72 LiquidGlassOrb, and editorial typography.
+      final scaffold = tester.widget<Scaffold>(
+        find.byKey(const ValueKey('rider-onboarding-page')),
+      );
+      expect(scaffold.backgroundColor, const Color(0xFFFFFFFF));
+
+      expect(find.byKey(const ValueKey('onboarding-map-canvas')), findsOneWidget);
+      expect(find.byKey(const ValueKey('onboarding-motor-marker')), findsOneWidget);
+      expect(find.text('HUB A'), findsOneWidget);
+      expect(find.text('STOP 1'), findsOneWidget);
+
+      final orbFinder = find.byKey(const ValueKey('onboarding-liquid-orb'));
+      expect(orbFinder, findsOneWidget);
+      expect(tester.getSize(orbFinder), const Size(72, 72));
+      expect(
+        find.descendant(of: orbFinder, matching: find.byType(BackdropFilter)),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: orbFinder, matching: find.byType(ClipOval)),
+        findsOneWidget,
+      );
+
+      expect(
+        find.byKey(const ValueKey('onboarding-editorial-text')),
+        findsOneWidget,
+      );
+      expect(find.text('Go beyond the'), findsOneWidget);
+      expect(find.text('ordinary'), findsOneWidget);
+      expect(find.text('every route'), findsOneWidget);
+      expect(find.text('to deliver every parcel right'), findsOneWidget);
+
+      final ctaFinder = find.byKey(const ValueKey('onboarding-cta'));
+      expect(ctaFinder, findsOneWidget);
+      expect(tester.getSize(ctaFinder).height, 56);
+
+      // Tapping the pill CTA transitions cleanly to LoginPage
+      await tester.tap(ctaFinder);
+      await tester.pumpAndSettle();
+      expect(find.text('Welcome back.'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    '4-stage choreography, 2D magnetic touch parallax, and orb scatter spring physics work',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            theme: buildRiderTheme(),
+            home: const RiderOnboardingPage(ambientTimeOverride: 0.0),
+          ),
+        ),
+      );
+
+      // Stage 1 (t = 100ms): splash orb is still morphing upward toward center
+      await tester.pump(const Duration(milliseconds: 100));
+      final earlyOrbCenter = tester.getCenter(
+        find.byKey(const ValueKey('onboarding-liquid-orb')),
+      );
+
+      // Advance past Stage 1, 2, 4 (1300ms total)
+      await tester.pumpAndSettle();
+      final settledOrbCenter = tester.getCenter(
+        find.byKey(const ValueKey('onboarding-liquid-orb')),
+      );
+      expect(settledOrbCenter.dy, lessThan(earlyOrbCenter.dy));
+
+      // Record motor marker position before interactive drag parallax
+      final motorFinder = find.byKey(const ValueKey('onboarding-motor-marker'));
+      final beforeDrag = tester.getCenter(motorFinder);
+
+      // Drag across the map canvas to apply 2D magnetic parallax offset
+      final mapCanvas = find.byKey(const ValueKey('onboarding-map-canvas'));
+      final gesture = await tester.startGesture(tester.getCenter(mapCanvas));
+      await gesture.moveBy(const Offset(40, -25));
+      await tester.pump();
+      final duringDrag = tester.getCenter(motorFinder);
+      expect(duringDrag, isNot(equals(beforeDrag)));
+
+      // Release finger: SpringSimulation returns motor to settled coordinate
+      await gesture.up();
+      await tester.pumpAndSettle();
+      final afterDragSpring = tester.getCenter(motorFinder);
+      expect(afterDragSpring.dx, closeTo(beforeDrag.dx, 0.5));
+      expect(afterDragSpring.dy, closeTo(beforeDrag.dy, 0.5));
+
+      // Tap the central 72x72 LiquidGlassOrb: triggers tactile spring pulse
+      await tester.tap(find.byKey(const ValueKey('onboarding-liquid-orb')));
+      await tester.pump(const Duration(milliseconds: 16));
+      expect(tester.takeException(), isNull);
+
+      await tester.pumpAndSettle();
+
+      // Stage 3 sinusoidal ambient drift changes position along the delivery curve
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            theme: buildRiderTheme(),
+            home: const RiderOnboardingPage(ambientTimeOverride: 1.25),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final driftedCenter = tester.getCenter(motorFinder);
+      expect(driftedCenter.dx, isNot(closeTo(beforeDrag.dx, 0.1)));
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'onboarding respects reduced motion and supports direct registration link',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      var openedApply = false;
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            theme: buildRiderTheme(),
+            home: MediaQuery(
+              data: const MediaQueryData(disableAnimations: true),
+              child: RiderOnboardingPage(onApply: () => openedApply = true),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('every route'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('onboarding-apply-link')));
+      await tester.pump();
+      expect(openedApply, isTrue);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'app open always pops up Argon onboarding even when a rider session is already saved',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      final repository = TestAuthRepository()
+        ..account = TestAuthRepository.approved;
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [authRepositoryProvider.overrideWithValue(repository)],
+          child: const BagooRiderApp(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Onboarding always appears first on app launch even when logged in
+      expect(
+        find.byKey(const ValueKey('rider-onboarding-page')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const ValueKey('rider-workspace')), findsNothing);
+
+      // Tapping Enter Rider Workspace opens the authenticated RiderWorkspaceShell
+      await tester.tap(find.byKey(const ValueKey('onboarding-cta')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('rider-workspace')), findsOneWidget);
+      expect(find.text('Welcome, Test Rider.'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+}

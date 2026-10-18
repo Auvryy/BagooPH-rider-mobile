@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/ui/argon_widgets.dart';
 import '../../../core/ui/rider_surfaces.dart';
 import '../../auth/data/account.dart';
 import '../../auth/presentation/auth_controller.dart';
@@ -87,7 +88,22 @@ class ProfileSettingsPage extends ConsumerWidget {
           ],
         )
       else
-        Text(title, style: Theme.of(context).textTheme.headlineMedium),
+        Wrap(
+          spacing: 10,
+          runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            const LiquidGlassOrb(size: 36, blurSigma: 10),
+            Text(title, style: Theme.of(context).textTheme.headlineMedium),
+            DieCutStickerWidget.speechBubble(
+              text: 'COURIER ID',
+              backgroundColor: RiderColors.rose,
+              textColor: RiderColors.accentText,
+              rotationDegrees: 0,
+              leadingIcon: Icons.verified_user_rounded,
+            ),
+          ],
+        ),
       const SizedBox(height: 16),
     ];
 
@@ -468,16 +484,21 @@ class _SettingsRow extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: destructive ? RiderColors.rose : RiderColors.canvas,
-                  borderRadius: BorderRadius.circular(10),
+                decoration: ShapeDecoration(
+                  color: destructive
+                      ? RiderColors.rose
+                      : RiderColors.controlFill,
+                  shape: RoundedSuperellipseBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: Colors.white),
+                  ),
                 ),
                 child: Icon(
                   icon,
                   size: 20,
                   color: destructive
                       ? RiderColors.accentText
-                      : RiderColors.muted,
+                      : RiderColors.ink,
                 ),
               ),
               const SizedBox(width: 14),
@@ -485,7 +506,7 @@ class _SettingsRow extends StatelessWidget {
                 child: Text(
                   title,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                     color: destructive
                         ? RiderColors.accentText
                         : RiderColors.ink,

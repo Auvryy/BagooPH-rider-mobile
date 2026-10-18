@@ -67,18 +67,10 @@ on it. No new endpoint or contract revision was accepted by this review.
 
 ## October 6 complete frontend design review
 
-The [complete design specification](DESIGN_SPEC.md) reviewed the Rider project's
+The [brand specification](DESIGN_SYSTEM.md) reviewed the Rider project's
 selected features and the relevant website sources at local revision
 `0e4839e773bdcf726933a22efd69c4400018d658`, with another maintainer's roadmap work
-in progress. It changed no website files or backend rules. The separate
-[design source register](design/SOURCE_REGISTER.md) records current primary
-guidance, historic research and access limits under neutral labels. Original
-reference URLs remain intact for verification.
-
-The design catalog covers all 16 mobile major areas and all 40 earlier ideas;
-counts and optional/future labels do not establish native routes or accepted
-APIs. Static visual examples and calculated contrast remain documentation
-proof, without deployed, prototype-interaction or physical-device acceptance.
+in progress. It changed no website files or backend rules.
 
 ## October 7 deployed account review
 

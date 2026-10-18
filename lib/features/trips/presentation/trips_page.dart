@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/platform/rider_website.dart';
+import '../../../core/ui/argon_widgets.dart';
 import '../../workspace/data/workspace_models.dart';
 import '../../workspace/presentation/workspace_controller.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
@@ -69,7 +70,9 @@ class _TripsPageState extends State<TripsPage> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
+            const LiquidGlassOrb(size: 32, blurSigma: 10),
             WorkspaceBadge(
               widget.preview
                   ? 'Sample final-mile history'
@@ -105,7 +108,10 @@ class _TripsPageState extends State<TripsPage> {
                     style: OutlinedButton.styleFrom(
                       backgroundColor: c.payment == filter
                           ? RiderColors.rose
-                          : Colors.white,
+                          : RiderColors.neumorphicSurface,
+                      foregroundColor: c.payment == filter
+                          ? RiderColors.accentText
+                          : RiderColors.ink,
                     ),
                     child: Text(switch (filter) {
                       PaymentFilter.all => 'All payments',
@@ -248,13 +254,13 @@ class _TripCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: RiderColors.controlFill,
-                      borderRadius: BorderRadius.circular(12),
+                      color: RiderColors.rose,
+                      borderRadius: BorderRadius.circular(14),
                     ),
                     child: const Icon(
                       Icons.route_outlined,
                       size: 22,
-                      color: RiderColors.muted,
+                      color: RiderColors.accentText,
                     ),
                   ),
                   const SizedBox(width: 12),

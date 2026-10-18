@@ -12,55 +12,58 @@ class BrandLogo extends StatelessWidget {
       label: 'BagooPH Rider',
       image: true,
       child: ExcludeSemantics(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(RiderRadii.brand),
-              child: Image.asset(
-                'assets/branding/gooriders-icon.png',
-                width: size,
-                height: size,
-                filterQuality: FilterQuality.high,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(3),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(RiderRadii.brand + 3),
+                  border: Border.all(color: RiderColors.outline, width: 1.0),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x0E111827),
+                      blurRadius: 10,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(RiderRadii.brand),
+                  child: Image.asset(
+                    'assets/branding/gooriders-icon.png',
+                    width: size,
+                    height: size,
+                    filterQuality: FilterQuality.high,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text.rich(
+              const SizedBox(width: 10),
+              const Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(text: 'Bagoo'),
                     TextSpan(
-                      children: [
-                        TextSpan(text: 'Bagoo'),
-                        TextSpan(
-                          text: 'PH',
-                          style: TextStyle(color: RiderColors.accent),
-                        ),
-                      ],
+                      text: 'PH',
+                      style: TextStyle(color: RiderColors.accent),
                     ),
-                    style: TextStyle(
-                      fontSize: 21,
-                      color: RiderColors.ink,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.7,
-                      height: 1.1,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'RIDER',
-                    style: TextStyle(
-                      fontSize: 10,
-                      letterSpacing: 2.2,
-                      fontWeight: FontWeight.w600,
-                      color: RiderColors.muted,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
+                style: TextStyle(
+                  fontSize: 20,
+                  color: RiderColors.ink,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.6,
+                  height: 1.1,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

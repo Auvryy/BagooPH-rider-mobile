@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/platform/rider_website.dart';
+import '../../../core/ui/argon_widgets.dart';
 import '../../workspace/data/workspace_models.dart';
 import '../../workspace/presentation/workspace_controller.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
@@ -69,6 +70,8 @@ class _MessagesPageState extends State<MessagesPage> {
           children: [
             Row(
               children: [
+                const LiquidGlassOrb(size: 32, blurSigma: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     'Messages',
@@ -122,14 +125,12 @@ class _MessagesPageState extends State<MessagesPage> {
               ),
             for (final thread in c.visibleConversations)
               Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Material(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: RiderSurface(
                   color: thread.id == c.selectedConversationId
                       ? RiderColors.rose
-                      : Colors.white,
-                  shape: RoundedSuperellipseBorder(
-                    borderRadius: BorderRadius.circular(RiderRadii.surface),
-                  ),
+                      : RiderColors.neumorphicSurface,
+                  radius: RiderRadii.surface,
                   child: RiderPressFeedback(
                     child: InkWell(
                       key: ValueKey('conversation-${thread.id}'),
@@ -138,7 +139,7 @@ class _MessagesPageState extends State<MessagesPage> {
                           : () => c.selectConversation(thread.id),
                       borderRadius: BorderRadius.circular(RiderRadii.surface),
                       child: Padding(
-                        padding: const EdgeInsets.all(14),
+                        padding: const EdgeInsets.all(16),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

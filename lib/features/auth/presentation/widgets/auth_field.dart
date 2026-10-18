@@ -79,7 +79,11 @@ class _AuthFieldState extends State<AuthField> {
             controller: widget.controller,
             enabled: widget.enabled,
             onChanged: widget.onChanged,
-            style: const TextStyle(fontSize: 16, color: RiderColors.body),
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: RiderColors.ink,
+            ),
             obscureText: widget.password && !_visible,
             enableSuggestions: !widget.password,
             autocorrect: !widget.password,
@@ -95,7 +99,7 @@ class _AuthFieldState extends State<AuthField> {
               helperMaxLines: 3,
               prefixIcon: widget.icon == null
                   ? null
-                  : Icon(widget.icon, size: 20),
+                  : Icon(widget.icon, size: 20, color: RiderColors.accentText),
               suffixIcon: widget.password
                   ? RiderPressFeedback(
                       child: IconButton(
@@ -108,6 +112,7 @@ class _AuthFieldState extends State<AuthField> {
                               ? Icons.visibility_off_outlined
                               : Icons.visibility_outlined,
                           size: 20,
+                          color: RiderColors.muted,
                         ),
                       ),
                     )

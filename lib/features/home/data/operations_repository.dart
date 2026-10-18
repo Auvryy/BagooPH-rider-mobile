@@ -6,6 +6,7 @@ import '../../../core/network/api_failure.dart';
 import '../../../core/network/rider_api_client.dart';
 import '../../workspace/data/workspace_models.dart';
 import '../../workspace/data/workspace_repository.dart';
+import '../../parcels/data/parcel_photo_service.dart';
 import 'command_journal.dart';
 import 'operations_models.dart';
 
@@ -17,6 +18,7 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
     required this.writesVerified,
     this.parcelWritesVerified = false,
     this.proofStore,
+    this.photos,
     required this.isCurrent,
     DateTime Function()? now,
   }) : now = now ?? DateTime.now;
@@ -26,6 +28,7 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
   final bool writesVerified;
   final bool parcelWritesVerified;
   final ParcelProofStore? proofStore;
+  final ParcelPhotoService? photos;
   final bool Function() isCurrent;
   final DateTime Function() now;
   bool _writing = false;
@@ -200,6 +203,13 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
           },
         );
       }
+      if (action == ParcelAction.fail &&
+          (fresh.failurePolicy == null ||
+              !fresh.failurePolicy!.reasons.containsKey(fields['reason']))) {
+        throw const AccountFailure(
+          'Refresh the permitted failure reasons before reporting an attempt.',
+        );
+      }
       final key = commandUuid();
       if (proof != null) {
         final store = proofStore;
@@ -330,6 +340,7 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
     }
     _guard();
     await _clear(intent);
+    _guard();
     return value;
   }
 

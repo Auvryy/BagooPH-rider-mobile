@@ -12,6 +12,7 @@ import '../../auth/presentation/auth_controller.dart';
 import '../../home/data/command_journal.dart';
 import '../../home/data/operations_models.dart';
 import '../../home/data/operations_repository.dart';
+import '../../parcels/data/parcel_photo_service.dart';
 import '../data/workspace_models.dart';
 import '../data/workspace_repository.dart';
 
@@ -36,6 +37,21 @@ final workspaceRepositoryProvider = Provider<WorkspaceRepository>(
     }
     var alive = true;
     ref.onDispose(() => alive = false);
+    bool isCurrent() =>
+        alive &&
+        ref.read(authControllerProvider).user?.id == account.id &&
+        ref.read(authControllerProvider).user?.approved == true;
+    final proofs = ProtectedParcelProofStore(
+      origin: config.origin,
+      accountId: account.id!,
+    );
+    final photos = ParcelPhotoService(
+      origin: config.origin,
+      accountId: account.id!,
+      proofs: proofs,
+      isCurrent: isCurrent,
+    );
+    ref.onDispose(photos.dispose);
     return OperationsRepository(
       repository as RiderSessionApi,
       accountId: account.id!,
@@ -45,14 +61,9 @@ final workspaceRepositoryProvider = Provider<WorkspaceRepository>(
       ),
       writesVerified: config.operationsWritesVerified,
       parcelWritesVerified: config.parcelWritesVerified,
-      proofStore: ProtectedParcelProofStore(
-        origin: config.origin,
-        accountId: account.id!,
-      ),
-      isCurrent: () =>
-          alive &&
-          ref.read(authControllerProvider).user?.id == account.id &&
-          ref.read(authControllerProvider).user?.approved == true,
+      proofStore: proofs,
+      photos: photos,
+      isCurrent: isCurrent,
     );
   },
   dependencies: [
@@ -93,6 +104,7 @@ enum _WorkRead { home, tasks, detail, more }
 
 class WorkspaceController extends ChangeNotifier {
   WorkspaceController(this.repository, {this.onSessionEnd}) {
+    if (operations?.photos != null) unawaited(operations!.photos!.restore());
     unawaited(operations == null ? refreshAll() : Future.microtask(refreshAll));
   }
   final WorkspaceRepository repository;

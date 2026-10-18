@@ -81,8 +81,8 @@ Later review fixes receive their own focused commits. The user handles pushes.
 | Existing acceptance remains usable | Duty/claim regression, refreshed owned detail, original command replay | HDB-05 baseline; extension verification pending |
 | Protected parcel intent | Persist-before-dispatch, original-byte hash, interrupted upload, restart/logout/account isolation, unknown/expired/conflicting replay | Selected local tests passed; platform/live extension pending |
 | Pickup/departure | Correct/wrong scan, stale/reassigned task, action denials, duplicate taps, refreshed custody/stop and cancelled old route | Client connected; selected controller/layout regressions passed; actual camera/live checks pending |
-| COD delivery | Real image validation, recipient evidence, exact received-minus-change, one outcome/collection and separate buyer completion | Pending |
-| Failed delivery | Server reasons/attempt count, proof and notes, retained rider return responsibility until hub receipt | Pending |
+| COD delivery | Real image validation, recipient evidence, exact received-minus-change, one outcome/collection and separate buyer completion | Client connected; selected local form/command tests passed; live/physical verification pending |
+| Failed delivery | Server reasons/attempt count, proof and notes, retained rider return responsibility until hub receipt | Client connected; selected local tests passed; live hub return verification pending |
 | Trips | Original retained attribution, pickup/final-mile distinction, exact money, Manila assignment dates, server filters/pagination and late-result cancellation | Pending |
 | Private proof | Same-origin approved path, no redirects/public URL, size/type/privacy checks, denied/changed bytes and visible-state cleanup | Pending |
 | Responsive UI | Narrow phone and desktop, 200% text, keyboard/Back, loading/errors, bottom-nav clearance and render review | Pending |
@@ -149,4 +149,29 @@ do not establish actual Android camera or Azure parcel acceptance.
 The selected proof-picker dependency is
 [image_picker 1.2.4](https://pub.dev/packages/image_picker), compatible with the
 current SDK and supporting Android lost-data retrieval plus Linux file selection.
-Its proof-form integration and recovery checks are the next implementation slice.
+Its proof-form integration and recovery checks are recorded below.
+
+## Delivery, failure and photo recovery evidence
+
+The selected outcome forms collect actual recipient evidence, original image
+selection/capture and exact cash received/change with an explicit cash acknowledgement.
+Failure uses the returned policy's reasons, recorded attempts and limit, required
+notes/location/proof, then displays the refreshed destination-hub return instruction.
+Missing policy and unsupported payment outcomes remain unavailable. No rider
+button completes the buyer order, receives a hub return or records remittance.
+
+Original photo drafts use the protected proof store and an encrypted picker
+context. Android workspace startup checks lost picker data. A draft is offered
+only to its original account/API/task/action/version and is restorable for 24
+hours; expired drafts are cleaned when checked. Recovery never dispatches a
+command, copies a later recipient or transfers a previous account's photo.
+Persisted command originals have their independent unresolved-intent retention.
+Private previews evict decoded image-cache entries on replacement/disposal.
+
+The outcome command/proof/recovery selection passed **29 tests**. The combined
+workflow, photo-recovery and outcome-page selection passed **25 tests**, including
+320px/840px forms at 200% text, exact multipart fields/original PNG bytes, cash
+mismatch rejection, safe correction after field rejection, required failure
+evidence and private display-cache eviction. A missing Material ancestor and test
+timer cleanup were corrected without suppressing widget assertions. These runs
+establish local behavior; Azure and actual Android capture remain outstanding.

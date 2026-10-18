@@ -437,6 +437,52 @@ class _StopModePageState extends State<StopModePage>
                                 ),
                               const SizedBox(height: 16),
                             ],
+                            if (task.actions['deliver'] == true) ...[
+                              FilledButton.icon(
+                                key: const ValueKey('stop-deliver'),
+                                onPressed: canAct && work.canWriteParcel
+                                    ? () => Navigator.of(context).push<void>(
+                                        MaterialPageRoute(
+                                          builder: (_) => ParcelActionPage(
+                                            work: work,
+                                            taskId: task.id,
+                                            action: ParcelAction.deliver,
+                                          ),
+                                        ),
+                                      )
+                                    : null,
+                                icon: const Icon(Icons.inventory_2_outlined),
+                                label: const Text('Record recipient delivery'),
+                              ),
+                              const SizedBox(height: 12),
+                            ],
+                            if (task.actions['fail'] == true) ...[
+                              OutlinedButton.icon(
+                                key: const ValueKey('stop-fail'),
+                                onPressed: canAct && work.canWriteParcel
+                                    ? () => Navigator.of(context).push<void>(
+                                        MaterialPageRoute(
+                                          builder: (_) => ParcelActionPage(
+                                            work: work,
+                                            taskId: task.id,
+                                            action: ParcelAction.fail,
+                                          ),
+                                        ),
+                                      )
+                                    : null,
+                                icon: const Icon(Icons.report_problem_outlined),
+                                label: const Text('Report failed attempt'),
+                              ),
+                              const SizedBox(height: 12),
+                            ],
+                            if (task.actionDenials['deliver'] ==
+                                'UNSUPPORTED_PAYMENT_OUTCOME')
+                              const Padding(
+                                padding: EdgeInsets.only(bottom: 16),
+                                child: Text(
+                                  'Recording this payment type is not supported in the app yet. Contact your hub for the next step.',
+                                ),
+                              ),
                             _stopActions(task),
                             const SizedBox(height: 16),
                             if (widget.navigation != null &&

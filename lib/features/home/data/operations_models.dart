@@ -129,6 +129,9 @@ class OperationTask {
       if (!actions.containsKey(k)) Wire.invalid();
     }
     final payment = j['payment'];
+    failurePolicy = j['failure_policy'] == null
+        ? null
+        : FailurePolicy.fromJson(Wire.object(j['failure_policy']));
     if (payment != null) {
       final p = Wire.object(payment);
       paymentMethod = Wire.string(p['method']);
@@ -175,6 +178,35 @@ class OperationTask {
   late final String? custodyHubId, paymentMethod, paymentStatus;
   late final bool heldByMe;
   late final BigInt? codDueCents;
+  late final FailurePolicy? failurePolicy;
+}
+
+class FailurePolicy {
+  FailurePolicy.fromJson(Map<String, dynamic> j)
+    : attemptLimit = Wire.count(j['attempt_limit']),
+      recordedAttempts = Wire.count(j['recorded_attempts']),
+      returnHubId = Wire.id(j['return_hub_id']),
+      retryAuthority = Wire.string(j['retry_authority']) {
+    if (attemptLimit < 1 || j['reasons'] is! List) Wire.invalid();
+    final labels = <String, String>{};
+    for (final value in j['reasons'] as List) {
+      final reason = Wire.object(value);
+      final code = Wire.string(reason['code']);
+      if (labels.containsKey(code)) Wire.invalid();
+      labels[code] = Wire.string(reason['label']);
+    }
+    reasons = Map.unmodifiable(labels);
+    for (final field in [
+      'requires_notes',
+      'requires_location',
+      'requires_private_image',
+    ]) {
+      Wire.boolean(j[field]);
+    }
+  }
+  final int attemptLimit, recordedAttempts;
+  final String returnHubId, retryAuthority;
+  late final Map<String, String> reasons;
 }
 
 class TaskPage {

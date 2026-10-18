@@ -50,14 +50,15 @@ class ParcelActionController extends ChangeNotifier {
       return 'Wait for the request cooldown before checking again.';
     }
     if (work.operations?.parcelWritesVerified != true) {
-      return 'Parcel actions are awaiting live acceptance verification.';
+      return 'Parcel actions are not available yet. You can review this task and contact your hub.';
     }
     if (work.homeData.data?.capabilities['parcel_actions'] != true) {
       return 'Parcel actions are unavailable for this account.';
     }
     if (task?.actions[action.name] != true) {
-      return task?.actionDenials[action.name] ??
-          'This action is not available for the current parcel.';
+      return task?.actionDenials[action.name] == 'UNSUPPORTED_PAYMENT_OUTCOME'
+          ? 'This payment type cannot be recorded in the app yet. Contact your hub for the next step.'
+          : 'This action is not available for the current parcel.';
     }
     if (needsRevalidation) return 'Refresh this parcel before continuing.';
     return null;
@@ -73,6 +74,9 @@ class ParcelActionController extends ChangeNotifier {
       _generation++;
       task = null;
       barcode = null;
+      result = null;
+      _waitingKey = null;
+      loading = false;
       failure = const AccountFailure(
         'This parcel is no longer available for your session.',
       );
@@ -88,7 +92,14 @@ class ParcelActionController extends ChangeNotifier {
       _waitingKey = null;
     } else if (!loading && !submitting && task != null) {
       final selected = work.selectedTask;
-      if (selected?.id != taskId || selected?.version != task?.version) {
+      if (selected?.id != taskId) {
+        task = null;
+        barcode = null;
+        needsRevalidation = true;
+        failure = const AccountFailure(
+          'This parcel is no longer available. Return to your current tasks.',
+        );
+      } else if (selected?.version != task?.version) {
         needsRevalidation = true;
         barcode = null;
       }
@@ -110,7 +121,8 @@ class ParcelActionController extends ChangeNotifier {
       if (_disposed || generation != _generation || !foreground) return;
       if (fresh == null ||
           fresh.preview ||
-          fresh.actions[action.name] != true) {
+          fresh.actions[action.name] != true ||
+          (action == ParcelAction.fail && fresh.failurePolicy == null)) {
         task = null;
         barcode = null;
         failure =
@@ -173,6 +185,24 @@ class ParcelActionController extends ChangeNotifier {
     _changed();
   }
 
+  void clearFieldError(String field) {
+    final previous = failure;
+    if (previous == null || !previous.fields.containsKey(field)) return;
+    final fields = {...previous.fields}..remove(field);
+    failure = fields.isEmpty
+        ? null
+        : AccountFailure(
+            previous.message,
+            status: previous.status,
+            code: previous.code,
+            requestId: previous.requestId,
+            unconfirmed: previous.unconfirmed,
+            retryAfterSeconds: previous.retryAfterSeconds,
+            fields: fields,
+          );
+    _changed();
+  }
+
   Future<bool> submit({
     Map<String, dynamic> fields = const {},
     ParcelProof? proof,
@@ -192,7 +222,7 @@ class ParcelActionController extends ChangeNotifier {
         fields: fields,
         proof: proof,
       );
-      if (_disposed) return false;
+      if (_disposed || !work.hasWorkAccess) return false;
       if (committed == null) {
         if (work.reconciledWorkKey != previousReconciledKey &&
             work.reconciledWorkResult?['task_id'] == taskId &&

@@ -9,9 +9,10 @@ import 'package:bagoo_rider_mobile/core/network/rider_api_client.dart';
 import 'package:bagoo_rider_mobile/features/home/data/command_journal.dart';
 import 'package:bagoo_rider_mobile/features/home/data/operations_models.dart';
 import 'package:bagoo_rider_mobile/features/home/data/operations_repository.dart';
+import 'package:bagoo_rider_mobile/features/parcels/data/parcel_photo_service.dart';
 
 Uint8List parcelTestPng() => base64Decode(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=',
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jfS8AAAAASUVORK5CYII=',
 );
 
 Map<String, dynamic> operationFixture(String name) =>
@@ -118,6 +119,21 @@ class ParcelHarness {
       taskJson['payment']['cod_due_cents'] = '12500';
       taskJson['payment']['method'] = 'cod';
     }
+    if (action == ParcelAction.fail) {
+      taskJson['failure_policy'] = {
+        'attempt_limit': 3,
+        'recorded_attempts': 1,
+        'return_hub_id': '2',
+        'retry_authority': 'destination_hub',
+        'requires_notes': true,
+        'requires_location': true,
+        'requires_private_image': true,
+        'reasons': [
+          for (final code in failureReasonCodes)
+            {'code': code, 'label': code.replaceAll('_', ' ')},
+        ],
+      };
+    }
     api.respond = standardResponse;
     repository = restart(enabled: enabled);
   }
@@ -148,6 +164,7 @@ class ParcelHarness {
   OperationsRepository restart({
     bool enabled = true,
     DateTime Function()? now,
+    ParcelPhotoService? photos,
   }) => OperationsRepository(
     api,
     accountId: '5',
@@ -155,6 +172,7 @@ class ParcelHarness {
     writesVerified: true,
     parcelWritesVerified: enabled,
     proofStore: proofs,
+    photos: photos,
     isCurrent: () => current,
     now: now ?? () => DateTime.utc(2026, 10, 18, 2),
   );

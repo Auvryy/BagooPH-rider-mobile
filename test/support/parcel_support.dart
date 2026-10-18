@@ -177,6 +177,24 @@ class ParcelHarness {
       return home;
     }
     if (path == 'rider/tasks/${task.id}') return {'data': taskJson};
+    if (path.startsWith('rider/tasks?') ||
+        path.startsWith('rider/pickup-jobs?')) {
+      final phase = Uri.parse(path).queryParameters['phase'];
+      final items = [
+        if (phase == task.phase && task.stage != 'delivered') taskJson,
+      ];
+      return {
+        'data': {
+          'items': items,
+          'pagination': {
+            'page': 1,
+            'per_page': 20,
+            'total': items.length,
+            'last_page': 1,
+          },
+        },
+      };
+    }
     if (path.startsWith('rider/commands/')) {
       throw const AccountFailure(
         'Unknown command',

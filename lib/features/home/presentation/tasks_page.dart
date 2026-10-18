@@ -227,7 +227,11 @@ class TasksPage extends StatelessWidget {
                   final route = ModalRoute.of(context);
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     if (context.mounted && route != null && route.isActive) {
-                      Navigator.of(context).removeRoute(route);
+                      final navigator = Navigator.of(context);
+                      navigator.popUntil(
+                        (candidate) => identical(candidate, route),
+                      );
+                      navigator.removeRoute(route);
                     }
                   });
                 },

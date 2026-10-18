@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/commands/protected_proof_store.dart';
+import '../../../core/commands/parcel_proof.dart';
+import '../../../core/commands/parcel_validation.dart';
 import '../../../core/network/api_failure.dart';
 import '../../../core/network/rider_api_client.dart';
 import '../../auth/presentation/auth_controller.dart';
@@ -100,6 +102,8 @@ class WorkspaceController extends ChangeNotifier {
       : null;
   FeatureData<OperationsHome> homeData = const FeatureData.loading();
   CommandIntent? pendingIntent;
+  String? reconciledWorkKey;
+  Map<String, dynamic>? reconciledWorkResult;
   final _readFailures = <_WorkRead, AccountFailure>{};
   AccountFailure? _commandFailure;
   AccountFailure? get workFailure =>
@@ -134,6 +138,16 @@ class WorkspaceController extends ChangeNotifier {
       !coolingDown &&
       pendingIntent == null &&
       homeData.status == FeatureStatus.ready;
+
+  bool get canWriteParcel =>
+      !_disposed &&
+      !_sessionEnded &&
+      operations?.parcelWritesVerified == true &&
+      !working &&
+      !coolingDown &&
+      pendingIntent == null &&
+      homeData.status == FeatureStatus.ready &&
+      homeData.data?.capabilities['parcel_actions'] == true;
 
   bool get hasWorkAccess =>
       !_disposed && !_sessionEnded && !workAccessUnavailable;
@@ -206,6 +220,8 @@ class WorkspaceController extends ChangeNotifier {
       conversationData = FeatureData.unavailable(failure.message);
       selectedTask = null;
       pendingIntent = null;
+      reconciledWorkKey = null;
+      reconciledWorkResult = null;
       taskPage = null;
       selectingTask = loadingMore = false;
       selectedConversationId = null;
@@ -282,6 +298,8 @@ class WorkspaceController extends ChangeNotifier {
           pendingIntent = await ops.pending();
           if (_disposed || generation != _homeGeneration) return;
           if (committed != null) {
+            reconciledWorkKey = pending.key;
+            reconciledWorkResult = committed;
             _commandFailure = null;
             workNotice = 'Work request confirmed.';
           }
@@ -404,6 +422,27 @@ class WorkspaceController extends ChangeNotifier {
       _command(() => operations!.duty(desired));
   Future<void> claimTask(OperationTask task) =>
       _command(() => operations!.claim(task));
+  Future<Map<String, dynamic>?> performParcel(
+    ParcelAction action,
+    OperationTask reviewed, {
+    required String barcode,
+    Map<String, dynamic> fields = const {},
+    ParcelProof? proof,
+  }) async {
+    Map<String, dynamic>? committed;
+    await _command(() async {
+      committed = await operations!.parcel(
+        action,
+        reviewed,
+        barcode: barcode,
+        fields: fields,
+        proof: proof,
+      );
+      return committed;
+    }, parcel: true);
+    return committed;
+  }
+
   Future<void> checkPending({bool retryUnknown = false}) => _command(
     () => operations!.reconcile(retryUnknown: retryUnknown),
     recovery: true,
@@ -411,18 +450,21 @@ class WorkspaceController extends ChangeNotifier {
   Future<void> _command(
     Future<Map<String, dynamic>?> Function() request, {
     bool recovery = false,
+    bool parcel = false,
   }) async {
     if (_disposed ||
         _sessionEnded ||
         operations == null ||
         working ||
         coolingDown ||
-        (!recovery && !canWrite)) {
+        (!recovery && !(parcel ? canWriteParcel : canWrite))) {
       return;
     }
     working = true;
     _commandFailure = null;
     workNotice = null;
+    final reviewedSelection = _detailGeneration;
+    final originalRecovery = recovery ? pendingIntent : null;
     _changed();
     try {
       final result = await request();
@@ -431,25 +473,52 @@ class WorkspaceController extends ChangeNotifier {
         workNotice =
             'No committed result is visible yet. The original request is kept.';
       } else {
-        workNotice = 'Work request confirmed.';
+        if (originalRecovery != null) {
+          reconciledWorkKey = originalRecovery.key;
+          reconciledWorkResult = result;
+        }
+        workNotice = switch (result['operational_stage']) {
+          'picked_up' =>
+            'Collection recorded. Bring the parcel to its origin hub.',
+          'out_for_delivery' =>
+            'Departure recorded. Follow the current buyer stop.',
+          'delivered' =>
+            'Delivery recorded. The buyer confirms receipt separately.',
+          'delivery_failed' =>
+            'Attempt recorded. Return the parcel to its destination hub.',
+          _ => 'Work request confirmed.',
+        };
         if (result['task_id'] is String) {
-          final generation = ++_detailGeneration;
-          try {
-            final owned = await operations!.detail(result['task_id']);
-            if (!_disposed && generation == _detailGeneration) {
-              selectedTask = owned;
-              selectingTask = false;
-              _readFailures.remove(_WorkRead.detail);
-              _unavailableTasks.remove(owned.id);
-              if (unavailableTaskId == owned.id) unavailableTaskId = null;
-              queue = TaskQueue.pickups;
-            }
-          } catch (error) {
-            if (!_disposed && generation == _detailGeneration) {
-              if (error is AccountFailure && error.status == 404) {
-                _invalidateTask(result['task_id']);
+          if (result['operational_stage'] == 'delivered') {
+            final id = result['task_id'] as String;
+            _unavailableTasks.add(id);
+            taskData = FeatureData.ready(
+              taskData.data?.where((task) => task.id != id).toList() ?? [],
+            );
+            _taskGeneration++;
+            if (selectedTask?.id == id) closeTask();
+            queue = TaskQueue.delivery;
+          } else if (_detailGeneration == reviewedSelection) {
+            final generation = ++_detailGeneration;
+            try {
+              final owned = await operations!.detail(result['task_id']);
+              if (!_disposed && generation == _detailGeneration) {
+                selectedTask = owned;
+                selectingTask = false;
+                _readFailures.remove(_WorkRead.detail);
+                _unavailableTasks.remove(owned.id);
+                if (unavailableTaskId == owned.id) unavailableTaskId = null;
+                queue = owned.phase == 'pickup'
+                    ? TaskQueue.pickups
+                    : TaskQueue.delivery;
               }
-              await _workError(error, read: _WorkRead.detail);
+            } catch (error) {
+              if (!_disposed && generation == _detailGeneration) {
+                if (error is AccountFailure && error.status == 404) {
+                  _invalidateTask(result['task_id']);
+                }
+                await _workError(error, read: _WorkRead.detail);
+              }
             }
           }
         }

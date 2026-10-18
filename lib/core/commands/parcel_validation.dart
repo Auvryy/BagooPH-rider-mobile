@@ -68,6 +68,12 @@ enum ParcelAction {
   fail;
 
   bool get requiresProof => this == deliver || this == fail;
+  String get recordedStage => switch (this) {
+    pickup => 'picked_up',
+    depart => 'out_for_delivery',
+    deliver => 'delivered',
+    fail => 'delivery_failed',
+  };
   String get label => switch (this) {
     pickup => 'Confirm collection',
     depart => 'Confirm departure',

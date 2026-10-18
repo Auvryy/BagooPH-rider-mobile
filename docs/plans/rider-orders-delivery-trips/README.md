@@ -80,7 +80,7 @@ Later review fixes receive their own focused commits. The user handles pushes.
 |---|---|---|
 | Existing acceptance remains usable | Duty/claim regression, refreshed owned detail, original command replay | HDB-05 baseline; extension verification pending |
 | Protected parcel intent | Persist-before-dispatch, original-byte hash, interrupted upload, restart/logout/account isolation, unknown/expired/conflicting replay | Selected local tests passed; platform/live extension pending |
-| Pickup/departure | Correct/wrong scan, stale/reassigned task, action denials, duplicate taps, refreshed custody/stop and cancelled old route | Pending |
+| Pickup/departure | Correct/wrong scan, stale/reassigned task, action denials, duplicate taps, refreshed custody/stop and cancelled old route | Client connected; selected controller/layout regressions passed; actual camera/live checks pending |
 | COD delivery | Real image validation, recipient evidence, exact received-minus-change, one outcome/collection and separate buyer completion | Pending |
 | Failed delivery | Server reasons/attempt count, proof and notes, retained rider return responsibility until hub receipt | Pending |
 | Trips | Original retained attribution, pickup/final-mile distinction, exact money, Manila assignment dates, server filters/pagination and late-result cancellation | Pending |
@@ -123,3 +123,30 @@ AES-GCM; [path_provider 2.1.6](https://pub.dev/packages/path_provider) provides
 application-support directories on Android and Linux. Existing secure storage
 continues to own key protection. Scanner/proof-picker dependencies are selected
 in their implementation commit.
+
+## Pickup/departure client evidence
+
+Stop Mode now opens an explicit waybill review for available owned pickup or
+hub-assigned departure actions. Android uses
+[mobile_scanner 7.4.2](https://pub.dev/packages/mobile_scanner) with bundled ML Kit,
+contextual camera permission, lifecycle stop/resume and disposal. Wrong/ambiguous
+waybills keep scanning; there is no gallery, stored-code or typed scan substitute.
+Linux reports camera unavailability and keeps task browsing available. Scan and
+outcome pages close or clear private state when account/task authorization changes.
+
+Collection refreshes the origin-hub responsibility; departure preserves the
+final-mile queue and refreshes the buyer stop. A known terminal delivery removes
+the active task without mistaking its expected hidden detail for a failed outcome.
+An uncertain request stays blocked until its original result is reconciled; the
+review then displays that confirmed result without a second action.
+
+The selected workflow, duty/claim, Stop Mode and read-recovery run passed **63
+tests**. Coverage includes real controller transitions, duplicate taps, access
+loss, original-key recovery, narrow 320px and wide 900px review layouts at 200%
+text, 48px controls and scanner privacy cleanup. These use isolated adapters and
+do not establish actual Android camera or Azure parcel acceptance.
+
+The selected proof-picker dependency is
+[image_picker 1.2.4](https://pub.dev/packages/image_picker), compatible with the
+current SDK and supporting Android lost-data retrieval plus Linux file selection.
+Its proof-form integration and recovery checks are the next implementation slice.

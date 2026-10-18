@@ -10,7 +10,7 @@ class Wire {
   static int count(Object? v) => v is int && v >= 0 ? v : invalid();
   static String id(Object? v) {
     final s = string(v);
-    if (!RegExp(r'^[1-9][0-9]*$').hasMatch(s) ||
+    if (RegExp(r'^[1-9][0-9]*$').firstMatch(s)?.end != s.length ||
         s.length > 19 ||
         BigInt.parse(s) > BigInt.parse('9223372036854775807')) {
       invalid();
@@ -20,13 +20,16 @@ class Wire {
 
   static String version(Object? v) {
     final s = string(v);
-    if (!RegExp(r'^[a-f0-9]{64}$').hasMatch(s)) invalid();
+    if (RegExp(r'^[a-f0-9]{64}$').firstMatch(s)?.end != s.length) invalid();
     return s;
   }
 
   static String uuid(Object? v) {
     final s = string(v);
-    if (!RegExp(r'^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$').hasMatch(s)) {
+    if (RegExp(r'^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$')
+            .firstMatch(s)
+            ?.end !=
+        s.length) {
       invalid();
     }
     return s;
@@ -45,7 +48,7 @@ class Wire {
   static String taskId(Object? v) {
     final s = string(v);
     final m = RegExp(r'^(pickup|final_mile)-([1-9][0-9]*)$').firstMatch(s);
-    if (m == null) invalid();
+    if (m == null || m.end != s.length) invalid();
     id(m[2]);
     return s;
   }

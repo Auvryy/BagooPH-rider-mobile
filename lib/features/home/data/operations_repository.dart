@@ -7,6 +7,7 @@ import '../../../core/network/rider_api_client.dart';
 import '../../workspace/data/workspace_models.dart';
 import '../../workspace/data/workspace_repository.dart';
 import '../../parcels/data/parcel_photo_service.dart';
+import '../../trips/data/trip_models.dart';
 import 'command_journal.dart';
 import 'operations_models.dart';
 
@@ -105,6 +106,71 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
     final task = OperationTask.fromJson(await _request('rider/tasks/$id'));
     if (task.id != id || task.preview) Wire.invalid();
     return task;
+  }
+
+  Future<RetainedTripPage> tripPage({
+    int page = 1,
+    TripFilters? filters,
+  }) async {
+    final path = Uri(
+      path: 'rider/trips',
+      queryParameters: (filters ?? TripFilters()).query(page),
+    ).toString();
+    final result = RetainedTripPage.fromJson(await _request(path));
+    if (result.page != page) Wire.invalid();
+    return result;
+  }
+
+  static RiderTrip asRiderTrip(RetainedTrip trip) => RiderTrip(
+    id: trip.id,
+    tracking: trip.tracking,
+    recipient: trip.recipient ?? 'Recipient not recorded',
+    address: trip.address ?? 'Handoff address not recorded',
+    outcome: tripOutcomeLabel(trip.outcome),
+    recordedAt: trip.assignedAt,
+    payment: trip.paymentMethod == 'cod'
+        ? PaymentFilter.cod
+        : PaymentFilter.prepaid,
+    checkpoints: [
+      for (final checkpoint in trip.checkpoints)
+        TripCheckpoint(
+          tripOutcomeLabel(checkpoint.kind),
+          checkpoint.recordedAt,
+        ),
+    ],
+    operation: trip,
+  );
+  @override
+  Future<FeatureData<List<RiderTrip>>> trips() async =>
+      FeatureData.ready((await tripPage()).items.map(asRiderTrip).toList());
+  Future<RetainedTrip> tripDetail(String id) async {
+    tripId(id);
+    final value = RetainedTrip.fromJson(await _request('rider/trips/$id'));
+    if (value.id != id) Wire.invalid();
+    return value;
+  }
+
+  Future<PrivateApiBytes> tripProof(String id, String path) async {
+    _guard();
+    final fresh = await tripDetail(id);
+    if (!fresh.proofPaths.contains(path) || api is! RiderEvidenceSessionApi) {
+      throw const AccountFailure(
+        'This proof is unavailable for the original assignment.',
+      );
+    }
+    final value = await (api as RiderEvidenceSessionApi).authenticatedEvidence(
+      path,
+    );
+    _guard();
+    if (!parcelProofMimes.values.contains(value.mimeType) ||
+        value.bytes.isEmpty ||
+        value.bytes.length > parcelProofLimit ||
+        !parcelProofSignature(value.bytes, value.mimeType)) {
+      throw const AccountFailure(
+        'The private proof response could not be verified.',
+      );
+    }
+    return value;
   }
 
   Future<CommandIntent?> pending() async {

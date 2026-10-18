@@ -11,10 +11,12 @@ class PrivateImage extends StatefulWidget {
     required this.bytes,
     required this.label,
     this.onInvalid,
+    this.height = 200,
   });
   final Uint8List bytes;
   final String label;
   final VoidCallback? onInvalid;
+  final double height;
   @override
   State<PrivateImage> createState() => _PrivateImageState();
 }
@@ -49,7 +51,7 @@ class _PrivateImageState extends State<PrivateImage> {
   @override
   Widget build(BuildContext context) => Image(
     image: _image,
-    height: 200,
+    height: widget.height,
     fit: BoxFit.contain,
     semanticLabel: widget.label,
     errorBuilder: (context, error, stack) {

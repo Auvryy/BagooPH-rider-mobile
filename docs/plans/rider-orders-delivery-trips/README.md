@@ -83,10 +83,10 @@ Later review fixes receive their own focused commits. The user handles pushes.
 | Pickup/departure | Correct/wrong scan, stale/reassigned task, action denials, duplicate taps, refreshed custody/stop and cancelled old route | Client connected; selected controller/layout regressions passed; actual camera/live checks pending |
 | COD delivery | Real image validation, recipient evidence, exact received-minus-change, one outcome/collection and separate buyer completion | Client connected; selected local form/command tests passed; live/physical verification pending |
 | Failed delivery | Server reasons/attempt count, proof and notes, retained rider return responsibility until hub receipt | Client connected; selected local tests passed; live hub return verification pending |
-| Trips | Original retained attribution, pickup/final-mile distinction, exact money, Manila assignment dates, server filters/pagination and late-result cancellation | Pending |
-| Private proof | Same-origin approved path, no redirects/public URL, size/type/privacy checks, denied/changed bytes and visible-state cleanup | Pending |
-| Responsive UI | Narrow phone and desktop, 200% text, keyboard/Back, loading/errors, bottom-nav clearance and render review | Pending |
-| Native verification | Relevant/full tests, analysis, ordinary Linux and Android builds | Pending |
+| Trips | Original retained attribution, pickup/final-mile distinction, exact money, Manila assignment dates, server filters/pagination and late-result cancellation | Client connected; local contract/controller/layout checks passed; live acceptance pending |
+| Private proof | Same-origin approved path, no redirects/public URL, size/type/privacy checks, denied/changed bytes and visible-state cleanup | Client connected; local transport/privacy/cache checks passed; native/live acceptance pending |
+| Responsive UI | Narrow phone and desktop, 200% text, keyboard/Back, loading/errors, bottom-nav clearance and render review | Selected local layout checks and synthetic Trips render review passed; physical acceptance pending |
+| Native verification | Relevant/full tests, analysis, ordinary Linux and Android builds | Full Flutter suite: 427 passed, four expected skips; analysis clean; ordinary builds and native backend check pending |
 | Azure and cross-role acceptance | Operator-confirmed deployment/migrations, authorized isolated parcels and owning hub/buyer/cash observations | Not established for this scope |
 | Android physical acceptance | Actual scan permission/cancel, camera and proof-picker lifecycle, successful stop/outcome flow | Not established |
 
@@ -175,3 +175,27 @@ mismatch rejection, safe correction after field rejection, required failure
 evidence and private display-cache eviction. A missing Material ancestor and test
 timer cleanup were corrected without suppressing widget assertions. These runs
 establish local behavior; Azure and actual Android capture remain outstanding.
+
+## Retained Trips and private image evidence
+
+Trips now consumes server search by tracking/order number, phase/payment/date
+filters, inclusive Manila assignment dates and incremental pages with stable-ID
+deduplication. Query changes invalidate older responses. Search is debounced;
+backgrounding cancels it. A server cooldown applies to both JSON and image reads
+through the shared first-party transport. No earnings or unreturned handoff facts
+are inferred.
+
+Detail loads the original assignment afresh and distinguishes its checkpoints,
+recipient, handoff, attempt proof and exact collection from the parcel's current
+commercial/operational state. A proof download first revalidates the original
+parent and advertised child path, then uses bounded authenticated image bytes
+without redirects or public-storage URLs. Backgrounding, access loss, logout and
+closing clear visible private data; decoded cache entries are evicted.
+
+The selected Trips and shared-budget checks passed **25 tests**, including large
+exact identifiers/money, null/unknown states, pagination, obsolete requests,
+changed/denied proof, server cooldown and immediate logout cleanup. Synthetic
+renders were reviewed at 375px and at 320px/900px with 200% text. The full Flutter
+suite passed **427 tests, four expected skips**; analysis was clean. Native
+client-to-kernel and ordinary Linux/Android build results are recorded separately
+after they finish. These checks do not activate Azure parcel writes.

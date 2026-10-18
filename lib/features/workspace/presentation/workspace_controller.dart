@@ -13,6 +13,7 @@ import '../../home/data/command_journal.dart';
 import '../../home/data/operations_models.dart';
 import '../../home/data/operations_repository.dart';
 import '../../parcels/data/parcel_photo_service.dart';
+import '../../trips/data/trip_models.dart';
 import '../data/workspace_models.dart';
 import '../data/workspace_repository.dart';
 
@@ -100,7 +101,7 @@ final workspaceControllerProvider = Provider.autoDispose
       return controller;
     }, dependencies: [workspaceRepositoryProvider, authControllerProvider]);
 
-enum _WorkRead { home, tasks, detail, more }
+enum _WorkRead { home, tasks, detail, more, trips }
 
 class WorkspaceController extends ChangeNotifier {
   WorkspaceController(this.repository, {this.onSessionEnd}) {
@@ -164,6 +165,11 @@ class WorkspaceController extends ChangeNotifier {
   bool get hasWorkAccess =>
       !_disposed && !_sessionEnded && !workAccessUnavailable;
 
+  bool get canReadTrips =>
+      !_disposed &&
+      !_sessionEnded &&
+      (operations == null || homeData.data?.capabilities['trips'] == true);
+
   bool canUseSelectedStop(String id) =>
       hasWorkAccess &&
       _foreground &&
@@ -179,6 +185,15 @@ class WorkspaceController extends ChangeNotifier {
     if (_foreground == value) return;
     _foreground = value;
     _poll?.cancel();
+    if (!value) {
+      _tripSearchTimer?.cancel();
+      _tripGeneration++;
+      loadingTrips = false;
+      if (tripData.status == FeatureStatus.refreshing) {
+        tripData = FeatureData.ready(tripData.data!);
+      }
+      _changed();
+    }
     if (value) unawaited(refreshAll());
   }
 
@@ -229,6 +244,9 @@ class WorkspaceController extends ChangeNotifier {
       homeData = FeatureData.unavailable(failure.message);
       taskData = FeatureData.unavailable(failure.message);
       tripData = FeatureData.unavailable(failure.message);
+      retainedTrips = null;
+      loadingTrips = false;
+      _tripSearchTimer?.cancel();
       conversationData = FeatureData.unavailable(failure.message);
       selectedTask = null;
       pendingIntent = null;
@@ -605,6 +623,10 @@ class WorkspaceController extends ChangeNotifier {
   PaymentFilter payment = PaymentFilter.all;
   DateTime? fromDate, toDate;
   int tripPage = 0;
+  RetainedTripPage? retainedTrips;
+  String? tripPhase;
+  bool loadingTrips = false;
+  Timer? _tripSearchTimer;
   static const pageSize = 10;
   String? selectedConversationId;
   final Map<String, String> _drafts = {};
@@ -748,29 +770,112 @@ class WorkspaceController extends ChangeNotifier {
     }
   }
 
-  Future<void> refreshTrips() async {
-    if (_disposed || _sessionEnded) return;
+  Future<void> refreshTrips({int page = 1, bool append = false}) async {
+    if (_disposed || _sessionEnded || coolingDown || !_foreground) return;
+    _tripSearchTimer?.cancel();
+    final ops = operations;
+    if (ops != null && homeData.data?.capabilities['trips'] != true) {
+      _tripGeneration++;
+      tripData = const FeatureData.unavailable(
+        'Recorded Trips are unavailable for this account.',
+      );
+      retainedTrips = null;
+      loadingTrips = false;
+      _changed();
+      return;
+    }
     final generation = ++_tripGeneration;
     final previous = tripData.data;
+    loadingTrips = true;
     tripData = previous == null
         ? const FeatureData.loading()
         : FeatureData.refreshing(previous);
     _changed();
     try {
-      final result = await repository.trips();
+      RetainedTripPage? response;
+      FeatureData<List<RiderTrip>> result;
+      if (ops != null) {
+        response = await ops.tripPage(
+          page: page,
+          filters: TripFilters(
+            search: tripSearch,
+            phase: tripPhase,
+            payment: payment.name,
+            from: fromDate,
+            to: toDate,
+          ),
+        );
+        final unique = <String, RiderTrip>{
+          if (append && previous != null)
+            for (final trip in previous) trip.id: trip,
+          for (final trip in response.items)
+            trip.id: OperationsRepository.asRiderTrip(trip),
+        };
+        result = FeatureData.ready(List.unmodifiable(unique.values));
+      } else {
+        result = await repository.trips();
+      }
       if (!_disposed && generation == _tripGeneration) {
         tripData = result;
-        if (tripPage * pageSize >= filteredTrips.length) tripPage = 0;
+        if (response != null) {
+          retainedTrips = response;
+          tripPage = response.page - 1;
+          _readFailures.remove(_WorkRead.trips);
+        } else if (tripPage * pageSize >= filteredTrips.length) {
+          tripPage = 0;
+        }
         _changed();
       }
-    } catch (_) {
+    } catch (error) {
       if (!_disposed && generation == _tripGeneration) {
+        final failure = ops == null
+            ? null
+            : await _workError(error, read: _WorkRead.trips);
+        if (_disposed || _sessionEnded || generation != _tripGeneration) return;
         tripData = FeatureData.failed(
-          'Could not load trips. Try again.',
+          failure?.message ?? 'Could not load trips. Try again.',
           previous,
         );
         _changed();
       }
+    } finally {
+      if (!_disposed && generation == _tripGeneration) {
+        loadingTrips = false;
+        _changed();
+      }
+    }
+  }
+
+  Future<void> reportTripFailure(AccountFailure failure) async {
+    await _workError(failure, read: _WorkRead.trips);
+    _changed();
+  }
+
+  void _tripQueryChanged({bool debounce = false}) {
+    if (_disposed || _sessionEnded) return;
+    if (operations == null) {
+      _changed();
+      return;
+    }
+    _tripSearchTimer?.cancel();
+    _tripGeneration++;
+    tripPage = 0;
+    retainedTrips = null;
+    loadingTrips = false;
+    tripData = coolingDown
+        ? const FeatureData.failed(
+            'Wait for the request cooldown, then refresh Trips.',
+          )
+        : const FeatureData.loading();
+    _changed();
+    if (coolingDown) return;
+    if (debounce) {
+      _tripSearchTimer = Timer(
+        const Duration(milliseconds: 350),
+        () => unawaited(refreshTrips()),
+      );
+    } else {
+      unawaited(refreshTrips());
     }
   }
 
@@ -834,20 +939,35 @@ class WorkspaceController extends ChangeNotifier {
   void searchTrips(String value) {
     tripSearch = value;
     tripPage = 0;
-    _changed();
+    _tripQueryChanged(debounce: true);
   }
 
   void filterPayment(PaymentFilter value) {
     payment = value;
     tripPage = 0;
-    _changed();
+    _tripQueryChanged();
   }
 
   void filterDates(DateTime? from, DateTime? to) {
     fromDate = from;
     toDate = to;
     tripPage = 0;
-    _changed();
+    _tripQueryChanged();
+  }
+
+  void filterTripPhase(String? value) {
+    tripPhase = value;
+    _tripQueryChanged();
+  }
+
+  void clearTripFilters() {
+    tripSearch = '';
+    payment = PaymentFilter.all;
+    tripPhase = null;
+    fromDate = null;
+    toDate = null;
+    tripPage = 0;
+    _tripQueryChanged();
   }
 
   void searchConversations(String value) {
@@ -862,20 +982,31 @@ class WorkspaceController extends ChangeNotifier {
         ),
       )
       .toList();
-  List<RiderTrip> get filteredTrips => (tripData.data ?? []).where((t) {
-    final day = manilaTime(t.recordedAt);
-    final date = DateTime(day.year, day.month, day.day);
-    return '${t.tracking} ${t.recipient} ${t.address}'.toLowerCase().contains(
-          tripSearch.trim().toLowerCase(),
-        ) &&
-        (payment == PaymentFilter.all || t.payment == payment) &&
-        (fromDate == null || !date.isBefore(fromDate!)) &&
-        (toDate == null || !date.isAfter(toDate!));
-  }).toList();
-  List<RiderTrip> get visibleTrips =>
-      filteredTrips.skip(tripPage * pageSize).take(pageSize).toList();
-  bool get hasNextTripPage => (tripPage + 1) * pageSize < filteredTrips.length;
+  List<RiderTrip> get filteredTrips => operations != null
+      ? (tripData.data ?? [])
+      : (tripData.data ?? []).where((t) {
+          final day = manilaTime(t.recordedAt);
+          final date = DateTime(day.year, day.month, day.day);
+          return '${t.tracking} ${t.recipient} ${t.address}'
+                  .toLowerCase()
+                  .contains(tripSearch.trim().toLowerCase()) &&
+              (payment == PaymentFilter.all || t.payment == payment) &&
+              (fromDate == null || !date.isBefore(fromDate!)) &&
+              (toDate == null || !date.isAfter(toDate!));
+        }).toList();
+  List<RiderTrip> get visibleTrips => operations != null
+      ? filteredTrips
+      : filteredTrips.skip(tripPage * pageSize).take(pageSize).toList();
+  bool get hasNextTripPage => operations != null
+      ? retainedTrips?.hasNext == true
+      : (tripPage + 1) * pageSize < filteredTrips.length;
   void nextTripPage() {
+    if (operations != null) {
+      if (!loadingTrips && hasNextTripPage) {
+        unawaited(refreshTrips(page: tripPage + 2, append: true));
+      }
+      return;
+    }
     if (hasNextTripPage) {
       tripPage++;
       _changed();
@@ -1018,6 +1149,7 @@ class WorkspaceController extends ChangeNotifier {
     _disposed = true;
     _poll?.cancel();
     _cooldownTimer?.cancel();
+    _tripSearchTimer?.cancel();
     _detailGeneration++;
     homeData = const FeatureData.loading();
     pendingIntent = null;
@@ -1029,6 +1161,11 @@ class WorkspaceController extends ChangeNotifier {
     _drafts.clear();
     taskData = const FeatureData.loading();
     tripData = const FeatureData.loading();
+    retainedTrips = null;
+    tripSearch = '';
+    tripPhase = null;
+    fromDate = toDate = null;
+    loadingTrips = false;
     conversationData = const FeatureData.loading();
     super.dispose();
   }

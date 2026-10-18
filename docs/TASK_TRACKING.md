@@ -378,6 +378,12 @@ Company, hub, vehicle and reassignment controls stay with their web authorities.
 
 ### M06 — Pickup and origin-hub handoff
 
+**October 18 selected implementation:** the [order-to-history slice](plans/rider-orders-delivery-trips/README.md)
+connects owned pickup review, actual Android waybill capture, confirmed collection
+and origin-hub guidance to the existing versioned command API. Local client
+checks pass; Azure parcel writes and physical camera acceptance remain open.
+HDB-05's accepted duty/claim evidence remains separate.
+
 **Outcome:** the correct ready parcel reaches its assigned origin hub with evidence.
 
 1. Present eligible available work and an explicit atomic claim confirmation.
@@ -395,6 +401,12 @@ route, self-confirmed hub receipt or automatic stored-code “scan” is allowed
 Stronger waybill/handoff evidence is a backend prerequisite, not a UI-only fix.
 
 ### M07 — Final-mile delivery and proof
+
+**October 18 selected implementation:** the [order-to-history slice](plans/rider-orders-delivery-trips/README.md)
+connects assigned departure, recipient evidence, protected original photos,
+exact COD received/change and uncertain-result recovery. Local form/command
+checks pass; native backend, Azure and physical acceptance are recorded in that
+package. No non-COD success, buyer completion or cash remittance is added.
 
 **Outcome:** the assigned rider records a genuine recipient handoff and exact cash.
 
@@ -416,6 +428,11 @@ collection evidence belongs to the accepted outcome contract; M15 separately
 requires financial ledgers. Expose only backend capabilities whose gates passed.
 
 ### M08 — Failed delivery, returns and restricted recovery
+
+**October 18 selected failure consumer:** the [order-to-history slice](plans/rider-orders-delivery-trips/README.md)
+adds the server's reason/attempt policy, required notes/location/photo and the
+destination-hub return instruction. Receipt and retry stay with the hub.
+This does not implement restricted native recovery or complete all M08 cards.
 
 **October 14 selected handover extension:**
 [Native handover issues](plans/handover-issues/README.md) integrates merged backend
@@ -489,6 +506,12 @@ bounded foreground refresh. This is delivery-linked chat, not an unrestricted
 user directory or a new realtime/push service.
 
 ### M11 — Trips and recorded history
+
+**October 18 selected implementation:** the [order-to-history slice](plans/rider-orders-delivery-trips/README.md)
+consumes the accepted retained-assignment resource for pickup and final mile,
+with server filters, incremental pages, fresh detail and authenticated private
+proof. It distinguishes the rider's original facts from the parcel's current
+state. Local contract/layout/privacy checks are separate from Azure acceptance.
 
 **Outcome:** the rider can inspect real scoped records and distinguish their meaning.
 

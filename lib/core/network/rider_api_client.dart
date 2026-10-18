@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import '../../app/config.dart';
 import 'api_failure.dart';
 import 'request_budget.dart';
+import 'wire.dart';
 
 /// Data repositories share the current native session without reading tokens.
 abstract interface class RiderSessionApi {
@@ -40,9 +41,19 @@ class RiderApiClient {
   /// A bounded first-party download. JSON errors are decoded before any viewer
   /// sees bytes; redirects, foreign paths and public-storage URLs are rejected.
   Future<PrivateApiBytes> evidence(String path, {required String token}) async {
-    if (!RegExp(r'^rider/handover-issues/[1-9][0-9]*/evidence$')
-        .hasMatch(path)) {
+    final handover = RegExp(r'^rider/handover-issues/([1-9][0-9]*)/evidence$')
+        .firstMatch(path);
+    final trip = RegExp(
+      r'^rider/trips/trip-([1-9][0-9]*)/(checkpoints|attempts)/([1-9][0-9]*)/proof$',
+    ).firstMatch(path);
+    if ((handover == null || handover.end != path.length) &&
+        (trip == null || trip.end != path.length)) {
       throw const AccountFailure('The evidence path could not be verified.');
+    }
+    if (handover != null) Wire.id(handover[1]);
+    if (trip != null) {
+      Wire.id(trip[1]);
+      Wire.id(trip[3]);
     }
     _budget.reserve('GET');
     try {
@@ -80,7 +91,7 @@ class RiderApiClient {
             'image/jpeg',
             'image/png',
             'image/webp',
-            'application/pdf',
+            if (handover != null) 'application/pdf',
           ].contains(mime) ||
           !cache.split(',').map((s) => s.trim()).contains('private') ||
           !cache.split(',').map((s) => s.trim()).contains('no-store') ||
@@ -160,6 +171,7 @@ class RiderApiClient {
     final retry = cooldown is int
         ? cooldown
         : int.tryParse(headers?.value('retry-after') ?? '');
+    if (status == 429 && retry != null) _budget.defer(retry);
     return AccountFailure(
       body is Map && body['message'] is String
           ? body['message'] as String

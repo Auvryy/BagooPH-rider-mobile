@@ -195,6 +195,16 @@ class ParcelHarness {
       return home;
     }
     if (path == 'rider/tasks/${task.id}') return {'data': taskJson};
+    if (path.startsWith('rider/trips?')) {
+      return {
+        'data': {
+          'items': <Object>[],
+          'attribution': 'retained_assignment',
+          'date_basis': 'assignment_recorded_at',
+          'pagination': {'page': 1, 'per_page': 20, 'total': 0, 'last_page': 1},
+        },
+      };
+    }
     if (path.startsWith('rider/tasks?') ||
         path.startsWith('rider/pickup-jobs?')) {
       final phase = Uri.parse(path).queryParameters['phase'];

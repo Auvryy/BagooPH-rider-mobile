@@ -8,6 +8,7 @@ class AppConfig {
     this.operationsWritesVerified = false,
     this.parcelWritesVerified = false,
     this.messagesWritesVerified = false,
+    this.notificationsWritesVerified = false,
     this.handoverWritesVerified = false,
     this.geoapifyKey = '',
   });
@@ -23,6 +24,9 @@ class AppConfig {
 
   /// Assignment chat acceptance is independent from duty and parcel outcomes.
   final bool messagesWritesVerified;
+
+  /// Durable notice acknowledgements have their own deployment acceptance.
+  final bool notificationsWritesVerified;
 
   /// Separate H04 deployment gate; does not enable duty or pickup claims.
   final bool handoverWritesVerified;
@@ -49,6 +53,9 @@ class AppConfig {
       ),
       parcelWritesVerified: bool.fromEnvironment('PARCEL_WRITES_VERIFIED'),
       messagesWritesVerified: bool.fromEnvironment('MESSAGES_WRITES_VERIFIED'),
+      notificationsWritesVerified: bool.fromEnvironment(
+        'NOTIFICATIONS_WRITES_VERIFIED',
+      ),
       handoverWritesVerified: bool.fromEnvironment('HANDOVER_WRITES_VERIFIED'),
       geoapifyKey: String.fromEnvironment('GEOAPIFY_API_KEY'),
     );

@@ -27,7 +27,7 @@ class SecureCommandJournal implements CommandJournal {
        _scope = scope,
        _key = _scopedKey(origin, accountId, scope);
   static String _scopedKey(Uri origin, String accountId, String scope) {
-    if (!['work', 'messages'].contains(scope)) Wire.invalid();
+    if (!['work', 'messages', 'notifications'].contains(scope)) Wire.invalid();
     final namespace = scope == 'work' ? '' : '${scope}_';
     return 'bagoo_rider_command_$namespace${base64UrlEncode(utf8.encode('$origin/$accountId'))}';
   }
@@ -39,8 +39,7 @@ class SecureCommandJournal implements CommandJournal {
     final value = await _storage.read(key: _key);
     if (value == null) return null;
     final intent = CommandIntent.fromJson(Wire.object(jsonDecode(value)));
-    if (intent.accountId != accountId ||
-        intent.isMessage != (_scope == 'messages')) {
+    if (intent.accountId != accountId || !_owns(intent)) {
       Wire.invalid();
     }
     return intent;
@@ -48,8 +47,7 @@ class SecureCommandJournal implements CommandJournal {
 
   @override
   Future<void> write(CommandIntent intent) async {
-    if (intent.accountId != accountId ||
-        intent.isMessage != (_scope == 'messages')) {
+    if (intent.accountId != accountId || !_owns(intent)) {
       Wire.invalid();
     }
     await _storage.write(key: _key, value: jsonEncode(intent.toJson()));
@@ -57,4 +55,12 @@ class SecureCommandJournal implements CommandJournal {
 
   @override
   Future<void> clear() => _storage.delete(key: _key);
+
+  bool _owns(CommandIntent intent) =>
+      (intent.isMessage
+          ? 'messages'
+          : intent.isNotification
+          ? 'notifications'
+          : 'work') ==
+      _scope;
 }

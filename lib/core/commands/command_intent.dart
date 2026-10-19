@@ -2,6 +2,7 @@ import 'dart:math';
 
 import '../network/wire.dart';
 import 'message_validation.dart';
+import 'notification_validation.dart';
 import 'parcel_proof.dart';
 import 'parcel_validation.dart';
 
@@ -25,7 +26,11 @@ class CommandIntent {
     required Map<String, dynamic> body,
     required this.createdAt,
     this.proof,
-  }) : body = Map.unmodifiable(body) {
+  }) : body = Map.unmodifiable({
+         ...body,
+         if (action == 'notification.read')
+           'displayed_ids': notificationIds(body['displayed_ids']),
+       }) {
     Wire.id(accountId);
     Wire.uuid(key);
     if (action == 'duty') {
@@ -40,6 +45,11 @@ class CommandIntent {
         Wire.invalid();
       }
       Wire.version(body['expected_version']);
+    } else if (isNotification) {
+      if (resource != 'notifications' || body.length != 1 || proof != null) {
+        Wire.invalid();
+      }
+      notificationIds(body['displayed_ids']);
     } else if (isMessage) {
       messageThreadParts(resource);
       if (proof != null || body.length != 1) Wire.invalid();
@@ -129,9 +139,12 @@ class CommandIntent {
   final DateTime createdAt;
   final ParcelProofReference? proof;
   bool get isMessage => action == 'message.send' || action == 'message.read';
+  bool get isNotification => action == 'notification.read';
   ParcelAction? get parcelAction =>
       ParcelAction.values.where((value) => value.name == action).firstOrNull;
-  String get deliveryId => isMessage
+  String get deliveryId => isNotification
+      ? Wire.invalid()
+      : isMessage
       ? messageThreadParts(resource).deliveryId
       : resource.split('-').last;
   String get path => switch (action) {
@@ -139,6 +152,10 @@ class CommandIntent {
     'claim' => 'rider/pickup-jobs/${resource.substring(7)}/claim',
     'message.send' => 'rider/conversations/$resource/messages',
     'message.read' => 'rider/conversations/$resource/read',
+    'notification.read' =>
+      (body['displayed_ids'] as List).length == 1
+          ? 'rider/notifications/${(body['displayed_ids'] as List).single}/read'
+          : 'rider/notifications/read-through',
     _ => 'rider/tasks/$resource/$action',
   };
   String get method => action == 'duty' ? 'PATCH' : 'POST';

@@ -33,6 +33,8 @@ they do not authorize changing the backend or implementing every proposed featur
 | [Assignment Messages](plans/rider-assignment-messages/README.md) | How will the requested Messages page preserve recipient identity, original commands and displayed reads? |
 | [Messages API checklist](api/MESSAGES_NEEDS.md) | Which chat APIs already exist and what deployment/cross-role checks remain? |
 | [Session Parcel Finder](plans/rider-parcel-finder/README.md) | How do personal location labels follow owned tasks without changing custody? |
+| [Notifications inbox](plans/rider-notifications/README.md) | How do real notification pages, unread totals, exact reads and authorized links work? |
+| [Notifications API checklist](api/NOTIFICATIONS_NEEDS.md) | Which existing contracts are confirmed, and which Azure/device checks remain? |
 | [Native handover issues](plans/handover-issues/README.md) | How does the rider report a missed scan and acknowledge an independently authorized recovery while actual receipt stays hub-owned? |
 | [RIDER_FLOW.md](RIDER_FLOW.md) | What may a rider do at each stage, including failures and cash custody? |
 | [TECH_STACK.md](TECH_STACK.md) | Which tools are installed, which are proposed, and why choose them? |

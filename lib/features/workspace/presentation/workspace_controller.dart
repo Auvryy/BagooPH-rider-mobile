@@ -15,6 +15,8 @@ import '../../home/data/operations_repository.dart';
 import '../../parcels/data/parcel_photo_service.dart';
 import '../../messages/data/messages_repository.dart';
 import '../../messages/presentation/messages_controller.dart';
+import '../../notifications/data/notifications_repository.dart';
+import '../../notifications/presentation/notifications_controller.dart';
 import '../../parcel_finder/data/parcel_location_labels.dart';
 import '../../trips/data/trip_models.dart';
 import '../data/workspace_models.dart';
@@ -99,6 +101,31 @@ final messagesRepositoryProvider = Provider<MessagesRepository>((ref) {
   );
 }, dependencies: [workspaceRepositoryProvider, appConfigProvider]);
 
+final notificationsRepositoryProvider = Provider<NotificationsRepository>((
+  ref,
+) {
+  final repository = ref.watch(workspaceRepositoryProvider);
+  if (repository is NotificationsRepository) {
+    return repository as NotificationsRepository;
+  }
+  if (repository is! OperationsRepository) {
+    return const UnavailableNotificationsRepository();
+  }
+  final config = ref.watch(appConfigProvider);
+  return OperationsNotificationsRepository(
+    repository.api,
+    accountId: repository.accountId,
+    journal: SecureCommandJournal(
+      origin: config.origin,
+      accountId: repository.accountId,
+      scope: 'notifications',
+    ),
+    writesVerified: config.notificationsWritesVerified,
+    isCurrent: repository.isCurrent,
+    readHome: repository.home,
+  );
+}, dependencies: [workspaceRepositoryProvider, appConfigProvider]);
+
 class WorkspaceIdentity {
   const WorkspaceIdentity(this.accountId, {this.preview = false});
   final String accountId;
@@ -119,6 +146,7 @@ final workspaceControllerProvider = Provider.autoDispose
         final controller = WorkspaceController(
           repository,
           messagesRepository: ref.watch(messagesRepositoryProvider),
+          notificationsRepository: ref.watch(notificationsRepositoryProvider),
           parcelLocations:
               !identity.preview &&
                   repository is OperationsRepository &&
@@ -140,6 +168,7 @@ final workspaceControllerProvider = Provider.autoDispose
       dependencies: [
         workspaceRepositoryProvider,
         messagesRepositoryProvider,
+        notificationsRepositoryProvider,
         authControllerProvider,
         appConfigProvider,
       ],
@@ -152,6 +181,7 @@ class WorkspaceController extends ChangeNotifier {
     this.repository, {
     this.onSessionEnd,
     MessagesRepository? messagesRepository,
+    NotificationsRepository? notificationsRepository,
     ParcelLocationLabels? parcelLocations,
   }) : _parcelLocations = parcelLocations {
     if (parcelLocations != null &&
@@ -168,12 +198,23 @@ class WorkspaceController extends ChangeNotifier {
       },
     );
     messages.addListener(_changed);
+    notifications = NotificationsController(
+      notificationsRepository ??
+          (repository is NotificationsRepository
+              ? repository as NotificationsRepository
+              : const UnavailableNotificationsRepository()),
+      onSessionEnd: (notice) async {
+        await _workError(AccountFailure(notice, status: 401));
+      },
+    );
+    notifications.addListener(_changed);
     if (operations?.photos != null) unawaited(operations!.photos!.restore());
     unawaited(operations == null ? refreshAll() : Future.microtask(refreshAll));
   }
   final WorkspaceRepository repository;
   final ParcelLocationLabels? _parcelLocations;
   late final MessagesController messages;
+  late final NotificationsController notifications;
   final Future<void> Function(String notice)? onSessionEnd;
   OperationsRepository? get operations => repository is OperationsRepository
       ? repository as OperationsRepository
@@ -303,6 +344,7 @@ class WorkspaceController extends ChangeNotifier {
 
   void setForeground(bool value) {
     messages.setForeground(value);
+    notifications.setForeground(value);
     if (_foreground == value) return;
     _foreground = value;
     _poll?.cancel();
@@ -369,6 +411,7 @@ class WorkspaceController extends ChangeNotifier {
       loadingTrips = false;
       _tripSearchTimer?.cancel();
       messages.revoke(failure.message);
+      notifications.revoke(failure.message);
       _parcelLocations?.clear();
       selectedTask = null;
       pendingIntent = null;
@@ -410,6 +453,9 @@ class WorkspaceController extends ChangeNotifier {
       if (_disposed || generation != _homeGeneration) return;
       if (result.capabilities['messages'] != true) {
         messages.capabilityUnavailable();
+      }
+      if (result.capabilities['notifications'] != true) {
+        notifications.capabilityUnavailable();
       }
       _readFailures.remove(_WorkRead.home);
       if (result.capabilities['home'] != true) {
@@ -780,7 +826,12 @@ class WorkspaceController extends ChangeNotifier {
         homeData = const FeatureData.unavailable(
           'Work availability not connected',
         );
-        await Future.wait([refreshTasks(), refreshTrips(), messages.refresh()]);
+        await Future.wait([
+          refreshTasks(),
+          refreshTrips(),
+          messages.refresh(),
+          notifications.refresh(),
+        ]);
         return;
       }
       await refreshHome();
@@ -793,6 +844,10 @@ class WorkspaceController extends ChangeNotifier {
         if (homeData.status == FeatureStatus.ready)
           messages.refresh(
             available: homeData.data!.capabilities['messages'] == true,
+          ),
+        if (homeData.status == FeatureStatus.ready)
+          notifications.refresh(
+            available: homeData.data!.capabilities['notifications'] == true,
           ),
       ]);
     } finally {
@@ -1130,6 +1185,8 @@ class WorkspaceController extends ChangeNotifier {
     _commandFailure = null;
     messages.removeListener(_changed);
     messages.dispose();
+    notifications.removeListener(_changed);
+    notifications.dispose();
     taskData = const FeatureData.loading();
     tripData = const FeatureData.loading();
     retainedTrips = null;

@@ -27,6 +27,7 @@ import 'home_map_focus.dart';
 import 'tasks_page.dart';
 import 'work_summary.dart';
 import '../../handover/presentation/handover_entry.dart';
+import '../../notifications/presentation/notifications_entry.dart';
 
 class HomeDashboard extends ConsumerStatefulWidget {
   const HomeDashboard({
@@ -310,6 +311,11 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                     ),
                   const SizedBox(height: 6),
                   WorkDutyControl(controller: widget.controller),
+                  const SizedBox(height: 12),
+                  NotificationsEntry(
+                    work: widget.controller,
+                    active: widget.active,
+                  ),
                 ],
               ),
             ),

@@ -15,6 +15,16 @@ node tool/parcel_local_api/run.mjs ../bagoo messages
 Its [acceptance notes](../../docs/plans/rider-assignment-messages/LOCAL_KERNEL.md)
 cover actual seller/buyer replies, exact read boundaries and retained commands.
 
+The selected Notifications suite uses the same isolation and native transport:
+
+```sh
+node tool/parcel_local_api/run.mjs ../bagoo notifications
+```
+
+Its [acceptance notes](../../docs/plans/rider-notifications/LOCAL_KERNEL.md) cover
+durable source uniqueness, exact displayed reads, retained command recovery,
+foreign denial and unchanged parcel/cash state.
+
 Requires Composer development dependencies in that backend, PHP with `pdo_sqlite`,
 Node 22 or newer and the Flutter/Linux toolchain. A Linux display and native
 secret service are needed for the native runner. A virtual display keeps the

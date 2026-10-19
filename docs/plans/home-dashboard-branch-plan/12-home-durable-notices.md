@@ -1,6 +1,8 @@
 # HDB-12 — Add a real Home inbox and exact notice read state
 
-State: **planned, not activated**. Branch: `feat/home-durable-notices`.
+State: **client locally verified; Azure/physical Android acceptance open**. Branch: `feat/home-durable-notices`.
+The [owning package](../rider-notifications/README.md) records the selected scope,
+current source/prerequisite review and separate Azure/Android acceptance.
 Planning effort: **4–7 client hours**, including selected checks,
 excluding owner/API/device waiting. Recommended model/effort: **GPT-6.1 Sol / High**.
 Re-estimate from current evidence before activation; assign a 1–14 inclusive-day
@@ -45,15 +47,15 @@ code/docs, its branch and unrelated work remain read only for this mobile slice.
 
 ## Finish evidence
 
-- [ ] Owned one-read/exact displayed list, new arrival during read, duplicate/uncertain command and foreign ID rejection work.
-- [ ] Unread badge comes from server aggregate rather than loaded-page size.
-- [ ] Changed/null/unknown destinations cannot open stale private task/cash data.
+- [x] Local client/kernel: owned one-read/exact displayed list, new arrival during read, duplicate/uncertain command and foreign ID rejection work.
+- [x] Unread badge comes from server aggregate rather than loaded-page size.
+- [x] Changed/null/unknown destinations cannot open stale private task/cash data.
 - [ ] Actual backend delivery and Android foreground/Back/account cleanup are recorded separately from mocks.
-- [ ] Run analysis and the meaningful selected contract/controller/widget checks;
+- [x] Run analysis and the meaningful selected contract/controller/widget checks;
   add ordinary native builds when runtime/platform/integration risk requires them.
-- [ ] Record local versus authorized Azure versus physical Android evidence,
+- [x] Record local versus authorized Azure versus physical Android evidence,
   remaining gates, reviewed source and coherent local commits in the owning plan.
-- [ ] Review scope/privacy and the staged diff; the user handles push/PR/merge.
+- [x] Review scope/privacy and the staged diff; the user handles push/PR/merge.
 
 ## Stop boundary
 

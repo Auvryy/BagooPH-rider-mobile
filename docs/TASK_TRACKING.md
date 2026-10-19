@@ -555,6 +555,13 @@ communicate assignments; polling does not create durable notification records.
 Do not imitate a missing notification API with invented events, badges or external
 order push/SMS/email services.
 
+The selected [Notifications inbox](plans/rider-notifications/README.md) is locally
+verified on `feat/home-durable-notices`: server unread total, paginated own
+notices, protected exact reads and fresh task/cash/account destinations. The
+[verification record](plans/rider-notifications/VERIFICATION.md) separates local
+client/kernel results from Azure delivery and physical Android acceptance.
+The canonical M12 cards retain their broader verification scope.
+
 ### M13 — Rider profile and assignment information
 
 **Outcome:** identity and managed placement are accurate and understandable.

@@ -1,10 +1,11 @@
 # OPS-04 — Assignment-bound messages and notifications
 
-State: **Messages client selected; notification client remains planned**.
+State: **Messages and Notifications clients selected; external acceptance separate**.
 The [assignment Messages package](../rider-assignment-messages/README.md) owns the
 requested chat implementation and separate deployment/Android acceptance.
-Notification integration still needs deployed durable workers/scheduler and its
-own selected client slice; this update does not activate that inbox.
+The [Notifications package](../rider-notifications/README.md) owns HDB-12's selected
+inbox, unread total and exact displayed read commands. Deployed durable delivery,
+scheduler/worker and physical Android acceptance remain separate for both slices.
 Associations: B10-A–B10-D and B12-A–B12-C; inspect all transitive prerequisites.
 
 ## Contract and implementation slices

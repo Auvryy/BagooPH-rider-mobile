@@ -10,8 +10,8 @@ import { once } from 'node:events';
 const project = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const backend = resolve(process.argv[2] ?? resolve(project, '../bagoo'));
 const suite = process.argv[3] ?? 'parcel';
-if (!['parcel', 'messages'].includes(suite)) throw new Error('Select parcel or messages verification.');
-const evidenceRoot = resolve(project, suite === 'messages' ? 'build/messages-verification' : 'build/operations-delivery-verification');
+if (!['parcel', 'messages', 'notifications'].includes(suite)) throw new Error('Select parcel, messages or notifications verification.');
+const evidenceRoot = resolve(project, suite === 'parcel' ? 'build/operations-delivery-verification' : `build/${suite}-verification`);
 await mkdir(evidenceRoot, { recursive: true });
 const runtime = await mkdtemp(resolve(evidenceRoot, 'local-kernel-'));
 const diagnostic = await open(resolve(evidenceRoot, 'local-kernel.log'), 'w', 0o600);
@@ -135,8 +135,8 @@ try {
   server.listen(0, '127.0.0.1'); await once(server, 'listening');
   const api = `http://127.0.0.1:${server.address().port}`;
   console.log(`Isolated SQLite :memory: ${suite} kernel at ${revision} ready; running the native Flutter client.`);
-  const prefix = suite === 'messages' ? 'LOCAL_MESSAGES' : 'LOCAL_PARCEL';
-  flutter = spawn('flutter', ['test', '--no-pub', `integration_test/${suite === 'messages' ? 'messages' : 'parcel'}_local_api_test.dart`, '-d', 'linux',
+  const prefix = `LOCAL_${suite.toUpperCase()}`;
+  flutter = spawn('flutter', ['test', '--no-pub', `integration_test/${suite}_local_api_test.dart`, '-d', 'linux',
     `--dart-define=${prefix}_API_BASE=${api}`, `--dart-define=${prefix}_FIXTURE_TOKEN=${fixtureToken}`, '--reporter', 'expanded'],
   { cwd: project, stdio: 'inherit' });
   const [code] = await once(flutter, 'exit'); process.exitCode = code ?? 1;

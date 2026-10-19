@@ -30,6 +30,7 @@ class NativeParcelFixture extends Tests\Feature\Courier\RiderParcelApiTest
     private App\Models\User $holder;
     private App\Models\User $other;
     private string $sandbox;
+    private ?string $noticeTime = null;
 
     public function sandbox(string $path): void { $this->sandbox = $path; }
 
@@ -97,6 +98,48 @@ class NativeParcelFixture extends Tests\Feature\Courier\RiderParcelApiTest
                     'balance_cents' => (string) $cash->state['balances']['rider:'.$this->holder->id],
                     'events' => $cash->events()->count(), 'reconciled' => $cash->reconciled_at !== null])->all(),
                 'public_proofs' => Illuminate\Support\Facades\Storage::disk('public')->allFiles('delivery-proofs')];
+        }
+        if ($operation === 'notification_seed') {
+            $this->assertMatchesRegularExpression('/\Anotice-test-[1-9]\z/', $message['name']);
+            $this->noticeTime ??= now('UTC')->startOfSecond()->toIso8601String();
+            $this->travelTo(Carbon\Carbon::parse($this->noticeTime));
+            $parcel = $this->parcels['pickup']->fresh();
+            $service = app(App\Services\Notifications\NotificationDeliveryService::class);
+            $delivery = $service->record($this->holder->id, 'parcel-event', 'native-notification:'.$message['name'], [
+                'title' => 'Software test: notification read state',
+                'body' => 'Local software-test notice; parcel custody is unchanged.',
+                'target' => 'courier-assignments', 'delivery_id' => $parcel->id,
+            ]);
+            $service->deliver($delivery->id);
+            $service->deliverPending();
+            return ['id' => $delivery->id, 'recorded_at' => $delivery->created_at->utc()->format('Y-m-d\TH:i:s.v\Z')];
+        }
+        if ($operation === 'notifications_snapshot') {
+            return ['items' => $this->holder->notifications()->orderBy('id')->get()->map(fn ($row) => [
+                'id' => $row->id, 'read' => $row->read_at !== null,
+            ])->all(), 'other_count' => $this->other->notifications()->count(),
+                'commands' => App\Models\RiderCommand::where('actor_id', $this->holder->id)->where('action', 'notification.read')->count(),
+                'unread' => $this->holder->notifications()->whereNull('read_at')->count(),
+                'delivered' => App\Models\NotificationDelivery::where('recipient_id', $this->holder->id)->whereNotNull('delivered_at')->count()];
+        }
+        if ($operation === 'notification_expire') {
+            $this->assertTrue(Illuminate\Support\Str::isUuid($message['key']));
+            $query = App\Models\RiderCommand::where('actor_id', $this->holder->id)->where('action', 'notification.read')
+                ->where('idempotency_key', $message['key']);
+            $command = $query->firstOrFail();
+            // Keep a valid recorded-before-expiry interval while advancing the
+            // isolated clock beyond a shortened test replay window.
+            $expires = $command->recorded_at->copy()->addSecond();
+            $changed = $query->update(['expires_at' => $expires]);
+            $this->travelTo($expires->copy()->addSecond());
+            $this->assertSame(1, $changed);
+            return ['expired' => true];
+        }
+        if ($operation === 'notifications_resume_clock') {
+            // Same-tick/expiry assertions are finished. The ordinary limiter
+            // must now advance with elapsed wall time, including cleanup.
+            $this->travelBack();
+            return ['resumed' => true];
         }
         if ($operation === 'message_reply') {
             $phase = $message['phase'];

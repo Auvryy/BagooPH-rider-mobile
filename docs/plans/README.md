@@ -13,6 +13,7 @@ roadmap and backlog; it does not replace their scope, stable IDs or deadlines.
 | Pickup, delivery and Trips | Selected shared command/proof foundation, real pickup/departure, COD/failure and retained history | Active implementation; Azure/physical acceptance separate | [Plan](rider-orders-delivery-trips/README.md) |
 | Assignment Messages | Phase-bound parcel conversations, protected send/read intents and displayed reads | Client locally verified; Azure/physical Android acceptance open | [Plan](rider-assignment-messages/README.md) |
 | Session Parcel Finder | Personal parcel-slot labels in owned Stop Mode, with assignment/account cleanup | Client locally verified; no new backend contract | [Plan](rider-parcel-finder/README.md) |
+| Notifications inbox | Real pages, server unread total, exact displayed reads and safe links | Client locally verified; Azure/physical Android acceptance open | [Plan](rider-notifications/README.md) |
 
 ## Rules for future plans
 

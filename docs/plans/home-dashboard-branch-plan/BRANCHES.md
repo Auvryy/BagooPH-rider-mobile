@@ -20,7 +20,7 @@ row now. Select one HDB ID per prompt. Current review/source and gates are in
 | [HDB-09](09-final-mile-cod-handoff.md) | `feat/final-mile-cod-handoff` | Record genuine proof, recipient and exact COD delivery | HDB-06, HDB-08 | 7–12 h | Planned |
 | [HDB-10](10-failed-delivery-return-guidance.md) | `feat/failed-delivery-return-guidance` | Record one failed attempt and show hub-owned recovery | HDB-06, HDB-08, HDB-09 | 5–8 h | Planned |
 | [HDB-11](11-trips-retained-history.md) | `feat/trips-retained-history` | Connect real Trips, protected evidence and recent Home work | HDB-06, HDB-09, HDB-10 | 5–9 h | Planned |
-| [HDB-12](12-home-durable-notices.md) | `feat/home-durable-notices` | Add a real Home inbox and exact notice read state | HDB-03, HDB-06, HDB-11 | 4–7 h | Planned |
+| [HDB-12](12-home-durable-notices.md) | `feat/home-durable-notices` | Add a real Home inbox and exact notice read state | HDB-03, HDB-06, HDB-11 | 6 h selected | Client locally verified; [external gates open](../rider-notifications/VERIFICATION.md) |
 | [HDB-13](13-rider-assignment-messages.md) | `feat/rider-assignment-messages` | Connect phase-bound Messages and the current-stop shortcut | HDB-04, HDB-06, HDB-12 | 6–10 h | Planned |
 | [HDB-14](14-home-cash-responsibilities.md) | `feat/home-cash-responsibilities` | Add exact cash responsibility and recorded receipt views | HDB-03, HDB-06, HDB-11 | 4–7 h | Planned |
 | [HDB-15](15-rider-cash-remittance-offers.md) | `feat/rider-cash-remittance-offers` | Submit a remittance offer without claiming recipient receipt | HDB-06, HDB-14 | 4–7 h | Planned |

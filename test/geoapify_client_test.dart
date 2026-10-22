@@ -46,7 +46,10 @@ class Adapter implements HttpClientAdapter {
 
 class Immediate extends ProviderScheduler {
   @override
-  Future<void> acquire(CancelToken? cancel) async {}
+  Future<void> acquire(
+    CancelToken? cancel, {
+    ProviderRequestKind kind = ProviderRequestKind.route,
+  }) async {}
 }
 
 void main() {
@@ -113,26 +116,32 @@ void main() {
       geo.dispose();
     },
   );
-  test(
-    'provider scheduler spaces all requests and excludes cancelled queued work',
-    () async {
-      final scheduler = ProviderScheduler(), started = <DateTime>[];
+  testWidgets(
+    'provider scheduler keeps routes within four credits per rolling second',
+    (tester) async {
+      final scheduler = ProviderScheduler(now: tester.binding.clock.now),
+          started = <DateTime>[];
       final jobs = List.generate(
         5,
-        (_) => scheduler.acquire(null).then((_) => started.add(DateTime.now())),
+        (_) => scheduler.acquire(null).then((_) {
+          started.add(tester.binding.clock.now());
+          scheduler.release();
+        }),
       );
-      await Future.wait(jobs);
-      for (var i = 1; i < started.length; i++) {
-        expect(
-          started[i].difference(started[i - 1]).inMilliseconds,
-          greaterThanOrEqualTo(250),
-        );
+      for (var i = 0; i < 20; i++) {
+        await tester.pump(const Duration(milliseconds: 75));
       }
+      await Future.wait(jobs);
+      expect(
+        started[4].difference(started[0]).inMilliseconds,
+        greaterThanOrEqualTo(1000),
+      );
       final cancel = CancelToken()..cancel();
       await expectLater(
         scheduler.acquire(cancel),
         throwsA(isA<DioException>()),
       );
+      scheduler.dispose();
     },
   );
 }

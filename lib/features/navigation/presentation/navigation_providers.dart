@@ -7,13 +7,17 @@ import '../../settings/data/settings_models.dart';
 import '../../settings/presentation/settings_controller.dart';
 import '../../workspace/presentation/workspace_controller.dart';
 import '../data/geoapify_client.dart';
+import '../data/map_tile_cache.dart';
 import '../data/navigation_location.dart';
 import 'navigation_controller.dart';
 import 'navigation_workspace_binding.dart';
 import 'home_location_controller.dart';
 
 final geoapifyProvider = Provider<GeoapifyClient>((ref) {
-  final client = GeoapifyClient(ref.watch(appConfigProvider).geoapifyKey);
+  final client = GeoapifyClient(
+    ref.watch(appConfigProvider).geoapifyKey,
+    tileCache: createMapTileCache(),
+  );
   ref.onDispose(client.dispose);
   return client;
 }, dependencies: [appConfigProvider]);

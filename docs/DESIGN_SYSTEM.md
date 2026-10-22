@@ -90,3 +90,25 @@ Every interactive component explicitly handles:
 4. **Focus-Visible:** Razor-sharp Crimson (`#E00D42`) `2px` focus ring with `2px` offset.
 5. **Loading:** Monochromatic shimmer skeleton (`#F1F5F9` to `#E2E8F0`), never an unstyled "Loading..." text string.
 6. **Empty:** Clean illustration or centered icon with slate caption and one clear primary CTA.
+
+## 4. Geographic display
+
+The selected [map refinement](plans/rider-map-refinement/README.md) gives Home's
+map a charcoal surface while retaining the light/red application theme. Its
+`RiderMapColors` tokens own map canvas, floating controls, light ink and muted
+labels. Use the provider's Dark Matter tiles by default and its readable daylight
+style through an explicit toggle. The PH display footprint and provider credits
+remain visible; country framing never represents service eligibility.
+
+Use one outlined crimson-family road line, small white/red stop pins and a
+distinct ringed position dot. State comes from labels/icons as well as color.
+No green/amber/red pavement-condition legend or road condition is fabricated.
+Map buttons retain 48dp targets and stable bounds; selection animates scale only,
+with reduced motion respected. High-density displays request native 2x artwork
+through the existing bounded provider scheduler.
+
+Frame the rider area from an accepted foreground GPS snapshot, or from an
+explicitly labelled manual Linux origin. A snapshot is not live navigation;
+continuous route-following starts only after Navigate. Keep normal scrolling,
+address-first tasks and map-failure recovery. The complete technical boundaries
+and acceptance evidence belong to the linked package.

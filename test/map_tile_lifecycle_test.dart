@@ -52,17 +52,21 @@ void main() {
     addTearDown(geo.dispose);
     for (final source in [
       const MapTileSource(),
+      const MapTileSource(style: MapTileStyle.dark),
+      const MapTileSource(style: MapTileStyle.dark, retina: true),
       const MapTileSource(style: MapTileStyle.bright),
       const MapTileSource(style: MapTileStyle.bright, retina: true),
     ]) {
       final first = await geo.tile(15, 27390, 15025, source: source);
       expect(await geo.tile(15, 27390, 15025, source: source), same(first));
     }
-    expect(adapter.calls, hasLength(3));
+    expect(adapter.calls, hasLength(5));
     expect(
       adapter.calls.map((c) => c.uri.path),
       containsAll([
         '/v1/tile/positron/15/27390/15025.png',
+        '/v1/tile/dark-matter-dark-grey/15/27390/15025.png',
+        '/v1/tile/dark-matter-dark-grey/15/27390/15025@2x.png',
         '/v1/tile/osm-bright-smooth/15/27390/15025.png',
         '/v1/tile/osm-bright-smooth/15/27390/15025@2x.png',
       ]),

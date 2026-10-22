@@ -4,7 +4,7 @@ import '../../navigation/data/philippines_map_region.dart';
 import '../../navigation/data/route_geometry.dart';
 import '../data/operations_models.dart';
 
-enum HomeMapFocusKind { navigation, selectedStop, queuedStops, overview }
+enum HomeMapFocusKind { navigation, selectedStop, rider, queuedStops, overview }
 
 /// Presentation only: current authorization and unchanged coordinates belong
 /// to the server/controller, even when the stop lies outside the map outline.
@@ -27,6 +27,8 @@ class HomeMapFocus {
     OperationTask? navigatingTask,
     LocationFix? fix,
     RoadRoute? road,
+    LocationFix? riderFix,
+    bool manual = false,
     OperationTask? selectedTask,
     required List<OperationTask> queuedTasks,
   }) {
@@ -76,6 +78,14 @@ class HomeMapFocus {
         if (pointFor(task) case final point? when region.containsLand(point))
           point,
     ];
+    if (riderFix != null && region.containsLand(riderFix.point)) {
+      return HomeMapFocus._(
+        HomeMapFocusKind.rider,
+        [riderFix.point],
+        manual ? 'Preview area' : 'Your area',
+        'rider:${riderFix.point}',
+      );
+    }
     return HomeMapFocus._(
       points.isEmpty ? HomeMapFocusKind.overview : HomeMapFocusKind.queuedStops,
       List.unmodifiable(points),

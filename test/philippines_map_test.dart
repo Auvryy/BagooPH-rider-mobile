@@ -214,6 +214,40 @@ void main() {
     expect(PhilippinesMapRegion.tileIntersectsDisplay(22, 0, 0), isFalse);
   });
 
+  test('a real rider snapshot takes priority over distant queued stops but selection stays deliberate', () {
+    final rider = LocationFix(const LatLng(14.6, 121), DateTime.now(), 5);
+    final other = mapTask(latitude: 10.3157, longitude: 123.8854);
+    final focus = HomeMapFocus.resolve(
+      region: region,
+      riderFix: rider,
+      queuedTasks: [other],
+    );
+    expect(focus.kind, HomeMapFocusKind.rider);
+    expect(focus.points, [rider.point]);
+    expect(focus.label, 'Your area');
+    final selected = HomeMapFocus.resolve(
+      region: region,
+      riderFix: rider,
+      selectedTask: other,
+      queuedTasks: [],
+    );
+    expect(selected.kind, HomeMapFocusKind.selectedStop);
+    expect(selected.points, [const LatLng(10.3157, 123.8854)]);
+    final preview = HomeMapFocus.resolve(
+      region: region,
+      riderFix: rider,
+      manual: true,
+      queuedTasks: [],
+    );
+    expect(preview.label, 'Preview area');
+    final outside = HomeMapFocus.resolve(
+      region: region,
+      riderFix: LocationFix(const LatLng(6, 116), DateTime.now(), 5),
+      queuedTasks: [],
+    );
+    expect(outside.kind, HomeMapFocusKind.overview);
+  });
+
   final views = [
     for (final width in [320.0, 1000.0])
       for (var zoom = 4; zoom <= 19; zoom++)

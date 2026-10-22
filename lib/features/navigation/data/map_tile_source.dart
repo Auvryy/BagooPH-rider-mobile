@@ -1,4 +1,5 @@
 enum MapTileStyle {
+  dark('dark-matter-dark-grey'),
   positron('positron'),
   bright('osm-bright-smooth');
 

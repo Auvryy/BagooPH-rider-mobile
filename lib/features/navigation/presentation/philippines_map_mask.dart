@@ -5,8 +5,13 @@ import '../../../app/theme.dart';
 import '../data/philippines_map_region.dart';
 
 class PhilippinesMapMask extends StatefulWidget {
-  const PhilippinesMapMask({super.key, required this.region});
+  const PhilippinesMapMask({
+    super.key,
+    required this.region,
+    this.color = RiderColors.canvas,
+  });
   final PhilippinesMapRegion region;
+  final Color color;
   @override
   State<PhilippinesMapMask> createState() => _PhilippinesMapMaskState();
 }
@@ -36,7 +41,7 @@ class _PhilippinesMapMaskState extends State<PhilippinesMapMask> {
   @override
   Widget build(BuildContext context) => PolygonLayer(
     polygons: _polygons,
-    invertedFill: RiderColors.canvas,
+    invertedFill: widget.color,
     // The generated MultiPolygon is validated, disjoint and has no overlapping
     // holes. evenOdd avoids thousands of native path-union operations per pan.
     painterFillMethod: PolygonPainterFillMethod.evenOdd,

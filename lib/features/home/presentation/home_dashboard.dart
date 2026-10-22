@@ -7,7 +7,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/theme.dart';
-import '../../../core/ui/argon_widgets.dart';
 import '../../../core/ui/rider_surfaces.dart';
 import '../../auth/data/account.dart';
 import '../../navigation/data/geoapify_client.dart';
@@ -18,12 +17,15 @@ import '../../navigation/presentation/geoapify_tiles.dart';
 import '../../navigation/presentation/philippines_map_mask.dart';
 import '../../navigation/presentation/navigation_controller.dart';
 import '../../navigation/presentation/navigation_providers.dart';
+import '../../navigation/presentation/home_location_controller.dart';
 import '../../workspace/data/workspace_models.dart';
 import '../data/operations_repository.dart';
 import '../data/operations_models.dart';
 import '../../workspace/presentation/workspace_controller.dart';
 import 'home_task_panel.dart';
 import 'home_map_focus.dart';
+import 'home_map_chrome.dart';
+import 'home_map_origin_dialog.dart';
 import 'tasks_page.dart';
 import 'work_summary.dart';
 import '../../handover/presentation/handover_entry.dart';
@@ -43,15 +45,25 @@ class HomeDashboard extends ConsumerStatefulWidget {
   ConsumerState<HomeDashboard> createState() => _HomeDashboardState();
 }
 
-class _HomeDashboardState extends ConsumerState<HomeDashboard> {
+class _HomeDashboardState extends ConsumerState<HomeDashboard>
+    with WidgetsBindingObserver {
   final _map = MapController();
   final _pageScroll = ScrollController();
+  final _taskSearchVisible = ValueNotifier(false);
+  final _taskSearchFocus = FocusNode();
   GeoapifyTiles? _tiles;
   GeoapifyClient? _tileClient;
   PhilippinesMapRegion? _region;
-  bool _outlineFailed = false, _retinaTiles = false;
-  MapTileSource get _tileSource =>
-      MapTileSource(style: MapTileStyle.bright, retina: _retinaTiles);
+  bool _outlineFailed = false, _darkMap = true, _preferRider = false;
+  bool? _retinaChoice;
+  bool get _retinaTiles =>
+      _retinaChoice ?? MediaQuery.devicePixelRatioOf(context) > 1;
+  MapTileSource get _tileSource => MapTileSource(
+    style: _darkMap ? MapTileStyle.dark : MapTileStyle.bright,
+    retina: _retinaTiles,
+  );
+  HomeLocationController? _homeLocation;
+  bool _foreground = true;
   bool _ready = false, _wide = false, _mapVisible = false;
   int _mapEpoch = 0;
   int? _queuedCameraEpoch;
@@ -64,12 +76,32 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
   String? _lastFocusKey;
   RoadRoute? _lastFocusRoad;
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    final state = WidgetsBinding.instance.lifecycleState;
+    _foreground = state == null || state == AppLifecycleState.resumed;
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final foreground = state == AppLifecycleState.resumed;
+    if (_foreground == foreground) return;
+    if (!foreground) {
+      _setMapVisible(false);
+      _homeLocation?.setVisible(false);
+    }
+    setState(() => _foreground = foreground);
+  }
+
+  @override
   void didUpdateWidget(HomeDashboard oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!widget.active) _setMapVisible(false);
   }
 
   void _setMapVisible(bool visible) {
+    visible = visible && _foreground;
     if (_mapVisible == visible) return;
     _mapVisible = visible;
     _mapEpoch++;
@@ -83,8 +115,12 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    unawaited(_homeLocation?.suspend());
     _tiles?.suspend();
     _pageScroll.dispose();
+    _taskSearchVisible.dispose();
+    _taskSearchFocus.dispose();
     _map.dispose();
     super.dispose();
   }
@@ -111,8 +147,12 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
         region: _region!,
         navigatingTask: !selectedOnly && nav.active ? nav.task : null,
         fix: !selectedOnly && nav.active ? nav.fix : null,
+        riderFix: selectedOnly ? null : _homeLocation?.fix,
+        manual: nav.manual,
         road: !selectedOnly && nav.active ? nav.road : null,
-        selectedTask: widget.controller.selectedTask,
+        selectedTask: _preferRider && !selectedOnly
+            ? null
+            : widget.controller.selectedTask,
         queuedTasks: _queueTasks,
       );
   String? _stopKey(OperationTask? task) => task == null
@@ -142,13 +182,13 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
       _moveTo(points.first);
       return;
     }
-    final top = (76.0).clamp(0.0, _mapSize.height * .2);
+    final top = (100.0).clamp(0.0, _mapSize.height * .34);
     final maxBottom = (_mapSize.height - top - 72).clamp(0.0, _mapSize.height);
     final bottom = 28.0.clamp(0.0, maxBottom);
     _map.fitCamera(
       CameraFit.bounds(
         bounds: LatLngBounds.fromPoints(points),
-        padding: EdgeInsets.fromLTRB(36, top, 36, bottom),
+        padding: EdgeInsets.fromLTRB(28, top, 84, bottom),
         maxZoom: 16,
         minZoom: PhilippinesMapRegion.minimumZoom,
       ),
@@ -168,7 +208,8 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
       if (_queuedCameraEpoch == epoch) _queuedCameraEpoch = null;
       if (!mounted || !widget.active || !_ready || epoch != _mapEpoch) return;
       if (!nav.following || _region == null) return;
-      final focus = _focus(nav), fix = nav.fix?.point;
+      final focus = _focus(nav),
+          fix = (nav.active ? nav.fix : _homeLocation?.fix)?.point;
       final key = '${widget.controller.queue.name}:${focus.key}';
       if (key == _lastFocusKey &&
           fix == _lastCameraPoint &&
@@ -178,12 +219,17 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
       _lastFocusKey = key;
       _lastCameraPoint = fix;
       _lastFocusRoad = nav.road;
-      _fit(focus.points);
+      if (nav.active && fix != null && _region!.containsLand(fix)) {
+        _moveTo(fix, zoom: (_savedZoom ?? 15).clamp(14.0, 17.0));
+      } else {
+        _fit(focus.points);
+      }
     });
     WidgetsBinding.instance.ensureVisualUpdate();
   }
 
   Future<void> _select(RiderTask task, NavigationController nav) async {
+    _preferRider = false;
     final wasFollowing = nav.following;
     if (nav.task?.id != task.id) await nav.stop();
     if (!wasFollowing) nav.pan();
@@ -202,56 +248,139 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
     }
   }
 
-  Widget _panel(NavigationController nav, {bool asSliver = false}) =>
-      HomeTaskPanel(
+  void _syncLocation(NavigationController nav) {
+    final location = _homeLocation!;
+    final visible =
+        widget.active &&
+        _foreground &&
+        _mapVisible &&
+        _tileClient?.configured == true &&
+        !nav.active &&
+        !nav.starting;
+    if (!visible) {
+      location.setVisible(false, notify: false);
+      return;
+    }
+    final epoch = _mapEpoch;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted &&
+          widget.active &&
+          _foreground &&
+          _mapVisible &&
+          epoch == _mapEpoch &&
+          identical(location, _homeLocation) &&
+          !nav.active &&
+          !nav.starting) {
+        location.setVisible(true);
+      }
+    });
+  }
+
+  void _zoom(NavigationController nav, double delta) {
+    if (!_ready) return;
+    nav.pan();
+    _map.move(
+      _map.camera.center,
+      (_map.camera.zoom + delta).clamp(
+        PhilippinesMapRegion.minimumZoom,
+        PhilippinesMapRegion.maximumZoom,
+      ),
+    );
+  }
+
+  Future<void> _previewArea(NavigationController nav) async {
+    if (_region == null || nav.active) return;
+    final point = await showRiderDialog<LatLng>(
+      context: context,
+      builder: (_) => HomeMapOriginDialog(
+        region: _region!,
+        initial: _homeLocation?.fix?.point,
+      ),
+    );
+    if (!mounted || point == null) return;
+    _homeLocation?.setManualOrigin(point);
+    _preferRider = true;
+    _lastFocusKey = null;
+    nav.recenter();
+  }
+
+  void _recenter(NavigationController nav) {
+    _preferRider = true;
+    _lastFocusKey = null;
+    nav.recenter();
+    if (!nav.active) {
+      if (nav.manual && _homeLocation?.fix == null) {
+        unawaited(_previewArea(nav));
+      } else {
+        unawaited(_homeLocation?.locate());
+      }
+    }
+    _queueCamera(nav);
+  }
+
+  Widget _panel(
+    NavigationController nav, {
+    bool asSliver = false,
+    Widget? header,
+  }) => HomeTaskPanel(
+    controller: widget.controller,
+    asSliver: asSliver,
+    header: header,
+    searchVisibility: _taskSearchVisible,
+    searchFocusNode: _taskSearchFocus,
+    onSelect: (task) => unawaited(_select(task, nav)),
+    onDetails: (task) {
+      final display = OperationsRepository.asRiderTask(task);
+      TasksPage(
+        account: widget.account,
         controller: widget.controller,
-        asSliver: asSliver,
-        onSelect: (task) => unawaited(_select(task, nav)),
-        onDetails: (task) {
-          final display = OperationsRepository.asRiderTask(task);
-          TasksPage(
-            account: widget.account,
-            controller: widget.controller,
-            preview: false,
-            navigation: nav,
-          ).openParcel(context, display);
-        },
-        onQueueChanged: (_) {
-          _lastFocusKey = null;
-        },
-        onShowStop: () {
-          nav.pan();
-          final stop = widget.controller.selectedTask?.stop;
-          if (stop?.latitude != null && stop?.longitude != null) {
-            if (!_wide && _pageScroll.hasClients) {
-              unawaited(
-                _pageScroll.animateTo(
-                  0,
-                  duration: RiderMotion.reduced(context)
-                      ? Duration.zero
-                      : RiderMotion.sheet,
-                  curve: Curves.easeOutCubic,
-                ),
-              );
-            }
-            if (_region != null) _fit(_focus(nav, selectedOnly: true).points);
-          }
-        },
-      );
+        preview: false,
+        navigation: nav,
+      ).openParcel(context, display);
+    },
+    onQueueChanged: (_) {
+      _lastFocusKey = null;
+    },
+    onShowStop: () {
+      nav.pan();
+      final stop = widget.controller.selectedTask?.stop;
+      if (stop?.latitude != null && stop?.longitude != null) {
+        if (!_wide && _pageScroll.hasClients) {
+          unawaited(
+            _pageScroll.animateTo(
+              0,
+              duration: RiderMotion.reduced(context)
+                  ? Duration.zero
+                  : RiderMotion.sheet,
+              curve: Curves.easeOutCubic,
+            ),
+          );
+        }
+        if (_region != null) _fit(_focus(nav, selectedOnly: true).points);
+      }
+    },
+  );
   @override
   Widget build(BuildContext context) {
     if (!widget.active || ModalRoute.isCurrentOf(context) == false) {
       _setMapVisible(false);
+      _homeLocation?.setVisible(false, notify: false);
       return const SizedBox.shrink();
     }
     final nav = ref.watch(navigationProvider),
         geo = ref.watch(geoapifyProvider);
+    _homeLocation = ref.watch(homeLocationProvider);
     final outline = ref.watch(philippinesMapRegionProvider);
     _region = outline.asData?.value;
     _outlineFailed = outline.hasError;
     return LayoutBuilder(
       builder: (context, constraints) => ListenableBuilder(
-        listenable: Listenable.merge([nav, geo, widget.controller]),
+        listenable: Listenable.merge([
+          nav,
+          geo,
+          widget.controller,
+          _homeLocation!,
+        ]),
         builder: (context, _) {
           if (!identical(_tileClient, geo) ||
               _tileRevision != geo.tileRevision ||
@@ -261,7 +390,10 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
             _tileRevision = geo.tileRevision;
             _tiles = _newTiles(geo);
           }
-          _wide = constraints.maxWidth >= 1000;
+          _wide =
+              constraints.maxWidth >= 1000 &&
+              constraints.maxHeight >= 600 &&
+              MediaQuery.textScalerOf(context).scale(14) <= 21;
           final focus = _region == null ? null : _focus(nav);
           _queueCamera(nav);
           final handover = HandoverEntry(
@@ -269,64 +401,69 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
             accountId: widget.account.id,
             enabled: widget.controller.homeData.status == FeatureStatus.ready,
           );
+          final welcome = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Welcome, ${widget.account.name}.',
+                style: Theme.of(context).textTheme.headlineMedium
+                    ?.copyWith(fontSize: 24),
+              ),
+              if (widget.controller.homeData.data == null)
+                const Padding(
+                  padding: EdgeInsets.only(top: 4),
+                  child: Text(
+                    'Rider account approved',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: RiderColors.accentText,
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 6),
+              WorkDutyControl(controller: widget.controller),
+            ],
+          );
+          final notifications = NotificationsEntry(
+            work: widget.controller,
+            active: widget.active,
+          );
           final header = Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
             child: RiderSurface(
               color: RiderColors.neumorphicSurface,
               padding: const EdgeInsets.all(18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 6,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      const LiquidGlassOrb(size: 34, blurSigma: 10),
-                      DieCutStickerWidget.speechBubble(
-                        text: "Let's roll.",
-                        backgroundColor: RiderColors.accent,
-                        rotationDegrees: 0,
-                        leadingIcon: Icons.bolt_rounded,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Welcome, ${widget.account.name}.',
-                    style: Theme.of(context).textTheme.headlineMedium
-                        ?.copyWith(fontSize: 24),
-                  ),
-                  if (widget.controller.homeData.data == null)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 4),
-                      child: Text(
-                        'Rider account approved',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: RiderColors.accentText,
-                        ),
-                      ),
+              child: _wide && MediaQuery.textScalerOf(context).scale(14) <= 21
+                  ? Row(
+                      children: [
+                        Expanded(child: welcome),
+                        const SizedBox(width: 24),
+                        SizedBox(width: 300, child: notifications),
+                      ],
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Align(alignment: Alignment.centerLeft, child: welcome),
+                        const SizedBox(height: 12),
+                        notifications,
+                      ],
                     ),
-                  const SizedBox(height: 6),
-                  WorkDutyControl(controller: widget.controller),
-                  const SizedBox(height: 12),
-                  NotificationsEntry(
-                    work: widget.controller,
-                    active: widget.active,
-                  ),
-                ],
-              ),
             ),
           );
           if (!_wide || constraints.maxHeight < 360) {
-            final showMap = constraints.maxHeight >= 360;
+            final showMap =
+                constraints.maxHeight >= 360 ||
+                (constraints.maxWidth >= 600 &&
+                    constraints.maxHeight >= 220 &&
+                    MediaQuery.viewInsetsOf(context).bottom == 0);
             _setMapVisible(
               showMap &&
                   _region != null &&
                   widget.controller.taskData.status != FeatureStatus.loading,
             );
+            _syncLocation(nav);
             return CustomScrollView(
               key: const ValueKey('home-page-scroll'),
               controller: _pageScroll,
@@ -345,13 +482,10 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                                     ? 260
                                     : 160)
                               : MediaQuery.textScalerOf(context).scale(14) > 20
-                              ? (constraints.maxHeight * .33).clamp(
-                                  160.0,
-                                  240.0,
-                                )
-                              : (constraints.maxHeight * .42).clamp(
-                                  200.0,
-                                  320.0,
+                              ? (constraints.maxHeight * .5).clamp(300.0, 380.0)
+                              : (constraints.maxHeight * .48).clamp(
+                                  280.0,
+                                  380.0,
                                 ),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -388,30 +522,11 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
             _region != null &&
                 widget.controller.taskData.status != FeatureStatus.loading,
           );
+          _syncLocation(nav);
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: (constraints.maxHeight * .3).clamp(72.0, 180.0),
-                ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      header,
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: WorkSummary(
-                          controller: widget.controller,
-                          compact: true,
-                          showDuty: false,
-                        ),
-                      ),
-                      handover,
-                    ],
-                  ),
-                ),
-              ),
+              header,
               Expanded(
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(
@@ -428,7 +543,29 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                             const SizedBox(width: 16),
                             SizedBox(
                               width: 390,
-                              child: RiderSurface(child: _panel(nav)),
+                              child: RiderSurface(
+                                child: _panel(
+                                  nav,
+                                  header: Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      12,
+                                      12,
+                                      12,
+                                      0,
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        WorkSummary(
+                                          controller: widget.controller,
+                                          compact: true,
+                                          showDuty: false,
+                                        ),
+                                        handover,
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         )
@@ -471,6 +608,12 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
       }
       final epoch = _mapEpoch;
       final focus = resolvedFocus!, points = focus.points;
+      final position = nav.active ? nav.fix : _homeLocation?.fix;
+      final positionVisible =
+          position != null && _region!.containsLand(position.point);
+      final navigationCenter = nav.active && positionVisible
+          ? position.point
+          : null;
       final tasks = HomeMapFocus.pins(
         queuedTasks: _queueTasks,
         selectedTask: widget.controller.selectedTask,
@@ -478,6 +621,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
       );
       final start =
           _savedCenter ??
+          navigationCenter ??
           (points.isNotEmpty
               ? points.first
               : PhilippinesMapRegion.cameraBounds.center);
@@ -489,9 +633,14 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
               mapController: _map,
               options: MapOptions(
                 initialCenter: start,
-                initialZoom: _savedZoom ?? (points.length == 1 ? 15 : 5),
+                initialZoom:
+                    _savedZoom ??
+                    (navigationCenter != null || points.length == 1 ? 15 : 5),
                 initialRotation: _savedRotation,
-                initialCameraFit: _savedCenter == null && points.length != 1
+                initialCameraFit:
+                    _savedCenter == null &&
+                        navigationCenter == null &&
+                        points.length != 1
                     ? CameraFit.bounds(
                         bounds: points.isEmpty
                             ? PhilippinesMapRegion.cameraBounds
@@ -506,7 +655,9 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                 cameraConstraint: CameraConstraint.containCenter(
                   bounds: PhilippinesMapRegion.cameraBounds,
                 ),
-                backgroundColor: RiderColors.canvas,
+                backgroundColor: _darkMap
+                    ? RiderMapColors.canvas
+                    : RiderColors.canvas,
                 onMapReady: () {
                   if (!mounted || !widget.active || epoch != _mapEpoch) return;
                   _ready = true;
@@ -534,7 +685,10 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                     userAgentPackageName: 'com.example.bagoo_rider_mobile',
                     panBuffer: 0,
                   ),
-                PhilippinesMapMask(region: _region!),
+                PhilippinesMapMask(
+                  region: _region!,
+                  color: _darkMap ? RiderMapColors.canvas : RiderColors.canvas,
+                ),
                 if (nav.road != null && !focus.outsideOutline)
                   PolylineLayer(
                     polylines: [
@@ -542,7 +696,11 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                         Polyline(
                           points: line,
                           strokeWidth: 5,
-                          color: RiderColors.accent,
+                          borderStrokeWidth: 1.5,
+                          borderColor: RiderMapColors.routeOutline,
+                          color: _darkMap
+                              ? RiderMapColors.route
+                              : RiderColors.accent,
                         ),
                     ],
                   ),
@@ -552,55 +710,32 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                       Marker(
                         key: ValueKey('home-marker-${task.id}'),
                         point: HomeMapFocus.pointFor(task)!,
-                        width: 56,
-                        height: 56,
-                        child: Tooltip(
-                          message: 'Select ${task.tracking}',
-                          child: Semantics(
-                            button: true,
-                            label: 'Select ${task.tracking}',
-                            child: Material(
-                              shape: const CircleBorder(),
-                              elevation: 3,
-                              color:
-                                  widget.controller.selectedTask?.id == task.id
-                                  ? RiderColors.accent
-                                  : Colors.white,
-                              child: InkWell(
-                                customBorder: const CircleBorder(),
-                                onTap: () => unawaited(
-                                  _select(
-                                    OperationsRepository.asRiderTask(task),
-                                    nav,
-                                  ),
-                                ),
-                                child: Icon(
-                                  stopKindIcon(task.stop.kind),
-                                  color:
-                                      widget.controller.selectedTask?.id ==
-                                          task.id
-                                      ? Colors.white
-                                      : RiderColors.accentText,
-                                  size: 28,
-                                ),
-                              ),
+                        width: 48,
+                        height: 48,
+                        child: HomeMapStopPin(
+                          label: 'Select ${task.tracking}',
+                          selected:
+                              widget.controller.selectedTask?.id == task.id,
+                          icon: stopKindIcon(task.stop.kind),
+                          onTap: () => unawaited(
+                            _select(
+                              OperationsRepository.asRiderTask(task),
+                              nav,
                             ),
                           ),
                         ),
                       ),
-                    if (nav.fix != null)
+                    if (positionVisible)
                       Marker(
-                        point: nav.fix!.point,
-                        width: 28,
-                        height: 28,
-                        child: Semantics(
+                        point: position.point,
+                        width: 40,
+                        height: 40,
+                        child: HomeMapPositionMarker(
                           label: nav.manual
                               ? 'Manual preview origin'
-                              : 'Rider position',
-                          child: const Icon(
-                            Icons.my_location_rounded,
-                            color: RiderColors.accent,
-                          ),
+                              : nav.active
+                              ? 'Rider position'
+                              : 'Rider location snapshot',
                         ),
                       ),
                   ],
@@ -636,6 +771,32 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                   ),
                 ),
               ),
+            if (geo.configured)
+              Positioned.fill(
+                child: HomeMapChrome(
+                  focusLabel: nav.active
+                      ? nav.following
+                            ? 'On route'
+                            : 'Explore your route'
+                      : focus.label,
+                  dark: _darkMap,
+                  following: nav.following,
+                  locating: _homeLocation?.locating == true,
+                  positionLabel: positionVisible
+                      ? nav.manual
+                            ? 'Preview point'
+                            : nav.active
+                            ? 'Rider position'
+                            : 'Location snapshot'
+                      : _homeLocation?.locating == true
+                      ? 'Finding your location…'
+                      : null,
+                  onStyle: () => setState(() => _darkMap = !_darkMap),
+                  onRecenter: () => _recenter(nav),
+                  onZoomIn: () => _zoom(nav, 1),
+                  onZoomOut: () => _zoom(nav, -1),
+                ),
+              ),
           ],
         ),
       );
@@ -651,44 +812,49 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (focus != null) ...[
-          Text(
-            focus.label,
-            key: const ValueKey('home-map-focus-label'),
-            style: const TextStyle(fontWeight: FontWeight.w600),
-          ),
+          if (!_mapVisible || !geo.configured)
+            Text(
+              focus.label,
+              key: const ValueKey('home-map-focus-label'),
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
           Wrap(
             children: [
-              IconButton(
-                tooltip: 'Recenter',
-                onPressed: !_mapVisible
-                    ? null
-                    : () {
-                        nav.recenter();
-                        _lastFocusKey = null;
-                        _queueCamera(nav);
-                      },
-                icon: const Icon(Icons.my_location_rounded),
-              ),
+              if (nav.manual && !nav.active)
+                TextButton.icon(
+                  key: const ValueKey('home-preview-area'),
+                  onPressed: !_mapVisible || nav.active
+                      ? null
+                      : () => _previewArea(nav),
+                  icon: const Icon(Icons.edit_location_alt_outlined, size: 18),
+                  label: const Text('Preview area'),
+                ),
               if (nav.road != null && !focus.outsideOutline)
-                IconButton(
-                  tooltip: 'Show full route',
+                Tooltip(
+                  message: 'Show full route',
+                  child: TextButton.icon(
+                    onPressed: !_mapVisible
+                        ? null
+                        : () {
+                            nav.pan();
+                            _fit(focus.points);
+                          },
+                    icon: const Icon(Icons.route_rounded, size: 18),
+                    label: const Text('Full route'),
+                  ),
+                ),
+              Tooltip(
+                message: 'Show queue stops',
+                child: TextButton.icon(
                   onPressed: !_mapVisible
                       ? null
                       : () {
                           nav.pan();
-                          _fit(focus.points);
+                          _fit(_queuePoints);
                         },
-                  icon: const Icon(Icons.route_rounded),
+                  icon: const Icon(Icons.crop_free_rounded, size: 18),
+                  label: const Text('Queue stops'),
                 ),
-              IconButton(
-                tooltip: 'Show queue stops',
-                onPressed: !_mapVisible
-                    ? null
-                    : () {
-                        nav.pan();
-                        _fit(_queuePoints);
-                      },
-                icon: const Icon(Icons.crop_free_rounded),
               ),
               IconButton(
                 key: const ValueKey('home-sharper-labels'),
@@ -698,7 +864,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
                 isSelected: _retinaTiles,
                 onPressed: !_mapVisible
                     ? null
-                    : () => setState(() => _retinaTiles = !_retinaTiles),
+                    : () => setState(() => _retinaChoice = !_retinaTiles),
                 icon: const Icon(Icons.hd_outlined),
               ),
             ],
@@ -762,6 +928,14 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
           ),
         if (nav.manual)
           _mapNote('Manual preview origin', Icons.edit_location_alt_outlined),
+        if (_homeLocation?.message case final message?)
+          _mapNote(message, Icons.location_searching_rounded),
+        if (_homeLocation?.fix case final fix?
+            when _region != null && !_region!.containsLand(fix.point))
+          _mapNote(
+            'The location is outside this PH outline. Choose a point in the Philippines or use task addresses.',
+            Icons.location_off_outlined,
+          ),
         if (nav.message != null)
           _mapNote(nav.message!, Icons.info_outline_rounded),
       ],
@@ -801,7 +975,8 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
         style: TextButton.styleFrom(
           textStyle: Theme.of(context).textTheme.labelSmall
               ?.copyWith(fontSize: 10),
-          minimumSize: const Size(0, 36),
+          foregroundColor: RiderColors.muted,
+          minimumSize: const Size(0, 48),
           padding: const EdgeInsets.symmetric(horizontal: 5),
         ),
         onPressed: () => showRiderDialog<void>(
@@ -847,7 +1022,8 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
   Widget _credit(String label, String url) => TextButton(
     style: TextButton.styleFrom(
       textStyle: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 10),
-      minimumSize: const Size(0, 36),
+      foregroundColor: RiderColors.muted,
+      minimumSize: const Size(0, 48),
       padding: const EdgeInsets.symmetric(horizontal: 5),
     ),
     onPressed: () =>

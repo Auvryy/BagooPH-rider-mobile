@@ -47,6 +47,11 @@ transitions remain their separate batches. No multi-stop optimization, voice
 engine, automatic arrival/outcome, duty-triggered tracking, reboot start or
 location-history storage/upload is included.
 
+The separately selected [October 22 map refinement](../rider-map-refinement/README.md)
+adds a bounded foreground location snapshot to frame visible Home before
+navigation, with explicit permission and lifecycle handling. It changes neither
+the Navigate/Stop background-tracking contract nor the provider/backend scope.
+
 ## Durable intent retention
 
 The protected journal is keyed by API origin and account ID. It stores only UUID,

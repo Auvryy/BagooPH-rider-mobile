@@ -25,8 +25,11 @@ A dedicated key has now been supplied privately and verified against real tiles
 and routing through the Flutter client. Missing configuration still keeps task
 addresses and real account access usable; the app does not invent tiles/routes.
 
-The client shares one conservative four-request/second scheduler across map tiles
-and routing, caches up to 128 tiles in memory and observes provider cooldowns.
+The [October 22 loading extension](../map-loading-performance/README.md) supersedes
+the original four-request/second scheduler with a rolling four-credit/second
+budget shared by tiles and routes, navigation priority and six active requests.
+Tiles cost one-quarter credit; route calls cost one. It retains 128 memory tiles
+and adds a native 64 MiB basemap disk cache, with freshness and provider cooldowns.
 A 429 or denied key/quota yields a visible provider failure; route failure removes
 stale geometry. The free plan currently advertises 3,000 shared credits/day; verify
 usage in the provider project before rollout. [Pricing](https://www.geoapify.com/pricing/),

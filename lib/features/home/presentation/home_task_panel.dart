@@ -36,12 +36,18 @@ class HomeTaskPanel extends StatefulWidget {
     this.asSliver = false,
     this.onQueueChanged,
     this.onShowStop,
+    this.header,
+    this.searchVisibility,
+    this.searchFocusNode,
   });
   final WorkspaceController controller;
   final ValueChanged<RiderTask> onSelect;
   final ValueChanged<OperationTask> onDetails;
   final ScrollController? scrollController;
   final bool asSliver;
+  final Widget? header;
+  final ValueNotifier<bool>? searchVisibility;
+  final FocusNode? searchFocusNode;
   final VoidCallback? onShowStop;
   final ValueChanged<TaskQueue>? onQueueChanged;
   @override
@@ -59,7 +65,8 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
   void initState() {
     super.initState();
     _search.text = widget.controller.taskSearch;
-    _searching = _search.text.isNotEmpty;
+    _searching =
+        (widget.searchVisibility?.value ?? false) || _search.text.isNotEmpty;
   }
 
   @override
@@ -85,6 +92,7 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
       }
     }
     final slivers = <Widget>[
+      if (widget.header != null) SliverToBoxAdapter(child: widget.header),
       SliverPadding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
         sliver: SliverToBoxAdapter(
@@ -101,7 +109,10 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                   ),
                   IconButton(
                     tooltip: 'Search tasks',
-                    onPressed: () => setState(() => _searching = !_searching),
+                    onPressed: () => setState(() {
+                      _searching = !_searching;
+                      widget.searchVisibility?.value = _searching;
+                    }),
                     icon: const Icon(Icons.search_rounded),
                   ),
                 ],
@@ -253,6 +264,7 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
               if (_searching)
                 TextField(
                   controller: _search,
+                  focusNode: widget.searchFocusNode,
                   key: const ValueKey('task-search'),
                   enabled: controller.taskData.data != null,
                   onChanged: controller.searchTasks,

@@ -13,6 +13,8 @@ import 'package:bagoo_rider_mobile/features/navigation/data/map_tile_source.dart
 import 'package:bagoo_rider_mobile/features/navigation/data/philippines_map_region.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/navigation_controller.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/navigation_providers.dart';
+import 'package:bagoo_rider_mobile/features/navigation/presentation/home_location_controller.dart';
+import 'package:bagoo_rider_mobile/features/navigation/data/navigation_location.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/navigation_workspace_binding.dart';
 import 'package:bagoo_rider_mobile/features/workspace/data/workspace_models.dart';
 import 'package:bagoo_rider_mobile/features/workspace/data/workspace_repository.dart';
@@ -842,6 +844,10 @@ openDashboard(
   GeoapifyClient? geoClient,
   ValueListenable<bool>? visibility,
   LatLng stopPoint = const LatLng(14.6, 120.986),
+  HomeLocationController? mapLocation,
+  bool manual = true,
+  NavigationLocation? navigationLocation,
+  bool reducedMotion = false,
 }) async {
   final api = support.Session(), journal = support.Journal();
   final home = support.fixture('home');
@@ -886,7 +892,9 @@ openDashboard(
     routes: geo,
     authorize: (_) async => task,
     vehicleType: () async => null,
-    manual: true,
+    manual: manual,
+    location: navigationLocation,
+    beforeStart: mapLocation?.suspend,
   );
   final binding = NavigationWorkspaceBinding(controller, nav);
   final region = _testMapRegion ??= PhilippinesMapRegion.decode(
@@ -897,6 +905,7 @@ openDashboard(
     binding.dispose();
     controller.dispose();
     nav.dispose();
+    mapLocation?.dispose();
     geo.dispose();
     tester.view.resetPhysicalSize();
     tester.view.resetDevicePixelRatio();
@@ -906,38 +915,46 @@ openDashboard(
       overrides: [
         geoapifyProvider.overrideWithValue(geo),
         navigationProvider.overrideWithValue(nav),
+        if (mapLocation != null)
+          homeLocationProvider.overrideWithValue(mapLocation),
         philippinesMapRegionProvider.overrideWithValue(AsyncData(region)),
       ],
       child: MaterialApp(
         theme: buildRiderTheme(),
         home: MediaQuery(
           data: MediaQueryData(
-            size: tester.view.physicalSize,
+            size: tester.view.physicalSize / tester.view.devicePixelRatio,
+            devicePixelRatio: tester.view.devicePixelRatio,
             textScaler: TextScaler.linear(textScale),
+            disableAnimations: reducedMotion,
+            accessibleNavigation: reducedMotion,
           ),
-          child: Scaffold(
-            body: hidden
-                ? IndexedStack(
-                    index: 1,
-                    children: [
-                      HomeDashboard(
+          child: RepaintBoundary(
+            key: const ValueKey('home-dashboard-render'),
+            child: Scaffold(
+              body: hidden
+                  ? IndexedStack(
+                      index: 1,
+                      children: [
+                        HomeDashboard(
+                          account: account,
+                          controller: controller,
+                          active: false,
+                        ),
+                        const Text('Another screen'),
+                      ],
+                    )
+                  : visibility == null
+                  ? HomeDashboard(account: account, controller: controller)
+                  : ValueListenableBuilder<bool>(
+                      valueListenable: visibility,
+                      builder: (context, active, _) => HomeDashboard(
                         account: account,
                         controller: controller,
-                        active: false,
+                        active: active,
                       ),
-                      const Text('Another screen'),
-                    ],
-                  )
-                : visibility == null
-                ? HomeDashboard(account: account, controller: controller)
-                : ValueListenableBuilder<bool>(
-                    valueListenable: visibility,
-                    builder: (context, active, _) => HomeDashboard(
-                      account: account,
-                      controller: controller,
-                      active: active,
                     ),
-                  ),
+            ),
           ),
         ),
       ),

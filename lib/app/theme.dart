@@ -35,6 +35,18 @@ abstract final class RiderColors {
   static const divider = Color(0xFFE2E8F0);
 }
 
+/// Geographic display surfaces. These do not change the app's light/red theme.
+abstract final class RiderMapColors {
+  static const canvas = Color(0xFF141B23);
+  static const surface = Color(0xF01C2632);
+  static const border = Color(0xFF3B4654);
+  static const ink = Color(0xFFF8FAFC);
+  static const muted = Color(0xFFB9C5D3);
+  static const route = Color(0xFFF34370);
+  static const routeOutline = Color(0xFFFFE6EE);
+  static const markerShadow = Color(0x44000000);
+}
+
 abstract final class RiderShadows {
   /// Soft ambient elevation: 0 4px 20px -2px rgba(17, 24, 39, 0.05)
   static const ambient = <BoxShadow>[
@@ -67,11 +79,7 @@ abstract final class RiderShadows {
       spreadRadius: -4,
       offset: Offset(0, 8),
     ),
-    BoxShadow(
-      color: Color(0x14E00D42),
-      blurRadius: 16,
-      offset: Offset(0, 4),
-    ),
+    BoxShadow(color: Color(0x14E00D42), blurRadius: 16, offset: Offset(0, 4)),
   ];
 }
 

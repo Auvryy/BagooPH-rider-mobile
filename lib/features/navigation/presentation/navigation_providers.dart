@@ -7,12 +7,17 @@ import '../../settings/data/settings_models.dart';
 import '../../settings/presentation/settings_controller.dart';
 import '../../workspace/presentation/workspace_controller.dart';
 import '../data/geoapify_client.dart';
+import '../data/map_tile_cache.dart';
 import '../data/navigation_location.dart';
 import 'navigation_controller.dart';
 import 'navigation_workspace_binding.dart';
+import 'home_location_controller.dart';
 
 final geoapifyProvider = Provider<GeoapifyClient>((ref) {
-  final client = GeoapifyClient(ref.watch(appConfigProvider).geoapifyKey);
+  final client = GeoapifyClient(
+    ref.watch(appConfigProvider).geoapifyKey,
+    tileCache: createMapTileCache(),
+  );
   ref.onDispose(client.dispose);
   return client;
 }, dependencies: [appConfigProvider]);
@@ -36,6 +41,7 @@ final navigationProvider = Provider<NavigationController>(
       routes: ref.watch(geoapifyProvider),
       manual: manual,
       location: manual ? null : AndroidNavigationLocation(),
+      beforeStart: ref.watch(homeLocationProvider).suspend,
       authorize: (id) async {
         if (identity.approved != true || repository is! OperationsRepository) {
           throw StateError('Live task authorization is unavailable.');
@@ -74,5 +80,6 @@ final navigationProvider = Provider<NavigationController>(
     workspaceControllerProvider,
     geoapifyProvider,
     settingsRepositoryProvider,
+    homeLocationProvider,
   ],
 );

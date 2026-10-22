@@ -19,6 +19,7 @@ class NavigationController extends ChangeNotifier {
     this.manual = false,
     DateTime Function()? now,
     this.onAccessDenied,
+    this.beforeStart,
   }) : now = now ?? DateTime.now;
   final GeoapifyClient routes;
   final Future<OperationTask> Function(String id) authorize;
@@ -27,6 +28,7 @@ class NavigationController extends ChangeNotifier {
   final bool manual;
   final DateTime Function() now;
   final Future<void> Function(String message)? onAccessDenied;
+  final Future<void> Function()? beforeStart;
   OperationTask? task;
   OperationTask? _startingTask;
   OperationTask? get navigatingTask => task ?? _startingTask;
@@ -76,6 +78,8 @@ class NavigationController extends ChangeNotifier {
     paused = false;
     _changed();
     try {
+      await beforeStart?.call();
+      if (_disposed || generation != _generation) return;
       if (selection.preview) {
         throw StateError('Claim this pickup before navigating.');
       }

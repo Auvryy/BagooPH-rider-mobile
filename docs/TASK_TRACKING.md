@@ -69,6 +69,23 @@ Future design inventory entries remain planned and backend acceptance stays sepa
 
 ## Always check the Bagoo website project
 
+**October 22 map refinement:** the selected
+[map refinement package](plans/rider-map-refinement/README.md) extends the
+existing OPS-01/M09.07 map presentation with dark/daylight tiles, clear route
+and pins, and a bounded foreground location snapshot for rider-area centering.
+Linux remains a labelled manual preview. Continuous/background location still
+requires explicit Navigate. This slice does not complete M09 or its physical
+Android checks, request another API/key, or change coordinate/custody authority.
+
+**October 22 map loading:** the selected
+[performance extension](plans/map-loading-performance/README.md) preserves that
+design while adding bounded persistent basemap files, navigation priority and
+provider-credit scheduling, and a labelled data-saving control. Local acceptance
+passed 584 tests, clean analysis, artwork review and Linux/Android builds. The
+controlled cold comparison was about 3.1 times as fast; separate-process warm
+loading made zero requests. This does not complete physical Android performance
+or the wider M09 gates.
+
 **Rider branding update (October 8):** the supplied GooRiders artwork now feeds
 Flutter headers and reproducible legacy/adaptive Android and web launcher icons.
 See [BRANDING.md](BRANDING.md). This is M02 branding and M16 package/device

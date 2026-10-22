@@ -14,6 +14,7 @@ roadmap and backlog; it does not replace their scope, stable IDs or deadlines.
 | Native operations | Consume the completed backend Rider API in five Flutter batches | Planned; Azure/device acceptance outstanding | [Plan](native-operations/README.md) |
 | Pickup, delivery and Trips | Selected shared command/proof foundation, real pickup/departure, COD/failure and retained history | Active implementation; Azure/physical acceptance separate | [Plan](rider-orders-delivery-trips/README.md) |
 | Paid Wallet delivery | Evidenced prepaid handoff alongside COD, original command recovery and truthful retained history | Client implemented; retained Wallet evidence and live activation gated | [Plan](prepaid-delivery/README.md) |
+| Cash & Remittance | Owned cash dashboard/detail, original protected offers and independent hub receipts | Client locally verified; live offers and physical acceptance gated | [Plan](rider-cash-remittance/README.md) |
 | Assignment Messages | Phase-bound parcel conversations, protected send/read intents and displayed reads | Client locally verified; Azure/physical Android acceptance open | [Plan](rider-assignment-messages/README.md) |
 | Session Parcel Finder | Personal parcel-slot labels in owned Stop Mode, with assignment/account cleanup | Client locally verified; no new backend contract | [Plan](rider-parcel-finder/README.md) |
 | Notifications inbox | Real pages, server unread total, exact displayed reads and safe links | Client locally verified; Azure/physical Android acceptance open | [Plan](rider-notifications/README.md) |

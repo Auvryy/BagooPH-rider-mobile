@@ -18,6 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/notifications_support.dart';
+import 'support/cash_support.dart';
 import 'support/test_auth_repository.dart';
 import 'operations_contract_test.dart' as ops;
 
@@ -394,9 +395,9 @@ void main() {
     },
   );
   testWidgets(
-    'linked cash is read only, clears on inactive and reauthorizes after resume',
+    'linked cash opens the gated journal, clears on inactive and reauthorizes after resume',
     (tester) async {
-      final h = NotificationsHarness(workspace: true);
+      final h = NotificationsHarness(workspace: true, realWork: true);
       addTearDown(h.dispose);
       h.rows = [
         notificationJson(
@@ -406,19 +407,23 @@ void main() {
       ];
       var held = '900719925474099312345';
       h.api.respond = (path, method, body, headers) async {
+        if (path == 'rider/home') {
+          final result = await h.respond(path, method, body, headers);
+          result['data']['capabilities']['cash'] = true;
+          return result;
+        }
+        if (path.startsWith('rider/cash?')) {
+          final result = cashPageFixture(
+            items: [cashFixture(id: '7', detail: false)],
+          );
+          result['summary']['own_held_cents'] = held;
+          return {'data': result};
+        }
         if (path == 'rider/cash/7') {
-          return {
-            'data': {
-              'id': '7',
-              'tracking_number': 'BGO-TEST-CASH',
-              'status': 'cash_held',
-              'version': '1',
-              'own_held_cents': held,
-              'own_remitted_cents': '0',
-              'reconciled_cents': '0',
-              'recorded_at': '2026-10-19T03:00:00.000Z',
-            },
-          };
+          final result = cashFixture(id: '7');
+          result['tracking_number'] = 'BGO-TEST-CASH';
+          result['own_held_cents'] = held;
+          return {'data': result};
         }
         return h.respond(path, method, body, headers);
       };
@@ -426,8 +431,8 @@ void main() {
       await tester.pumpAndSettle();
       await tap(tester, 'notification-${noticeId(1)}');
       await tap(tester, 'open-notification-target');
-      expect(find.text('Cash record'), findsOneWidget);
-      expect(find.text('₱9,007,199,254,740,993,123.45'), findsOneWidget);
+      expect(find.text('Cash & remittance'), findsOneWidget);
+      expect(find.text('₱9,007,199,254,740,993,123.45'), findsWidgets);
       expect(h.api.calls.where((c) => c.method != 'GET'), isEmpty);
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
       await tester.pumpAndSettle();
@@ -436,11 +441,12 @@ void main() {
       held = '123';
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await tester.pumpAndSettle();
-      expect(find.text('₱1.23'), findsOneWidget);
-      expect(h.api.calls.where((c) => c.path == 'rider/cash/7'), hasLength(2));
+      expect(find.text('₱1.23'), findsWidgets);
+      expect(h.api.calls.where((c) => c.path == 'rider/cash/7'), hasLength(3));
       expect(h.api.calls.where((c) => c.method != 'GET'), isEmpty);
       expect(tester.takeException(), isNull);
       await render(tester, 'linked-cash');
+      h.work!.setForeground(false);
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );

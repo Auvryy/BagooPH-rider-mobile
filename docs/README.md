@@ -34,6 +34,8 @@ they do not authorize changing the backend or implementing every proposed featur
 | [Order, delivery and Trips API checklist](api/ORDER_DELIVERY_TRIPS_NEEDS.md) | Which existing backend contracts are available, and what must the API owner verify for live acceptance? |
 | [Paid Wallet delivery](plans/prepaid-delivery/README.md) | How do prepaid recipient/proof handoffs extend COD while preserving original command recovery? |
 | [Paid Wallet API checklist](api/PREPAID_DELIVERY_NEEDS.md) | Which retained-evidence fixes and deployed checks are needed before prepaid activation? |
+| [Cash & Remittance](plans/rider-cash-remittance/README.md) | How do authoritative cash records and protected offers preserve independent hub receipt? |
+| [Cash API checklist](api/CASH_REMITTANCE_NEEDS.md) | Which existing contracts and deployed checks are required before enabling remittance offers? |
 | [Assignment Messages](plans/rider-assignment-messages/README.md) | How will the requested Messages page preserve recipient identity, original commands and displayed reads? |
 | [Messages API checklist](api/MESSAGES_NEEDS.md) | Which chat APIs already exist and what deployment/cross-role checks remain? |
 | [Session Parcel Finder](plans/rider-parcel-finder/README.md) | How do personal location labels follow owned tasks without changing custody? |

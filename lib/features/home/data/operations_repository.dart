@@ -4,6 +4,8 @@ import '../../../core/commands/parcel_proof.dart';
 import '../../../core/commands/parcel_validation.dart';
 import '../../../core/network/api_failure.dart';
 import '../../../core/network/rider_api_client.dart';
+import '../../cash/data/cash_models.dart';
+import '../../cash/data/cash_repository.dart';
 import '../../workspace/data/workspace_models.dart';
 import '../../workspace/data/workspace_repository.dart';
 import '../../parcels/data/parcel_photo_service.dart';
@@ -11,7 +13,8 @@ import '../../trips/data/trip_models.dart';
 import 'command_journal.dart';
 import 'operations_models.dart';
 
-class OperationsRepository extends UnavailableWorkspaceRepository {
+class OperationsRepository extends UnavailableWorkspaceRepository
+    implements CashRepository {
   OperationsRepository(
     this.api, {
     required this.accountId,
@@ -19,6 +22,7 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
     required this.writesVerified,
     this.parcelWritesVerified = false,
     this.prepaidDeliveryWritesVerified = false,
+    this.cashWritesVerified = false,
     this.proofStore,
     this.photos,
     required this.isCurrent,
@@ -30,6 +34,8 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
   final bool writesVerified;
   final bool parcelWritesVerified;
   final bool prepaidDeliveryWritesVerified;
+  @override
+  final bool cashWritesVerified;
   final ParcelProofStore? proofStore;
   final ParcelPhotoService? photos;
   final bool Function() isCurrent;
@@ -49,14 +55,27 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
     String method = 'GET',
     Object? data,
     Map<String, String> headers = const {},
+    RiderReadCancellation? cancellation,
   }) async {
     _guard();
-    final response = await api.authenticatedRequest(
-      path,
-      method: method,
-      data: data,
-      headers: headers,
-    );
+    final response =
+        method == 'GET' && cancellation != null && api is RiderReadSessionApi
+        ? await (api as RiderReadSessionApi).authenticatedRead(
+            path,
+            cancellation: cancellation,
+          )
+        : await api.authenticatedRequest(
+            path,
+            method: method,
+            data: data,
+            headers: headers,
+          );
+    if (cancellation?.cancelled == true) {
+      throw const AccountFailure(
+        'This read was cancelled.',
+        code: 'REQUEST_CANCELLED',
+      );
+    }
     _guard();
     return Wire.object(response['data']);
   }
@@ -175,6 +194,141 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
     return value;
   }
 
+  @override
+  Future<bool> cashAvailable() async =>
+      (await home()).capabilities['cash'] == true;
+
+  @override
+  Future<CashPage> cashPage({
+    int page = 1,
+    String query = '',
+    RiderReadCancellation? cancellation,
+  }) async {
+    if (page < 1 || page > 10000) Wire.invalid();
+    final path = Uri(
+      path: 'rider/cash',
+      queryParameters: {
+        'page': '$page',
+        'per_page': '20',
+        if (cashQuery(query).isNotEmpty) 'q': cashQuery(query),
+      },
+    ).toString();
+    final result = CashPage.fromJson(
+      await _request(path, cancellation: cancellation),
+    );
+    if (result.page != page || result.perPage != 20) Wire.invalid();
+    return result;
+  }
+
+  @override
+  Future<CashAccount> cashDetail(
+    String id, {
+    RiderReadCancellation? cancellation,
+  }) async {
+    Wire.id(id);
+    final result = CashAccount.fromJson(
+      await _request('rider/cash/$id', cancellation: cancellation),
+      detail: true,
+    );
+    if (result.id != id) Wire.invalid();
+    return result;
+  }
+
+  void _cashDispatchGuard(bool Function() mayDispatch) {
+    _guard();
+    if (!cashWritesVerified) {
+      throw const AccountFailure(
+        'Cash offers are awaiting live acceptance verification.',
+        code: 'CASH_NOT_VERIFIED',
+      );
+    }
+    if (!mayDispatch()) {
+      throw const AccountFailure(
+        'Return to this cash record and refresh before offering cash.',
+        code: 'CASH_PAUSED',
+      );
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> offerCash(
+    CashAccount reviewed, {
+    required String recipientId,
+    required String amount,
+    required String evidenceReference,
+    required bool Function() mayDispatch,
+  }) async {
+    if (_writing) {
+      throw const AccountFailure('A work request is already being checked.');
+    }
+    _writing = true;
+    try {
+      _cashDispatchGuard(mayDispatch);
+      if (await pending() != null) {
+        throw const AccountFailure(
+          'Check the saved work request before starting another.',
+        );
+      }
+      if (!await cashAvailable()) {
+        throw const AccountFailure(
+          'Cash records are unavailable for this account.',
+          status: 403,
+          code: 'CASH_UNAVAILABLE',
+        );
+      }
+      _cashDispatchGuard(mayDispatch);
+      if (!reviewed.isDetail) {
+        throw const AccountFailure(
+          'Open and refresh this cash record before offering.',
+        );
+      }
+      final fresh = await cashDetail(reviewed.id);
+      _cashDispatchGuard(mayDispatch);
+      if (!fresh.sameOfferTerms(reviewed)) {
+        throw const AccountFailure(
+          'This journal changed. Refresh it and review the handover again.',
+          status: 409,
+          code: 'STALE_RESOURCE',
+        );
+      }
+      if (!fresh.canOffer ||
+          !fresh.recipients.any((r) => r.id == recipientId)) {
+        throw const AccountFailure(
+          'Choose a currently permitted hub recipient.',
+          fields: {'recipient_id': 'Refresh the hub recipients.'},
+        );
+      }
+      final cents = pesoInputCents(amount, field: 'amount');
+      if (cents <= BigInt.zero || cents > fresh.held) {
+        throw const AccountFailure(
+          'Offer a positive amount within your recorded held cash.',
+          fields: {
+            'amount': 'Check the amount against your recorded responsibility.',
+          },
+        );
+      }
+      final intent = CommandIntent(
+        accountId: accountId,
+        key: commandUuid(),
+        action: 'cash.offer',
+        resource: 'cash-${fresh.id}',
+        body: {
+          'expected_version': fresh.version,
+          'recipient_id': Wire.id(recipientId),
+          'amount': amount,
+          'evidence_reference': cashEvidence(evidenceReference),
+        },
+        createdAt: now().toUtc(),
+      );
+      await journal.write(intent);
+      _cashDispatchGuard(mayDispatch);
+      return await _dispatch(intent);
+    } finally {
+      _writing = false;
+    }
+  }
+
+  @override
   Future<CommandIntent?> pending() async {
     _guard();
     final intent = await journal.read();
@@ -419,6 +573,18 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
       if (Wire.boolean(value['on_duty']) != intent.body['on_duty']) {
         Wire.invalid();
       }
+    } else if (intent.isCash) {
+      if (Wire.id(value['cash_account_id']) != intent.resource.substring(5) ||
+          value['handover_state'] != 'awaiting_recipient_receipt') {
+        Wire.invalid();
+      }
+      if (Wire.string(value['event_reference']).isEmpty ||
+          BigInt.parse(Wire.id(value['ledger_version'])) <=
+              BigInt.parse(Wire.id(intent.body['expected_version'])) ||
+          !Wire.time(result['expires_at'])
+              .isAfter(Wire.time(result['recorded_at']))) {
+        Wire.invalid();
+      }
     } else {
       if (Wire.taskId(value['task_id']) != intent.resource ||
           Wire.id(value['delivery_id']) != intent.deliveryId) {
@@ -511,7 +677,11 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
 
   /// COMMAND_UNKNOWN is retained. The rider may explicitly retry the same key
   /// and unchanged body, but cannot start a replacement intent.
-  Future<Map<String, dynamic>?> reconcile({bool retryUnknown = false}) async {
+  @override
+  Future<Map<String, dynamic>?> reconcile({
+    bool retryUnknown = false,
+    bool Function()? mayDispatch,
+  }) async {
     if (_writing) {
       throw const AccountFailure('A work request is already being checked.');
     }
@@ -527,7 +697,9 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
       } on AccountFailure catch (error) {
         if (error.code != 'COMMAND_UNKNOWN' || error.status != 404) rethrow;
         if (!retryUnknown) return null;
-        if (!(intent.parcelAction == null
+        if (!(intent.isCash
+                ? cashWritesVerified
+                : intent.parcelAction == null
                 ? writesVerified
                 : parcelWritesVerified) ||
             (intent.deliveryPaymentMethod == 'wallet' &&
@@ -537,6 +709,22 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
           throw const AccountFailure(
             'The saved request requires revalidation; its retry window is closed.',
           );
+        }
+        if (intent.isCash) {
+          final allowed = mayDispatch ?? () => false;
+          _cashDispatchGuard(allowed);
+          if (!await cashAvailable()) {
+            throw const AccountFailure(
+              'Cash records are unavailable for this account.',
+              status: 403,
+              code: 'CASH_UNAVAILABLE',
+            );
+          }
+          _cashDispatchGuard(allowed);
+          // Original terms/key stay unchanged. Current journal authority is checked;
+          // stale versions are left to the server's atomic rejection.
+          await cashDetail(intent.resource.substring(5));
+          _cashDispatchGuard(allowed);
         }
         return await _dispatch(intent);
       }

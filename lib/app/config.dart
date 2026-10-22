@@ -8,6 +8,7 @@ class AppConfig {
     this.operationsWritesVerified = false,
     this.parcelWritesVerified = false,
     this.prepaidDeliveryWritesVerified = false,
+    this.cashWritesVerified = false,
     this.messagesWritesVerified = false,
     this.notificationsWritesVerified = false,
     this.handoverWritesVerified = false,
@@ -25,6 +26,9 @@ class AppConfig {
 
   /// Independent paid-wallet delivery and retained-proof deployment gate.
   final bool prepaidDeliveryWritesVerified;
+
+  /// Independent cash-offer deployment acceptance; never enables hub receipt.
+  final bool cashWritesVerified;
 
   /// Assignment chat acceptance is independent from duty and parcel outcomes.
   final bool messagesWritesVerified;
@@ -59,6 +63,7 @@ class AppConfig {
       prepaidDeliveryWritesVerified: bool.fromEnvironment(
         'PREPAID_DELIVERY_WRITES_VERIFIED',
       ),
+      cashWritesVerified: bool.fromEnvironment('CASH_WRITES_VERIFIED'),
       messagesWritesVerified: bool.fromEnvironment('MESSAGES_WRITES_VERIFIED'),
       notificationsWritesVerified: bool.fromEnvironment(
         'NOTIFICATIONS_WRITES_VERIFIED',

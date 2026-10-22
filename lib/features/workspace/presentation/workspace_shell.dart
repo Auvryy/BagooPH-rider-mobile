@@ -1,3 +1,5 @@
+import '../../cash/presentation/cash_page.dart';
+
 import 'package:flutter/foundation.dart';
 
 import 'dart:async';
@@ -292,6 +294,9 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                                     active: destination == 2 && foreground,
                                   ),
                                   ProfileSettingsPage(
+                                    onCash: widget.preview
+                                        ? null
+                                        : () => openCash(context, controller),
                                     account: widget.account,
                                     section: profileSection,
                                     preview: widget.preview,

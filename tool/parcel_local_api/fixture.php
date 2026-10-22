@@ -129,6 +129,74 @@ class NativeParcelFixture extends Tests\Feature\Courier\RiderParcelApiTest
                 'commands' => App\Models\RiderCommand::where('actor_id', $this->holder->id)
                     ->where('action', 'deliver')->where('resource', 'final_mile-'.$p->id)->count()];
         }
+        if ($operation === 'cash_prepare') {
+            $accounts = [];
+            foreach (['cash_one', 'cash_two'] as $kind) {
+                if (! isset($this->parcels[$kind])) {
+                    $p = $this->flowDelivery(
+                        $this->newFlowOrder('placed', ['shipping_city' => 'Los Baños']), 'out_for_delivery', $this->holder);
+                    // Valid original software-test PNG; FileFactory::image
+                    // needs GD, which is not required by the real upload path.
+                    $proof = Illuminate\Http\UploadedFile::fake()->createWithContent('software-test-cash-proof.png',
+                        base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGP4DwQACfsD/fteaysAAAAASUVORK5CYII=', true));
+                    $this->actingAs($this->holder)->patch(route('courier.updateStatus', $p), [
+                        ...$this->codCollectionInput($p), 'status' => 'delivered', 'proof_image_file' => $proof,
+                    ])->assertSessionHas('success');
+                    $this->assertSame('delivered', $p->fresh()->status);
+                    $this->parcels[$kind] = $p->fresh();
+                }
+                $p = $this->parcels[$kind];
+                $cash = App\Models\CodAccount::where('delivery_id', $p->id)->sole();
+                $handler = $this->flowHandler($p->destinationBayanHub);
+                $accounts[] = ['id' => (string) $cash->id, 'tracking' => $p->tracking_number,
+                    'amount' => (string) $p->order->total_amount, 'due_cents' => (string) $cash->expected_cents,
+                    'handler_id' => (string) $handler->id];
+            }
+            return ['accounts' => $accounts, 'other_id' => (string) $this->other->id];
+        }
+        if ($operation === 'cash_receive') {
+            $this->assertContains($message['which'], ['cash_one', 'cash_two']);
+            $p = $this->parcels[$message['which']];
+            $cash = App\Models\CodAccount::where('delivery_id', $p->id)->sole();
+            $handler = $this->flowHandler($p->destinationBayanHub);
+            $pending = $cash->state['pending'];
+            $this->assertNotNull($pending);
+            $this->assertSame($handler->id, $pending['recipient_id']);
+            $received = $pending['amount_cents'] - (($message['shortage'] ?? false) ? 100 : 0);
+            $this->assertGreaterThan(0, $received);
+            $amount = intdiv($received, 100).'.'.str_pad((string) ($received % 100), 2, '0', STR_PAD_LEFT);
+            // This is the real owning hub HTTP action. The native rider has no
+            // receive endpoint and cannot manufacture this independent receipt.
+            $response = $this->actingAs($handler)->postJson(route('hub.cod.command', [$cash, 'receive']), [
+                'expected_version' => (string) $cash->version, 'request_token' => (string) Illuminate\Support\Str::uuid(),
+                'offer_reference' => $pending['reference'], 'received_amount' => $amount,
+                'evidence_reference' => 'SOFTWARE-TEST-HUB-RECEIPT', 'receipt_confirmed' => true,
+                'reason' => 'Isolated software test records the actual synthetic counted amount.',
+            ])->assertOk();
+            return ['receipt_reference' => $response->json('reference')];
+        }
+        if ($operation === 'cash_snapshot') {
+            $accounts = [];
+            foreach (['cash_one', 'cash_two'] as $kind) {
+                $p = $this->parcels[$kind]->fresh(['order']);
+                $cash = App\Models\CodAccount::where('delivery_id', $p->id)->sole();
+                $handler = $this->flowHandler($p->destinationBayanHub);
+                $web = $this->actingAs($handler)->getJson(route('hub.cod.show', $cash))->assertOk()->json('account');
+                $riderBalance = (string) ($cash->state['balances']['rider:'.$this->holder->id] ?? 0);
+                $webBalance = (string) collect($web['holders'])->filter(fn ($row) => $row['user_id'] === $this->holder->id
+                    && $row['stage'] === 'rider')->sum('amount_cents');
+                $this->assertSame($riderBalance, $webBalance);
+                $accounts[] = ['id' => (string) $cash->id, 'held_cents' => $riderBalance,
+                    'remitted_cents' => (string) $cash->events()->where('event_type', 'handover_received')
+                        ->where('from_user_id', $this->holder->id)->sum('amount_cents'),
+                    'offers' => $cash->events()->where('event_type', 'handover_offered')->count(),
+                    'receipts' => $cash->events()->where('event_type', 'handover_received')->count(),
+                    'reconciled_cents' => (string) $cash->state['reconciled_cents'],
+                    'web_parity' => true, 'order_status' => $p->order->status, 'payment_status' => $p->order->payment_status,
+                    'delivered' => $p->checkpoints()->where('checkpoint_type', 'delivered')->count()];
+            }
+            return ['accounts' => $accounts, 'commands' => App\Models\RiderCommand::where('action', 'cash.offer')->count()];
+        }
         if ($operation === 'notification_seed') {
             $this->assertMatchesRegularExpression('/\Anotice-test-[1-9]\z/', $message['name']);
             $this->noticeTime ??= now('UTC')->startOfSecond()->toIso8601String();

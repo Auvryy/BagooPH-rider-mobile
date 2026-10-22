@@ -21,7 +21,9 @@ departure/outcomes use owned final-mile phase.
    from hub-owned assignment. Display the refreshed custody/stop and owning actor.
 3. Delivery uses multipart original proof bytes, scan/version, recipient and exact
    `cash_received`, `change_given`, `cash_confirmed`. Let HTTP create the boundary.
-   New native delivery is **COD-only**; unsupported payment hints stay disabled.
+   This original batch's successful outcome is COD. The separately selected
+   [paid Wallet extension](../prepaid-delivery/README.md) adds evidenced prepaid
+   handoff behind its own live gate; unsupported payment hints stay disabled.
    Rider delivery does not complete the buyer's commercial order.
 4. Failure uses an allowed reason, required notes, location and original proof.
    Follow returned attempt count/limit and return hub. A failed attempt retains

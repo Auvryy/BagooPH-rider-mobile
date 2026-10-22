@@ -425,7 +425,14 @@ exact COD received/change and uncertain-result recovery. Local form/command
 checks pass; native backend, Azure and physical acceptance are recorded in that
 package. No non-COD success, buyer completion or cash remittance is added.
 
-**Outcome:** the assigned rider records a genuine recipient handoff and exact cash.
+**October 22 prepaid extension:** the [paid Wallet slice](plans/prepaid-delivery/README.md)
+adds source-authorized prepaid handoff, omits cash controls/fields and invalidates
+changed payment reviews. Original proof/UUID recovery remains shared with COD.
+Retained Wallet proof/recipient gaps are reproduced against the real local
+backend and remain owner dependencies; live prepaid writes stay disabled.
+
+**Outcome:** the assigned rider records a genuine recipient handoff and exact
+cash when COD applies.
 
 1. Load the hub-assigned parcel and verify its matching waybill before confirmed
    departure from the Destination Bayan Hub; refresh the resulting custody state.
@@ -533,6 +540,10 @@ bounded foreground refresh. This is delivery-linked chat, not an unrestricted
 user directory or a new realtime/push service.
 
 ### M11 — Trips and recorded history
+
+The [October 22 prepaid extension](plans/prepaid-delivery/README.md) labels
+Wallet history without inventing cash or recipient facts. Correct original
+Wallet proof/recipient responses remain an explicit backend acceptance gap.
 
 **October 18 selected implementation:** the [order-to-history slice](plans/rider-orders-delivery-trips/README.md)
 consumes the accepted retained-assignment resource for pickup and final mile,

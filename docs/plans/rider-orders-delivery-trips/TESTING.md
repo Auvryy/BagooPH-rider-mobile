@@ -12,8 +12,9 @@ flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-fro
 Sign in privately with an approved account. Refresh Home, review Available
 pickups/My pickups/Assigned delivery, and open Trips. Trips searches tracking or
 order numbers and filters retained assignments by phase, payment and inclusive
-Manila assignment dates. Non-COD is a history filter; native successful delivery
-currently supports COD only. Open a record to refresh its original assignment
+Manila assignment dates. Non-COD is a history filter; the separately selected
+[paid Wallet extension](../prepaid-delivery/README.md) adds prepaid handoff behind
+its own acceptance gate. Open a record to refresh its original assignment
 and any advertised private proof. Changing filters cannot reuse older results.
 
 Linux supports real account reads, file selection and the existing labelled

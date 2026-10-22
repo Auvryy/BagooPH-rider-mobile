@@ -64,3 +64,19 @@ changed proof is rejected. The normal request limiter stays active.
 These checks establish local native/client-to-backend compatibility. Live Azure
 acceptance and physical Android scan, permissions and picker recovery remain
 required in the [selected plan](../../docs/plans/rider-orders-delivery-trips/README.md).
+
+## Paid Wallet extension
+
+```sh
+xvfb-run -a node tool/parcel_local_api/run.mjs ../bagoo prepaid
+```
+
+This uses the owning Wallet credit/payment and normal hub assignment workflows,
+then the real native departure/delivery endpoints without cash fields. It checks
+lost-result recovery, exact original proof/UUID replay, one handover receipt and
+zero COD accounts. At the reviewed backend revision it also reproduces a 404
+retained Wallet proof response and an absent original recipient. The diagnostic
+exit does not accept those gaps or enable live writes. After owner fixes,
+strengthen the retained-evidence assertions and rerun. See the
+[prepaid verification](../../docs/plans/prepaid-delivery/VERIFICATION.md) and
+[owner checklist](../../docs/api/PREPAID_DELIVERY_NEEDS.md).

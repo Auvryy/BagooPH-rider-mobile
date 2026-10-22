@@ -440,11 +440,41 @@ void main() {
         geo.sources.every((source) => source.style == MapTileStyle.dark),
         isTrue,
       );
+      await dashboard.revealHome(
+        tester,
+        find.byKey(const ValueKey('home-sharper-labels')),
+      );
+      expect(find.text('Save data'), findsOneWidget);
+      expect(
+        tester
+            .getSize(find.byKey(const ValueKey('home-sharper-labels')))
+            .height,
+        greaterThanOrEqualTo(48),
+      );
+      final before = _camera(tester).center;
       await dashboard.tapHome(
         tester,
         find.byKey(const ValueKey('home-sharper-labels')),
       );
       expect(geo.sources.any((source) => !source.retina), isTrue);
+      expect(find.text('Data saver on'), findsOneWidget);
+      expect(_camera(tester).center, before);
+      final semantics = tester.ensureSemantics();
+      try {
+        await tester.pump();
+        final data = tester
+            .getSemantics(find.byKey(const ValueKey('home-sharper-labels')))
+            .getSemanticsData();
+        expect(data.flagsCollection.isToggled, ui.Tristate.isTrue);
+        expect(data.label, contains('Data saver on'));
+      } finally {
+        semantics.dispose();
+      }
+      await dashboard.tapHome(
+        tester,
+        find.byKey(const ValueKey('home-sharper-labels')),
+      );
+      expect(find.text('Save data'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );

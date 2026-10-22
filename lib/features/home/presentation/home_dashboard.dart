@@ -856,16 +856,26 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
                   label: const Text('Queue stops'),
                 ),
               ),
-              IconButton(
+              MergeSemantics(
                 key: const ValueKey('home-sharper-labels'),
-                tooltip: _retinaTiles
-                    ? 'Use standard map detail'
-                    : 'Sharper labels (larger images)',
-                isSelected: _retinaTiles,
-                onPressed: !_mapVisible
-                    ? null
-                    : () => setState(() => _retinaChoice = !_retinaTiles),
-                icon: const Icon(Icons.hd_outlined),
+                child: Semantics(
+                  toggled: !_retinaTiles,
+                  child: Tooltip(
+                    message: _retinaTiles
+                        ? 'Use smaller map images to save data'
+                        : 'Use sharper map labels (larger images)',
+                    child: TextButton.icon(
+                      style: TextButton.styleFrom(
+                        minimumSize: const Size(48, 48),
+                      ),
+                      onPressed: !_mapVisible
+                          ? null
+                          : () => setState(() => _retinaChoice = !_retinaTiles),
+                      icon: const Icon(Icons.data_saver_on_outlined, size: 18),
+                      label: Text(_retinaTiles ? 'Save data' : 'Data saver on'),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -901,8 +911,15 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
                 'Map unavailable. Task addresses are still available.',
             Icons.map_outlined,
           ),
-        if (geo.configured && geo.loadingTiles)
-          const LinearProgressIndicator(semanticsLabel: 'Loading map streets'),
+        if (geo.configured)
+          SizedBox(
+            height: 4,
+            child: geo.loadingTiles
+                ? const LinearProgressIndicator(
+                    semanticsLabel: 'Loading map streets',
+                  )
+                : null,
+          ),
         if (geo.failure != null && geo.configured)
           Align(
             alignment: Alignment.centerLeft,

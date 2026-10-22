@@ -106,6 +106,9 @@ No green/amber/red pavement-condition legend or road condition is fabricated.
 Map buttons retain 48dp targets and stable bounds; selection animates scale only,
 with reduced motion respected. High-density displays request native 2x artwork
 through the existing bounded provider scheduler.
+The labelled Save data control offers standard tiles while preserving this
+palette, route and camera. Loading and persistent basemap behavior belong to the
+[map loading extension](plans/map-loading-performance/README.md).
 
 Frame the rider area from an accepted foreground GPS snapshot, or from an
 explicitly labelled manual Linux origin. A snapshot is not live navigation;

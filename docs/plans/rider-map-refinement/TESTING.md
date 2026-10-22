@@ -28,8 +28,10 @@ Home does not request navigation notifications.
 - Select an authorized mapped pin/card: both select the same task. Missing saved
   stop coordinates keep the server address instead of a guessed map point.
 - Switch the sun/moon button: dark/daylight tiles change while camera and active
-  navigation remain. Native 2x artwork is selected on high-density displays; HD
-  can override it. Requests retain the existing shared limit/cancellation/cache.
+  navigation remain. Native 2x artwork is selected on high-density displays;
+  **Save data** switches to standard images and **Data saver on** switches back.
+  The [loading extension](../map-loading-performance/README.md) owns persistent
+  basemap caching and the current shared credit budget/cancellation policy.
 - Explicit **Navigate**, from fresh owned task detail, retains existing vehicle,
   coordinate and authorization checks. The map follows the rider at street
   level. **Full route** fits the returned road geometry; **Queue stops** fits the

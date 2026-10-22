@@ -27,6 +27,7 @@ they do not authorize changing the backend or implementing every proposed featur
 | [Plan registry](plans/README.md) | Where do separate implementation plans live, with their own files and ownership? |
 | [Home branch plan](plans/home-dashboard-branch-plan/README.md) | Which Home bugs/additions should one prompt and one reviewed branch handle next? |
 | [Rider map refinement](plans/rider-map-refinement/README.md) | How do the dark map, foreground rider-area zoom and manual PC preview work? |
+| [Map loading performance](plans/map-loading-performance/README.md) | How do persistent basemap tiles, priority scheduling and data saving improve map loading? |
 | [Home API needs checklist](api/HOME_DASHBOARD_NEEDS.md) | Which server capabilities already exist, which need live verification, and which additions require an API-owner decision? |
 | [Native operations plan](plans/native-operations/README.md) | How will the completed backend handoff be integrated in five selected Flutter batches? |
 | [Pickup, delivery and Trips](plans/rider-orders-delivery-trips/README.md) | How does the selected order-to-history implementation progress, and what API/live/device evidence remains? |

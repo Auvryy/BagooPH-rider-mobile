@@ -5,6 +5,8 @@ Selected October 22, 2026 on `feat/home-rider-map-style`, from merged mobile
 State: **implemented and locally verified**. See the
 [review instructions](TESTING.md) and [verification evidence](VERIFICATION.md).
 The deferred physical Android checks remain explicit in the review instructions.
+The follow-on [map loading extension](../map-loading-performance/README.md) owns
+persistent basemap caching, credit-aware scheduling and the data-saving control.
 This is a bounded visual/location extension of
 [OPS-01 and the map/location plan](../home-dashboard-navigation/README.md),
 [M09.07](../../backlog/M09.md#m09-07) and the merged

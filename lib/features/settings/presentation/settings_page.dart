@@ -41,12 +41,14 @@ class ProfileSettingsPage extends ConsumerWidget {
     required this.onLogout,
     required this.onRefresh,
     required this.preview,
+    this.onCash,
   });
   final RiderAccount account;
   final ProfileSection section;
   final ValueChanged<ProfileSection> onSection;
   final VoidCallback onLogout, onRefresh;
   final bool preview;
+  final VoidCallback? onCash;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -171,6 +173,13 @@ class ProfileSettingsPage extends ConsumerWidget {
           const _GroupTitle('Work information'),
           _SettingsGroup(
             children: [
+              if (onCash != null)
+                _SettingsRow(
+                  key: const ValueKey('open-cash'),
+                  icon: Icons.account_balance_wallet_outlined,
+                  title: 'Cash & remittance',
+                  onTap: onCash!,
+                ),
               _SettingsRow(
                 key: const ValueKey('open-assignment'),
                 icon: Icons.location_on_outlined,
@@ -496,9 +505,7 @@ class _SettingsRow extends StatelessWidget {
                 child: Icon(
                   icon,
                   size: 20,
-                  color: destructive
-                      ? RiderColors.accentText
-                      : RiderColors.ink,
+                  color: destructive ? RiderColors.accentText : RiderColors.ink,
                 ),
               ),
               const SizedBox(width: 14),

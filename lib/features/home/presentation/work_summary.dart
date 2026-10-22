@@ -1,3 +1,5 @@
+import '../../cash/presentation/cash_page.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../../core/ui/rider_surfaces.dart';
@@ -216,12 +218,25 @@ class WorkSummary extends StatelessWidget {
                       : () => controller.checkPending(),
                   child: const Text('Check saved request'),
                 ),
-                TextButton(
-                  onPressed: controller.working || controller.coolingDown
-                      ? null
-                      : () => controller.checkPending(retryUnknown: true),
-                  child: const Text('Retry original request'),
-                ),
+                if (controller.pendingIntent!.isCash)
+                  TextButton(
+                    onPressed: controller.working || controller.coolingDown
+                        ? null
+                        : () => openCash(
+                            context,
+                            controller,
+                            accountId: controller.pendingIntent!.resource
+                                .substring(5),
+                          ),
+                    child: const Text('Review original cash offer'),
+                  )
+                else
+                  TextButton(
+                    onPressed: controller.working || controller.coolingDown
+                        ? null
+                        : () => controller.checkPending(retryUnknown: true),
+                    child: const Text('Retry original request'),
+                  ),
               ],
             ),
           ],

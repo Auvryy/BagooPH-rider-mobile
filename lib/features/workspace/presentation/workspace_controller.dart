@@ -9,6 +9,7 @@ import '../../../core/commands/parcel_validation.dart';
 import '../../../core/network/api_failure.dart';
 import '../../../core/network/rider_api_client.dart';
 import '../../auth/presentation/auth_controller.dart';
+import '../../cash/presentation/cash_controller.dart';
 import '../../home/data/command_journal.dart';
 import '../../home/data/operations_models.dart';
 import '../../home/data/operations_repository.dart';
@@ -68,6 +69,7 @@ final workspaceRepositoryProvider = Provider<WorkspaceRepository>(
       writesVerified: config.operationsWritesVerified,
       parcelWritesVerified: config.parcelWritesVerified,
       prepaidDeliveryWritesVerified: config.prepaidDeliveryWritesVerified,
+      cashWritesVerified: config.cashWritesVerified,
       proofStore: proofs,
       photos: photos,
       isCurrent: isCurrent,
@@ -209,6 +211,14 @@ class WorkspaceController extends ChangeNotifier {
       },
     );
     notifications.addListener(_changed);
+    cash = CashController(
+      operations,
+      onSessionEnd: (notice) async {
+        await _workError(AccountFailure(notice, status: 401));
+      },
+      onWorkChanged: refreshHome,
+    );
+    cash.addListener(_changed);
     if (operations?.photos != null) unawaited(operations!.photos!.restore());
     unawaited(operations == null ? refreshAll() : Future.microtask(refreshAll));
   }
@@ -216,6 +226,7 @@ class WorkspaceController extends ChangeNotifier {
   final ParcelLocationLabels? _parcelLocations;
   late final MessagesController messages;
   late final NotificationsController notifications;
+  late final CashController cash;
   final Future<void> Function(String notice)? onSessionEnd;
   OperationsRepository? get operations => repository is OperationsRepository
       ? repository as OperationsRepository
@@ -344,6 +355,7 @@ class WorkspaceController extends ChangeNotifier {
   }
 
   void setForeground(bool value) {
+    cash.setForeground(value);
     messages.setForeground(value);
     notifications.setForeground(value);
     if (_foreground == value) return;
@@ -411,6 +423,7 @@ class WorkspaceController extends ChangeNotifier {
       retainedTrips = null;
       loadingTrips = false;
       _tripSearchTimer?.cancel();
+      cash.revoke(failure.message);
       messages.revoke(failure.message);
       notifications.revoke(failure.message);
       _parcelLocations?.clear();
@@ -452,6 +465,7 @@ class WorkspaceController extends ChangeNotifier {
     try {
       final result = await ops.home();
       if (_disposed || generation != _homeGeneration) return;
+      if (result.capabilities['cash'] != true) cash.capabilityUnavailable();
       if (result.capabilities['messages'] != true) {
         messages.capabilityUnavailable();
       }
@@ -1185,6 +1199,7 @@ class WorkspaceController extends ChangeNotifier {
     _readFailures.clear();
     _commandFailure = null;
     messages.removeListener(_changed);
+    cash.dispose();
     messages.dispose();
     notifications.removeListener(_changed);
     notifications.dispose();

@@ -634,6 +634,15 @@ not automatic extra scope, and debug/API configuration stays out of rider flows.
 
 ### M15 — COD remittance and earnings visibility
 
+**October 22 selected implementation:** the
+[Cash & Remittance package](plans/rider-cash-remittance/README.md) activates
+OPS-05 with an authoritative read-only dashboard/detail first, then original
+protected remittance offers. An offer leaves balances unchanged until the
+independent owning hub receipt; earnings remains unavailable. Local financial,
+lifecycle and native cross-role checks passed with 638 full-suite tests and
+ordinary Linux/Android builds; see [verification](plans/rider-cash-remittance/VERIFICATION.md).
+Azure/phone acceptance remains separate.
+
 **Outcome:** cash responsibilities and earnings are separate, authoritative records.
 
 1. Integrate only the accepted append-only ledger and earnings resources. Show

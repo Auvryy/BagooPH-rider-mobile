@@ -1,3 +1,5 @@
+import '../../cash/presentation/cash_page.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -185,7 +187,9 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage>
             ),
           ),
         );
-      case NotificationCashDestination() || NotificationAccountDestination():
+      case NotificationCashDestination(:final cash):
+        await openCash(context, widget.work, accountId: cash.id);
+      case NotificationAccountDestination():
         await Navigator.of(context).push<void>(
           MaterialPageRoute(
             builder: (_) => NotificationResourcePage(

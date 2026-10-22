@@ -1,6 +1,8 @@
 # OPS-05 — Cash records and remittance offers
 
-State: **planned, not activated**. Needs shared access/command foundation and real
+State: **selected October 22, client locally implemented and verified** in the separate
+[Cash & Remittance package](../rider-cash-remittance/README.md). Live offer and
+physical acceptance remain separate. Needs shared access/command foundation and real
 retained cash responsibilities/outcome records. Associations: B15-A–B15-B and
 supported refresh/acceptance portions of B15-C; M15.09 earnings remains unsupported.
 

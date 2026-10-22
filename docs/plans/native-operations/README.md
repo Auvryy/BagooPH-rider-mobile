@@ -25,7 +25,7 @@ mobile visual behavior are preserved.
 | OPS-02 | [Real scan, pickup, departure, delivery/COD and failure](02-scan-parcel-work.md) | M06–M08, selected M09 dependencies | Planned |
 | OPS-03 | [Trips and authenticated private proof](03-trips-private-proof.md) | M11 | Planned |
 | OPS-04 | [Assignment-bound messages and notifications](04-messages-notifications.md) | M10, M12 | Planned |
-| OPS-05 | [Cash records and remittance offers](05-cash-remittance.md) | M15 | Planned |
+| OPS-05 | [Cash records and remittance offers](05-cash-remittance.md) | M15 | Client locally verified; deployed/device acceptance separate |
 
 Use that sequence as the default. Each batch can be split into smaller selected
 read, write and acceptance slices; it is not a promise to fit a whole batch in

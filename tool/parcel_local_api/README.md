@@ -1,4 +1,4 @@
-# Isolated native pickup, delivery and Trips verification
+# Isolated native Rider API verification
 
 From the Rider repository root, with the reviewed backend checkout alongside it:
 
@@ -80,3 +80,21 @@ exit does not accept those gaps or enable live writes. After owner fixes,
 strengthen the retained-evidence assertions and rerun. See the
 [prepaid verification](../../docs/plans/prepaid-delivery/VERIFICATION.md) and
 [owner checklist](../../docs/api/PREPAID_DELIVERY_NEEDS.md).
+
+
+## Cash & Remittance extension
+
+```sh
+xvfb-run -a node tool/parcel_local_api/run.mjs ../bagoo cash 43558b3cbc53c4449704d6647681b5444fad3f62
+```
+
+The optional fourth argument pins a reviewed committed backend revision; omitting
+it archives the backend's current HEAD. Both forms preserve its working tree.
+This suite checks native cash lists/detail, all-owned filtered summaries, original
+unknown-command retry, committed-result recovery and replay after independent
+hub receipts. Exactly two offers leave balances unchanged until those receipts.
+A signed one-peso shortage, foreign denial and actual website journal parity are
+asserted. The normal limiter remains enabled. No deployed database, cash
+responsibility or receipt is changed. See the
+[cash verification](../../docs/plans/rider-cash-remittance/VERIFICATION.md) and
+[deployment checklist](../../docs/api/CASH_REMITTANCE_NEEDS.md).

@@ -38,10 +38,19 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields> {
   final change = TextEditingController(), location = TextEditingController();
   final proofField = GlobalKey<FormFieldState<ParcelProof>>();
   String? relationship, reason, notice;
-  bool cashConfirmed = false, choosing = false, validImage = true;
+  bool cashConfirmed = false,
+      choosing = false,
+      validImage = true,
+      resettingReview = false;
   ParcelProof? get proof => proofField.currentState?.value;
   bool get ready =>
-      proof != null && validImage && !choosing && widget.photos?.busy != true;
+      proof != null &&
+      validImage &&
+      !resettingReview &&
+      !choosing &&
+      widget.photos?.busy != true &&
+      (widget.action != ParcelAction.deliver ||
+          widget.task.deliveryPaymentKind != DeliveryPaymentKind.unavailable);
 
   @override
   void initState() {
@@ -60,10 +69,23 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields> {
       oldWidget.photos?.removeListener(_photoChanged);
       widget.photos?.addListener(_photoChanged);
     }
-    if (oldWidget.task.version != widget.task.version) {
+    if (oldWidget.task.version != widget.task.version ||
+        oldWidget.task.paymentTerms != widget.task.paymentTerms) {
       cashConfirmed = false;
-      proofField.currentState?.didChange(null);
-      notice = 'This parcel changed. Review the current amount and capture or select proof for this review.';
+      resettingReview = true;
+      // Controller/FormField changes notify the ancestor Form. Reset after this
+      // build while readiness stays blocked, rather than notifying during build.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() {
+          received.clear();
+          change.clear();
+          proofField.currentState?.didChange(null);
+          resettingReview = false;
+          notice = 'This parcel changed. Review the payment instructions and capture or select proof again.';
+        });
+        widget.onChanged();
+      });
     }
   }
 
@@ -92,7 +114,13 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields> {
 
   Future<void> _choose(bool camera) async {
     final photos = widget.photos;
-    if (!widget.enabled || choosing || photos == null || photos.busy) return;
+    if (!widget.enabled ||
+        resettingReview ||
+        choosing ||
+        photos == null ||
+        photos.busy) {
+      return;
+    }
     final reviewed = widget.task;
     setState(() {
       choosing = true;
@@ -109,7 +137,9 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields> {
       if (!mounted) return;
       await widget.revalidate();
       if (!mounted) return;
-      if (widget.task.version != reviewed.version || !widget.enabled) {
+      if (widget.task.version != reviewed.version ||
+          widget.task.paymentTerms != reviewed.paymentTerms ||
+          !widget.enabled) {
         setState(
           () => notice = 'Check the current parcel before using a photo. Nothing was submitted.',
         );
@@ -139,9 +169,11 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields> {
             max: 255,
           ),
           'recipient_relationship': relationship,
-          'cash_received': received.text.trim(),
-          'change_given': change.text.trim(),
-          'cash_confirmed': cashConfirmed,
+          if (widget.task.deliveryPaymentKind == DeliveryPaymentKind.cod) ...{
+            'cash_received': received.text.trim(),
+            'change_given': change.text.trim(),
+            'cash_confirmed': cashConfirmed,
+          },
         }
       : {
           'reason': reason,
@@ -189,7 +221,7 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields> {
       widget.action,
     );
     final busy = choosing || widget.photos?.busy == true;
-    final enabled = widget.enabled && !busy;
+    final enabled = widget.enabled && !busy && !resettingReview;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -344,153 +376,188 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields> {
                 value == null ? 'Choose who received the parcel.' : null,
           ),
           const SizedBox(height: 24),
-          Text(
-            '3. Confirm the exact COD',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 12),
-          WorkspacePanel(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text('Recorded amount due'),
-                const SizedBox(height: 8),
-                Text(
-                  task.codDueCents == null
-                      ? 'COD amount unavailable'
-                      : exactPesos(task.codDueCents!),
-                  key: const ValueKey('parcel-cod-due'),
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Received cash minus change must equal this amount.',
-                ),
-              ],
+          if (task.deliveryPaymentKind == DeliveryPaymentKind.cod) ...[
+            Text(
+              '3. Confirm the exact COD',
+              style: Theme.of(context).textTheme.titleLarge,
             ),
-          ),
-          const SizedBox(height: 16),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final inputs = [
-                TextFormField(
-                  key: const ValueKey('parcel-cash-received'),
-                  controller: received,
-                  enabled: enabled,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  forceErrorText: widget.errors['cash_received'],
-                  decoration: const InputDecoration(
-                    labelText: 'Cash received',
-                    prefixText: '₱ ',
-                    hintText: 'Amount actually received',
-                  ),
-                  validator: (value) {
-                    final error = _money(value, 'cash_received');
-                    if (error != null) return error;
-                    if (_money(change.text, 'change_given') == null &&
-                        task.codDueCents != null &&
-                        pesoInputCents((value ?? '').trim()) -
-                                pesoInputCents(
-                                  change.text.trim(),
-                                  field: 'change_given',
-                                ) !=
-                            task.codDueCents) {
-                      return 'Received cash minus change must equal COD.';
-                    }
-                    return null;
-                  },
-                  onChanged: (_) {
-                    setState(() {});
-                    _edit('cash_received');
-                  },
-                ),
-                TextFormField(
-                  key: const ValueKey('parcel-change-given'),
-                  controller: change,
-                  enabled: enabled,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  forceErrorText: widget.errors['change_given'],
-                  decoration: const InputDecoration(
-                    labelText: 'Change given',
-                    prefixText: '₱ ',
-                    hintText: 'Enter 0 if no change was given',
-                  ),
-                  validator: (value) => _money(value, 'change_given'),
-                  onChanged: (_) {
-                    setState(() {});
-                    _edit('change_given');
-                  },
-                ),
-              ];
-              return constraints.maxWidth >= 560 &&
-                      MediaQuery.textScalerOf(context).scale(16) <= 20
-                  ? Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(child: inputs[0]),
-                        const SizedBox(width: 16),
-                        Expanded(child: inputs[1]),
-                      ],
-                    )
-                  : Column(
-                      children: [
-                        inputs[0],
-                        const SizedBox(height: 16),
-                        inputs[1],
-                      ],
-                    );
-            },
-          ),
-          if (_cashDifference != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Text(_cashDifference!),
-            ),
-          const SizedBox(height: 16),
-          FormField<bool>(
-            initialValue: cashConfirmed,
-            validator: (_) => cashConfirmed
-                ? null
-                : 'Confirm the cash you actually received and change given.',
-            builder: (field) => Column(
-              children: [
-                Material(
-                  type: MaterialType.transparency,
-                  child: CheckboxListTile(
-                    key: const ValueKey('parcel-cash-confirmed'),
-                    value: cashConfirmed,
-                    contentPadding: EdgeInsets.zero,
-                    controlAffinity: ListTileControlAffinity.leading,
-                    title: const Text(
-                      'I received this cash and gave the stated change.',
-                    ),
-                    subtitle: const Text(
-                      'This records cash held by me. Remittance and earnings are separate.',
-                    ),
-                    onChanged: enabled
-                        ? (value) {
-                            setState(() => cashConfirmed = value == true);
-                            field.didChange(cashConfirmed);
-                            _edit('cash_confirmed');
-                          }
-                        : null,
-                  ),
-                ),
-                if (field.errorText != null ||
-                    widget.errors['cash_confirmed'] != null)
+            const SizedBox(height: 12),
+            WorkspacePanel(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text('Recorded amount due'),
+                  const SizedBox(height: 8),
                   Text(
-                    widget.errors['cash_confirmed'] ?? field.errorText!,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
+                    task.codDueCents == null
+                        ? 'COD amount unavailable'
+                        : exactPesos(task.codDueCents!),
+                    key: const ValueKey('parcel-cod-due'),
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Received cash minus change must equal this amount.',
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final inputs = [
+                  TextFormField(
+                    key: const ValueKey('parcel-cash-received'),
+                    controller: received,
+                    enabled: enabled,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    forceErrorText: widget.errors['cash_received'],
+                    decoration: const InputDecoration(
+                      labelText: 'Cash received',
+                      prefixText: '₱ ',
+                      hintText: 'Amount actually received',
+                    ),
+                    validator: (value) {
+                      final error = _money(value, 'cash_received');
+                      if (error != null) return error;
+                      if (_money(change.text, 'change_given') == null &&
+                          task.codDueCents != null &&
+                          pesoInputCents((value ?? '').trim()) -
+                                  pesoInputCents(
+                                    change.text.trim(),
+                                    field: 'change_given',
+                                  ) !=
+                              task.codDueCents) {
+                        return 'Received cash minus change must equal COD.';
+                      }
+                      return null;
+                    },
+                    onChanged: (_) {
+                      setState(() {});
+                      _edit('cash_received');
+                    },
+                  ),
+                  TextFormField(
+                    key: const ValueKey('parcel-change-given'),
+                    controller: change,
+                    enabled: enabled,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    forceErrorText: widget.errors['change_given'],
+                    decoration: const InputDecoration(
+                      labelText: 'Change given',
+                      prefixText: '₱ ',
+                      hintText: 'Enter 0 if no change was given',
+                    ),
+                    validator: (value) => _money(value, 'change_given'),
+                    onChanged: (_) {
+                      setState(() {});
+                      _edit('change_given');
+                    },
+                  ),
+                ];
+                return constraints.maxWidth >= 560 &&
+                        MediaQuery.textScalerOf(context).scale(16) <= 20
+                    ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: inputs[0]),
+                          const SizedBox(width: 16),
+                          Expanded(child: inputs[1]),
+                        ],
+                      )
+                    : Column(
+                        children: [
+                          inputs[0],
+                          const SizedBox(height: 16),
+                          inputs[1],
+                        ],
+                      );
+              },
+            ),
+            if (_cashDifference != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Text(_cashDifference!),
+              ),
+            const SizedBox(height: 16),
+            FormField<bool>(
+              initialValue: cashConfirmed,
+              validator: (_) => cashConfirmed
+                  ? null
+                  : 'Confirm the cash you actually received and change given.',
+              builder: (field) => Column(
+                children: [
+                  Material(
+                    type: MaterialType.transparency,
+                    child: CheckboxListTile(
+                      key: const ValueKey('parcel-cash-confirmed'),
+                      value: cashConfirmed,
+                      contentPadding: EdgeInsets.zero,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      title: const Text(
+                        'I received this cash and gave the stated change.',
+                      ),
+                      subtitle: const Text(
+                        'This records cash held by me. Remittance and earnings are separate.',
+                      ),
+                      onChanged: enabled
+                          ? (value) {
+                              setState(() => cashConfirmed = value == true);
+                              field.didChange(cashConfirmed);
+                              _edit('cash_confirmed');
+                            }
+                          : null,
                     ),
                   ),
-              ],
+                  if (field.errorText != null ||
+                      widget.errors['cash_confirmed'] != null)
+                    Text(
+                      widget.errors['cash_confirmed'] ?? field.errorText!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
+          ] else ...[
+            Text(
+              '3. Review payment',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 12),
+            WorkspacePanel(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    task.deliveryPaymentKind == DeliveryPaymentKind.paidWallet
+                        ? 'Bagoo Wallet'
+                        : 'Payment verification',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    task.deliveryPaymentKind == DeliveryPaymentKind.paidWallet
+                        ? 'Paid — no cash to collect'
+                        : 'Payment needs verification',
+                    key: const ValueKey('parcel-payment-instruction'),
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    task.deliveryPaymentKind == DeliveryPaymentKind.paidWallet
+                        ? 'Confirm who receives this parcel and attach the handoff proof. No cash receipt is needed.'
+                        : 'Refresh the parcel or contact your hub before recording a delivery.',
+                  ),
+                ],
+              ),
+            ),
+          ],
         ] else ...[
           Text(
             'Attempt ${task.failurePolicy!.recordedAttempts + 1} of ${task.failurePolicy!.attemptLimit}',

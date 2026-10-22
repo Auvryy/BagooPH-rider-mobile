@@ -9,6 +9,7 @@ import '../../workspace/presentation/workspace_widgets.dart';
 import '../data/operations_models.dart';
 import '../data/operations_repository.dart';
 import 'task_stage_label.dart';
+import 'task_payment_instruction.dart';
 
 export 'task_stage_label.dart' show taskStageLabel;
 
@@ -525,14 +526,7 @@ class _SelectedStop extends StatelessWidget {
           task.nextInstruction,
           style: Theme.of(context).textTheme.bodySmall,
         ),
-        if (task.codDueCents != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(
-              'COD to collect: ${exactPesos(task.codDueCents!)}',
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
-            ),
-          ),
+        TaskPaymentInstruction(task: task),
         if (task.stop.latitude == null || task.stop.longitude == null)
           const Padding(
             padding: EdgeInsets.only(top: 8),

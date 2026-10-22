@@ -88,6 +88,8 @@ class TaskStop {
   late final double? latitude, longitude;
 }
 
+enum DeliveryPaymentKind { cod, paidWallet, unavailable }
+
 class OperationTask {
   OperationTask.fromJson(Map<String, dynamic> j)
     : id = Wire.taskId(j['id']),
@@ -179,6 +181,28 @@ class OperationTask {
   late final bool heldByMe;
   late final BigInt? codDueCents;
   late final FailurePolicy? failurePolicy;
+
+  /// A paid label alone cannot establish original wallet payment evidence.
+  /// The backend's current deliver hint checks the original payment source.
+  DeliveryPaymentKind get deliveryPaymentKind {
+    if (preview || phase != 'final_mile') {
+      return DeliveryPaymentKind.unavailable;
+    }
+    if (paymentMethod == 'cod' && codDueCents != null) {
+      return DeliveryPaymentKind.cod;
+    }
+    if (paymentMethod == 'wallet' &&
+        paymentStatus == 'paid' &&
+        codDueCents == null &&
+        stop.kind == 'buyer' &&
+        actions['deliver'] == true) {
+      return DeliveryPaymentKind.paidWallet;
+    }
+    return DeliveryPaymentKind.unavailable;
+  }
+
+  ({String? method, String? status, BigInt? codDueCents}) get paymentTerms =>
+      (method: paymentMethod, status: paymentStatus, codDueCents: codDueCents);
 }
 
 class FailurePolicy {

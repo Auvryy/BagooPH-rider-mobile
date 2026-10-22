@@ -32,6 +32,8 @@ they do not authorize changing the backend or implementing every proposed featur
 | [Native operations plan](plans/native-operations/README.md) | How will the completed backend handoff be integrated in five selected Flutter batches? |
 | [Pickup, delivery and Trips](plans/rider-orders-delivery-trips/README.md) | How does the selected order-to-history implementation progress, and what API/live/device evidence remains? |
 | [Order, delivery and Trips API checklist](api/ORDER_DELIVERY_TRIPS_NEEDS.md) | Which existing backend contracts are available, and what must the API owner verify for live acceptance? |
+| [Paid Wallet delivery](plans/prepaid-delivery/README.md) | How do prepaid recipient/proof handoffs extend COD while preserving original command recovery? |
+| [Paid Wallet API checklist](api/PREPAID_DELIVERY_NEEDS.md) | Which retained-evidence fixes and deployed checks are needed before prepaid activation? |
 | [Assignment Messages](plans/rider-assignment-messages/README.md) | How will the requested Messages page preserve recipient identity, original commands and displayed reads? |
 | [Messages API checklist](api/MESSAGES_NEEDS.md) | Which chat APIs already exist and what deployment/cross-role checks remain? |
 | [Session Parcel Finder](plans/rider-parcel-finder/README.md) | How do personal location labels follow owned tasks without changing custody? |

@@ -65,9 +65,11 @@ from outstanding deployed and physical acceptance.
   numbers and typed test values never stand in for physical scan evidence.
   Linux retains browsing, proof selection and route preview; camera acceptance
   requires supported native hardware.
-- New native successful delivery is COD-only under the current contract.
-  Amounts use exact decimal strings/integer cents. Cash remittance and earnings
-  remain distinct from recorded collection.
+- The original October 18 slice implements COD delivery. The separately selected
+  [October 22 prepaid extension](../prepaid-delivery/README.md) adds paid Wallet
+  handoff with its own live gate and retained-evidence dependencies. Amounts use
+  exact decimal strings/integer cents. Cash remittance and earnings remain
+  distinct from recorded collection.
 - Retain one unresolved ordinary work intent, its original body/key/version and
   original proof bytes across restart/logout. Reconcile before retrying; do not
   replace a key, file, recipient or amount to bypass an uncertain outcome.

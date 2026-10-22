@@ -144,6 +144,40 @@ void main() {
     },
   );
   testWidgets(
+    'retained wallet history shows only returned recipient and cash facts',
+    (tester) async {
+      final h = TripHarness();
+      addTearDown(h.dispose);
+      h.rows = [
+        retainedTripJson(recipient: null, cents: null)
+          ..['payment_method'] = 'wallet',
+      ];
+      await tester.runAsync(h.boot);
+      await tester.pumpWidget(
+        _app(TripDetailPage(work: h.work, id: 'trip-41')),
+      );
+      await tester.pumpAndSettle();
+      final payment = find.text('Payment: Bagoo Wallet');
+      await tester.ensureVisible(payment);
+      await tester.pumpAndSettle();
+      expect(payment, findsOneWidget);
+      expect(
+        find.text('Recipient details are unavailable for this assignment.'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('No cash collection is recorded for this assignment.'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('Recorded collection: ₱0'), findsNothing);
+      expect(find.textContaining('Recorded recipient:'), findsNothing);
+      expect(tester.takeException(), isNull);
+      await _render(tester, 'prepaid-retained-trip');
+      await tester.pumpWidget(const SizedBox.shrink());
+      h.dispose();
+    },
+  );
+  testWidgets(
     'logout removes the original detail and any proof route above it',
     (tester) async {
       final h = TripHarness();

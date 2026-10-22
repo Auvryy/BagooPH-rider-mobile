@@ -99,6 +99,36 @@ class NativeParcelFixture extends Tests\Feature\Courier\RiderParcelApiTest
                     'events' => $cash->events()->count(), 'reconciled' => $cash->reconciled_at !== null])->all(),
                 'public_proofs' => Illuminate\Support\Facades\Storage::disk('public')->allFiles('delivery-proofs')];
         }
+        if ($operation === 'prepare_prepaid') {
+            if (! isset($this->parcels['prepaid'])) {
+                $order = $this->newFlowOrder('placed', ['shipping_city' => 'Los Baños', 'payment_method' => 'wallet']);
+                $credits = app(App\Services\Wallet\WalletCreditService::class);
+                $request = $credits->request($order->buyer, ['amount' => '10000.00',
+                    'reason' => 'Demo credits for isolated native handoff verification.',
+                    'request_token' => (string) Illuminate\Support\Str::uuid()]);
+                $credits->review($this->createApprovedUser('admin'), $request, ['decision' => 'approved',
+                    'reason' => 'Approved demo credits for isolated native handoff verification.', 'demo_credit_confirmed' => true,
+                    'request_token' => (string) Illuminate\Support\Str::uuid()]);
+                $this->actingAs($order->buyer)->postJson('/wallet/payments/'.$order->walletPayment->id.'/pay',
+                    ['payment_confirmed' => true, 'request_token' => (string) Illuminate\Support\Str::uuid()])
+                    ->assertOk()->assertJsonPath('outcome', 'paid');
+                $this->parcels['prepaid'] = $this->flowDelivery($order->fresh(['buyer', 'items', 'delivery']),
+                    'assigned_to_rider', $this->holder);
+            }
+            $p = $this->parcels['prepaid'];
+            return ['parcel' => ['id' => (string) $p->id, 'barcode' => $p->tracking_number]];
+        }
+        if ($operation === 'prepaid_snapshot') {
+            $p = $this->parcels['prepaid']->fresh(['order']);
+            $receipts = App\Models\WalletHandoverReceipt::where('delivery_id', $p->id)->get();
+            return ['stage' => $p->status, 'order_status' => $p->order->status, 'payment_status' => $p->order->payment_status,
+                'wallet_receipts' => $receipts->count(), 'recipient' => $receipts->first()?->recipient_name,
+                'proof_hash' => $receipts->first()?->proof_hash,
+                'cod_accounts' => App\Models\CodAccount::where('delivery_id', $p->id)->count(),
+                'delivered' => $p->checkpoints()->where('checkpoint_type', 'delivered')->count(),
+                'commands' => App\Models\RiderCommand::where('actor_id', $this->holder->id)
+                    ->where('action', 'deliver')->where('resource', 'final_mile-'.$p->id)->count()];
+        }
         if ($operation === 'notification_seed') {
             $this->assertMatchesRegularExpression('/\Anotice-test-[1-9]\z/', $message['name']);
             $this->noticeTime ??= now('UTC')->startOfSecond()->toIso8601String();

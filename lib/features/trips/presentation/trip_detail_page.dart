@@ -151,7 +151,7 @@ class _RecordedAssignment extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               trip.recipient == null
-                  ? 'Recipient was not recorded for this assignment.'
+                  ? 'Recipient details are unavailable for this assignment.'
                   : 'Recorded recipient: ${trip.recipient}',
             ),
             const SizedBox(height: 8),
@@ -162,7 +162,11 @@ class _RecordedAssignment extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Payment: ${trip.paymentMethod == 'cod' ? 'COD' : 'Recorded non-COD'}',
+              'Payment: ${switch (trip.paymentMethod) {
+                'cod' => 'COD',
+                'wallet' => 'Bagoo Wallet',
+                _ => 'Recorded non-COD',
+              }}',
             ),
             const SizedBox(height: 8),
             Text(

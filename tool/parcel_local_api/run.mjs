@@ -10,7 +10,9 @@ import { once } from 'node:events';
 const project = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const backend = resolve(process.argv[2] ?? resolve(project, '../bagoo'));
 const suite = process.argv[3] ?? 'parcel';
-if (!['parcel', 'messages', 'notifications', 'prepaid'].includes(suite)) throw new Error('Select parcel, messages, notifications or prepaid verification.');
+if (!['parcel', 'messages', 'notifications', 'prepaid', 'cash'].includes(suite)) throw new Error('Select parcel, messages, notifications, prepaid or cash verification.');
+const requestedRevision = process.argv[4] ?? 'HEAD';
+if (requestedRevision !== 'HEAD' && !/^[a-f0-9]{7,40}$/.test(requestedRevision)) throw new Error('Select HEAD or a committed hexadecimal source revision.');
 const evidenceRoot = resolve(project, suite === 'parcel' ? 'build/operations-delivery-verification' : `build/${suite}-verification`);
 await mkdir(evidenceRoot, { recursive: true });
 const runtime = await mkdtemp(resolve(evidenceRoot, 'local-kernel-'));
@@ -20,7 +22,7 @@ const diagnostic = await open(resolve(evidenceRoot, 'local-kernel.log'), 'w', 0o
 // copied Composer metadata binds application classes to this isolated snapshot.
 const snapshot = resolve(runtime, 'backend');
 await mkdir(snapshot);
-const revision = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: backend, encoding: 'utf8' }).trim();
+const revision = execFileSync('git', ['rev-parse', '--verify', `${requestedRevision}^{commit}`], { cwd: backend, encoding: 'utf8' }).trim();
 const archive = spawn('git', ['archive', '--format=tar', revision], { cwd: backend, stdio: ['ignore', 'pipe', diagnostic.fd] });
 const unpack = spawn('bsdtar', ['-xf', '-', '-C', snapshot], { stdio: ['pipe', 'ignore', diagnostic.fd] });
 archive.stdout.pipe(unpack.stdin);

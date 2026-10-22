@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import '../network/wire.dart';
+import 'cash_validation.dart';
 import 'message_validation.dart';
 import 'notification_validation.dart';
 import 'parcel_proof.dart';
@@ -50,6 +51,10 @@ class CommandIntent {
         Wire.invalid();
       }
       Wire.version(body['expected_version']);
+    } else if (isCash) {
+      if (!resource.startsWith('cash-') || proof != null) Wire.invalid();
+      Wire.id(resource.substring(5));
+      cashOfferFields(body);
     } else if (isNotification) {
       if (resource != 'notifications' || body.length != 1 || proof != null) {
         Wire.invalid();
@@ -147,6 +152,7 @@ class CommandIntent {
   /// Local journal discriminator only; never added to the HTTP request body.
   /// Absent on legacy COD intents, which retain their required cash fields.
   final String? deliveryPaymentMethod;
+  bool get isCash => action == 'cash.offer';
   bool get isMessage => action == 'message.send' || action == 'message.read';
   bool get isNotification => action == 'notification.read';
   ParcelAction? get parcelAction =>
@@ -158,6 +164,7 @@ class CommandIntent {
       : resource.split('-').last;
   String get path => switch (action) {
     'duty' => 'rider/duty',
+    'cash.offer' => 'rider/cash/${resource.substring(5)}/offer',
     'claim' => 'rider/pickup-jobs/${resource.substring(7)}/claim',
     'message.send' => 'rider/conversations/$resource/messages',
     'message.read' => 'rider/conversations/$resource/read',

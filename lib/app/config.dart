@@ -7,6 +7,7 @@ class AppConfig {
     this.riderWebsite = '',
     this.operationsWritesVerified = false,
     this.parcelWritesVerified = false,
+    this.prepaidDeliveryWritesVerified = false,
     this.messagesWritesVerified = false,
     this.notificationsWritesVerified = false,
     this.handoverWritesVerified = false,
@@ -21,6 +22,9 @@ class AppConfig {
 
   /// Separate pickup/departure/COD/failure acceptance; duty/claim stays separate.
   final bool parcelWritesVerified;
+
+  /// Independent paid-wallet delivery and retained-proof deployment gate.
+  final bool prepaidDeliveryWritesVerified;
 
   /// Assignment chat acceptance is independent from duty and parcel outcomes.
   final bool messagesWritesVerified;
@@ -52,6 +56,9 @@ class AppConfig {
         'OPERATIONS_WRITES_VERIFIED',
       ),
       parcelWritesVerified: bool.fromEnvironment('PARCEL_WRITES_VERIFIED'),
+      prepaidDeliveryWritesVerified: bool.fromEnvironment(
+        'PREPAID_DELIVERY_WRITES_VERIFIED',
+      ),
       messagesWritesVerified: bool.fromEnvironment('MESSAGES_WRITES_VERIFIED'),
       notificationsWritesVerified: bool.fromEnvironment(
         'NOTIFICATIONS_WRITES_VERIFIED',

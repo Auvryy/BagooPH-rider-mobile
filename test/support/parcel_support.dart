@@ -163,6 +163,7 @@ class ParcelHarness {
   };
   OperationsRepository restart({
     bool enabled = true,
+    bool prepaidEnabled = false,
     DateTime Function()? now,
     ParcelPhotoService? photos,
   }) => OperationsRepository(
@@ -171,6 +172,7 @@ class ParcelHarness {
     journal: journal,
     writesVerified: true,
     parcelWritesVerified: enabled,
+    prepaidDeliveryWritesVerified: prepaidEnabled,
     proofStore: proofs,
     photos: photos,
     isCurrent: () => current,

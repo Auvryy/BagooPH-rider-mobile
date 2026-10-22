@@ -26,6 +26,7 @@ class CommandIntent {
     required Map<String, dynamic> body,
     required this.createdAt,
     this.proof,
+    this.deliveryPaymentMethod,
   }) : body = Map.unmodifiable({
          ...body,
          if (action == 'notification.read')
@@ -33,6 +34,10 @@ class CommandIntent {
        }) {
     Wire.id(accountId);
     Wire.uuid(key);
+    if (deliveryPaymentMethod != null &&
+        (action != 'deliver' || deliveryPaymentMethod != 'wallet')) {
+      Wire.invalid();
+    }
     if (action == 'duty') {
       if (resource != 'rider' || body.length != 1 || proof != null) {
         Wire.invalid();
@@ -70,13 +75,7 @@ class CommandIntent {
       final required = {'expected_version', 'barcode'};
       final allowed = {...required, 'notes'};
       if (selected == ParcelAction.deliver) {
-        required.addAll({
-          'recipient_name',
-          'recipient_relationship',
-          'cash_received',
-          'change_given',
-          'cash_confirmed',
-        });
+        required.addAll({'recipient_name', 'recipient_relationship'});
         parcelText(
           Wire.string(body['recipient_name']),
           'recipient_name',
@@ -84,16 +83,19 @@ class CommandIntent {
           max: 255,
         );
         if (!recipientRelationships.containsKey(
-              body['recipient_relationship'],
-            ) ||
-            body['cash_confirmed'] != true) {
+          body['recipient_relationship'],
+        )) {
           Wire.invalid();
         }
-        pesoInputCents(Wire.string(body['cash_received']));
-        pesoInputCents(
-          Wire.string(body['change_given']),
-          field: 'change_given',
-        );
+        if (deliveryPaymentMethod != 'wallet') {
+          required.addAll({'cash_received', 'change_given', 'cash_confirmed'});
+          if (body['cash_confirmed'] != true) Wire.invalid();
+          pesoInputCents(Wire.string(body['cash_received']));
+          pesoInputCents(
+            Wire.string(body['change_given']),
+            field: 'change_given',
+          );
+        }
       } else if (selected == ParcelAction.fail) {
         required.addAll({'notes', 'reason', 'location_name'});
         if (!failureReasonCodes.contains(body['reason'])) Wire.invalid();
@@ -132,12 +134,19 @@ class CommandIntent {
     proof: j['proof'] == null
         ? null
         : ParcelProofReference.fromJson(Wire.object(j['proof'])),
+    deliveryPaymentMethod: j['delivery_payment_method'] == null
+        ? null
+        : Wire.string(j['delivery_payment_method']),
   );
 
   final String accountId, key, action, resource;
   final Map<String, dynamic> body;
   final DateTime createdAt;
   final ParcelProofReference? proof;
+
+  /// Local journal discriminator only; never added to the HTTP request body.
+  /// Absent on legacy COD intents, which retain their required cash fields.
+  final String? deliveryPaymentMethod;
   bool get isMessage => action == 'message.send' || action == 'message.read';
   bool get isNotification => action == 'notification.read';
   ParcelAction? get parcelAction =>
@@ -170,5 +179,7 @@ class CommandIntent {
       isUtc: true,
     ).toIso8601String(),
     if (proof != null) 'proof': proof!.toJson(),
+    if (deliveryPaymentMethod != null)
+      'delivery_payment_method': deliveryPaymentMethod,
   };
 }

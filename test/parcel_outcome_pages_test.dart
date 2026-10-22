@@ -8,6 +8,7 @@ import 'package:bagoo_rider_mobile/core/ui/private_image.dart';
 import 'package:bagoo_rider_mobile/features/home/data/operations_repository.dart';
 import 'package:bagoo_rider_mobile/features/parcels/data/parcel_photo_service.dart';
 import 'package:bagoo_rider_mobile/features/parcels/presentation/parcel_action_page.dart';
+import 'package:bagoo_rider_mobile/features/parcels/presentation/parcel_outcome_fields.dart';
 import 'package:bagoo_rider_mobile/features/workspace/presentation/workspace_controller.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +49,16 @@ Future<void> _render(
 }
 
 class _Outcome {
-  _Outcome(ParcelAction action) : domain = ParcelHarness(action: action) {
+  _Outcome(ParcelAction action, {bool prepaid = false})
+    : domain = ParcelHarness(action: action) {
+    if (prepaid) {
+      domain.taskJson['payment'] = {
+        'method': 'wallet',
+        'commercial_payment_status': 'paid',
+        'cod_due_cents': null,
+      };
+      domain.taskJson['stop']['kind'] = 'buyer';
+    }
     photos = ParcelPhotoService(
       origin: Uri.parse('https://example.test/api/v1'),
       accountId: '5',
@@ -56,7 +66,9 @@ class _Outcome {
       isCurrent: () => domain.current,
       picker: TestParcelPhotoPicker(),
     );
-    work = WorkspaceController(domain.restart(photos: photos));
+    work = WorkspaceController(
+      domain.restart(photos: photos, prepaidEnabled: prepaid),
+    );
     domain.api.respond = respond;
   }
   final ParcelHarness domain;
@@ -152,7 +164,11 @@ Future<void> _mount(WidgetTester tester, _Outcome h, {double scale = 1}) async {
   await _tap(tester, find.byKey(const ValueKey('parcel-photo-choose')));
 }
 
-Future<void> _deliveryFields(WidgetTester tester, _Outcome h) async {
+Future<void> _deliveryFields(
+  WidgetTester tester,
+  _Outcome h, {
+  bool cash = true,
+}) async {
   await _enter(tester, 'parcel-recipient', 'Software Test Recipient');
   FocusManager.instance.primaryFocus?.unfocus();
   await tester.pumpAndSettle();
@@ -162,6 +178,7 @@ Future<void> _deliveryFields(WidgetTester tester, _Outcome h) async {
   );
   await tester.tap(find.text('Buyer').last);
   await tester.pumpAndSettle();
+  if (!cash) return;
   await _enter(tester, 'parcel-cash-received', '200.00');
   await _enter(tester, 'parcel-change-given', '75.00');
   FocusManager.instance.primaryFocus?.unfocus();
@@ -191,6 +208,80 @@ void main() {
     )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
   });
   setUp(() => FlutterSecureStorage.setMockInitialValues({}));
+  testWidgets(
+    'changed payment clears reviewed proof and cash without a version change',
+    (tester) async {
+      final h = _Outcome(ParcelAction.deliver);
+      addTearDown(h.dispose);
+      await _mount(tester, h);
+      await _deliveryFields(tester, h);
+      final fields = tester.state<ParcelOutcomeFieldsState>(
+        find.byType(ParcelOutcomeFields),
+      );
+      expect(fields.ready, isTrue);
+      expect(fields.cashConfirmed, isTrue);
+      final version = h.domain.task.version;
+      h.domain.taskJson['payment']['cod_due_cents'] = '12600';
+      await _tap(tester, find.byKey(const ValueKey('parcel-refresh')));
+      expect(h.domain.task.version, version);
+      expect(fields.proof, isNull);
+      expect(fields.cashConfirmed, isFalse);
+      expect(fields.received.text, isEmpty);
+      expect(fields.change.text, isEmpty);
+      expect(fields.ready, isFalse);
+      expect(h.sent, isEmpty);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+      h.dispose();
+    },
+  );
+  for (final width in [320.0, 840.0]) {
+    testWidgets(
+      'paid wallet delivery keeps recipient proof and omits cash at width $width with 200 percent text',
+      (tester) async {
+        tester.view.physicalSize = Size(width, 740);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        final h = _Outcome(ParcelAction.deliver, prepaid: true);
+        addTearDown(h.dispose);
+        await _mount(tester, h, scale: 2);
+        await _deliveryFields(tester, h, cash: false);
+        final instruction = find.byKey(
+          const ValueKey('parcel-payment-instruction'),
+        );
+        await tester.ensureVisible(instruction);
+        await tester.pumpAndSettle();
+        expect(find.text('Paid — no cash to collect'), findsOneWidget);
+        expect(
+          find.byKey(const ValueKey('parcel-cash-received')),
+          findsNothing,
+        );
+        expect(find.byKey(const ValueKey('parcel-change-given')), findsNothing);
+        expect(
+          find.byKey(const ValueKey('parcel-cash-confirmed')),
+          findsNothing,
+        );
+        await _render(tester, 'prepaid-deliver-${width.toInt()}-payment');
+        expect(tester.takeException(), isNull);
+        await _tap(tester, find.byKey(const ValueKey('parcel-submit')));
+        expect(find.text('Delivery recorded'), findsOneWidget);
+        expect(h.sent, hasLength(1));
+        final fields = Map.fromEntries(h.sent.single.fields);
+        expect(fields['recipient_name'], 'Software Test Recipient');
+        expect(fields['recipient_relationship'], 'buyer');
+        expect(
+          fields.keys.any((k) => k.startsWith('cash') || k == 'change_given'),
+          isFalse,
+        );
+        expect(h.sent.single.files.single.key, 'proof_image_file');
+        expect(h.work.selectedTask, isNull);
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+        h.dispose();
+      },
+    );
+  }
   for (final width in [320.0, 840.0]) {
     testWidgets(
       'COD form records actual recipient original proof and exact cash at width $width with 200 percent text',

@@ -38,6 +38,10 @@ class ParcelActionController extends ChangeNotifier {
       !needsRevalidation &&
       result == null &&
       task?.actions[action.name] == true &&
+      (action != ParcelAction.deliver ||
+          (task!.deliveryPaymentKind != DeliveryPaymentKind.unavailable &&
+              (task!.deliveryPaymentKind != DeliveryPaymentKind.paidWallet ||
+                  work.operations?.prepaidDeliveryWritesVerified == true))) &&
       work.canWriteParcel &&
       work.selectedTask?.id == taskId;
   bool get canSubmit => canCapture && barcode == task?.tracking;
@@ -59,6 +63,15 @@ class ParcelActionController extends ChangeNotifier {
       return task?.actionDenials[action.name] == 'UNSUPPORTED_PAYMENT_OUTCOME'
           ? 'This payment type cannot be recorded in the app yet. Contact your hub for the next step.'
           : 'This action is not available for the current parcel.';
+    }
+    if (action == ParcelAction.deliver && task != null) {
+      if (task!.deliveryPaymentKind == DeliveryPaymentKind.unavailable) {
+        return 'This payment cannot be confirmed for delivery. Refresh the parcel or contact your hub.';
+      }
+      if (task!.deliveryPaymentKind == DeliveryPaymentKind.paidWallet &&
+          work.operations?.prepaidDeliveryWritesVerified != true) {
+        return 'Prepaid delivery is awaiting live acceptance verification. You can still review this task.';
+      }
     }
     if (needsRevalidation) return 'Refresh this parcel before continuing.';
     return null;
@@ -99,7 +112,8 @@ class ParcelActionController extends ChangeNotifier {
         failure = const AccountFailure(
           'This parcel is no longer available. Return to your current tasks.',
         );
-      } else if (selected?.version != task?.version) {
+      } else if (selected?.version != task?.version ||
+          selected?.paymentTerms != task?.paymentTerms) {
         needsRevalidation = true;
         barcode = null;
       }
@@ -129,7 +143,11 @@ class ParcelActionController extends ChangeNotifier {
             work.workFailure ??
             const AccountFailure('This parcel action is no longer available.');
       } else {
-        if (task != null && task!.version != fresh.version) barcode = null;
+        if (task != null &&
+            (task!.version != fresh.version ||
+                task!.paymentTerms != fresh.paymentTerms)) {
+          barcode = null;
+        }
         task = fresh;
         needsRevalidation = false;
       }

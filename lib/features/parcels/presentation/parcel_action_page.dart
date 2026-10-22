@@ -191,7 +191,7 @@ class _ParcelActionPageState extends State<ParcelActionPage>
                             Text(switch (action) {
                               ParcelAction.pickup => 'Verify this parcel, scan its waybill and confirm the handoff. Your next stop will be its origin hub.',
                               ParcelAction.depart => 'Verify the hub-assigned parcel and scan its waybill before starting the buyer delivery.',
-                              ParcelAction.deliver => 'Review the recipient, actual proof and cash before recording this delivery.',
+                              ParcelAction.deliver => 'Review the recipient, handoff proof and payment instructions before recording this delivery.',
                               ParcelAction.fail => 'Record the actual reason, place and proof. The hub will confirm the parcel return and any retry.',
                             }),
                             if (validationFailed)

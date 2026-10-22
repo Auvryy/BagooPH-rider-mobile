@@ -18,6 +18,7 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
     required this.journal,
     required this.writesVerified,
     this.parcelWritesVerified = false,
+    this.prepaidDeliveryWritesVerified = false,
     this.proofStore,
     this.photos,
     required this.isCurrent,
@@ -28,6 +29,7 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
   final CommandJournal journal;
   final bool writesVerified;
   final bool parcelWritesVerified;
+  final bool prepaidDeliveryWritesVerified;
   final ParcelProofStore? proofStore;
   final ParcelPhotoService? photos;
   final bool Function() isCurrent;
@@ -240,7 +242,9 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
       final fresh = await detail(reviewed.id);
       if (fresh.version != reviewed.version ||
           fresh.assignmentReference != reviewed.assignmentReference ||
-          fresh.actions[action.name] != true) {
+          fresh.actions[action.name] != true ||
+          (action == ParcelAction.deliver &&
+              fresh.paymentTerms != reviewed.paymentTerms)) {
         throw const AccountFailure(
           'This parcel changed. Refresh it and review the current action.',
           status: 409,
@@ -258,21 +262,41 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
           fields.containsKey('barcode')) {
         Wire.invalid();
       }
-      if (action == ParcelAction.deliver &&
-          (fresh.paymentMethod != 'cod' ||
-              fresh.codDueCents == null ||
-              pesoInputCents(Wire.string(fields['cash_received'])) -
-                      pesoInputCents(
-                        Wire.string(fields['change_given']),
-                        field: 'change_given',
-                      ) !=
-                  fresh.codDueCents)) {
-        throw const AccountFailure(
-          'Received cash minus change must equal the recorded COD amount.',
-          fields: {
-            'cash_received': 'Check the received cash and change against COD.',
-          },
-        );
+      if (action == ParcelAction.deliver) {
+        if (fresh.deliveryPaymentKind == DeliveryPaymentKind.unavailable) {
+          throw const AccountFailure(
+            'This payment cannot be confirmed for delivery. Refresh the parcel or contact your hub.',
+          );
+        }
+        if (fresh.deliveryPaymentKind == DeliveryPaymentKind.paidWallet) {
+          if (!prepaidDeliveryWritesVerified) {
+            throw const AccountFailure(
+              'Prepaid delivery is awaiting live acceptance verification.',
+            );
+          }
+          if ([
+            'cash_received',
+            'change_given',
+            'cash_confirmed',
+          ].any(fields.containsKey)) {
+            throw const AccountFailure(
+              'This parcel is prepaid. Do not submit a cash collection.',
+            );
+          }
+        } else if (pesoInputCents(Wire.string(fields['cash_received'])) -
+                pesoInputCents(
+                  Wire.string(fields['change_given']),
+                  field: 'change_given',
+                ) !=
+            fresh.codDueCents) {
+          throw const AccountFailure(
+            'Received cash minus change must equal the recorded COD amount.',
+            fields: {
+              'cash_received':
+                  'Check the received cash and change against COD.',
+            },
+          );
+        }
       }
       if (action == ParcelAction.fail &&
           (fresh.failurePolicy == null ||
@@ -298,6 +322,11 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
         body: {'expected_version': fresh.version, 'barcode': scan, ...fields},
         createdAt: now().toUtc(),
         proof: retained,
+        deliveryPaymentMethod:
+            action == ParcelAction.deliver &&
+                fresh.deliveryPaymentKind == DeliveryPaymentKind.paidWallet
+            ? 'wallet'
+            : null,
       );
       await journal.write(intent);
       persisted = true;
@@ -501,6 +530,8 @@ class OperationsRepository extends UnavailableWorkspaceRepository {
         if (!(intent.parcelAction == null
                 ? writesVerified
                 : parcelWritesVerified) ||
+            (intent.deliveryPaymentMethod == 'wallet' &&
+                !prepaidDeliveryWritesVerified) ||
             now().toUtc().difference(intent.createdAt) >=
                 const Duration(days: 7)) {
           throw const AccountFailure(

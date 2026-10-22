@@ -9,6 +9,15 @@ precedence over generic examples below. Do not implement accepted operations fro
 this proposal table or duplicate the owner's schema. Source availability does not
 establish Azure, Flutter or physical-device acceptance.
 
+**October 22 additive payment contract:** reviewed backend `99e5895` permits
+evidenced paid Bagoo Wallet delivery through the existing native delivery action.
+The client requires fresh owned buyer-stop detail with method `wallet`, status
+`paid`, null COD due and a permitted `deliver` hint; it omits cash fields while
+retaining actual scan, recipient/relationship, original image and original UUID.
+A local journal discriminator is never an HTTP field. COD retains exact cash
+validation. `PREPAID_DELIVERY_WRITES_VERIFIED` defaults to false in addition to
+the parcel gate; local compatibility does not establish live activation.
+
 Use `/api/v1` JSON endpoints in the existing Laravel app. Existing Inertia
 responses, web session forms, and public masked tracking are not substitutes
 for an authenticated rider API. Reuse shared policies, validation, and services.

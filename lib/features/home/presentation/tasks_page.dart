@@ -13,6 +13,7 @@ import '../../navigation/presentation/navigation_controller.dart';
 import '../../../core/ui/rider_surfaces.dart';
 import '../data/operations_models.dart';
 import 'task_stage_label.dart';
+import 'task_payment_instruction.dart';
 import 'stop_mode_page.dart';
 import 'work_summary.dart';
 
@@ -387,12 +388,11 @@ class TaskCard extends StatelessWidget {
             ),
           ],
         ),
-        if (task.operation?.codDueCents != null) ...[
-          const SizedBox(height: 18),
-          Text(
-            'Recorded cash to collect: ${exactPesos(task.operation!.codDueCents!)}',
+        if (task.operation != null)
+          TaskPaymentInstruction(
+            task: task.operation!,
+            codPrefix: 'Recorded cash to collect',
           ),
-        ],
         if (task.cashCentavos != null) ...[
           const SizedBox(height: 18),
           Text('Recorded cash to collect: ${pesos(task.cashCentavos!)}'),

@@ -175,6 +175,30 @@ void main() {
     expect(c.canSubmit, isFalse);
   });
 
+  test(
+    'payment changes invalidate a scan even when the task version is unchanged',
+    () async {
+      final h = _Workflow(action: ParcelAction.deliver);
+      addTearDown(h.dispose);
+      final c = await h.open();
+      final version = c.task!.version;
+      c.acceptScan(h.domain.task.tracking);
+      expect(c.canSubmit, isTrue);
+      h.domain.taskJson['payment']['cod_due_cents'] = '12600';
+      await h.work.openTask(OperationsRepository.asRiderTask(h.domain.task));
+      expect(c.needsRevalidation, isTrue);
+      expect(c.barcode, isNull);
+      expect(c.canSubmit, isFalse);
+      await c.refresh();
+      expect(c.task!.version, version);
+      expect(c.task!.codDueCents, BigInt.from(12600));
+      expect(c.barcode, isNull);
+      expect(c.canCapture, isTrue);
+      expect(c.canSubmit, isFalse);
+      expect(h.writes, 0);
+    },
+  );
+
   test('uncertain collection stays blocked and a later saved-result check shows success', () async {
     final h = _Workflow();
     addTearDown(h.dispose);

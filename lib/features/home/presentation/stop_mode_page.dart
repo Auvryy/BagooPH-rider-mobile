@@ -14,6 +14,7 @@ import '../../workspace/presentation/workspace_controller.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
 import '../data/operations_models.dart';
 import 'home_task_panel.dart' show stopKindLabel;
+import 'task_payment_instruction.dart';
 import 'stop_guidance.dart';
 import 'task_stage_label.dart';
 import '../../handover/presentation/handover_entry.dart';
@@ -632,13 +633,10 @@ class _StopModePageState extends State<StopModePage>
           key: const ValueKey('stop-custody'),
           style: Theme.of(context).textTheme.bodySmall,
         ),
-        if (!task.preview && task.codDueCents != null) ...[
-          const SizedBox(height: 16),
-          Text(
-            'Recorded COD to collect: ${exactPesos(task.codDueCents!)}',
-            style: const TextStyle(fontWeight: FontWeight.w700),
-          ),
-        ],
+        TaskPaymentInstruction(
+          task: task,
+          codPrefix: 'Recorded COD to collect',
+        ),
       ],
     ),
   );

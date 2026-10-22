@@ -112,6 +112,13 @@ and exact COD collection when applicable. Coordinates/signature may support
 evidence if later approved; they do not replace required proof. The app previews
 the selected file and preserves safe input after a rejected submission.
 
+For an evidenced paid Bagoo Wallet buyer stop, the current permitted delivery
+hint confirms the original payment source. Show “Paid — no cash to collect” and
+submit recipient, relationship, actual waybill and original image without cash
+fields. A missing COD amount or paid label alone cannot establish that state.
+Changed payment terms require a new review; live prepaid writes remain gated
+until original retained proof and recipient plus deployment checks are accepted.
+
 Selecting a photo, tapping submit, or timing out never proves delivery. A lost
 response enters “Result unconfirmed”: refresh/reconcile the command before
 retrying with the same idempotency key. Successful retries return the original

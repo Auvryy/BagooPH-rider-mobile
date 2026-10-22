@@ -67,6 +67,7 @@ final workspaceRepositoryProvider = Provider<WorkspaceRepository>(
       ),
       writesVerified: config.operationsWritesVerified,
       parcelWritesVerified: config.parcelWritesVerified,
+      prepaidDeliveryWritesVerified: config.prepaidDeliveryWritesVerified,
       proofStore: proofs,
       photos: photos,
       isCurrent: isCurrent,

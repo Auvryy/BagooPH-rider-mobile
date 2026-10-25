@@ -21,7 +21,7 @@ function run(){
 test('the Leaflet runtime draws one labelled sample line with two endpoints and no provider request',()=>{
  const h=run();assert.equal(h.url,'https://tile.openstreetmap.org/{z}/{x}/{y}.png');
  assert.equal(h.lines.length,2);assert.deepEqual(h.lines[1].points,sample.coordinates);
- assert.equal(h.lines[1].options.color,'#E00D42');assert.equal(h.lines[1].options.dashArray,'6 6');
+ assert.equal(h.lines[1].options.color,'#E00D42');assert.equal(h.lines[1].options.dashArray,undefined);assert.equal(h.lines[1].options.smoothFactor,0);
  assert.deepEqual(h.pins.map(p=>p.label),[sample.riderLabel,sample.deliveryLabel]);
  assert.equal(h.options.preferCanvas,true);assert.equal(h.options.scrollWheelZoom,false);
  assert.deepEqual(h.fit.points,sample.coordinates);assert.ok(h.events.some(e=>e.type==='ready'));

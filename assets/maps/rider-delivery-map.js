@@ -12,8 +12,8 @@
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
   }).addTo(map);
   map.attributionControl.setPrefix(false);
-  L.polyline(points, {color: '#FFFFFF', weight: 7, interactive: false}).addTo(map);
-  L.polyline(points, {color: '#E00D42', weight: 4, dashArray: '6 6', interactive: false}).addTo(map);
+  L.polyline(points, {color: '#FFFFFF', weight: 8, smoothFactor: 0, lineCap: 'round', lineJoin: 'round', interactive: false}).addTo(map);
+  L.polyline(points, {color: '#E00D42', weight: 5, smoothFactor: 0, lineCap: 'round', lineJoin: 'round', interactive: false}).addTo(map);
   L.circleMarker(points[0], {radius: 9, color: '#FFFFFF', weight: 3, fillColor: '#18181B', fillOpacity: 1}).addTo(map).bindTooltip(sample.riderLabel);
   L.circleMarker(points[points.length - 1], {radius: 9, color: '#FFFFFF', weight: 3, fillColor: '#E00D42', fillOpacity: 1}).addTo(map).bindTooltip(sample.deliveryLabel);
   function fit() { map.fitBounds(points, {padding: [48, 64], maxZoom: 16, animate: false}); }

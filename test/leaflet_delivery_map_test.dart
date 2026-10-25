@@ -34,7 +34,7 @@ void main() {
     expect(doc, contains("connect-src 'none'"));
     expect(doc, contains('OpenStreetMap contributors'));
     expect(doc, contains('Plus Jakarta Sans'));
-    expect(doc, contains("dashArray: '6 6'"));
+    expect(doc, contains('smoothFactor: 0'));
     expect(doc, isNot(contains('geoapify')));
     expect(doc, isNot(contains('grayscale(')));
     expect(

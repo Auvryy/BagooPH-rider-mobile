@@ -12,7 +12,6 @@ class AppConfig {
     this.messagesWritesVerified = false,
     this.notificationsWritesVerified = false,
     this.handoverWritesVerified = false,
-    this.geoapifyKey = '',
   });
   final String apiBase;
   final bool localAuth;
@@ -38,7 +37,6 @@ class AppConfig {
 
   /// Separate H04 deployment gate; does not enable duty or pickup claims.
   final bool handoverWritesVerified;
-  final String geoapifyKey;
   factory AppConfig.environment() {
     const deployedApi = 'https://bagooph.shop/api/v1';
     const deployedWebsite = 'https://courier.bagooph.shop';
@@ -69,7 +67,6 @@ class AppConfig {
         'NOTIFICATIONS_WRITES_VERIFIED',
       ),
       handoverWritesVerified: bool.fromEnvironment('HANDOVER_WRITES_VERIFIED'),
-      geoapifyKey: String.fromEnvironment('GEOAPIFY_API_KEY'),
     );
   }
   Uri get origin {

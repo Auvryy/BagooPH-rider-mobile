@@ -32,6 +32,8 @@ on an Android phone. These are design choices, not measured RAM/battery savings.
 | `package_info_plus` 10.2.2 | Installed for About Rider | Actual app version/build information; no invented release/version label |
 | `integration_test` | Installed development SDK dependency | Opt-in native account checks and Linux-rendered workspace preview checks |
 | `intl` | Proposed when dates/money appear | Locale display; no floating-point money authority or guessed timezone |
+| `webview_all` 1.4.6 | Installed for the Leaflet map | MIT; system Android WebView and Linux WebKitGTK 4.1 render bundled local map HTML without map credentials |
+| Leaflet 1.9.4 | Bundled local map assets | BSD-2-Clause; shared web/mobile renderer with standard OpenStreetMap light tiles and an explicit sample delivery line |
 | Bundled Plus Jakarta Sans | Implemented fallback font asset | Variable font with bundled SIL Open Font License; no runtime font download |
 
 Package versions are deliberately not presented as installed until they enter

@@ -60,7 +60,7 @@ class _NavigationControlsState extends State<NavigationControls> {
               const Text(
                 'No coordinates are saved for this stop. Use the server address.',
               ),
-            if (coords) ...[
+            if (coords && nav.routes.configured) ...[
               DropdownButtonFormField<NavigationProfile>(
                 isExpanded: true,
                 initialValue: _profile,

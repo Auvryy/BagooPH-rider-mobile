@@ -6,22 +6,17 @@ import 'package:flutter_map/flutter_map.dart' show CachedMapTileMetadata;
 import 'package:latlong2/latlong.dart';
 
 import 'route_geometry.dart';
+import 'road_routing.dart';
+export 'road_routing.dart';
 import 'map_tile_source.dart';
 import 'map_tile_cache.dart';
 import 'provider_scheduler.dart';
 
 export 'provider_scheduler.dart';
 
-class ProviderFailure implements Exception {
-  const ProviderFailure(this.message);
-  final String message;
-  @override
-  String toString() => message;
-}
-
 /// This client has no dependency on RiderSessionApi or token storage. It sends
 /// only Geoapify's client key to its fixed map/API hosts and follows no redirects.
-class GeoapifyClient extends ChangeNotifier {
+class GeoapifyClient extends ChangeNotifier implements RoadRoutingClient {
   GeoapifyClient(
     this.apiKey, {
     Dio? client,
@@ -45,6 +40,7 @@ class GeoapifyClient extends ChangeNotifier {
   int tileRevision = 0;
   String? failure;
   bool _disposed = false;
+  @override
   bool get configured => apiKey.trim().isNotEmpty;
   bool get loadingTiles => _inflight.isNotEmpty;
   bool get coolingDown => _blockedUntil?.isAfter(now()) == true;
@@ -198,6 +194,7 @@ class GeoapifyClient extends ChangeNotifier {
     }
   }
 
+  @override
   Future<RoadRoute> route(
     LatLng origin,
     LatLng target,

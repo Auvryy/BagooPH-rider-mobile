@@ -1,19 +1,84 @@
-# Rider street map and neutral controls
+# Leaflet delivery map and neutral rider controls
 
-Scope: refine the current Rider interface using restrained card borders, neutral surfaces, standard rounded controls and a light street map. Keep Bagoo's own red accent and Plus Jakarta Sans. Reference projects are read-only design examples; no reference project assets, accounts, API secrets or business rules are copied.
+## Current scope
 
-The native app retains its existing flutter_map renderer, cached Geoapify tile transport, OpenStreetMap attribution and real Geoapify road geometry. Leaflet is used in the web client; adding a browser renderer inside Flutter is unnecessary. No straight connector is substituted for a missing road route. Location permission, explicit Navigate, stale-fix expiry, hidden-map cancellation and secure-session gates remain intact.
+The user's revised direction supersedes the earlier provider-backed map design:
+web and mobile both use Leaflet 1.9.4 with unfiltered standard OpenStreetMap light
+tiles. The same public sample path connects a sample rider to a sample delivery
+point. It is visibly labelled as an illustration, without live GPS, task IDs,
+logistics hubs or a claimed delivery. Reference applications remain read-only.
+The path is illustrative; it is not certified road geometry or turn-by-turn advice.
 
-Source review: backend main `da75415`, Flutter main `720b907`, October 25, 2026. The separate web branch adds current-stop route preview; publication/deployment is not established by this plan. Existing API and operational write gates remain authoritative.
+The mobile map bundles Leaflet and its BSD-2-Clause licence and runs trusted local
+HTML/JavaScript through webview_all 1.4.6 (MIT). Android uses the system WebView;
+Linux uses WebKitGTK 4.1. Both render the same light map, dashed red sample line,
+white controls and visible attribution. Native tiles use an app-identifying user
+agent and normal web-view caching. No bulk fetching, offline tile pack, map key,
+external script/font download or account token enters the map document. Its CSP
+allows only tile images and the local embedded scripts/styles/font. Top-level
+external navigation is blocked; the fixed copyright link opens deliberately.
 
-Validation requires focused map/navigation and shared surface checks, Flutter analysis, normal Linux/Android builds and a scoped account of physical-device limitations. Record completed implementation evidence separately from this contract. The local map configuration is ignored and never included in source, command text or logs.
+Map load/permission failures cannot change parcel custody or operation results.
+The public sample requests no device location. Retry replaces and closes the old
+renderer; hidden/disposed maps close native resources, and late callbacks cannot
+restore a removed map. Web maps release their instance and resize observer when
+selection/mode changes or unmounts. Saved task addresses remain available.
 
-## Implementation and local evidence — October 25, 2026
+## Operational boundaries
 
-Shared controls and cards now use standard 8px rounded rectangles, neutral boundaries and small neutral shadows. Dialogs/sheets use 12px corners; account imagery and duty controls retain their intentional circular shapes. Inputs keep visible resting borders, keyboard focus and high-contrast behavior; touch targets and reduced-motion support remain intact. Home starts with light street tiles; the dark toggle and cached native renderer remain available.
+The old Geoapify key and active map/routing provider are removed from ordinary
+startup. The web provider endpoint is removed. Historical provider adapters and
+isolated tests remain outside the active mobile import path. In-app turn-by-turn
+routing is unavailable in this sample scope; actual current-stop external
+directions retain their authorization/revalidation checks. The sample never
+substitutes for delivery confirmation, a scan, a custody event or a dispatch route.
+Existing account, duty, claim, proof, payment and recovery gates remain authoritative.
 
-Road requests explicitly prefer avoiding ferries and request route details. The geometry parser rejects a returned ferry segment, excessive nesting, more than 100 sections or 10,000 points. Missing or unsupported routes remain failures rather than invented straight connectors. Existing explicit Navigate, fix accuracy/age requirements, cancellation and account/assignment gates remain in force. No new map dependency or browser renderer was added.
+Source review: web branch through `9d8cff2`, mobile through `e3a5818`, October 25,
+2026. No Azure deployment or live parcel/account/cash command was performed.
 
-The final full Flutter test run passed **639 tests with five skips**. Focused theme/surface and map/navigation checks cover the changed shapes, light/dark defaults and ferry rejection. Flutter analysis found no issues. Both the Linux debug build and Android debug APK build passed using the existing ignored map configuration. The Android build emitted an SDK XML tooling-version warning; it still completed successfully. These tests do not establish physical Android GPS, camera, permission, background or performance acceptance.
+## Mobile visual direction
 
-Scoped interface consistency assessment: **7/10 to 8/10**, based on shared tokens, controls and responsive automated tests. Road-route validation improves within this slice; overall operational readiness is unchanged. Web route-preview publication and Azure configuration remain separate. No deployment, live parcel/cash action, account mutation or reference-project change was performed. No new local key was needed; existing ignored map configuration is retained. Task tracking remains pending because the existing login expired; no saved task or time update is claimed.
+Shared neutral surfaces retain Bagoo red and bundled Plus Jakarta Sans. The shell
+header, navigation choices, task queue filters and dispatch summary use standard
+rounded controls, clear boundaries, medium labels and small neutral shadows.
+The map follows the reference light style without the old dark provider tiles or
+country mask. Phone pages scroll naturally; long captions grow outside the fixed
+map area, including 200% text. Desktop keeps the task column beside the map.
+
+## Verification
+
+The local renderer runtime checks verify the OSM tile URL, sample geometry,
+endpoint labels, bounded errors, attribution events and cleanup without opening
+a browser. Flutter checks cover bundled document/CSP/font, key-free startup,
+renderer retry, stale callbacks, lifecycle cleanup, responsive task/notification
+controls, owned parcel details and absence of automatic GPS acquisition. Actual
+native touch/permission/performance acceptance remains a physical-device check.
+Final verification passed **631 Flutter tests with five skips**, plus both Node
+renderer runtime checks. Flutter analysis found no issues. Linux and Android
+debug builds passed with the key-free local rider configuration. Android emitted
+an SDK XML tooling-version warning and still completed. The packaged Android
+Leaflet/sample/licence assets match source, and the old map key is absent from
+its Flutter assets/kernel and the Linux debug kernel. A source import audit
+reached Leaflet and found no active Geoapify adapter. Earlier FlutterMap-specific
+view tests were migrated to Leaflet disclosure/bridge/lifecycle coverage; legacy
+provider unit tests do not prove the new renderer. No browser window, screenshot
+or physical-device session was used for these checks.
+
+Scoped map alignment assessment: **4/10 to 8/10** against the revised request;
+the earlier native renderer/provider did not satisfy literal Leaflet parity.
+Interface consistency: **7/10 to 8/10**, based on shared shapes/surfaces and
+responsive checks, not a rendered-device assessment. Overall business-flow
+readiness is unchanged. Task tracking remains pending because its existing login
+expired; no saved task or measured time record is claimed.
+
+## Local launch
+
+```sh
+flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.rider.json
+```
+
+Run from the mobile repository. The ignored file preserves only existing accepted
+feature configuration; maps need no key. If absent, omit that argument without
+enabling unverified operations. Neither the configuration nor old map credentials
+are published. Separate PR descriptions are local drafts; the user publishes.

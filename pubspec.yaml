@@ -27,6 +27,7 @@ dependencies:
   pdfrx: ^2.6.5
   unorm_dart: ^0.3.2
   url_launcher: ^6.3.3
+  webview_all: 1.4.6
 
 dev_dependencies:
   flutter_test:
@@ -44,6 +45,9 @@ flutter:
     - assets/branding/gooriders-icon.png
     - assets/fonts/OFL.txt
     - assets/maps/philippines-display.geojson
+    - assets/maps/leaflet/
+    - assets/maps/rider-delivery-sample.json
+    - assets/maps/rider-delivery-map.js
     - assets/maps/README.md
     - assets/maps/philippines-display-source.json
   fonts:

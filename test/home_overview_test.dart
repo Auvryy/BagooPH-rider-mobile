@@ -562,7 +562,7 @@ Future<_Harness> _open(
           ref.onDispose(h.controller.dispose);
           return h.controller;
         }),
-        geoapifyProvider.overrideWithValue(geo),
+        roadRoutingProvider.overrideWithValue(geo),
         navigationProvider.overrideWithValue(nav),
         philippinesMapRegionProvider.overrideWithValue(AsyncData(_region!)),
       ],

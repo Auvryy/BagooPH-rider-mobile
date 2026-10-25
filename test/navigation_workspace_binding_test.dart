@@ -36,7 +36,7 @@ void main() {
             workspaceControllerProvider.overrideWith(
               (ref, identity) => h.controller,
             ),
-            geoapifyProvider.overrideWithValue(routes),
+            roadRoutingProvider.overrideWithValue(routes),
           ],
         );
         addTearDown(() {

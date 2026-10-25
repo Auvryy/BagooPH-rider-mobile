@@ -45,3 +45,5 @@ roadmap and backlog; it does not replace their scope, stable IDs or deadlines.
 
 A completed planning document is not a completed feature. Future evidence updates
 belong in the selected plan/batch; shared indexes contain only short pointers.
+
+- [Rider street map and neutral controls](rider-street-map/README.md): current native map and route lifecycle with compact neutral surfaces; no operational gate changes.

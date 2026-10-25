@@ -218,6 +218,8 @@ class GeoapifyClient extends ChangeNotifier {
                 '${origin.latitude},${origin.longitude}|${target.latitude},${target.longitude}',
             'mode': profile.mode,
             'format': 'geojson',
+            'avoid': 'ferries',
+            'details': 'route_details',
           },
           cancel: cancel,
         )).data,

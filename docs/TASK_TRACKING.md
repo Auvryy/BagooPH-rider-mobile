@@ -67,6 +67,8 @@ role-specific shapes, inset navigation and reduced-effects-aware transitions.
 No new operational API, page, account permission or sample app mode is introduced.
 Future design inventory entries remain planned and backend acceptance stays separate.
 
+**October 25 street-map refinement:** the [street-map plan](plans/rider-street-map/README.md) refines shared controls, defaults Home to light street tiles and guards actual road geometry against ferry routes. Existing native map caching, navigation lifecycle and operational gates remain in place. Local checks and device/deployment limits are recorded in that plan; this does not complete a major area or clear unrelated live acceptance.
+
 ## Always check the Bagoo website project
 
 **October 22 map refinement:** the selected

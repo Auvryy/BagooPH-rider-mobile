@@ -98,6 +98,23 @@ class Location implements NavigationLocation {
 
 void main() {
   test(
+    'route geometry rejects ferry legs rather than drawing them as a road',
+    () {
+      final ferry = jsonDecode(jsonEncode(geometry)) as Map<String, dynamic>;
+      (ferry['features'] as List).first['properties'] = {
+        'legs': [
+          {
+            'steps': [
+              {'ferry': true},
+            ],
+          },
+        ],
+      };
+      expect(() => RoadRoute.geoJson(ferry), throwsFormatException);
+    },
+  );
+
+  test(
     'GeoJSON swaps longitude/latitude and preserves separate road lines',
     () {
       final route = RoadRoute.geoJson(geometry);

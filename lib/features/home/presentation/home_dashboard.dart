@@ -54,7 +54,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
   GeoapifyTiles? _tiles;
   GeoapifyClient? _tileClient;
   PhilippinesMapRegion? _region;
-  bool _outlineFailed = false, _darkMap = true, _preferRider = false;
+  bool _outlineFailed = false, _darkMap = false, _preferRider = false;
   bool? _retinaChoice;
   bool get _retinaTiles =>
       _retinaChoice ?? MediaQuery.devicePixelRatioOf(context) > 1;
@@ -682,7 +682,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
                     key: ValueKey(_tiles!.scope),
                     tileProvider: _tiles!,
                     urlTemplate: _tileSource.template,
-                    userAgentPackageName: 'com.example.bagoo_rider_mobile',
+                    userAgentPackageName: 'com.bagoo.rider',
                     panBuffer: 0,
                   ),
                 PhilippinesMapMask(

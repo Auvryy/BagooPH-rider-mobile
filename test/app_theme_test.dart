@@ -5,47 +5,44 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test(
-    'DESIGN_SYSTEM.md defines the One Red #E00D42 standard and Plus Jakarta Sans',
-    () {
-      final spec = File('docs/DESIGN_SYSTEM.md').readAsStringSync();
-      expect(spec, contains('#E00D42'));
-      expect(spec, contains('Plus Jakarta Sans'));
+  test('DESIGN_SYSTEM.md defines the One Red #E00D42 standard and Plus Jakarta Sans', () {
+    final spec = File('docs/DESIGN_SYSTEM.md').readAsStringSync();
+    expect(spec, contains('#E00D42'));
+    expect(spec, contains('Plus Jakarta Sans'));
 
-      final theme = buildRiderTheme();
-      expect(RiderColors.accent, const Color(0xFFE00D42));
-      expect(RiderTypography.family, 'Plus Jakarta Sans');
-      expect(theme.scaffoldBackgroundColor, RiderColors.canvas);
-      expect(theme.colorScheme.primary, const Color(0xFFE00D42));
-      expect(theme.textTheme.bodyLarge?.fontFamily, 'Plus Jakarta Sans');
-      expect(RiderRadii.surface, 18.0);
-      expect(RiderRadii.group, 18.0);
-      expect(RiderRadii.control, 12.0);
-      expect(RiderRadii.dialog, 20.0);
-      expect(RiderRadii.sheet, 20.0);
-      expect(RiderRadii.media, 16.0);
-      expect(RiderRadii.pill, 999.0);
-      final field =
-          theme.inputDecorationTheme.enabledBorder! as OutlineInputBorder;
-      expect(field.borderRadius.topLeft.x, RiderRadii.control);
-      expect(field.borderSide, BorderSide.none);
-      expect(field, isA<RiderInputBorder>());
-      expect(theme.inputDecorationTheme.fillColor, RiderColors.controlFill);
-      final dialog = theme.dialogTheme.shape! as RoundedSuperellipseBorder;
-      expect(
-        dialog.borderRadius.resolve(TextDirection.ltr).topLeft.x,
-        RiderRadii.dialog,
-      );
-      expect(
-        theme.filledButtonTheme.style!.minimumSize!.resolve({})!.height,
-        greaterThanOrEqualTo(56),
-      );
-      expect(
-        theme.outlinedButtonTheme.style!.minimumSize!.resolve({})!.height,
-        greaterThanOrEqualTo(48),
-      );
-    },
-  );
+    final theme = buildRiderTheme();
+    expect(RiderColors.accent, const Color(0xFFE00D42));
+    expect(RiderTypography.family, 'Plus Jakarta Sans');
+    expect(theme.scaffoldBackgroundColor, RiderColors.canvas);
+    expect(theme.colorScheme.primary, const Color(0xFFE00D42));
+    expect(theme.textTheme.bodyLarge?.fontFamily, 'Plus Jakarta Sans');
+    expect(RiderRadii.surface, 8.0);
+    expect(RiderRadii.group, 8.0);
+    expect(RiderRadii.control, 8.0);
+    expect(RiderRadii.dialog, 12.0);
+    expect(RiderRadii.sheet, 12.0);
+    expect(RiderRadii.media, 8.0);
+    expect(RiderRadii.pill, 999.0);
+    final field =
+        theme.inputDecorationTheme.enabledBorder! as OutlineInputBorder;
+    expect(field.borderRadius.topLeft.x, RiderRadii.control);
+    expect(field.borderSide.color, RiderColors.border);
+    expect(field, isA<RiderInputBorder>());
+    expect(theme.inputDecorationTheme.fillColor, RiderColors.controlFill);
+    final dialog = theme.dialogTheme.shape! as RoundedRectangleBorder;
+    expect(
+      dialog.borderRadius.resolve(TextDirection.ltr).topLeft.x,
+      RiderRadii.dialog,
+    );
+    expect(
+      theme.filledButtonTheme.style!.minimumSize!.resolve({})!.height,
+      greaterThanOrEqualTo(56),
+    );
+    expect(
+      theme.outlinedButtonTheme.style!.minimumSize!.resolve({})!.height,
+      greaterThanOrEqualTo(48),
+    );
+  });
 
   test(
     'focus, validation and high contrast remain visible without dark borders',

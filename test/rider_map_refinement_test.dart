@@ -151,7 +151,7 @@ void main() {
       expect(find.byType(HomeMapPositionMarker), findsOneWidget);
       expect(h.navigation.active, isFalse);
       expect(source.cancelled, 1);
-      expect(geo.sources.every((s) => s.style == MapTileStyle.dark), isTrue);
+      expect(geo.sources.every((s) => s.style == MapTileStyle.bright), isTrue);
       expect(h.api.calls.every((call) => call.method == 'GET'), isTrue);
       await _capture(tester, 'gps-rider-area', geo);
     },
@@ -308,13 +308,13 @@ void main() {
         final feature = tester.widget<HomeMapChrome>(
           find.byType(HomeMapChrome),
         );
-        expect(feature.dark, isTrue);
+        expect(feature.dark, isFalse);
         expect(find.byType(DraggableScrollableSheet), findsNothing);
         for (final name in [
           'Zoom in',
           'Zoom out',
           'Recenter',
-          'Use daylight map',
+          'Use dark map',
         ]) {
           expect(
             tester.getSize(find.byTooltip(name)).shortestSide,
@@ -345,15 +345,15 @@ void main() {
         await dashboard.revealHome(tester, find.byType(HomeMapChrome));
         await _capture(
           tester,
-          'dark-${view.size.width.toInt()}-${view.size.height.toInt()}-${view.scale}x',
+          'light-${view.size.width.toInt()}-${view.size.height.toInt()}-${view.scale}x',
           geo,
         );
         final tokens = geo.tokens.toList();
         final before = _camera(tester).center;
-        await dashboard.tapHome(tester, find.byTooltip('Use daylight map'));
+        await dashboard.tapHome(tester, find.byTooltip('Use dark map'));
         expect(
           tester.widget<HomeMapChrome>(find.byType(HomeMapChrome)).dark,
-          isFalse,
+          isTrue,
         );
         expect(tokens.every((token) => token.isCancelled), isTrue);
         expect(_camera(tester).center, before);
@@ -361,7 +361,7 @@ void main() {
         expect(h.navigation.road, same(road));
         await _capture(
           tester,
-          'daylight-${view.size.width.toInt()}-${view.size.height.toInt()}-${view.scale}x',
+          'dark-${view.size.width.toInt()}-${view.size.height.toInt()}-${view.scale}x',
           geo,
         );
         await dashboard.tapHome(tester, find.byTooltip('Zoom in'));
@@ -437,7 +437,7 @@ void main() {
       expect(geo.sources, isNotEmpty);
       expect(geo.sources.every((source) => source.retina), isTrue);
       expect(
-        geo.sources.every((source) => source.style == MapTileStyle.dark),
+        geo.sources.every((source) => source.style == MapTileStyle.bright),
         isTrue,
       );
       await dashboard.revealHome(

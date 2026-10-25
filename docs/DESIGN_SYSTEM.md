@@ -17,14 +17,14 @@ Visual noise, unnecessary gradients, and multi-colored rainbow tags are eliminat
 |---|---|---|---|
 | `brandPrimary` | Crimson Red | `#E00D42` | **The ONLY Accent Color.** Reserved for primary CTAs, active selection indicators, live badges, and focus rings. Never floods full backgrounds. |
 | `brandSubtle` | Soft Red Tint | `rgba(224, 13, 66, 0.08)` | Active pill backgrounds, subtle notification pings, focused chip fills. |
-| `brandGlow` | Crimson Ambience | `rgba(224, 13, 66, 0.16)` | Controlled glow rings and spring selection indicators. |
-| `canvasBackground` | Light Slate | `#F8FAFC` | App-wide background canvas behind all views. |
+| `brandGlow` | Legacy selection tint | `rgba(224, 13, 66, 0.16)` | Shared surfaces use neutral elevation; indicate selection with a border and label. |
+| `canvasBackground` | Neutral White | `#FAFAFA` | App-wide background canvas behind all views. |
 | `surfaceCard` | Crisp Pure White | `#FFFFFF` | Primary cards, sheets, modal sheets, and floating surface panels. |
 | `surfaceCarbon` | Deep Carbon | `#090A0F` | High-contrast banners, terminal notices, and deep pill controls. |
-| `textPrimary` | Deep Ink | `#111827` | Primary headlines, waybill IDs, customer names, and action titles. |
-| `textSecondary` | Balanced Slate | `#64748B` | Supporting labels, addresses, timestamps, and secondary captions. |
+| `textPrimary` | Deep Ink | `#18181B` | Primary headlines, waybill IDs, customer names, and action titles. |
+| `textSecondary` | Balanced Slate | `#62626B` | Supporting labels, addresses, timestamps, and secondary captions. |
 | `textMuted` | Muted Gray | `#94A3B8` | Placeholders, disabled states, and inactive tab icons. |
-| `borderQuiet` | Whisper Slate | `#E2E8F0` | Subtle 1px structural borders dividing cards and lists. |
+| `borderQuiet` | Whisper Slate | `#DEDEE3` | Subtle 1px structural borders dividing cards and lists. |
 | `borderSubtle` | Ink Tint Border | `rgba(17, 24, 39, 0.07)` | Translucent edge borders on floating overlays and elevated pills. |
 
 ---
@@ -37,9 +37,9 @@ Visual noise, unnecessary gradients, and multi-colored rainbow tags are eliminat
 
 ### 2.2. Layered Depth (No Muddy Shadows)
 Heavy, dark drop shadows are strictly prohibited. Depth is achieved through three deliberate optical layers:
-1. **Whisper-Quiet 1px Borders:** `1.0px` solid borders (`#E2E8F0` or `rgba(17, 24, 39, 0.07)`) defining clear, tactile edges.
-2. **Soft Ambient Elevation:** `BoxShadow(color: Color(0x0D111827), blurRadius: 20, offset: Offset(0, 4), spreadRadius: -2)` providing natural floating separation.
-3. **Frosted Glass Overlays:** `BackdropFilter` with Gaussian blur sigma `12.0` and translucent white fill `rgba(255, 255, 255, 0.85)` for floating navigation bars, modal headers, and map controls.
+1. **Whisper-Quiet 1px Borders:** `1.0px` solid borders (`#DEDEE3` or `rgba(17, 24, 39, 0.07)`) defining clear, tactile edges.
+2. **Soft Ambient Elevation:** `BoxShadow(color: Color(0x0D18181B), blurRadius: 3, offset: Offset(0, 1))` providing natural floating separation.
+3. **Solid Chrome:** white navigation and opaque readable map controls preserve contrast without background blur.
 
 ### 2.3. Precision Typography
 - **Typeface:** Bundled **Plus Jakarta Sans** geometric sans-serif stack.
@@ -57,10 +57,11 @@ Every margin, padding, spacing, and height adheres strictly to the `4px`/`8px` s
 - `32px` (`xl`): Major module separation, header vertical margins.
 
 **Border Radii Scale:**
-- `12px`: Form input fields, buttons, interactive chips.
-- `16px`: Standard work cards, task containers, stop details.
-- `20px`: Floating sheets, bottom sheets, large dashboard panels.
-- `999px`: Fully circular pill buttons, status indicators, navigation tabs.
+- `8px`: Standard rounded cards, inputs, buttons, media and selected controls.
+- `12px`: Dialogs and sheets.
+- `999px`: Circular status indicators, avatars and the existing navigation capsule.
+
+Use a neutral `#FAFAFA` canvas, white surfaces, `#18181B` text and `#DEDEE3` boundaries with Bagoo's `#E00D42` accent. Shared controls follow the compact card, field and separator hierarchy associated with shadcn; Flutter keeps native widgets and existing accessibility. Standard rounded rectangles replace the larger continuous contours. Use subtle neutral elevation instead of coloured glows. The Home map starts in daylight street style, with dark mode available through its existing explicit style control. Real road geometry, attribution, lifecycle cancellation and permission rules remain intact.
 
 ---
 
@@ -84,20 +85,20 @@ Every touch and state change in BagooPH Rider Mobile feels physical, rapid, and 
 
 ### 3.4. The 6 Polished Component States
 Every interactive component explicitly handles:
-1. **Idle:** Pristine white surface, quiet 1px border `#E2E8F0`, deep ink label.
+1. **Idle:** Pristine white surface, quiet 1px border `#DEDEE3`, deep ink label.
 2. **Hover (Desktop / Mouse):** Subtle background illumination (`#F8FAFC`), crisp border sharpening.
 3. **Active / Pressed:** Physical `scale(0.98)` spring compression, subtle highlight.
 4. **Focus-Visible:** Razor-sharp Crimson (`#E00D42`) `2px` focus ring with `2px` offset.
-5. **Loading:** Monochromatic shimmer skeleton (`#F1F5F9` to `#E2E8F0`), never an unstyled "Loading..." text string.
+5. **Loading:** Monochromatic shimmer skeleton (`#F1F5F9` to `#DEDEE3`), never an unstyled "Loading..." text string.
 6. **Empty:** Clean illustration or centered icon with slate caption and one clear primary CTA.
 
 ## 4. Geographic display
 
-The selected [map refinement](plans/rider-map-refinement/README.md) gives Home's
-map a charcoal surface while retaining the light/red application theme. Its
-`RiderMapColors` tokens own map canvas, floating controls, light ink and muted
-labels. Use the provider's Dark Matter tiles by default and its readable daylight
-style through an explicit toggle. The PH display footprint and provider credits
+The [street-map refinement](plans/rider-street-map/README.md) defaults Home to
+light street tiles and neutral controls. The earlier
+[map refinement](plans/rider-map-refinement/README.md) remains the lifecycle
+foundation; its `RiderMapColors` tokens still support the dark option through
+an explicit toggle. The PH display footprint and provider credits
 remain visible; country framing never represents service eligibility.
 
 Use one outlined crimson-family road line, small white/red stop pins and a

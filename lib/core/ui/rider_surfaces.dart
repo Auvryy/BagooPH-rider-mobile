@@ -23,22 +23,15 @@ class RiderSurface extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isAccent = color == RiderColors.rose || accentGlow;
-    final shape = RoundedSuperellipseBorder(
+    final shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(radius),
       side: BorderSide(
-        color: isAccent
-            ? const Color(0x33E00D42)
-            : RiderColors.border,
+        color: isAccent ? const Color(0x33E00D42) : RiderColors.border,
         width: 1.0,
       ),
     );
     return DecoratedBox(
-      decoration: ShapeDecoration(
-        shape: shape,
-        shadows: isAccent
-            ? RiderShadows.neumorphicAccent
-            : RiderShadows.ambient,
-      ),
+      decoration: ShapeDecoration(shape: shape, shadows: RiderShadows.ambient),
       child: Material(
         color: color,
         shape: shape,
@@ -53,10 +46,8 @@ class RiderCanvas extends StatelessWidget {
   const RiderCanvas({super.key, required this.child});
   final Widget child;
   @override
-  Widget build(BuildContext context) => Container(
-    color: RiderColors.canvas,
-    child: child,
-  );
+  Widget build(BuildContext context) =>
+      Container(color: RiderColors.canvas, child: child);
 }
 
 /// Solid sculpted chrome keeps navigation and temporary controls readable over a map.
@@ -76,7 +67,7 @@ class RiderChrome extends StatelessWidget {
   final Color color;
   @override
   Widget build(BuildContext context) {
-    final shape = RoundedSuperellipseBorder(
+    final shape = RoundedRectangleBorder(
       borderRadius: topOnly
           ? BorderRadius.vertical(top: Radius.circular(radius))
           : BorderRadius.circular(radius),
@@ -171,7 +162,7 @@ class _RiderPressFeedbackState extends State<RiderPressFeedback>
           child: DecoratedBox(
             position: DecorationPosition.foreground,
             decoration: ShapeDecoration(
-              shape: RoundedSuperellipseBorder(
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(RiderRadii.control),
                 side: _focused
                     ? const BorderSide(color: RiderColors.accent, width: 2)

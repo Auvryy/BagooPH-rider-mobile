@@ -337,7 +337,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
   Widget _header(bool busy) => Padding(
     padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
     child: RiderChrome(
-      radius: RiderRadii.pill,
+      radius: RiderRadii.control,
       color: RiderColors.neumorphicSurface,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
@@ -354,7 +354,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                         padding: const EdgeInsets.all(3),
                         decoration: ShapeDecoration(
                           color: Colors.white,
-                          shape: RoundedSuperellipseBorder(
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
                               RiderRadii.brand,
                             ),
@@ -449,8 +449,8 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                   child: InkWell(
                     key: ValueKey('nav-${labels[index].toLowerCase()}'),
                     onTap: () => select(index),
-                    customBorder: RoundedSuperellipseBorder(
-                      borderRadius: BorderRadius.circular(RiderRadii.pill),
+                    customBorder: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(RiderRadii.control),
                     ),
                     child: AnimatedContainer(
                       duration: RiderMotion.reduced(context)
@@ -464,10 +464,12 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                       curve: Curves.easeOutCubic,
                       decoration: ShapeDecoration(
                         color: destination == index
-                            ? RiderColors.rose
+                            ? RiderColors.controlFill
                             : Colors.transparent,
-                        shape: RoundedSuperellipseBorder(
-                          borderRadius: BorderRadius.circular(RiderRadii.pill),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            RiderRadii.control,
+                          ),
                           side: destination == index
                               ? const BorderSide(
                                   color: Colors.white,
@@ -478,9 +480,9 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                         shadows: destination == index
                             ? const [
                                 BoxShadow(
-                                  color: Color(0x1EE00D42),
-                                  blurRadius: 12,
-                                  offset: Offset(0, 4),
+                                  color: Color(0x0D18181B),
+                                  blurRadius: 2,
+                                  offset: Offset(0, 1),
                                 ),
                               ]
                             : const [],
@@ -506,8 +508,8 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                                             ? RiderColors.accentText
                                             : RiderColors.muted,
                                         fontWeight: destination == index
-                                            ? FontWeight.w800
-                                            : FontWeight.w600,
+                                            ? FontWeight.w600
+                                            : FontWeight.w500,
                                       ),
                                     ),
                                   ),
@@ -536,8 +538,8 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                                             ? RiderColors.accentText
                                             : RiderColors.muted,
                                         fontWeight: destination == index
-                                            ? FontWeight.w800
-                                            : FontWeight.w600,
+                                            ? FontWeight.w600
+                                            : FontWeight.w500,
                                       ),
                                     ),
                                   ],
@@ -552,7 +554,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
           ),
       ];
       final navigation = RiderChrome(
-        radius: vertical ? RiderRadii.surface : RiderRadii.pill,
+        radius: vertical ? RiderRadii.surface : RiderRadii.control,
         color: RiderColors.neumorphicSurface,
         child: vertical
             ? SingleChildScrollView(

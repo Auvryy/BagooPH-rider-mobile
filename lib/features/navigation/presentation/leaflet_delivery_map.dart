@@ -2,12 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_all/webview_all.dart';
 
 import '../../../app/theme.dart';
+import 'native_delivery_map.dart';
 
 abstract interface class DeliveryMapSession {
   Widget get view;
@@ -97,13 +99,25 @@ html,body,#map{width:100%;height:100%;margin:0;background:#F2F1ED;font-family:'P
 </style></head><body><div id="map" role="region" aria-label="Sample rider to delivery route"></div><script>$script</script></body></html>''';
 }
 
-class LeafletDeliveryMap extends ConsumerStatefulWidget {
+class LeafletDeliveryMap extends StatelessWidget {
   const LeafletDeliveryMap({super.key});
+
   @override
-  ConsumerState<LeafletDeliveryMap> createState() => _LeafletDeliveryMapState();
+  Widget build(BuildContext context) =>
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.linux
+      ? const NativeDeliveryMap()
+      : const _EmbeddedLeafletDeliveryMap();
 }
 
-class _LeafletDeliveryMapState extends ConsumerState<LeafletDeliveryMap>
+class _EmbeddedLeafletDeliveryMap extends ConsumerStatefulWidget {
+  const _EmbeddedLeafletDeliveryMap();
+  @override
+  ConsumerState<_EmbeddedLeafletDeliveryMap> createState() =>
+      _LeafletDeliveryMapState();
+}
+
+class _LeafletDeliveryMapState
+    extends ConsumerState<_EmbeddedLeafletDeliveryMap>
     with WidgetsBindingObserver {
   DeliveryMapSession? _session;
   String? _error;

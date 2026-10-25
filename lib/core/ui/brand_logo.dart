@@ -2,6 +2,34 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
 
+class BagooBrandMark extends StatelessWidget {
+  const BagooBrandMark({super.key, this.size = 36});
+  final double size;
+
+  @override
+  Widget build(BuildContext context) => SizedBox.square(
+    dimension: size,
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Image.asset(
+        'assets/branding/bagoo-mark.png',
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        filterQuality: FilterQuality.high,
+        errorBuilder: (_, _, _) => ColoredBox(
+          color: RiderColors.accent,
+          child: Icon(
+            Icons.shopping_bag_outlined,
+            color: Colors.white,
+            size: size * .62,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 class BrandLogo extends StatelessWidget {
   const BrandLogo({super.key, this.size = 42});
   final double size;
@@ -19,30 +47,7 @@ class BrandLogo extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                padding: const EdgeInsets.all(3),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(RiderRadii.brand + 3),
-                  border: Border.all(color: RiderColors.outline, width: 1.0),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x0E111827),
-                      blurRadius: 10,
-                      offset: Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(RiderRadii.brand),
-                  child: Image.asset(
-                    'assets/branding/gooriders-icon.png',
-                    width: size,
-                    height: size,
-                    filterQuality: FilterQuality.high,
-                  ),
-                ),
-              ),
+              BagooBrandMark(size: size),
               const SizedBox(width: 10),
               const Text.rich(
                 TextSpan(

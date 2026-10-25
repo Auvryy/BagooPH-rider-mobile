@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/ui/brand_logo.dart';
 import '../../../core/ui/rider_surfaces.dart';
 import '../../auth/data/account.dart';
 import '../../auth/presentation/auth_controller.dart';
@@ -361,14 +362,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                             side: const BorderSide(color: RiderColors.border),
                           ),
                         ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.asset(
-                            'assets/branding/gooriders-icon.png',
-                            width: 26,
-                            height: 26,
-                          ),
-                        ),
+                        child: const BagooBrandMark(size: 26),
                       ),
                     ),
                   ),

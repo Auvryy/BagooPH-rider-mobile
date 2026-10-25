@@ -42,7 +42,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/branding/gooriders-icon.png
+    - assets/branding/
     - assets/fonts/OFL.txt
     - assets/maps/philippines-display.geojson
     - assets/maps/leaflet/

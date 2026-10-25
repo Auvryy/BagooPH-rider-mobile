@@ -1,3 +1,5 @@
+import 'support/onboarding_support.dart';
+
 import 'package:bagoo_rider_mobile/features/auth/presentation/widgets/auth_field.dart';
 import 'package:bagoo_rider_mobile/main.dart';
 import 'package:file_selector_platform_interface/file_selector_platform_interface.dart';
@@ -47,7 +49,7 @@ Future<void> openApp(
     ),
   );
   await tester.pumpAndSettle();
-  final onboardingCta = find.byKey(const ValueKey('onboarding-cta'));
+  final onboardingCta = find.byKey(const ValueKey('onboarding-sign-in'));
   if (skipOnboarding && onboardingCta.evaluate().isNotEmpty) {
     await tapVisible(tester, onboardingCta);
   }
@@ -63,6 +65,7 @@ Future<void> tapVisible(WidgetTester tester, Finder target) async {
 }
 
 void main() {
+  setUp(completedIntroductionFixture);
   TestWidgetsFlutterBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
   setUpAll(() async {

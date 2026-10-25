@@ -1,3 +1,5 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
 // Explicit synthetic render review. Never loads a real account or provider key.
 import 'dart:io';
 import 'dart:ui' as ui;
@@ -57,6 +59,7 @@ Future<void> tap(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() async {
     final font = FontLoader('Plus Jakarta Sans')
@@ -84,7 +87,7 @@ void main() {
       ),
     );
     await capture(tester, 'onboarding-390');
-    await tap(tester, find.byKey(const ValueKey('onboarding-cta')));
+    await tap(tester, find.byKey(const ValueKey('onboarding-sign-in')));
     await capture(tester, 'login-390');
     final dialogContext = tester.element(find.byType(Scaffold).first);
     final verification = showDialog<void>(

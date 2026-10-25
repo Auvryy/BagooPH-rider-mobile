@@ -1,3 +1,5 @@
+import 'support/onboarding_support.dart';
+
 import 'package:bagoo_rider_mobile/app/config.dart';
 import 'package:bagoo_rider_mobile/app/theme.dart';
 import 'package:bagoo_rider_mobile/core/platform/rider_website.dart';
@@ -136,6 +138,7 @@ Future<TestAuthRepository> preview(
 }
 
 void main() {
+  setUp(completedIntroductionFixture);
   WidgetController.hitTestWarningShouldBeFatal = true;
   setUp(
     () => PackageInfo.setMockInitialValues(
@@ -185,8 +188,11 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      if (find.byKey(const ValueKey('onboarding-cta')).evaluate().isNotEmpty) {
-        await tap(tester, 'onboarding-cta');
+      if (find
+          .byKey(const ValueKey('onboarding-sign-in'))
+          .evaluate()
+          .isNotEmpty) {
+        await tap(tester, 'onboarding-sign-in');
       }
       await tester.ensureVisible(
         find.byType(HomeTaskPanel, skipOffstage: false),
@@ -449,10 +455,10 @@ void main() {
         );
         await tester.pumpAndSettle();
         if (find
-            .byKey(const ValueKey('onboarding-cta'))
+            .byKey(const ValueKey('onboarding-sign-in'))
             .evaluate()
             .isNotEmpty) {
-          await tap(tester, 'onboarding-cta');
+          await tap(tester, 'onboarding-sign-in');
         }
         await tap(tester, 'home-task-pickup-1');
         await tap(tester, 'home-selected-details');

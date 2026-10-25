@@ -1,3 +1,5 @@
+import 'support/onboarding_support.dart';
+
 import 'package:bagoo_rider_mobile/app/theme.dart';
 import 'package:bagoo_rider_mobile/core/network/rider_api_client.dart';
 import 'package:bagoo_rider_mobile/features/workspace/presentation/workspace_widgets.dart';
@@ -40,8 +42,8 @@ Future<void> nativeSettings(
     ),
   );
   await tester.pumpAndSettle();
-  if (find.byKey(const ValueKey('onboarding-cta')).evaluate().isNotEmpty) {
-    await tap(tester, 'onboarding-cta');
+  if (find.byKey(const ValueKey('onboarding-sign-in')).evaluate().isNotEmpty) {
+    await tap(tester, 'onboarding-sign-in');
   }
   await tap(tester, 'nav-profile');
   await tap(tester, 'open-settings');
@@ -85,6 +87,7 @@ class NativeSettingsAuth extends TestAuthRepository implements RiderSessionApi {
 }
 
 void main() {
+  setUp(completedIntroductionFixture);
   WidgetController.hitTestWarningShouldBeFatal = true;
   testWidgets(
     'advertised native Settings render, save and reload without generic website links',
@@ -97,8 +100,11 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      if (find.byKey(const ValueKey('onboarding-cta')).evaluate().isNotEmpty) {
-        await tap(tester, 'onboarding-cta');
+      if (find
+          .byKey(const ValueKey('onboarding-sign-in'))
+          .evaluate()
+          .isNotEmpty) {
+        await tap(tester, 'onboarding-sign-in');
       }
       await tap(tester, 'nav-profile');
       expect(find.text('View details on the website'), findsNothing);
@@ -146,8 +152,11 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      if (find.byKey(const ValueKey('onboarding-cta')).evaluate().isNotEmpty) {
-        await tap(tester, 'onboarding-cta');
+      if (find
+          .byKey(const ValueKey('onboarding-sign-in'))
+          .evaluate()
+          .isNotEmpty) {
+        await tap(tester, 'onboarding-sign-in');
       }
       await tap(tester, 'nav-profile');
       await tap(tester, 'open-settings');

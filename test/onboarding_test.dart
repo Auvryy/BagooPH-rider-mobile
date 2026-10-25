@@ -1,214 +1,203 @@
+import 'dart:async';
+
 import 'package:bagoo_rider_mobile/app/theme.dart';
 import 'package:bagoo_rider_mobile/features/auth/presentation/auth_controller.dart';
+import 'package:bagoo_rider_mobile/features/auth/presentation/login_page.dart';
+import 'package:bagoo_rider_mobile/features/auth/presentation/register_page.dart';
+import 'package:bagoo_rider_mobile/features/onboarding/data/onboarding_preferences.dart';
+import 'package:bagoo_rider_mobile/features/onboarding/presentation/onboarding_art.dart';
 import 'package:bagoo_rider_mobile/features/onboarding/presentation/onboarding_page.dart';
 import 'package:bagoo_rider_mobile/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/test_auth_repository.dart';
+
+class MemoryIntroPreferences implements OnboardingPreferences {
+  MemoryIntroPreferences({this.seen = false, this.pending});
+  bool seen;
+  Completer<bool>? pending;
+  @override
+  Future<bool> readSeen() async =>
+      pending == null ? seen : await pending!.future;
+  @override
+  Future<void> writeSeen(bool value) async {
+    seen = value;
+  }
+}
+
+Widget introApp(MemoryIntroPreferences preferences) => ProviderScope(
+  overrides: [
+    onboardingPreferencesProvider.overrideWithValue(preferences),
+    authRepositoryProvider.overrideWithValue(TestAuthRepository()),
+  ],
+  child: const BagooRiderApp(),
+);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() async {
-    final font = FontLoader('Plus Jakarta Sans')
-      ..addFont(rootBundle.load('assets/fonts/PlusJakartaSans.ttf'));
-    await font.load();
+    await (FontLoader(
+      'Plus Jakarta Sans',
+    )..addFont(rootBundle.load('assets/fonts/PlusJakartaSans.ttf'))).load();
   });
-
   testWidgets(
-    'first app launch greets unauthenticated rider with Bagoo Argon onboarding',
+    'a new installation has three introduction pages and opens rider registration',
     (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
-
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            authRepositoryProvider.overrideWithValue(TestAuthRepository()),
-          ],
-          child: const BagooRiderApp(),
-        ),
-      );
+      final preferences = MemoryIntroPreferences();
+      await tester.pumpWidget(introApp(preferences));
       await tester.pumpAndSettle();
-
-      // Verify pure white canvas, interactive minimalist map route, Hub pin, Stop pin,
-      // animated courier motorcycle marker, 72x72 LiquidGlassOrb, and editorial typography.
-      final scaffold = tester.widget<Scaffold>(
-        find.byKey(const ValueKey('rider-onboarding-page')),
-      );
-      expect(scaffold.backgroundColor, const Color(0xFFFFFFFF));
-
-      expect(find.byKey(const ValueKey('onboarding-map-canvas')), findsOneWidget);
-      expect(find.byKey(const ValueKey('onboarding-motor-marker')), findsOneWidget);
-      expect(find.text('HUB A'), findsOneWidget);
-      expect(find.text('STOP 1'), findsOneWidget);
-
-      final orbFinder = find.byKey(const ValueKey('onboarding-liquid-orb'));
-      expect(orbFinder, findsOneWidget);
-      expect(tester.getSize(orbFinder), const Size(72, 72));
+      expect(find.text('Every parcel starts with you.'), findsOneWidget);
+      expect(find.byType(OnboardingArt), findsOneWidget);
       expect(
-        find.descendant(of: orbFinder, matching: find.byType(BackdropFilter)),
-        findsOneWidget,
+        tester.getSize(find.byKey(const ValueKey('onboarding-dot-0'))).width,
+        28,
       );
-      expect(
-        find.descendant(of: orbFinder, matching: find.byType(ClipOval)),
-        findsOneWidget,
-      );
-
-      expect(
-        find.byKey(const ValueKey('onboarding-editorial-text')),
-        findsOneWidget,
-      );
-      expect(find.text('Go beyond the'), findsOneWidget);
-      expect(find.text('ordinary'), findsOneWidget);
-      expect(find.text('every route'), findsOneWidget);
-      expect(find.text('to deliver every parcel right'), findsOneWidget);
-
-      final ctaFinder = find.byKey(const ValueKey('onboarding-cta'));
-      expect(ctaFinder, findsOneWidget);
-      expect(tester.getSize(ctaFinder).height, 56);
-
-      // Tapping the pill CTA transitions cleanly to LoginPage
-      await tester.tap(ctaFinder);
-      await tester.pumpAndSettle();
-      expect(find.text('Welcome back.'), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    },
-  );
-
-  testWidgets(
-    '4-stage choreography, 2D magnetic touch parallax, and orb scatter spring physics work',
-    (tester) async {
-      tester.view.physicalSize = const Size(390, 844);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            theme: buildRiderTheme(),
-            home: const RiderOnboardingPage(ambientTimeOverride: 0.0),
-          ),
-        ),
-      );
-
-      // Stage 1 (t = 100ms): splash orb is still morphing upward toward center
-      await tester.pump(const Duration(milliseconds: 100));
-      final earlyOrbCenter = tester.getCenter(
-        find.byKey(const ValueKey('onboarding-liquid-orb')),
-      );
-
-      // Advance past Stage 1, 2, 4 (1300ms total)
-      await tester.pumpAndSettle();
-      final settledOrbCenter = tester.getCenter(
-        find.byKey(const ValueKey('onboarding-liquid-orb')),
-      );
-      expect(settledOrbCenter.dy, lessThan(earlyOrbCenter.dy));
-
-      // Record motor marker position before interactive drag parallax
-      final motorFinder = find.byKey(const ValueKey('onboarding-motor-marker'));
-      final beforeDrag = tester.getCenter(motorFinder);
-
-      // Drag across the map canvas to apply 2D magnetic parallax offset
-      final mapCanvas = find.byKey(const ValueKey('onboarding-map-canvas'));
-      final gesture = await tester.startGesture(tester.getCenter(mapCanvas));
-      await gesture.moveBy(const Offset(40, -25));
-      await tester.pump();
-      final duringDrag = tester.getCenter(motorFinder);
-      expect(duringDrag, isNot(equals(beforeDrag)));
-
-      // Release finger: SpringSimulation returns motor to settled coordinate
-      await gesture.up();
-      await tester.pumpAndSettle();
-      final afterDragSpring = tester.getCenter(motorFinder);
-      expect(afterDragSpring.dx, closeTo(beforeDrag.dx, 0.5));
-      expect(afterDragSpring.dy, closeTo(beforeDrag.dy, 0.5));
-
-      // Tap the central 72x72 LiquidGlassOrb: triggers tactile spring pulse
-      await tester.tap(find.byKey(const ValueKey('onboarding-liquid-orb')));
-      await tester.pump(const Duration(milliseconds: 16));
-      expect(tester.takeException(), isNull);
-
-      await tester.pumpAndSettle();
-
-      // Stage 3 sinusoidal ambient drift changes position along the delivery curve
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            theme: buildRiderTheme(),
-            home: const RiderOnboardingPage(ambientTimeOverride: 1.25),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      final driftedCenter = tester.getCenter(motorFinder);
-      expect(driftedCenter.dx, isNot(closeTo(beforeDrag.dx, 0.1)));
-      expect(tester.takeException(), isNull);
-    },
-  );
-
-  testWidgets(
-    'onboarding respects reduced motion and supports direct registration link',
-    (tester) async {
-      tester.view.physicalSize = const Size(390, 844);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-
-      var openedApply = false;
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            theme: buildRiderTheme(),
-            home: MediaQuery(
-              data: const MediaQueryData(disableAnimations: true),
-              child: RiderOnboardingPage(onApply: () => openedApply = true),
-            ),
-          ),
-        ),
-      );
-      await tester.pump();
-
-      expect(find.text('every route'), findsOneWidget);
-      await tester.tap(find.byKey(const ValueKey('onboarding-apply-link')));
-      await tester.pump();
-      expect(openedApply, isTrue);
-      expect(tester.takeException(), isNull);
-    },
-  );
-
-  testWidgets(
-    'app open always pops up Argon onboarding even when a rider session is already saved',
-    (tester) async {
-      tester.view.physicalSize = const Size(390, 844);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-
-      final repository = TestAuthRepository()
-        ..account = TestAuthRepository.approved;
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [authRepositoryProvider.overrideWithValue(repository)],
-          child: const BagooRiderApp(),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      // Onboarding always appears first on app launch even when logged in
-      expect(
-        find.byKey(const ValueKey('rider-onboarding-page')),
-        findsOneWidget,
-      );
-      expect(find.byKey(const ValueKey('rider-workspace')), findsNothing);
-
-      // Tapping Enter Rider Workspace opens the authenticated RiderWorkspaceShell
       await tester.tap(find.byKey(const ValueKey('onboarding-cta')));
       await tester.pumpAndSettle();
-      expect(find.byKey(const ValueKey('rider-workspace')), findsOneWidget);
-      expect(find.text('Welcome, Test Rider.'), findsOneWidget);
+      expect(find.text('Clear details for every stop.'), findsOneWidget);
+      expect(
+        tester.getSize(find.byKey(const ValueKey('onboarding-dot-1'))).width,
+        28,
+      );
+      await tester.tap(find.byKey(const ValueKey('onboarding-cta')));
+      await tester.pumpAndSettle();
+      expect(find.text('Small updates. Clear progress.'), findsOneWidget);
+      expect(find.text('Apply as a rider'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('onboarding-cta')));
+      await tester.pumpAndSettle();
+      expect(preferences.seen, isTrue);
+      expect(find.byType(RegisterPage), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
+  testWidgets(
+    'sign in completes the introduction and a later launch goes directly to login',
+    (tester) async {
+      final preferences = MemoryIntroPreferences();
+      await tester.pumpWidget(introApp(preferences));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('onboarding-sign-in')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('onboarding-sign-in')));
+      await tester.pumpAndSettle();
+      expect(preferences.seen, isTrue);
+      expect(find.byType(LoginPage), findsOneWidget);
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(introApp(preferences));
+      await tester.pumpAndSettle();
+      expect(find.byType(RiderOnboardingPage), findsNothing);
+      expect(find.byType(LoginPage), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+  testWidgets('skip opens the rider application and records completion', (
+    tester,
+  ) async {
+    final preferences = MemoryIntroPreferences();
+    await tester.pumpWidget(introApp(preferences));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Skip'));
+    await tester.pumpAndSettle();
+    expect(find.byType(RegisterPage), findsOneWidget);
+    expect(preferences.seen, isTrue);
+    expect(tester.takeException(), isNull);
+  });
+  for (final scenario in [
+    (const Size(320, 568), 2.0),
+    (const Size(390, 844), 1.0),
+    (const Size(844, 390), 2.0),
+    (const Size(1280, 720), 1.0),
+  ]) {
+    testWidgets(
+      'all introduction pages remain scrollable at ${scenario.$1} and text ${scenario.$2}',
+      (tester) async {
+        tester.view.physicalSize = scenario.$1;
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        var applied = false;
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              onboardingPreferencesProvider.overrideWithValue(
+                MemoryIntroPreferences(),
+              ),
+            ],
+            child: MaterialApp(
+              theme: buildRiderTheme(),
+              home: MediaQuery(
+                data: MediaQueryData(
+                  textScaler: TextScaler.linear(scenario.$2),
+                  disableAnimations: true,
+                ),
+                child: RiderOnboardingPage(onApply: () => applied = true),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        for (var page = 0; page < 3; page++) {
+          expect(find.byKey(ValueKey('onboarding-art-$page')), findsOneWidget);
+          expect(tester.takeException(), isNull);
+          await tester.ensureVisible(
+            find.byKey(const ValueKey('onboarding-cta')),
+          );
+          await tester.pumpAndSettle();
+          await tester.tap(find.byKey(const ValueKey('onboarding-cta')));
+          await tester.pumpAndSettle();
+        }
+        expect(applied, isTrue);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+  test('a late preference read cannot undo a completed introduction', () async {
+    final pending = Completer<bool>(),
+        preferences = MemoryIntroPreferences(pending: Completer<bool>());
+    preferences.pending = pending;
+    final container = ProviderContainer(
+      overrides: [onboardingPreferencesProvider.overrideWithValue(preferences)],
+    );
+    container.read(onboardingSeenProvider);
+    await Future<void>.delayed(Duration.zero);
+    await container.read(onboardingSeenProvider.notifier).markSeen();
+    pending.complete(false);
+    await Future<void>.delayed(Duration.zero);
+    expect(container.read(onboardingSeenProvider).seen, isTrue);
+    container.dispose();
+  });
+  testWidgets(
+    'an unresponsive preference store cannot hold the app on its opening screen',
+    (tester) async {
+      final preferences = MemoryIntroPreferences(pending: Completer<bool>());
+      await tester.pumpWidget(introApp(preferences));
+      await tester.pump();
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pumpAndSettle();
+      expect(find.byType(RiderOnboardingPage), findsOneWidget);
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('onboarding-sign-in')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('onboarding-sign-in')));
+      await tester.pumpAndSettle();
+      expect(find.byType(LoginPage), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+  test('completion is stored separately from sign-in credentials', () async {
+    SharedPreferences.setMockInitialValues({});
+    await LocalOnboardingPreferences().writeSeen(true);
+    expect(await LocalOnboardingPreferences().readSeen(), isTrue);
+  });
 }

@@ -158,7 +158,7 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                       count?.toString() ?? '—',
                       style: const TextStyle(
                         fontWeight: FontWeight.w800,
-                        fontSize: 24,
+                        fontSize: 18,
                       ),
                     );
                     return Semantics(
@@ -167,12 +167,14 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                       label: '${queue.label}, $countLabel',
                       child: DecoratedBox(
                         decoration: ShapeDecoration(
-                          shape: RoundedSuperellipseBorder(
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
                               RiderRadii.control,
                             ),
                             side: BorderSide(
-                              color: active ? RiderColors.accent : Colors.white,
+                              color: active
+                                  ? RiderColors.accent
+                                  : RiderColors.border,
                               width: 1.5,
                             ),
                           ),
@@ -194,14 +196,14 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                                   ? RiderColors.accentText
                                   : RiderColors.muted,
                               backgroundColor: active
-                                  ? RiderColors.rose
+                                  ? RiderColors.controlFill
                                   : RiderColors.neumorphicSurface,
-                              minimumSize: Size(0, stack ? 52 : 76),
+                              minimumSize: const Size(0, 52),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 10,
                                 vertical: 10,
                               ),
-                              shape: RoundedSuperellipseBorder(
+                              shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(
                                   RiderRadii.control,
                                 ),

@@ -45,3 +45,5 @@ roadmap and backlog; it does not replace their scope, stable IDs or deadlines.
 
 A completed planning document is not a completed feature. Future evidence updates
 belong in the selected plan/batch; shared indexes contain only short pointers.
+
+- [Rider street map and neutral controls](rider-street-map/README.md): Leaflet on web/mobile, unfiltered light tiles and a labelled rider-to-delivery sample; existing operation gates remain intact.

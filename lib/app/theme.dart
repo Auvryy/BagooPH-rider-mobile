@@ -12,7 +12,7 @@ abstract final class RiderColors {
   static const accentText = Color(0xFFE00D42);
 
   /// Canvas & Surfaces
-  static const canvas = Color(0xFFF8FAFC);
+  static const canvas = Color(0xFFFAFAFA);
   static const pureWhite = Color(0xFFFFFFFF);
   static const surface = Color(0xFFFFFFFF);
   static const carbon = Color(0xFF090A0F);
@@ -21,18 +21,18 @@ abstract final class RiderColors {
   static const creamSticker = Color(0xFFFFFFFF);
 
   /// Typography Ink
-  static const ink = Color(0xFF111827);
-  static const body = Color(0xFF111827);
-  static const slate = Color(0xFF64748B);
-  static const muted = Color(0xFF64748B);
+  static const ink = Color(0xFF18181B);
+  static const body = Color(0xFF18181B);
+  static const slate = Color(0xFF62626B);
+  static const muted = Color(0xFF62626B);
   static const slateMuted = Color(0xFF94A3B8);
 
   /// Borders & Dividers: Whisper-quiet 1px borders
-  static const border = Color(0xFFE2E8F0);
-  static const outline = Color(0xFFE2E8F0);
+  static const border = Color(0xFFDEDEE3);
+  static const outline = Color(0xFFDEDEE3);
   static const borderSubtle = Color(0x12111827);
   static const controlFill = Color(0xFFF1F5F9);
-  static const divider = Color(0xFFE2E8F0);
+  static const divider = Color(0xFFDEDEE3);
 }
 
 /// Geographic display surfaces. These do not change the app's light/red theme.
@@ -40,7 +40,7 @@ abstract final class RiderMapColors {
   static const canvas = Color(0xFF141B23);
   static const surface = Color(0xF01C2632);
   static const border = Color(0xFF3B4654);
-  static const ink = Color(0xFFF8FAFC);
+  static const ink = Color(0xFFFAFAFA);
   static const muted = Color(0xFFB9C5D3);
   static const route = Color(0xFFF34370);
   static const routeOutline = Color(0xFFFFE6EE);
@@ -48,26 +48,26 @@ abstract final class RiderMapColors {
 }
 
 abstract final class RiderShadows {
-  /// Soft ambient elevation: 0 4px 20px -2px rgba(17, 24, 39, 0.05)
+  /// Small neutral shadow beneath bordered surfaces.
   static const ambient = <BoxShadow>[
     BoxShadow(
       color: Color(0x0D111827),
-      blurRadius: 20,
-      spreadRadius: -2,
-      offset: Offset(0, 4),
+      blurRadius: 3,
+      spreadRadius: 0,
+      offset: Offset(0, 1),
     ),
   ];
 
   /// Layered depth without dark drop shadows: subtle 1px border + soft ambient elevation
   static const neumorphicElevated = ambient;
 
-  /// Crimson-tinted ambient elevation for active/prominent surfaces
+  /// Subtle elevation; active state is carried by the border and label.
   static const neumorphicAccent = <BoxShadow>[
     BoxShadow(
-      color: Color(0x1CE00D42),
-      blurRadius: 20,
-      spreadRadius: -2,
-      offset: Offset(0, 4),
+      color: Color(0x0D18181B),
+      blurRadius: 3,
+      spreadRadius: 0,
+      offset: Offset(0, 1),
     ),
   ];
 
@@ -84,16 +84,16 @@ abstract final class RiderShadows {
 }
 
 abstract final class RiderRadii {
-  static const surface = 18.0;
-  static const group = 18.0;
-  static const control = 12.0;
-  static const media = 16.0;
-  static const dialog = 20.0;
-  static const sheet = 20.0;
-  static const selection = 12.0;
+  static const surface = 8.0;
+  static const group = 8.0;
+  static const control = 8.0;
+  static const media = 8.0;
+  static const dialog = 12.0;
+  static const sheet = 12.0;
+  static const selection = 8.0;
   static const pill = 999.0;
   static const navigation = 999.0;
-  static const brand = 12.0;
+  static const brand = 8.0;
 }
 
 abstract final class RiderMotion {
@@ -147,8 +147,8 @@ class RiderInputBorder extends OutlineInputBorder {
       Radius.circular(RiderRadii.control),
     ),
   });
-  RoundedSuperellipseBorder get _shape =>
-      RoundedSuperellipseBorder(side: borderSide, borderRadius: borderRadius);
+  RoundedRectangleBorder get _shape =>
+      RoundedRectangleBorder(side: borderSide, borderRadius: borderRadius);
   @override
   RiderInputBorder copyWith({
     BorderSide? borderSide,
@@ -234,16 +234,13 @@ class RiderPageTransitionsBuilder extends PageTransitionsBuilder {
 }
 
 ThemeData buildRiderTheme({bool highContrast = false}) {
-  const shape = RoundedSuperellipseBorder(
+  const shape = RoundedRectangleBorder(
     borderRadius: BorderRadius.all(Radius.circular(RiderRadii.control)),
-  );
-  const pillShape = RoundedSuperellipseBorder(
-    borderRadius: BorderRadius.all(Radius.circular(RiderRadii.pill)),
   );
   const family = RiderTypography.family;
   final restingSide = highContrast
       ? const BorderSide(color: RiderColors.accentText, width: 1.5)
-      : BorderSide.none;
+      : const BorderSide(color: RiderColors.border);
   final focusSide = WidgetStateProperty.resolveWith<BorderSide>(
     (states) => states.contains(WidgetState.focused)
         ? const BorderSide(color: RiderColors.accentText, width: 2)
@@ -294,7 +291,7 @@ ThemeData buildRiderTheme({bool highContrast = false}) {
     bottomSheetTheme: const BottomSheetThemeData(
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
-      shape: RoundedSuperellipseBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(RiderRadii.sheet),
         ),
@@ -371,28 +368,35 @@ ThemeData buildRiderTheme({bool highContrast = false}) {
       style: FilledButton.styleFrom(
         minimumSize: const Size(0, 56),
         padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
-        shape: pillShape,
+        shape: shape,
         elevation: 0,
         backgroundColor: RiderColors.accent,
         foregroundColor: Colors.white,
       ).copyWith(side: focusSide),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        minimumSize: const Size(0, 48),
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-        shape: pillShape,
-        side: BorderSide.none,
-        backgroundColor: RiderColors.controlFill,
-        foregroundColor: RiderColors.ink,
-      ).copyWith(side: focusSide),
+      style:
+          OutlinedButton.styleFrom(
+            minimumSize: const Size(0, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            shape: shape,
+            side: const BorderSide(color: RiderColors.border),
+            backgroundColor: RiderColors.surface,
+            foregroundColor: RiderColors.ink,
+          ).copyWith(
+            side: WidgetStateProperty.resolveWith(
+              (states) => states.contains(WidgetState.focused)
+                  ? const BorderSide(color: RiderColors.accentText, width: 2)
+                  : const BorderSide(color: RiderColors.border),
+            ),
+          ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         minimumSize: const Size(48, 48),
         foregroundColor: RiderColors.accentText,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        shape: pillShape,
+        shape: shape,
       ),
     ),
     iconButtonTheme: IconButtonThemeData(
@@ -404,8 +408,10 @@ ThemeData buildRiderTheme({bool highContrast = false}) {
     ),
     segmentedButtonTheme: SegmentedButtonThemeData(
       style: ButtonStyle(
-        side: const WidgetStatePropertyAll(BorderSide.none),
-        shape: const WidgetStatePropertyAll(pillShape),
+        side: const WidgetStatePropertyAll(
+          BorderSide(color: RiderColors.border),
+        ),
+        shape: const WidgetStatePropertyAll(shape),
         minimumSize: const WidgetStatePropertyAll(Size(0, 48)),
         backgroundColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
@@ -421,12 +427,12 @@ ThemeData buildRiderTheme({bool highContrast = false}) {
     ),
     chipTheme: const ChipThemeData(
       side: BorderSide.none,
-      shape: pillShape,
+      shape: shape,
       backgroundColor: RiderColors.controlFill,
       selectedColor: RiderColors.rose,
     ),
     checkboxTheme: CheckboxThemeData(
-      shape: const RoundedSuperellipseBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(7)),
       ),
       side: BorderSide.none,
@@ -450,14 +456,14 @@ ThemeData buildRiderTheme({bool highContrast = false}) {
       trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
     ),
     dialogTheme: const DialogThemeData(
-      shape: RoundedSuperellipseBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(RiderRadii.dialog)),
       ),
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
     ),
     datePickerTheme: const DatePickerThemeData(
-      shape: RoundedSuperellipseBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(RiderRadii.dialog)),
       ),
       backgroundColor: Colors.white,

@@ -47,6 +47,17 @@ class RouteProjection {
   final int leg, segment;
 }
 
+bool _hasFerry(Object? value, [int depth = 0]) {
+  if (depth > 32) {
+    throw const FormatException('Route details are too deeply nested.');
+  }
+  if (value is Map) {
+    if (value['ferry'] == true) return true;
+    return value.values.any((item) => _hasFerry(item, depth + 1));
+  }
+  return value is List && value.any((item) => _hasFerry(item, depth + 1));
+}
+
 class RoadRoute {
   RoadRoute(List<List<LatLng>> lines)
     : lines = List.unmodifiable(
@@ -64,6 +75,11 @@ class RoadRoute {
         (value['features'] as List).isEmpty) {
       throw const FormatException('No road route was returned.');
     }
+    if (_hasFerry(value)) {
+      throw const FormatException(
+        'A supported road-only route was not returned.',
+      );
+    }
     final feature = (value['features'] as List).first;
     if (feature is! Map || feature['geometry'] is! Map) {
       throw const FormatException('No road geometry was returned.');
@@ -76,13 +92,18 @@ class RoadRoute {
         ? coordinates
         : null;
     if (raw is! List) throw const FormatException('Unsupported road geometry.');
+    var pointCount = 0;
+    if (raw.length > 100) {
+      throw const FormatException('Too many route sections.');
+    }
     return RoadRoute(
       raw.map((line) {
         if (line is! List) {
           throw const FormatException('Invalid road geometry.');
         }
         return line.map((point) {
-          if (point is! List ||
+          if (++pointCount > 10000 ||
+              point is! List ||
               point.length < 2 ||
               point[0] is! num ||
               point[1] is! num) {

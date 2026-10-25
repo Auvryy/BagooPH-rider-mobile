@@ -67,6 +67,8 @@ role-specific shapes, inset navigation and reduced-effects-aware transitions.
 No new operational API, page, account permission or sample app mode is introduced.
 Future design inventory entries remain planned and backend acceptance stays separate.
 
+**October 25 revised street-map direction:** the [street-map plan](plans/rider-street-map/README.md) replaces the active provider map with bundled Leaflet and standard OpenStreetMap light tiles. A labelled public sample line connects rider to delivery without logistics route markers or live location. Existing native operation and account gates remain intact; actual directions use the authorized external fallback. The plan records 631 passing Flutter tests with five skips, clean analysis, two passing renderer runtime checks and Linux/Android debug builds, with device/deployment limits. Older provider-map entries below are historical and do not describe current Home startup. This does not complete a major area or clear unrelated live acceptance.
+
 ## Always check the Bagoo website project
 
 **October 22 map refinement:** the selected

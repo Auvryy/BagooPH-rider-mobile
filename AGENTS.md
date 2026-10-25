@@ -113,18 +113,19 @@ service names, credentials, CLI paths, or remote task IDs.
   user's Linux PC in Rider-work final replies and handoffs. Tell the user to run
   it from the Rider Mobile repository root. Use the current startup flags rather
   than assuming plain `flutter run -d linux` enables the phone frame.
-- With the existing ignored project-local map configuration, use:
+- With the existing ignored project-local rider feature configuration, use:
 
   ```sh
-  flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.geoapify.json
+  flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.rider.json
   ```
 
   Device Preview supplies the phone frame and device selector; real Azure login
   remains available. If the configuration file is absent, omit only its
-  `--dart-define-from-file` argument and explain that maps/routing need the local
-  key configuration. Never put the key value in the command or reply.
+  `--dart-define-from-file` argument. Leaflet/OpenStreetMap and the sample delivery
+  line need no API key; this optional file preserves independently accepted feature
+  flags. Never invent acceptance flags or put secrets in the command or reply.
 - For an actual connected Android phone, list targets with `flutter devices`,
-  then use `flutter run -d <android-device-id>` with the existing local map
+  then use `flutter run -d <android-device-id>` with the existing local rider
   configuration. Android already uses its native phone layout. Keep PC layout
   review distinct from physical permissions, GPS and background-service checks.
 - If launch flags or configuration change, verify the working command against

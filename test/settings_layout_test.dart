@@ -1,3 +1,5 @@
+import 'support/onboarding_support.dart';
+
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -87,8 +89,8 @@ Future<void> openApp(
     ),
   );
   await tester.pumpAndSettle();
-  if (find.byKey(const ValueKey('onboarding-cta')).evaluate().isNotEmpty) {
-    await tap(tester, 'onboarding-cta');
+  if (find.byKey(const ValueKey('onboarding-sign-in')).evaluate().isNotEmpty) {
+    await tap(tester, 'onboarding-sign-in');
   }
   await tap(tester, 'nav-profile');
   addTearDown(() async {
@@ -150,6 +152,7 @@ void layoutTest(String description, Future<void> Function(WidgetTester) body) {
 }
 
 void main() {
+  setUp(completedIntroductionFixture);
   setUp(() {
     final fatal = WidgetController.hitTestWarningShouldBeFatal;
     WidgetController.hitTestWarningShouldBeFatal = true;

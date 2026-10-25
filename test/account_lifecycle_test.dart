@@ -1,3 +1,5 @@
+import 'support/onboarding_support.dart';
+
 import 'package:bagoo_rider_mobile/features/auth/data/account.dart';
 import 'package:bagoo_rider_mobile/features/auth/presentation/auth_controller.dart';
 import 'package:bagoo_rider_mobile/main.dart';
@@ -21,6 +23,7 @@ void resumeApp(WidgetTester tester) {
 }
 
 void main() {
+  setUp(completedIntroductionFixture);
   testWidgets(
     'resume refreshes holding feedback and removes a restricted session',
     (tester) async {
@@ -33,7 +36,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      final onboardingCta = find.byKey(const ValueKey('onboarding-cta'));
+      final onboardingCta = find.byKey(const ValueKey('onboarding-sign-in'));
       if (onboardingCta.evaluate().isNotEmpty) {
         await tester.tap(onboardingCta);
         await tester.pumpAndSettle();

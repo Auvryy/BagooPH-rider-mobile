@@ -3,6 +3,26 @@
 Flutter application for BagooPH pickup and delivery couriers. Both assignment
 phases belong to the same rider app and courier account role.
 
+## Rider map
+
+Home uses bundled Leaflet 1.9.4 and standard OpenStreetMap light tiles inside a
+local native web view. The clearly labelled sample line joins a sample rider to
+a sample delivery point; it contains no logistics route, live position or parcel
+assignment. No map API key is required. Current-stop external directions remain
+available. See the [street-map plan](docs/plans/rider-street-map/README.md) for
+scope, rendering dependencies and verification limits.
+
+For a Linux phone frame, run from this repository:
+
+```sh
+flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.rider.json
+```
+
+The ignored local configuration preserves existing accepted feature flags; it
+does not configure maps. If that file is absent, omit its argument and preserve
+the normal unverified-operation gates. Linux needs WebKitGTK 4.1; Android uses
+its system WebView. A full restart is required after adding the native plugin.
+
 ## Current account flow
 
 - Real Laravel account login, own-account home and current-device logout.
@@ -12,12 +32,12 @@ phases belong to the same rider app and courier account role.
   with bundled Plus Jakarta Sans and the Rider design tokens.
 - Android application scaffold, with Linux and web development targets.
 - Direct Azure account access on ordinary Android/Linux runs; optional layout frame.
-- New applications remain pending server review. No parcel actions exist yet.
+- New applications remain pending server review; operational actions require the corresponding server capability and acceptance gate.
 
 Approved accounts now open **Tasks, Trips, Messages and Profile** navigation,
-with Settings under Profile. Operational native resources remain unavailable;
-the app offers the configured Rider website instead of showing fictional live
-queues, history or messages. See [Rider pages](docs/RIDER_PAGES.md).
+with Settings under Profile. Native resources follow server capabilities and
+independent acceptance gates; unavailable features retain the configured Rider
+website fallback instead of showing fictional live work. See [Rider pages](docs/RIDER_PAGES.md).
 
 Everyday builds use real Azure account access. Sample pages are confined to
 widget tests and have no app button or route. The

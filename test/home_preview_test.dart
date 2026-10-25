@@ -1,3 +1,5 @@
+import 'support/onboarding_support.dart';
+
 import 'package:bagoo_rider_mobile/features/auth/presentation/auth_controller.dart';
 import 'package:bagoo_rider_mobile/features/home/development/home_preview_page.dart';
 import 'package:bagoo_rider_mobile/main.dart';
@@ -47,9 +49,9 @@ Future<TestAuthRepository> openApp(
     ),
   );
   await tester.pumpAndSettle();
-  final onboardingCta = find.byKey(const ValueKey('onboarding-cta'));
+  final onboardingCta = find.byKey(const ValueKey('onboarding-sign-in'));
   if (onboardingCta.evaluate().isNotEmpty) {
-    await tap(tester, 'onboarding-cta');
+    await tap(tester, 'onboarding-sign-in');
   }
   return repository;
 }
@@ -63,6 +65,7 @@ Future<void> tap(WidgetTester tester, String key) async {
 }
 
 void main() {
+  setUp(completedIntroductionFixture);
   setUpAll(() async {
     final font = FontLoader('Plus Jakarta Sans')
       ..addFont(rootBundle.load('assets/fonts/PlusJakartaSans.ttf'));

@@ -82,7 +82,7 @@ class _BagooRiderAppState extends ConsumerState<BagooRiderApp>
       }
       if (previous.user?.id != next.user?.id ||
           (previous.user?.approved == true && next.user?.approved != true)) {
-        ref.read(onboardingSeenProvider.notifier).markSeen();
+        unawaited(ref.read(onboardingSeenProvider.notifier).markSeen());
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
             // Account changes remove private routes without decorative delay.
@@ -130,7 +130,14 @@ class AccountGate extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(authControllerProvider);
     final seenOnboarding = ref.watch(onboardingSeenProvider);
-    if (onboarding && !seenOnboarding) return const RiderOnboardingPage();
+    if (onboarding && !seenOnboarding.loaded) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(semanticsLabel: 'Opening rider app'),
+        ),
+      );
+    }
+    if (onboarding && !seenOnboarding.seen) return const RiderOnboardingPage();
     if (state.initializing) {
       return const Scaffold(
         body: Center(

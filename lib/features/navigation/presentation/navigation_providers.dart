@@ -6,21 +6,15 @@ import '../../home/data/operations_repository.dart';
 import '../../settings/data/settings_models.dart';
 import '../../settings/presentation/settings_controller.dart';
 import '../../workspace/presentation/workspace_controller.dart';
-import '../data/geoapify_client.dart';
-import '../data/map_tile_cache.dart';
+import '../data/road_routing.dart';
 import '../data/navigation_location.dart';
 import 'navigation_controller.dart';
 import 'navigation_workspace_binding.dart';
 import 'home_location_controller.dart';
 
-final geoapifyProvider = Provider<GeoapifyClient>((ref) {
-  final client = GeoapifyClient(
-    ref.watch(appConfigProvider).geoapifyKey,
-    tileCache: createMapTileCache(),
-  );
-  ref.onDispose(client.dispose);
-  return client;
-}, dependencies: [appConfigProvider]);
+final roadRoutingProvider = Provider<RoadRoutingClient>(
+  (ref) => UnavailableRoadRouting(),
+);
 
 // Persistent across Home's widget/tab lifecycle; destroyed on identity/access
 // changes. No service starts until the rider explicitly presses Navigate.
@@ -38,7 +32,7 @@ final navigationProvider = Provider<NavigationController>(
     final repository = ref.watch(workspaceRepositoryProvider);
     final manual = defaultTargetPlatform == TargetPlatform.linux;
     final controller = NavigationController(
-      routes: ref.watch(geoapifyProvider),
+      routes: ref.watch(roadRoutingProvider),
       manual: manual,
       location: manual ? null : AndroidNavigationLocation(),
       beforeStart: ref.watch(homeLocationProvider).suspend,
@@ -78,7 +72,7 @@ final navigationProvider = Provider<NavigationController>(
     authControllerProvider,
     workspaceRepositoryProvider,
     workspaceControllerProvider,
-    geoapifyProvider,
+    roadRoutingProvider,
     settingsRepositoryProvider,
     homeLocationProvider,
   ],

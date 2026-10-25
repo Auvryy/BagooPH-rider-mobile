@@ -74,10 +74,12 @@ class WorkSummary extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: ShapeDecoration(
-                        color: RiderColors.rose,
-                        shape: RoundedSuperellipseBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          side: const BorderSide(color: Colors.white),
+                        color: RiderColors.controlFill,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            RiderRadii.control,
+                          ),
+                          side: const BorderSide(color: RiderColors.border),
                         ),
                       ),
                       child: const Icon(
@@ -95,7 +97,7 @@ class WorkSummary extends StatelessWidget {
                             _placement('Hub', home.hubId, home.hub),
                             key: const ValueKey('home-hub'),
                             style: Theme.of(context).textTheme.titleSmall
-                                ?.copyWith(fontWeight: FontWeight.w800),
+                                ?.copyWith(fontWeight: FontWeight.w600),
                           ),
                           Text(
                             _placement('Company', home.companyId, home.company),
@@ -270,7 +272,7 @@ class WorkDutyControl extends StatelessWidget {
               home.onDuty ? 'On duty' : 'Off duty',
               style: TextStyle(
                 fontSize: 13,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: home.onDuty ? RiderColors.accentText : RiderColors.ink,
               ),
             ),

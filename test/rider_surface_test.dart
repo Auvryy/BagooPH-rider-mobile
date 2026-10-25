@@ -27,7 +27,7 @@ void main() {
         final clip = tester.widget<ClipPath>(find.byType(ClipPath).first);
         expect(
           (clip.clipper! as ShapeBorderClipper).shape,
-          isA<RoundedSuperellipseBorder>(),
+          isA<RoundedRectangleBorder>(),
         );
         expect(tester.takeException(), isNull);
       },

@@ -6,7 +6,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../../../core/network/api_failure.dart';
 import '../../home/data/operations_models.dart';
-import '../data/geoapify_client.dart';
+import '../data/road_routing.dart';
 import '../data/navigation_location.dart';
 import '../data/route_geometry.dart';
 
@@ -21,7 +21,7 @@ class NavigationController extends ChangeNotifier {
     this.onAccessDenied,
     this.beforeStart,
   }) : now = now ?? DateTime.now;
-  final GeoapifyClient routes;
+  final RoadRoutingClient routes;
   final Future<OperationTask> Function(String id) authorize;
   final Future<String?> Function() vehicleType;
   final NavigationLocation? location;
@@ -84,7 +84,9 @@ class NavigationController extends ChangeNotifier {
         throw StateError('Claim this pickup before navigating.');
       }
       if (!routes.configured) {
-        throw StateError('Road navigation needs a Geoapify client key.');
+        throw StateError(
+          'In-app road directions are unavailable. Use external directions for your current stop.',
+        );
       }
       final owned = await authorize(selection.id);
       if (_disposed || generation != _generation) return;

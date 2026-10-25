@@ -5,7 +5,9 @@
   var map = L.map('map', {
     preferCanvas: true, zoomControl: false, scrollWheelZoom: false,
     zoomAnimation: false, fadeAnimation: false, markerZoomAnimation: false,
-    inertia: false, keyboard: true
+    dragging: true, touchZoom: true,
+    inertia: !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches),
+    inertiaMaxSpeed: 1500, keyboard: true
   });
   var tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19, keepBuffer: 1,

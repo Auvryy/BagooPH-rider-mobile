@@ -24,6 +24,7 @@ test('the Leaflet runtime draws one labelled sample line with two endpoints and 
  assert.equal(h.lines[1].options.color,'#E00D42');assert.equal(h.lines[1].options.dashArray,undefined);assert.equal(h.lines[1].options.smoothFactor,0);
  assert.deepEqual(h.pins.map(p=>p.label),[sample.riderLabel,sample.deliveryLabel]);
  assert.equal(h.options.preferCanvas,true);assert.equal(h.options.scrollWheelZoom,false);
+ assert.equal(h.options.dragging,true);assert.equal(h.options.touchZoom,true);assert.equal(h.options.inertia,true);
  assert.deepEqual(h.fit.points,sample.coordinates);assert.ok(h.events.some(e=>e.type==='ready'));
 });
 test('tile errors are bounded, attribution is deliberate, and hiding releases the map',()=>{

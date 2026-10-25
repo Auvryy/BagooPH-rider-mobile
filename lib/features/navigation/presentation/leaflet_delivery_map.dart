@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -31,7 +32,12 @@ class _NativeDeliveryMap implements DeliveryMapSession {
   );
   bool _closed = false;
   @override
-  Widget get view => WebViewWidget(controller: controller);
+  Widget get view => WebViewWidget(
+    controller: controller,
+    gestureRecognizers: {
+      Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer()),
+    },
+  );
   @override
   Future<void> load(String document, void Function(String) onEvent) async {
     await controller.setJavaScriptMode(JavaScriptMode.unrestricted);

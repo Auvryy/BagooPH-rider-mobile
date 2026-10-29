@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme.dart';
 import '../../../core/ui/rider_surfaces.dart';
 import '../../auth/presentation/auth_controller.dart';
+import '../../company/presentation/company_page.dart';
 import '../../home/data/operations_repository.dart';
 import '../../home/presentation/stop_mode_page.dart';
 import '../../navigation/presentation/navigation_providers.dart';
@@ -196,6 +197,18 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage>
               controller: c,
               target: item!.target!,
               initial: destination,
+            ),
+          ),
+        );
+      case NotificationCompanyDestination(
+        :final accountId,
+        :final applicationId,
+      ):
+        await Navigator.of(context).push<void>(
+          MaterialPageRoute(
+            builder: (_) => RiderCompanyPage(
+              accountId: accountId,
+              applicationId: applicationId,
             ),
           ),
         );

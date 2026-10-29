@@ -34,6 +34,11 @@ test window away from the active desktop; where `xvfb-run` is available:
 xvfb-run -a node tool/parcel_local_api/run.mjs ../bagoo
 ```
 
+The [company suite](../company_local_api/README.md) is a windowless exception:
+it uses native Dart HTTP with an explicit in-memory secure-storage adapter.
+It checks current account/financial reads and exact company consent against
+the same isolated Laravel kernel. It needs no display or native secret service.
+
 The backend checkout is read-only. The runner archives a fixed committed revision
 and binds copied Composer metadata to that snapshot; installed dependency
 packages are read-only references. It does not switch the website's active branch.

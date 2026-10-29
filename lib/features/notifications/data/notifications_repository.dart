@@ -1,6 +1,7 @@
 import '../../../core/commands/notification_validation.dart';
 import '../../../core/network/rider_api_client.dart';
 import '../../auth/data/account.dart';
+import '../../company/data/company_models.dart';
 import '../../home/data/command_journal.dart';
 import '../../home/data/operations_models.dart';
 import 'notification_models.dart';
@@ -297,6 +298,22 @@ class OperationsNotificationsRepository implements NotificationsRepository {
     NotificationTarget target, {
     required RiderReadCancellation cancellation,
   }) async {
+    if (target.kind == 'company_request' ||
+        target.kind == 'company_assignment') {
+      if (target.kind == 'company_assignment' && target.id != accountId) {
+        Wire.invalid();
+      }
+      final account = RiderAccount.fromJson(
+        await _request('rider/me', cancellation: cancellation),
+      );
+      if (account.id != accountId) Wire.invalid();
+      if (!account.approved || account.companyApiVersion != 1) {
+        throw const AccountFailure(
+          'Company requests are unavailable for this session. Sign in again before continuing.',
+          status: 403,
+        );
+      }
+    }
     final result = await _request(target.path, cancellation: cancellation);
     switch (target.kind) {
       case 'task':
@@ -317,6 +334,16 @@ class OperationsNotificationsRepository implements NotificationsRepository {
           );
         }
         return NotificationAccountDestination(account);
+      case 'company_request':
+        final application = CompanyApplication.fromJson(result);
+        if (application.id != target.id) Wire.invalid();
+        return NotificationCompanyDestination(
+          accountId,
+          applicationId: application.id,
+        );
+      case 'company_assignment':
+        CompanyAssignment.fromJson(result);
+        return NotificationCompanyDestination(accountId);
       default:
         Wire.invalid();
     }

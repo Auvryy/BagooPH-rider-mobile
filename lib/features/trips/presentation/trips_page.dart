@@ -453,6 +453,21 @@ class _TripCard extends StatelessWidget {
                   'Recorded collection: ${exactPesos(trip.operation!.collectedCents!)}',
                 ),
               ],
+              if (trip.operation?.earnings.available == true) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'Released earnings: ${exactPesos(trip.operation!.earnings.confirmed!)}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: RiderColors.accentText,
+                  ),
+                ),
+                if (trip.operation!.earnings.pending! > BigInt.zero)
+                  Text(
+                    'Pending earnings: ${exactPesos(trip.operation!.earnings.pending!)}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+              ],
               const SizedBox(height: 16),
               Wrap(
                 spacing: 8,

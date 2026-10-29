@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme.dart';
 import '../../../core/ui/rider_surfaces.dart';
 import '../../auth/data/account.dart';
+import '../../cash/presentation/cash_page.dart';
+import '../../cash/presentation/financial_summary.dart';
 import '../../handover/presentation/handover_entry.dart';
 import '../../navigation/presentation/leaflet_delivery_map.dart';
 import '../../navigation/presentation/navigation_providers.dart';
@@ -123,6 +125,15 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
         compact: true,
         showDuty: false,
       ),
+      if (widget.controller.homeData.data?.shift case final shift?) ...[
+        if (shift.id != null || !shift.canClose) ...[
+          const SizedBox(height: 12),
+          RiderShiftSummaryPanel(
+            shift: shift,
+            onCash: () => unawaited(openCash(context, widget.controller)),
+          ),
+        ],
+      ],
       HandoverEntry(
         home: widget.controller.homeData.data,
         accountId: widget.account.id,

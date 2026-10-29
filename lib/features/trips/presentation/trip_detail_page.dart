@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../core/ui/private_image.dart';
 import '../../../core/ui/rider_surfaces.dart';
 import '../../home/data/operations_models.dart';
+import '../../cash/presentation/financial_summary.dart';
 import '../../workspace/data/workspace_models.dart';
 import '../../workspace/presentation/workspace_controller.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
@@ -176,6 +177,11 @@ class _RecordedAssignment extends StatelessWidget {
             ),
           ],
         ),
+      ),
+      const SizedBox(height: 24),
+      RiderEarningsSummary(
+        earnings: trip.earnings,
+        title: 'Earnings for this assignment',
       ),
       const SizedBox(height: 24),
       Text('Recorded journey', style: Theme.of(context).textTheme.titleLarge),

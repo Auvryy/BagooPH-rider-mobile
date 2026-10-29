@@ -35,7 +35,12 @@ Map<String, dynamic> cashFixture({
   'can_offer': true,
   'can_receive': false,
   'can_reconcile': false,
-  'earnings': {'available': false, 'confirmed_cents': null},
+  'earnings': {
+    'available': true,
+    'confirmed_cents': '0',
+    'pending_cents': '2500',
+    'basis': 'original_delivery_earnings_ledger',
+  },
   'pending_handover': null,
   'holders': [
     {
@@ -87,7 +92,12 @@ Map<String, dynamic> cashPageFixture({
     'accounts_with_unresolved_difference': 2,
     'basis': 'all_owned_cash_journals',
   },
-  'earnings': {'available': false, 'confirmed_cents': null},
+  'earnings': {
+    'available': true,
+    'confirmed_cents': '0',
+    'pending_cents': '2500',
+    'basis': 'original_delivery_earnings_ledger',
+  },
   'pagination': {
     'page': page,
     'per_page': perPage,

@@ -34,7 +34,12 @@ Map<String, dynamic> retainedTripJson({
     'address': address,
     'payment_method': 'cod',
     'collected_cents': cents,
-    'earnings': {'available': false, 'confirmed_cents': null},
+    'earnings': {
+      'available': true,
+      'confirmed_cents': '0',
+      'pending_cents': '2500',
+      'basis': 'original_delivery_earnings_ledger',
+    },
     'checkpoints': [
       {
         'id': id,

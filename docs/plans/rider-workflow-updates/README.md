@@ -55,3 +55,18 @@ including explicit sex/consent submission, an unchecked-consent rejection before
 email verification, policy-link boundaries and phone/tablet text reflow. Policy
 versions are loaded rather than copied into application configuration. Actual
 new-account registration on a physical device is a separate acceptance step.
+
+## Earnings and shift verification
+
+The current original-earnings shape now loads in Cash and retained Trips,
+including zero balances and amounts above JavaScript integer precision. Released
+and pending earnings are displayed separately from collected/remitted/held COD.
+Home and Cash retain the server shift summary and explain pending hub receipts
+and differences without acknowledging cash or changing closure authority.
+
+All 46 focused contract, repository, controller and Cash/Trips page cases passed.
+Three additional financial summary widget checks passed at 320px with normal
+and doubled text, including the cash-review action and unavailable-value
+behavior. Fixtures now use the current ledger shape; historical unavailable
+earnings still have explicit coverage. These are overlapping focused selections,
+not full-suite or physical-cash acceptance.

@@ -7,6 +7,14 @@ into **180 planned subtasks and 63 suggested batches** for later prompts.
 Creating the planning cards does not create future execution records or
 authorize implementing them now.
 
+**October 29 rider workflow updates:** the selected
+[rider workflow branch](plans/rider-workflow-updates/README.md) aligns current
+registration consent and earnings/shift responses, puts work before the optional
+map illustration, shows saved parcel stops and adds company requests with exact
+offer consent. Its evidence distinguishes isolated backend/widget verification
+from deployment, independent live-write gates and physical Android acceptance.
+It extends existing major areas without marking the entire backlog complete.
+
 The completed backend operations handoff now has a separate
 [five-batch Flutter plan](plans/native-operations/README.md) under the
 [plan registry](plans/README.md). It references these stable major/backlog IDs

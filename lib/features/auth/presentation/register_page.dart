@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/platform/rider_website.dart';
+import '../data/registration_options.dart';
 import 'widgets/auth_field.dart';
 import 'widgets/auth_shell.dart';
 import 'auth_controller.dart';
@@ -24,6 +26,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   final _documents = <String, XFile>{};
   String? _localError;
   DateTime? _adultMaximum;
+  RiderRegistrationOptions? _options;
+  String? _optionsError, _sex;
+  bool _optionsLoading = false, _policyAccepted = false;
   final _form = GlobalKey<FormState>();
   final _name = TextEditingController();
   final _email = TextEditingController();
@@ -69,21 +74,54 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() async {
-      try {
-        final options = await ref
-            .read(authRepositoryProvider)
-            .registrationOptions();
-        final limits = options['birth_date_limits'];
-        if (mounted && limits is Map && limits['adult_maximum'] is String) {
-          setState(
-            () => _adultMaximum = DateTime.parse(limits['adult_maximum']),
-          );
-        }
-      } catch (_) {
-        /* Submission still requires authoritative server validation. */
-      }
+    Future.microtask(_loadOptions);
+  }
+
+  Future<void> _loadOptions() async {
+    if (_optionsLoading || !mounted) return;
+    setState(() {
+      _optionsLoading = true;
+      _optionsError = null;
     });
+    try {
+      final options = RiderRegistrationOptions.fromJson(
+        await ref.read(authRepositoryProvider).registrationOptions(),
+      );
+      if (!mounted) return;
+      setState(() {
+        if (_options == null || !_options!.samePolicies(options)) {
+          _policyAccepted = false;
+        }
+        if (!options.sexOptions.contains(_sex)) _sex = null;
+        _options = options;
+        _adultMaximum = options.adultMaximum;
+      });
+    } catch (_) {
+      if (mounted)
+        setState(
+          () => _optionsError = 'Could not load the current application requirements. Retry before submitting.',
+        );
+    } finally {
+      if (mounted) setState(() => _optionsLoading = false);
+    }
+  }
+
+  Future<void> _openPolicy(String path) async {
+    bool opened = false;
+    try {
+      final origin = ref.read(appConfigProvider).origin;
+      opened = await ref
+          .read(websiteLauncherProvider)
+          .open(origin.resolve(path));
+    } catch (_) {
+      /* Keep the completed form when the browser is unavailable. */
+    }
+    if (!opened && mounted) {
+      setState(
+        () => _localError =
+            'Could not open this document. Try again before agreeing.',
+      );
+    }
   }
 
   void _next() {
@@ -118,6 +156,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     if (!_form.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
     if (_birthday == null ||
+        _sex == null ||
         [
           _name,
           _email,
@@ -145,6 +184,20 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       );
       return;
     }
+    final options = _options;
+    if (options == null || _optionsError != null || _optionsLoading) {
+      setState(
+        () => _localError =
+            'Load the current application requirements before submitting.',
+      );
+      return;
+    }
+    if (!_policyAccepted) {
+      setState(
+        () => _localError = 'Read and agree to the Terms of Use and acknowledge the Privacy Notice.',
+      );
+      return;
+    }
     final verification = await showRiderDialog<String>(
       context: context,
       barrierDismissible: false,
@@ -156,6 +209,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         .read(authControllerProvider.notifier)
         .register(
           {
+            ...options.submission(sex: _sex!, accepted: _policyAccepted),
             'name': _name.text,
             'email': _email.text,
             'phone': _phone.text,
@@ -189,6 +243,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           'email',
           'phone',
           'birthday',
+          'sex',
           'address',
           'city',
           'barangay',
@@ -199,6 +254,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         ['vehicle_type', 'plate_number', 'license_number'].contains,
       )) {
         _setStep(1);
+      }
+      if (errors.any(
+        ['policy_accepted', 'terms_version', 'privacy_version'].contains,
+      )) {
+        setState(() => _policyAccepted = false);
+        await _loadOptions();
       }
     }
   }
@@ -376,16 +437,43 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     return [
       _FormSection(
         title: 'About you',
-        child: _FieldPair(
-          first: AuthField(
-            label: 'Full name',
-            validator: (value) => requiredText(value, 'full name'),
-            serverError: ref.watch(authControllerProvider).fields['name'],
-            controller: _name,
-            hint: 'Your full name',
-            autofillHints: const [AutofillHints.name],
-          ),
-          second: _birthdayField(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _FieldPair(
+              first: AuthField(
+                label: 'Full name',
+                validator: (value) => requiredText(value, 'full name'),
+                serverError: ref.watch(authControllerProvider).fields['name'],
+                controller: _name,
+                hint: 'Your full name',
+                autofillHints: const [AutofillHints.name],
+              ),
+              second: _birthdayField(),
+            ),
+            const SizedBox(height: 16),
+            Text('Sex', style: AuthField.labelStyle),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              key: ValueKey(
+                'registration-sex-${_options?.sexOptions.join('-')}',
+              ),
+              initialValue: _sex,
+              isExpanded: true,
+              decoration: InputDecoration(
+                hintText: 'Select sex',
+                errorText: ref.watch(authControllerProvider).fields['sex'],
+              ),
+              items: [
+                for (final sex
+                    in _options?.sexOptions ??
+                        const ['Female', 'Male', 'Other'])
+                  DropdownMenuItem(value: sex, child: Text(sex)),
+              ],
+              validator: (value) => value == null ? 'Select your sex.' : null,
+              onChanged: (value) => setState(() => _sex = value),
+            ),
+          ],
         ),
       ),
       gap,
@@ -718,10 +806,16 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             hint: 'Choose a strong password',
             password: true,
             autofillHints: const [AutofillHints.newPassword],
-            helper: 'Use at least 8 characters.',
+            helper: '8–128 characters with uppercase and lowercase letters, a number and a symbol.',
             validator: (value) {
-              if (value == null || value.length < 8) {
-                return 'Use at least 8 characters.';
+              if (value == null ||
+                  value.length < 8 ||
+                  value.length > 128 ||
+                  !RegExp(r'[A-Z]').hasMatch(value) ||
+                  !RegExp(r'[a-z]').hasMatch(value) ||
+                  !RegExp(r'[0-9]').hasMatch(value) ||
+                  !RegExp(r'[^A-Za-z0-9]').hasMatch(value)) {
+                return 'Use 8–128 characters with uppercase, lowercase, a number and a symbol.';
               }
               return null;
             },
@@ -740,6 +834,85 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 ? null
                 : 'Your passwords need to match.',
           ),
+        ),
+      ),
+      const SizedBox(height: 24),
+      _FormSection(
+        title: 'Before you apply',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Read how your rider account and personal information are handled.',
+            ),
+            if (_optionsLoading) ...[
+              const SizedBox(height: 12),
+              const LinearProgressIndicator(),
+            ],
+            if (_optionsError != null ||
+                _options == null && !_optionsLoading) ...[
+              const SizedBox(height: 12),
+              Text(
+                _optionsError ?? 'Application requirements are unavailable.',
+              ),
+              TextButton.icon(
+                key: const ValueKey('registration-retry-options'),
+                onPressed: _optionsLoading ? null : _loadOptions,
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Reload requirements'),
+              ),
+            ],
+            if (_options != null) ...[
+              Wrap(
+                spacing: 8,
+                children: [
+                  TextButton.icon(
+                    key: const ValueKey('registration-terms'),
+                    onPressed: () => _openPolicy(_options!.termsPath),
+                    icon: const Icon(Icons.description_outlined, size: 18),
+                    label: const Text('Terms of Use'),
+                  ),
+                  TextButton.icon(
+                    key: const ValueKey('registration-privacy'),
+                    onPressed: () => _openPolicy(_options!.privacyPath),
+                    icon: const Icon(Icons.privacy_tip_outlined, size: 18),
+                    label: const Text('Privacy Notice'),
+                  ),
+                ],
+              ),
+              CheckboxListTile(
+                key: const ValueKey('registration-policy-consent'),
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                value: _policyAccepted,
+                onChanged: _optionsLoading
+                    ? null
+                    : (value) {
+                        setState(() {
+                          _policyAccepted = value == true;
+                          _localError = null;
+                        });
+                        ref.read(authControllerProvider.notifier).clearError();
+                      },
+                title: const Text(
+                  'I agree to the Terms of Use and acknowledge the Privacy Notice.',
+                ),
+              ),
+              for (final field in [
+                'policy_accepted',
+                'terms_version',
+                'privacy_version',
+              ])
+                if (ref.watch(authControllerProvider).fields[field]
+                    case final String error)
+                  Text(
+                    error,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+            ],
+          ],
         ),
       ),
     ];

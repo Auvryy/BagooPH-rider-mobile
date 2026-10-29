@@ -7,6 +7,7 @@ class TestAuthRepository implements AuthRepository {
   int loginCalls = 0, logoutCalls = 0, registrationCalls = 0, refreshCalls = 0;
   AccountFailure? loginFailure;
   AccountFailure? refreshFailure;
+  Map<String, String>? registrationFields;
   static const approved = RiderAccount(
     id: '7',
     name: 'Test Rider',
@@ -31,6 +32,7 @@ class TestAuthRepository implements AuthRepository {
     Map<String, XFile> files,
   ) async {
     registrationCalls++;
+    registrationFields = Map.of(fields);
     return account = RiderAccount(
       id: '8',
       name: fields['name']!,
@@ -66,5 +68,14 @@ class TestAuthRepository implements AuthRepository {
   @override
   Future<Map<String, dynamic>> registrationOptions() async => {
     'vehicle_types': ['Motorcycle', 'Scooter', 'Sedan / Van'],
+    'sex_required': true,
+    'sex_options': ['Female', 'Male', 'Other'],
+    'registration_policies': {
+      'required': true,
+      'terms_version': '2026-10-12',
+      'privacy_version': '2026-10-12',
+      'terms_url': '/terms/2026-10-12',
+      'privacy_url': '/privacy/2026-10-12',
+    },
   };
 }

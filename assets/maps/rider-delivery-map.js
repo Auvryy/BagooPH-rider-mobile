@@ -1,7 +1,12 @@
 (function () {
   'use strict';
   var sample = window.riderDeliverySample;
-  var points = sample.coordinates;
+  var stop = window.riderSavedStop;
+  if (stop && (!Number.isFinite(stop.latitude) || !Number.isFinite(stop.longitude) ||
+      Math.abs(stop.latitude) > 85 || Math.abs(stop.longitude) > 180 || typeof stop.label !== 'string')) {
+    message('tiles-unavailable'); return;
+  }
+  var points = stop ? [[stop.latitude, stop.longitude]] : sample.coordinates;
   var map = L.map('map', {
     preferCanvas: true, zoomControl: false, scrollWheelZoom: false,
     zoomAnimation: false, fadeAnimation: false, markerZoomAnimation: false,
@@ -14,18 +19,27 @@
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
   }).addTo(map);
   map.attributionControl.setPrefix(false);
-  L.polyline(points, {color: '#FFFFFF', weight: 8, smoothFactor: 0, lineCap: 'round', lineJoin: 'round', interactive: false}).addTo(map);
-  L.polyline(points, {color: '#E00D42', weight: 5, smoothFactor: 0, lineCap: 'round', lineJoin: 'round', interactive: false}).addTo(map);
-  L.circleMarker(points[0], {radius: 9, color: '#FFFFFF', weight: 3, fillColor: '#18181B', fillOpacity: 1}).addTo(map).bindTooltip(sample.riderLabel);
-  L.circleMarker(points[points.length - 1], {radius: 9, color: '#FFFFFF', weight: 3, fillColor: '#E00D42', fillOpacity: 1}).addTo(map).bindTooltip(sample.deliveryLabel);
-  function fit() { map.fitBounds(points, {padding: [48, 64], maxZoom: 16, animate: false}); }
+  if (stop) {
+    var label = document.createElement('span'); label.textContent = stop.label;
+    L.circleMarker(points[0], {radius: 9, color: '#FFFFFF', weight: 3, fillColor: '#E00D42', fillOpacity: 1}).addTo(map).bindTooltip(label);
+  } else {
+    L.polyline(points, {color: '#FFFFFF', weight: 8, smoothFactor: 0, lineCap: 'round', lineJoin: 'round', interactive: false}).addTo(map);
+    L.polyline(points, {color: '#E00D42', weight: 5, smoothFactor: 0, lineCap: 'round', lineJoin: 'round', interactive: false}).addTo(map);
+    L.circleMarker(points[0], {radius: 9, color: '#FFFFFF', weight: 3, fillColor: '#18181B', fillOpacity: 1}).addTo(map).bindTooltip(sample.riderLabel);
+    L.circleMarker(points[points.length - 1], {radius: 9, color: '#FFFFFF', weight: 3, fillColor: '#E00D42', fillOpacity: 1}).addTo(map).bindTooltip(sample.deliveryLabel);
+  }
+  function fit() {
+    if (stop) map.setView(points[0], 16, {animate: false});
+    else map.fitBounds(points, {padding: [48, 64], maxZoom: 16, animate: false});
+  }
   var zoom = L.control.zoom({position: 'bottomright'}).addTo(map);
   var controls = L.control({position: 'bottomright'});
   controls.onAdd = function () {
     var host = L.DomUtil.create('div', 'leaflet-bar');
     var button = L.DomUtil.create('button', 'fit-route', host);
     button.type = 'button'; button.textContent = '↗';
-    button.setAttribute('aria-label', 'Show sample route'); button.title = 'Show sample route';
+    var fitLabel = stop ? 'Recenter current stop' : 'Show sample route';
+    button.setAttribute('aria-label', fitLabel); button.title = fitLabel;
     L.DomEvent.disableClickPropagation(host);
     L.DomEvent.on(button, 'click', fit);
     return host;

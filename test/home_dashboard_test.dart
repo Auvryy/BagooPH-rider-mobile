@@ -79,10 +79,12 @@ const account = RiderAccount(
 );
 void main() {
   managedDashboardTest(
-    'the sample line is independent from task assignment and never starts routing',
+    'work loads first and the optional sample never starts routing',
     (tester) async {
       final geo = MemoryTiles();
       final h = await openDashboard(tester, geoClient: geo);
+      expect(find.byType(LeafletDeliveryMap), findsNothing);
+      await tapHome(tester, find.byKey(const ValueKey('home-sample-toggle')));
       expect(find.byType(LeafletDeliveryMap), findsOneWidget);
       expect(find.text('Sample rider → Sample delivery point'), findsOneWidget);
       expect(
@@ -101,6 +103,13 @@ void main() {
       final h = await openDashboard(tester);
       await tapHome(tester, find.byKey(ValueKey('home-task-${h.task.id}')));
       expect(h.controller.selectedTask?.id, h.task.id);
+      final map = tester.widget<LeafletDeliveryMap>(
+        find.byType(LeafletDeliveryMap),
+      );
+      expect(map.stop?.latitude, h.task.stop.latitude);
+      expect(map.stop?.longitude, h.task.stop.longitude);
+      expect(find.text('Current stop'), findsOneWidget);
+      expect(h.navigation.active, isFalse);
       await tapHome(
         tester,
         find.byKey(const ValueKey('home-selected-details')),
@@ -116,6 +125,9 @@ void main() {
       await tapHome(tester, find.byKey(ValueKey('home-task-${h.task.id}')));
       expect(h.controller.selectedTask?.stop.address, isNotEmpty);
       expect(h.controller.selectedTask?.stop.latitude, isNull);
+      expect(find.byType(LeafletDeliveryMap), findsNothing);
+      expect(find.textContaining('No location pin is saved'), findsOneWidget);
+      await tapHome(tester, find.byKey(const ValueKey('home-sample-toggle')));
       await revealHome(tester, find.textContaining('Sample rider'));
       expect(find.textContaining('Sample rider'), findsOneWidget);
       expect(h.navigation.active, isFalse);
@@ -156,6 +168,17 @@ void main() {
         );
         expect(tester.takeException(), isNull);
         expect(h.navigation.active, isFalse);
+        await tapHome(tester, find.byKey(ValueKey('home-task-${h.task.id}')));
+        await revealHome(tester, find.byType(LeafletDeliveryMap));
+        expect(
+          tester
+              .widget<LeafletDeliveryMap>(find.byType(LeafletDeliveryMap))
+              .stop
+              ?.latitude,
+          h.task.stop.latitude,
+        );
+        expect(tester.takeException(), isNull);
+        expect(h.navigation.active, isFalse);
       },
     );
   }
@@ -165,12 +188,14 @@ void main() {
       final visibility = ValueNotifier(true);
       addTearDown(visibility.dispose);
       final h = await openDashboard(tester, visibility: visibility);
+      await tapHome(tester, find.byKey(const ValueKey('home-sample-toggle')));
       expect(find.byType(LeafletDeliveryMap), findsOneWidget);
       visibility.value = false;
       await tester.pumpAndSettle();
       expect(find.byType(LeafletDeliveryMap), findsNothing);
       visibility.value = true;
       await tester.pumpAndSettle();
+      await revealHome(tester, find.byType(LeafletDeliveryMap));
       expect(find.byType(LeafletDeliveryMap), findsOneWidget);
       expect(h.api.calls.every((call) => call.method == 'GET'), isTrue);
     },
@@ -268,7 +293,7 @@ openDashboard(
           mapFactory ?? FakeDeliveryMapSession.new,
         ),
         deliveryMapDocumentProvider.overrideWithValue(
-          () async => '<title>Sample delivery route</title>',
+          () async => '<title>Sample delivery route</title><script>window.riderDeliverySample={};</script>',
         ),
         roadRoutingProvider.overrideWithValue(geo),
         navigationProvider.overrideWithValue(nav),

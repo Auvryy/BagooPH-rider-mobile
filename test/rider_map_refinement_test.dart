@@ -21,6 +21,11 @@ void main() {
         tester.view.physicalSize = size;
         tester.view.devicePixelRatio = 1;
         final h = await dashboard.openDashboard(tester, textScale: scale);
+        expect(find.byType(LeafletDeliveryMap), findsNothing);
+        await dashboard.tapHome(
+          tester,
+          find.byKey(const ValueKey('home-sample-toggle')),
+        );
         expect(find.byType(LeafletDeliveryMap), findsOneWidget);
         expect(
           find.text('Sample rider → Sample delivery point'),
@@ -51,6 +56,10 @@ void main() {
         mapLocation: location,
         manual: false,
       );
+      await dashboard.tapHome(
+        tester,
+        find.byKey(const ValueKey('home-sample-toggle')),
+      );
       expect(source.streams, isEmpty);
       expect(location.fix, isNull);
       expect(geo.calls, isEmpty);
@@ -69,6 +78,10 @@ void main() {
           sessions.add(session);
           return session;
         },
+      );
+      await dashboard.tapHome(
+        tester,
+        find.byKey(const ValueKey('home-sample-toggle')),
       );
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
       await tester.pumpAndSettle();

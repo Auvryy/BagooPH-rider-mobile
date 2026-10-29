@@ -41,7 +41,8 @@ class RiderRegistrationOptions {
 
   static String _version(Object? value) {
     final text = Wire.string(value);
-    if (!RegExp(r'^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$').hasMatch(text)) {
+    if (RegExp(r'^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$').firstMatch(text)?.end !=
+        text.length) {
       Wire.invalid();
     }
     return text;

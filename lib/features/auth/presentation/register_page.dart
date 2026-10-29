@@ -97,10 +97,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         _adultMaximum = options.adultMaximum;
       });
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         setState(
           () => _optionsError = 'Could not load the current application requirements. Retry before submitting.',
         );
+      }
     } finally {
       if (mounted) setState(() => _optionsLoading = false);
     }

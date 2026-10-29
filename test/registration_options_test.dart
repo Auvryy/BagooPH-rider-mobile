@@ -61,6 +61,8 @@ void main() {
         (j) => j['sex_options'] = ['Female', 'Female'],
         (j) => j['sex_options'] = [' Female'],
         (j) => j['sex_required'] = false,
+        (j) => (j['registration_policies'] as Map)['terms_version'] =
+            '2026-10-12\n',
         (j) => (j['registration_policies'] as Map)['privacy_version'] =
             '../escape',
       ]) {

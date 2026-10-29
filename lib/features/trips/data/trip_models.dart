@@ -1,5 +1,6 @@
 import '../../../core/network/api_failure.dart';
 import '../../../core/network/wire.dart';
+import '../../cash/data/rider_financial_models.dart';
 
 String tripId(Object? value) {
   final text = Wire.string(value);
@@ -94,11 +95,7 @@ class RetainedTrip {
         taskId != '$phase-$deliveryId') {
       Wire.invalid();
     }
-    final earnings = Wire.object(j['earnings']);
-    if (Wire.boolean(earnings['available']) ||
-        earnings['confirmed_cents'] != null) {
-      Wire.invalid();
-    }
+    earnings = RiderEarnings.fromJson(j['earnings']);
     if (j['checkpoints'] is! List || j['attempts'] is! List) Wire.invalid();
     checkpoints = List.unmodifiable(
       (j['checkpoints'] as List).map(
@@ -128,6 +125,7 @@ class RetainedTrip {
   final DateTime assignedAt;
   final DateTime? lastRecordedAt;
   final BigInt? collectedCents;
+  late final RiderEarnings earnings;
   late final List<RetainedCheckpoint> checkpoints;
   late final List<RetainedAttempt> attempts;
   Set<String> get proofPaths => {

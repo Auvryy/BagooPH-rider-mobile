@@ -20,6 +20,8 @@ class NotificationTarget {
         'task' => 'rider/tasks/$id',
         'cash' => 'rider/cash/$id',
         'account' => 'rider/me',
+        'company_request' => 'rider/company-requests/$id',
+        'company_assignment' => 'rider/company-assignment',
         _ => null,
       };
       if (path == null || value['href'] != '/api/v1/$path') return null;
@@ -158,4 +160,10 @@ class NotificationCashDestination extends NotificationDestination {
 class NotificationAccountDestination extends NotificationDestination {
   NotificationAccountDestination(this.account);
   final RiderAccount account;
+}
+
+class NotificationCompanyDestination extends NotificationDestination {
+  NotificationCompanyDestination(this.accountId, {this.applicationId});
+  final String accountId;
+  final String? applicationId;
 }

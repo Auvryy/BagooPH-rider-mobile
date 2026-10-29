@@ -1,18 +1,13 @@
 import '../../../core/commands/cash_validation.dart';
 import '../../../core/network/wire.dart';
+import 'rider_financial_models.dart';
 
 export '../../../core/commands/cash_validation.dart';
+export 'rider_financial_models.dart';
 
 List<T> _rows<T>(Object? value, T Function(Map<String, dynamic>) decode) {
   if (value is! List) Wire.invalid();
   return List.unmodifiable(value.map((row) => decode(Wire.object(row))));
-}
-
-void _earnings(Object? value) {
-  final data = Wire.object(value);
-  if (data['available'] != false || data['confirmed_cents'] != null) {
-    Wire.invalid();
-  }
 }
 
 class CashPerson {
@@ -128,7 +123,7 @@ class CashAccount {
           ? _rows(j['discrepancies'], CashDifference.fromJson)
           : const [],
       isDetail = detail {
-    _earnings(j['earnings']);
+    earnings = RiderEarnings.fromJson(j['earnings']);
     if (j['can_receive'] != false ||
         j['can_reconcile'] != false ||
         (canOffer &&
@@ -162,6 +157,7 @@ class CashAccount {
       excess;
   final DateTime recordedAt;
   final bool canOffer, isDetail;
+  late final RiderEarnings earnings;
   final CashPending? pending;
   final List<CashHolder> holders;
   final List<CashPerson> recipients;
@@ -186,7 +182,10 @@ class CashPage {
     if (summary['basis'] != 'all_owned_cash_journals') Wire.invalid();
     held = cashCents(summary['own_held_cents']);
     unresolved = Wire.count(summary['accounts_with_unresolved_difference']);
-    _earnings(j['earnings']);
+    earnings = RiderEarnings.fromJson(j['earnings']);
+    shift = j['shift'] == null
+        ? null
+        : RiderShiftSummary.fromJson(Wire.object(j['shift']));
     final p = Wire.object(j['pagination']);
     page = Wire.count(p['page']);
     perPage = Wire.count(p['per_page']);
@@ -205,6 +204,8 @@ class CashPage {
     }
   }
   final List<CashAccount> items;
+  late final RiderEarnings earnings;
+  late final RiderShiftSummary? shift;
   late final BigInt held;
   late final int unresolved, page, perPage, total, lastPage;
   bool get hasMore => page < lastPage && page < 10000;

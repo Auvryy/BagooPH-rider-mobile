@@ -6,8 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme.dart';
 import '../../../core/ui/rider_surfaces.dart';
 import '../../auth/data/account.dart';
+import '../../cash/presentation/cash_page.dart';
+import '../../cash/presentation/financial_summary.dart';
 import '../../handover/presentation/handover_entry.dart';
 import '../../navigation/presentation/leaflet_delivery_map.dart';
+import '../../navigation/data/saved_delivery_stop.dart';
 import '../../navigation/presentation/navigation_providers.dart';
 import '../../notifications/presentation/notifications_entry.dart';
 import '../../workspace/data/workspace_models.dart';
@@ -37,6 +40,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
   final _searchVisible = ValueNotifier(false);
   final _searchFocus = FocusNode();
   bool _foreground = true;
+  bool _sampleExpanded = false;
   @override
   void initState() {
     super.initState();
@@ -62,6 +66,8 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
   Widget _tasks({bool sliver = false, Widget? header}) => HomeTaskPanel(
     controller: widget.controller,
     asSliver: sliver,
+    scrollController: sliver ? _scroll : null,
+    selectedFooter: widget.controller.selectedTask == null ? null : _map(),
     header: header,
     searchVisibility: _searchVisible,
     searchFocusNode: _searchFocus,
@@ -73,47 +79,104 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
       navigation: ref.read(navigationProvider),
     ).openParcel(context, OperationsRepository.asRiderTask(task)),
   );
-  Widget _map({bool fill = false}) => RiderSurface(
-    padding: const EdgeInsets.all(12),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const Row(
-          children: [
-            Icon(Icons.route_outlined, size: 18),
-            SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                'Delivery map',
-                style: TextStyle(fontWeight: FontWeight.w600),
+  Widget _map() {
+    final task = widget.controller.selectedTask;
+    final stop = SavedDeliveryStop.fromTask(task);
+    return RiderSurface(
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Icon(
+                stop == null ? Icons.map_outlined : Icons.location_on_outlined,
+                size: 18,
+                color: RiderColors.accentText,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  task == null
+                      ? 'Map illustration'
+                      : task.preview
+                      ? 'Pickup preview'
+                      : 'Current stop',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+          if (task != null) ...[
+            const SizedBox(height: 8),
+            Text(task.stop.name ?? stopKindLabel(task.stop.kind)),
+            if (stop == null) ...[
+              const SizedBox(height: 6),
+              const Text(
+                'No location pin is saved for this stop. Use the recorded address in parcel details.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: RiderColors.muted,
+                  height: 1.5,
+                ),
+              ),
+            ],
+          ],
+          if (stop != null) ...[
+            const SizedBox(height: 12),
+            SizedBox(height: 280, child: _mapView(stop: stop)),
+            const SizedBox(height: 10),
+            const Text(
+              'Saved parcel location. This is not live rider tracking or a calculated road route.',
+              style: TextStyle(
+                fontSize: 11,
+                height: 1.4,
+                color: RiderColors.muted,
               ),
             ),
-            Text(
-              'Sample',
-              style: TextStyle(fontSize: 11, color: RiderColors.muted),
+          ] else ...[
+            const SizedBox(height: 6),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                key: const ValueKey('home-sample-toggle'),
+                onPressed: () =>
+                    setState(() => _sampleExpanded = !_sampleExpanded),
+                icon: Icon(
+                  _sampleExpanded
+                      ? Icons.expand_less_rounded
+                      : Icons.expand_more_rounded,
+                ),
+                label: Text(
+                  _sampleExpanded ? 'Hide sample map' : 'Show sample map',
+                ),
+              ),
             ),
+            if (_sampleExpanded) ...[
+              SizedBox(height: 280, child: _mapView()),
+              const SizedBox(height: 10),
+              const Text(
+                'Sample rider → Sample delivery point',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'Illustration only. This is not a live rider or an assigned parcel.',
+                style: TextStyle(
+                  fontSize: 11,
+                  height: 1.4,
+                  color: RiderColors.muted,
+                ),
+              ),
+            ],
           ],
-        ),
-        const SizedBox(height: 12),
-        if (fill)
-          Expanded(child: _mapView())
-        else
-          SizedBox(height: 340, child: _mapView()),
-        const SizedBox(height: 10),
-        const Text(
-          'Sample rider → Sample delivery point',
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 4),
-        const Text(
-          'Illustration only. This is not a live rider or an assigned parcel.',
-          style: TextStyle(fontSize: 11, height: 1.4, color: RiderColors.muted),
-        ),
-      ],
-    ),
-  );
-  Widget _mapView() => _foreground
-      ? const LeafletDeliveryMap(key: ValueKey('home-leaflet-map'))
+        ],
+      ),
+    );
+  }
+
+  Widget _mapView({SavedDeliveryStop? stop}) => _foreground
+      ? LeafletDeliveryMap(key: const ValueKey('home-leaflet-map'), stop: stop)
       : const Center(child: Text('Map paused while the app is hidden.'));
   Widget _assignment() => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -123,6 +186,15 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
         compact: true,
         showDuty: false,
       ),
+      if (widget.controller.homeData.data?.shift case final shift?) ...[
+        if (shift.id != null || !shift.canClose) ...[
+          const SizedBox(height: 12),
+          RiderShiftSummaryPanel(
+            shift: shift,
+            onCash: () => unawaited(openCash(context, widget.controller)),
+          ),
+        ],
+      ],
       HandoverEntry(
         home: widget.controller.homeData.data,
         accountId: widget.account.id,
@@ -189,14 +261,20 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Expanded(child: _map(fill: true)),
+                        Expanded(child: _tasks()),
                         const SizedBox(width: 16),
                         SizedBox(
-                          width: 390,
-                          child: _tasks(
-                            header: Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: _assignment(),
+                          width: 360,
+                          child: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                _assignment(),
+                                if (widget.controller.selectedTask == null) ...[
+                                  const SizedBox(height: 16),
+                                  _map(),
+                                ],
+                              ],
                             ),
                           ),
                         ),
@@ -212,19 +290,20 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
             controller: _scroll,
             slivers: [
               SliverToBoxAdapter(child: header),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: _map(),
-                ),
-              ),
+              _tasks(sliver: true),
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
                   child: _assignment(),
                 ),
               ),
-              _tasks(sliver: true),
+              if (widget.controller.selectedTask == null)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                    child: _map(),
+                  ),
+                ),
             ],
           );
         },

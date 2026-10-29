@@ -68,8 +68,30 @@ void main() {
         'id': '1',
         'href': '/api/v1/rider/company-requests/1',
       }),
-      isNull,
+      isNotNull,
     );
+    expect(
+      NotificationTarget.parse({
+        'kind': 'company_assignment',
+        'id': '5',
+        'href': '/api/v1/rider/company-assignment',
+      })?.id,
+      '5',
+    );
+    for (final href in [
+      '/api/v1/rider/company-requests/1?token=secret',
+      '/api/v1/rider/company-requests/2',
+      'https://outside.test/company',
+    ]) {
+      expect(
+        NotificationTarget.parse({
+          'kind': 'company_request',
+          'id': '1',
+          'href': href,
+        }),
+        isNull,
+      );
+    }
   });
   test('pagination preserves server aggregate rather than the number loaded and rejects malformed pages', () {
     final json =

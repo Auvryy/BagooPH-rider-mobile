@@ -10,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_all/webview_all.dart';
 
 import '../../../app/theme.dart';
+import '../data/saved_delivery_stop.dart';
 import 'native_delivery_map.dart';
 
 abstract interface class DeliveryMapSession {
@@ -106,17 +107,19 @@ html,body,#map{width:100%;height:100%;margin:0;background:#F2F1ED;font-family:'P
 }
 
 class LeafletDeliveryMap extends StatelessWidget {
-  const LeafletDeliveryMap({super.key});
+  const LeafletDeliveryMap({super.key, this.stop});
+  final SavedDeliveryStop? stop;
 
   @override
   Widget build(BuildContext context) =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.linux
-      ? const NativeDeliveryMap()
-      : const _EmbeddedLeafletDeliveryMap();
+      ? NativeDeliveryMap(key: ValueKey(stop), stop: stop)
+      : _EmbeddedLeafletDeliveryMap(stop: stop);
 }
 
 class _EmbeddedLeafletDeliveryMap extends ConsumerStatefulWidget {
-  const _EmbeddedLeafletDeliveryMap();
+  const _EmbeddedLeafletDeliveryMap({this.stop});
+  final SavedDeliveryStop? stop;
   @override
   ConsumerState<_EmbeddedLeafletDeliveryMap> createState() =>
       _LeafletDeliveryMapState();
@@ -135,6 +138,12 @@ class _LeafletDeliveryMapState
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     unawaited(_open());
+  }
+
+  @override
+  void didUpdateWidget(covariant _EmbeddedLeafletDeliveryMap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.stop != widget.stop) unawaited(_open());
   }
 
   @override
@@ -168,7 +177,10 @@ class _LeafletDeliveryMapState
     });
     DeliveryMapSession? session;
     try {
-      final document = await ref.read(deliveryMapDocumentProvider)();
+      var document = await ref.read(deliveryMapDocumentProvider)();
+      if (widget.stop case final stop?) {
+        document = deliveryMapDocumentForStop(document, stop);
+      }
       if (!mounted || epoch != _epoch) return;
       session = ref.read(deliveryMapFactoryProvider)();
       setState(() => _session = session);
@@ -272,4 +284,23 @@ class _LeafletDeliveryMapState
         ),
     ],
   );
+}
+
+String deliveryMapDocumentForStop(String document, SavedDeliveryStop stop) {
+  final encoded = jsonEncode(stop.toJson())
+      .replaceAll('<', r'\u003c')
+      .replaceAll('\u2028', r'\u2028')
+      .replaceAll('\u2029', r'\u2029');
+  if (!document.contains('window.riderDeliverySample=')) {
+    throw const FormatException('The saved-stop map document is unavailable.');
+  }
+  return document
+      .replaceFirst(
+        'window.riderDeliverySample=',
+        'window.riderSavedStop=$encoded;\nwindow.riderDeliverySample=',
+      )
+      .replaceFirst(
+        'aria-label="Sample rider to delivery route"',
+        'aria-label="Saved current stop"',
+      );
 }

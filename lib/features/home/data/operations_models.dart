@@ -1,4 +1,5 @@
 import '../../../core/network/wire.dart';
+import '../../cash/data/rider_financial_models.dart';
 
 export '../../../core/network/wire.dart';
 
@@ -12,6 +13,9 @@ class OperationsHome {
       capacity = Wire.counts(j['capacity']),
       limits = Wire.counts(j['limits']) {
     if (j['operations_api_version'] != 1) Wire.invalid();
+    shift = j['shift'] == null
+        ? null
+        : RiderShiftSummary.fromJson(Wire.object(j['shift']));
     handoverApiVersion =
         j['handover_api_version'] is int && j['handover_api_version'] == 1
         ? 1
@@ -48,6 +52,7 @@ class OperationsHome {
   }
   final String accountId;
   final bool onDuty;
+  late final RiderShiftSummary? shift;
   final DateTime observedAt;
   late final int? handoverApiVersion;
   late final String? companyId, hubId, company, hub, barangay, claimDenial;

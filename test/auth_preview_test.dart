@@ -131,6 +131,8 @@ void main() {
       await tester.enterText(field('City / municipality'), 'Pasig');
       await tapVisible(tester, find.byKey(const ValueKey('birthday-picker')));
       await tapVisible(tester, find.text('OK'));
+      await tapVisible(tester, find.byType(DropdownButtonFormField<String>));
+      await tapVisible(tester, find.text('Female').last);
       await tapVisible(tester, find.byKey(const ValueKey('registration-next')));
       expect(find.text('Your delivery vehicle.'), findsOneWidget);
       // Advancing a long form brings the new step's heading into view.
@@ -170,8 +172,8 @@ void main() {
         tester,
         find.byKey(const ValueKey('registration-step-2')),
       );
-      await tester.enterText(field('Create password'), 'preview-password');
-      await tester.enterText(field('Confirm password'), 'preview-password');
+      await tester.enterText(field('Create password'), 'Example123!');
+      await tester.enterText(field('Confirm password'), 'Example123!');
       await tapVisible(tester, find.byKey(const ValueKey('registration-next')));
       expect(find.textContaining('Choose your ID'), findsOneWidget);
       expect(tester.takeException(), isNull);
@@ -272,6 +274,8 @@ void main() {
       await tester.enterText(field('City / municipality'), 'Pasig');
       await tapVisible(tester, find.byKey(const ValueKey('birthday-picker')));
       await tapVisible(tester, find.text('OK'));
+      await tapVisible(tester, find.byType(DropdownButtonFormField<String>));
+      await tapVisible(tester, find.text('Female').last);
       await tapVisible(tester, find.byKey(const ValueKey('registration-next')));
       await tester.enterText(field('Plate or registration number'), 'DEMO-123');
       await tester.enterText(field('Driver’s license number'), 'DEMO-123');
@@ -290,8 +294,15 @@ void main() {
           ),
         );
       }
-      await tester.enterText(field('Create password'), 'Password1234');
-      await tester.enterText(field('Confirm password'), 'Password1234');
+      await tester.enterText(field('Create password'), 'Example123!');
+      await tester.enterText(field('Confirm password'), 'Example123!');
+      await tapVisible(tester, find.byKey(const ValueKey('registration-next')));
+      expect(find.text('Verify your email'), findsNothing);
+      expect(repository.registrationCalls, 0);
+      await tapVisible(
+        tester,
+        find.byKey(const ValueKey('registration-policy-consent')),
+      );
       await tapVisible(tester, find.byKey(const ValueKey('registration-next')));
       expect(find.text('Verify your email'), findsOneWidget);
       await tester.enterText(
@@ -303,6 +314,19 @@ void main() {
         find.byKey(const ValueKey('verify-email-button')),
       );
       expect(repository.registrationCalls, 1);
+      expect(repository.registrationFields, containsPair('sex', 'Female'));
+      expect(
+        repository.registrationFields,
+        containsPair('policy_accepted', '1'),
+      );
+      expect(
+        repository.registrationFields,
+        containsPair('terms_version', '2026-10-12'),
+      );
+      expect(
+        repository.registrationFields,
+        containsPair('privacy_version', '2026-10-12'),
+      );
       expect(find.text('Welcome, New Test Rider.'), findsOneWidget);
       expect(find.text('Application under review'), findsOneWidget);
       await tapVisible(tester, find.byKey(const ValueKey('logout-button')));

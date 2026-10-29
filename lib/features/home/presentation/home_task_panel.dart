@@ -38,6 +38,7 @@ class HomeTaskPanel extends StatefulWidget {
     this.onQueueChanged,
     this.onShowStop,
     this.header,
+    this.selectedFooter,
     this.searchVisibility,
     this.searchFocusNode,
   });
@@ -47,6 +48,7 @@ class HomeTaskPanel extends StatefulWidget {
   final ScrollController? scrollController;
   final bool asSliver;
   final Widget? header;
+  final Widget? selectedFooter;
   final ValueNotifier<bool>? searchVisibility;
   final FocusNode? searchFocusNode;
   final VoidCallback? onShowStop;
@@ -126,6 +128,10 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                   onShowStop: widget.onShowStop,
                   onClear: controller.closeTask,
                 ),
+                if (widget.selectedFooter != null) ...[
+                  const SizedBox(height: 12),
+                  widget.selectedFooter!,
+                ],
               ],
               const SizedBox(height: 8),
               LayoutBuilder(

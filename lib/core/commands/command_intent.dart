@@ -2,6 +2,7 @@ import 'dart:math';
 
 import '../network/wire.dart';
 import 'cash_validation.dart';
+import 'company_validation.dart';
 import 'message_validation.dart';
 import 'notification_validation.dart';
 import 'parcel_proof.dart';
@@ -51,6 +52,9 @@ class CommandIntent {
         Wire.invalid();
       }
       Wire.version(body['expected_version']);
+    } else if (isCompany) {
+      if (proof != null) Wire.invalid();
+      companyIntentFields(action, resource, body);
     } else if (isCash) {
       if (!resource.startsWith('cash-') || proof != null) Wire.invalid();
       Wire.id(resource.substring(5));
@@ -153,11 +157,12 @@ class CommandIntent {
   /// Absent on legacy COD intents, which retain their required cash fields.
   final String? deliveryPaymentMethod;
   bool get isCash => action == 'cash.offer';
+  bool get isCompany => companyCommandActions.contains(action);
   bool get isMessage => action == 'message.send' || action == 'message.read';
   bool get isNotification => action == 'notification.read';
   ParcelAction? get parcelAction =>
       ParcelAction.values.where((value) => value.name == action).firstOrNull;
-  String get deliveryId => isNotification
+  String get deliveryId => isNotification || isCompany
       ? Wire.invalid()
       : isMessage
       ? messageThreadParts(resource).deliveryId
@@ -165,6 +170,13 @@ class CommandIntent {
   String get path => switch (action) {
     'duty' => 'rider/duty',
     'cash.offer' => 'rider/cash/${resource.substring(5)}/offer',
+    'company.submit' => 'rider/company-requests',
+    'company.accepted' =>
+      'rider/company-requests/${companyResourceId(action, resource)}/accept',
+    'company.declined' =>
+      'rider/company-requests/${companyResourceId(action, resource)}/decline',
+    'company.withdrawn' =>
+      'rider/company-requests/${companyResourceId(action, resource)}/withdraw',
     'claim' => 'rider/pickup-jobs/${resource.substring(7)}/claim',
     'message.send' => 'rider/conversations/$resource/messages',
     'message.read' => 'rider/conversations/$resource/read',

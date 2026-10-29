@@ -13,7 +13,7 @@ abstract interface class CommandJournal {
   Future<void> clear();
 }
 
-/// One unresolved intent per API/account. Kept through logout and expiry until
+/// One unresolved intent per API/account/scope. Kept through logout and expiry until
 /// reconciliation confirms a result or a definitive rejection. Selected outcome
 /// fields are encrypted by secure storage; original proof has its own protected
 /// file reference. No bearer credentials or travelled-location history is stored.
@@ -27,7 +27,9 @@ class SecureCommandJournal implements CommandJournal {
        _scope = scope,
        _key = _scopedKey(origin, accountId, scope);
   static String _scopedKey(Uri origin, String accountId, String scope) {
-    if (!['work', 'messages', 'notifications'].contains(scope)) Wire.invalid();
+    if (!['work', 'messages', 'notifications', 'company'].contains(scope)) {
+      Wire.invalid();
+    }
     final namespace = scope == 'work' ? '' : '${scope}_';
     return 'bagoo_rider_command_$namespace${base64UrlEncode(utf8.encode('$origin/$accountId'))}';
   }
@@ -57,7 +59,9 @@ class SecureCommandJournal implements CommandJournal {
   Future<void> clear() => _storage.delete(key: _key);
 
   bool _owns(CommandIntent intent) =>
-      (intent.isMessage
+      (intent.isCompany
+          ? 'company'
+          : intent.isMessage
           ? 'messages'
           : intent.isNotification
           ? 'notifications'

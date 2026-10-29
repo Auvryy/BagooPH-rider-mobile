@@ -12,6 +12,7 @@ import '../../workspace/presentation/workspace_controller.dart';
 import '../../workspace/data/workspace_models.dart';
 import '../data/cash_models.dart';
 import 'cash_controller.dart';
+import 'financial_summary.dart';
 
 Future<void> openCash(
   BuildContext context,
@@ -250,6 +251,17 @@ class _CashPageViewState extends State<CashPageView>
             ),
           ]),
         if (data != null) ...[
+          RiderEarningsSummary(
+            earnings: detail?.earnings ?? data.earnings,
+            title: detail == null
+                ? 'Your earnings'
+                : 'Earnings for this parcel',
+          ),
+          if (data.shift case final shift?) ...[
+            const SizedBox(height: 12),
+            RiderShiftSummaryPanel(shift: shift),
+          ],
+          const SizedBox(height: 12),
           _panel(context, 'Cash still held by you', [
             Text(
               cashPeso(data.held),
@@ -524,11 +536,6 @@ class _CashPageViewState extends State<CashPageView>
               ]),
           ],
         ],
-        _panel(context, 'Earnings unavailable', [
-          const Text(
-            'Confirmed rider earnings are not provided by this service. COD, shipping, discounts and remitted cash are not earnings.',
-          ),
-        ]),
       ];
       return Scaffold(
         appBar: AppBar(

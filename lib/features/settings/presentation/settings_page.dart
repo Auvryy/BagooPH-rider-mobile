@@ -6,6 +6,7 @@ import '../../../app/theme.dart';
 import '../../../core/ui/argon_widgets.dart';
 import '../../../core/ui/rider_surfaces.dart';
 import '../../auth/data/account.dart';
+import '../../company/presentation/company_entry.dart';
 import '../../auth/presentation/auth_controller.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
 import '../data/settings_models.dart';
@@ -290,6 +291,15 @@ class ProfileSettingsPage extends ConsumerWidget {
         ]);
       case ProfileSection.assignment:
       case ProfileSection.vehicle:
+        if (section == ProfileSection.assignment && !preview) {
+          content.addAll([
+            RiderCompanyEntry(
+              account: account,
+              onReturn: () => settings.load(),
+            ),
+            const SizedBox(height: 20),
+          ]);
+        }
         if (settings.data?.managedAvailable == true) {
           final keys = section == ProfileSection.assignment
               ? ['company', 'hub', 'hub_code', 'barangay']

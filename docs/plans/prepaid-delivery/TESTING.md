@@ -33,6 +33,17 @@ Linux display are required. Pin the accepted backend source revision:
 node tool/parcel_local_api/run.mjs ../bagoo prepaid 9e58312d130809eb8cd878189b729f1f702291d8
 ```
 
+To run the same handoff/replay scenario without opening a Linux app window or
+requiring a native secret service, use the headless Flutter-test adapter:
+
+```sh
+node tool/parcel_local_api/run.mjs ../bagoo prepaid-headless 9e58312d130809eb8cd878189b729f1f702291d8
+```
+
+It exercises the same Rider repository and Laravel kernel, with mock secure
+storage. It does not prove the operating system storage plugin; retain the
+platform-backed integration command above for that separate check.
+
 The native acceptance now requires a version-two completed order, paid Wallet
 status, the exact original recipient, authenticated retained proof bytes matching
 the original image hash, one original replay and zero COD accounts. It passed

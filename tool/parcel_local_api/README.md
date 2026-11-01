@@ -26,9 +26,9 @@ durable source uniqueness, exact displayed reads, retained command recovery,
 foreign denial and unchanged parcel/cash state.
 
 Requires Composer development dependencies in that backend, PHP with `pdo_sqlite`,
-Node 22 or newer and the Flutter/Linux toolchain. A Linux display and native
-secret service are needed for the native runner. A virtual display keeps the
-test window away from the active desktop; where `xvfb-run` is available:
+Node 22 or newer and the Flutter toolchain. Linux integration suites that target
+`-d linux` need a Linux display and native secret service. A virtual display
+keeps the test window away from the active desktop; where `xvfb-run` is available:
 
 ```sh
 xvfb-run -a node tool/parcel_local_api/run.mjs ../bagoo
@@ -55,6 +55,20 @@ attempt, owning-hub return, approved retry, retained attempt proof and denial to
 a different rider through the real Laravel kernel. The run opens no app window
 and needs no connected phone, display server or native secret service. The full
 native parcel suite below still covers the wider workflow on a Linux target.
+
+For windowless paid Wallet client acceptance, use the shared Wallet scenario
+with the in-memory secure-storage test adapter:
+
+```sh
+node tool/parcel_local_api/run.mjs ../bagoo prepaid-headless 9e58312d130809eb8cd878189b729f1f702291d8
+```
+
+It exercises lost-response reconciliation, exact replay, one completed paid
+order, one Wallet receipt, zero COD accounts, the original recipient and
+hash-matched private Trips proof. It uses the real Flutter repository/Dio client
+and Laravel kernel but does not test the operating system secure-storage plugin.
+The separate `prepaid` Linux integration suite retains that plugin-backed check.
+Neither PC path enables live writes or replaces Android acceptance.
 
 The backend checkout is read-only. The runner archives a fixed committed revision
 and binds copied Composer metadata to that snapshot; installed dependency
@@ -88,6 +102,16 @@ acceptance and physical Android scan, permissions and picker recovery remain
 required in the [selected plan](../../docs/plans/rider-orders-delivery-trips/README.md).
 
 ## Paid Wallet extension
+
+The windowless client-to-kernel check is suitable when no desktop window or
+native secret service should be used:
+
+```sh
+node tool/parcel_local_api/run.mjs ../bagoo prepaid-headless 9e58312d130809eb8cd878189b729f1f702291d8
+```
+
+It uses the in-memory secure-storage test adapter; it does not replace the
+platform-backed integration check below.
 
 ```sh
 xvfb-run -a node tool/parcel_local_api/run.mjs ../bagoo prepaid 9e58312d130809eb8cd878189b729f1f702291d8

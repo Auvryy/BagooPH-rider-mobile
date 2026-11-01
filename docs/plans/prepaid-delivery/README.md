@@ -3,8 +3,9 @@
 Selected October 22, 2026 on `feat/rider-prepaid-delivery`, from merged Rider
 main `9806ce5`. This extends the existing
 [pickup/delivery/Trips implementation](../rider-orders-delivery-trips/README.md).
-The client supports the additive paid Bagoo Wallet contract; live activation
-remains gated by retained-proof and deployment acceptance.
+The client supports the additive paid Bagoo Wallet contract. Local retained
+proof compatibility is accepted against the fixed source branch; live activation
+remains gated by merging/deploying that source and controlled acceptance.
 
 ## Sources and boundaries
 

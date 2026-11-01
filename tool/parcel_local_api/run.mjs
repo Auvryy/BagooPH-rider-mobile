@@ -10,8 +10,8 @@ import { once } from 'node:events';
 const project = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const backend = resolve(process.argv[2] ?? resolve(project, '../bagoo'));
 const suite = process.argv[3] ?? 'parcel';
-const suites = ['parcel', 'parcel-headless', 'messages', 'notifications', 'prepaid', 'cash', 'company'];
-if (!suites.includes(suite)) throw new Error('Select parcel, parcel-headless, messages, notifications, prepaid, cash or company verification.');
+const suites = ['parcel', 'parcel-headless', 'messages', 'notifications', 'prepaid', 'prepaid-headless', 'cash', 'company'];
+if (!suites.includes(suite)) throw new Error('Select parcel, parcel-headless, messages, notifications, prepaid, prepaid-headless, cash or company verification.');
 const requestedRevision = process.argv[4] ?? 'HEAD';
 if (requestedRevision !== 'HEAD' && !/^[a-f0-9]{7,40}$/.test(requestedRevision)) throw new Error('Select HEAD or a committed hexadecimal source revision.');
 const parcelSuite = suite === 'parcel' || suite === 'parcel-headless';
@@ -140,17 +140,20 @@ try {
   server.listen(0, '127.0.0.1'); await once(server, 'listening');
   const api = `http://127.0.0.1:${server.address().port}`;
   const headlessParcel = suite === 'parcel-headless';
-  const clientMode = headlessParcel || suite === 'company' ? 'headless' : 'native';
+  const headlessWallet = suite === 'prepaid-headless';
+  const headlessClient = headlessParcel || headlessWallet || suite === 'company';
+  const clientMode = headlessClient ? 'headless' : 'native';
   console.log(`Isolated SQLite :memory: ${suite} kernel at ${revision} ready; running the ${clientMode} Flutter client.`);
-  const prefix = `LOCAL_${headlessParcel ? 'PARCEL' : suite.toUpperCase()}`;
-  // The company and focused parcel contracts exercise native Dart HTTP and the
-  // real Laravel kernel without opening a window. Their tests use in-memory
-  // secure-storage adapters rather than requiring a device plugin.
+  const prefix = `LOCAL_${headlessParcel ? 'PARCEL' : headlessWallet ? 'PREPAID' : suite.toUpperCase()}`;
+  // Headless scenarios exercise native Dart HTTP and the real Laravel kernel
+  // without a window. They use in-memory secure-storage adapters rather than
+  // requiring a device plugin.
   const testPath = headlessParcel
     ? 'test/parcel_local_api_headless_test.dart'
+    : headlessWallet ? 'test/prepaid_local_api_headless_test.dart'
     : suite === 'company' ? 'test/company_local_api_test.dart' : `integration_test/${suite}_local_api_test.dart`;
-  const target = suite === 'company' || headlessParcel ? [] : ['-d', 'linux'];
-  flutter = spawn('flutter', ['test', '--no-pub', testPath, ...target,
+  const target = headlessClient ? [] : ['-d', 'linux'];
+  flutter = spawn('flutter', ['test', '--no-pub', '--concurrency=1', testPath, ...target,
     `--dart-define=${prefix}_API_BASE=${api}`, `--dart-define=${prefix}_FIXTURE_TOKEN=${fixtureToken}`, '--reporter', 'expanded'],
   { cwd: project, stdio: 'inherit' });
   const [code] = await once(flutter, 'exit'); process.exitCode = code ?? 1;

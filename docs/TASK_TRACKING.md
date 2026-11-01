@@ -9,14 +9,16 @@ recipient/proof and version-two handover source fixes are on branch
 focused backend suite and the Rider's pinned native Wallet consumer test passed.
 Azure deployment and phone acceptance are still pending. The latest documented
 full serial Flutter run was at code revision `e0aa20e` (693 tests, 7 skips; clean
-analysis). The later map/privacy code at `9d7e8cf` passed four focused PC checks
-and clean analysis. An arm64 profile APK was rebuilt from that code revision and
-passed archive-integrity, package-metadata, APK v2 debug-signature and embedded-
-disclosure checks; it was not installed. See [Android release packaging](ANDROID_RELEASE.md)
-and the [rehearsal record](plans/rider-workflow-recovery/REHEARSAL.md). At the
-last remote check, Rider defense branch `e9fb7e3` was 34 commits ahead and 0
-behind Rider `main` `4367331`; subsequent changes here are documentation only.
-Physical phone acceptance remains deferred.
+analysis). The map/privacy runtime code at `9d7e8cf` and test-only revision
+`039d40d` passed six focused PC checks, including 320 px Home/Stop Mode layouts
+at 200% text, plus clean analysis. An arm64 profile APK was rebuilt from runtime
+code `9d7e8cf` and passed archive-integrity, package-metadata, APK v2
+debug-signature and embedded-disclosure checks; it was not installed. See
+[Android release packaging](ANDROID_RELEASE.md) and the
+[rehearsal record](plans/rider-workflow-recovery/REHEARSAL.md). At the last
+remote check, Rider defense branch `e9fb7e3` was 34 commits ahead and 0 behind
+Rider `main` `4367331`; subsequent commits are docs/test-only and do not change
+runtime code. Physical phone acceptance remains deferred.
 
 **November 1 COD compatibility follow-up:** Rider commit `41f0fda` also fixes
 UUID parsing for backend rider shifts and updates the version-two COD native

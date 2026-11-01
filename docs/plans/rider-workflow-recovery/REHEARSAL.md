@@ -122,9 +122,10 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    supports them.
 5. **Evidence and limits — 60 seconds.** At the earlier source revision
    `e0aa20e`, the full serial Flutter suite passed 693 tests with 7 skips and
-   analysis was clean. The current map/privacy code revision `9d7e8cf` passed
-   four focused PC tests and analysis, but the full suite was not rerun. A
-   profile APK was built from `9d7e8cf` and verified on the PC; it was not
+   analysis was clean. Runtime code `9d7e8cf` and test revision `039d40d`
+   passed six focused PC checks and analysis, including phone-width 320 px with
+   200% text. The full suite was not rerun. A profile APK was built from
+   `9d7e8cf` and verified on the PC; it was not
    installed. These checks do not establish a release, Azure deployment,
    cross-role production behavior, or
    physical Android camera/lifecycle acceptance.
@@ -185,10 +186,11 @@ evidence, not as an accepted live phone demonstration.
   This is historical full-suite evidence, not a full-suite run at the current
   branch head. The separate
   headless parcel check passed **1/1** against Bagoo `9e58312`.
-- The map/privacy correction at Rider code revision `9d7e8cf` passed four
-  focused PC tests serially: saved/sample map disclosures, default route-provider
-  status and the Google Maps handoff disclosure. `flutter analyze --no-pub`
-  found no issues. `git diff --check` and changed-document local-link/fence
+- Runtime code at Rider revision `9d7e8cf` and test revision `039d40d` passed
+  six focused PC checks serially: saved/sample map disclosures, default
+  route-provider status, Google Maps handoff disclosure, and both notices at
+  320 px with 200% text. `flutter analyze --no-pub` found no issues.
+  `git diff --check` and changed-document local-link/fence
   checks passed. No phone or emulator was used.
 - The isolated company API check passed **1/1** against Bagoo `9e58312` in 50
   seconds. It used SQLite `:memory:` and a headless Dart client, verifying
@@ -211,7 +213,8 @@ evidence, not as an accepted live phone demonstration.
   installed or launched; see [packaging evidence](VERIFICATION.md).
 - At the build-verification checkpoint, GitHub refs were Rider defense branch
   `e9fb7e3` and Rider `main` `4367331`; the branch was **34 commits ahead and 0
-  behind**. Later commits to this record are documentation only. Bagoo web
+  behind**. Later commits add the phone-size widget checks and update evidence;
+  they do not change runtime code. Bagoo web
   `main` is `f001d396`; the Wallet/handover source branch `9e58312` is **2
   commits ahead of main**, not merged or deployment evidence.
 - A PC `--release` build request at `e0aa20e` stopped before artifact generation
@@ -237,8 +240,9 @@ checks cover the bundled document separately.
    Make clear that the website already supports scanning and proof upload; the
    clearest extra rider-facing feature is session-only Parcel Finder labels.
 2. Show the PC evidence above with revisions attached: the full-suite result
-   is historical at `e0aa20e`; the map changes have current focused tests and
-   analysis at `9d7e8cf`; the arm64 profile APK matches `9d7e8cf` but remains a
+   is historical at `e0aa20e`; map runtime code is `9d7e8cf` and focused tests
+   at `039d40d` include the 320 px/200% cases; the arm64 profile APK matches
+   `9d7e8cf` but remains a
    debug-signed, uninstalled preview. These do not establish hardware behavior.
 3. If asked to demonstrate an operational transaction, explain that Azure and
    cross-role acceptance are separate open gates. Do not substitute sample data

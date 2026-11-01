@@ -145,8 +145,10 @@ signing, and physical Android acceptance remain open.
 
 ## Map-disclosure branch-head APK — November 1, 2026
 
-At Rider code revision `9d7e8cf`, the focused map/directions changes passed four
-serial PC checks and `flutter analyze --no-pub` reported no issues. A fresh
+At Rider runtime code revision `9d7e8cf` and test revision `039d40d`, six
+focused PC checks passed serially, including the disclosure copy at 320 px and
+200% text in both Home and Stop Mode. `flutter analyze --no-pub` reported no
+issues. A fresh
 arm64-targeted profile APK was built with the repository's single-worker Gradle
 settings using the ignored `config/azure.json` file. The build completed in
 276.7 seconds.
@@ -165,7 +167,7 @@ settings using the ignored `config/azure.json` file. The build completed in
 The build emitted an SDK XML version warning (the build tools understand XML
 version 3 while the installed SDK metadata uses version 4) and completed
 successfully. The most recent full-suite result remains the run at source
-revision `e0aa20e`; the current map-disclosure code received the four focused
-checks above, not a full-suite rerun. At the same checkpoint the published
+revision `e0aa20e`; the map-disclosure code received the six focused checks
+above, not a full-suite rerun. At the same checkpoint the published
 branch was `e9fb7e3` and Rider `main` remained at `4367331` (34 commits ahead,
 0 behind). No phone or emulator was used.

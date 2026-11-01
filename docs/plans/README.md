@@ -5,7 +5,7 @@ roadmap and backlog; it does not replace their scope, stable IDs or deadlines.
 
 | Plan | Scope | State | Entry |
 |---|---|---|---|
-| Rider delivery guidance and recovery | Recorded completion/earnings guidance, security and cash/custody website access | Client batch locally verified; backend/live/device acceptance separate | [Plan](rider-workflow-recovery/README.md) |
+| Rider delivery guidance and recovery | Recorded completion/earnings guidance, security and cash/custody website access; app-versus-phone-web defense comparison | Client batch and source-backed comparison locally verified; backend/live/device acceptance separate | [Plan](rider-workflow-recovery/README.md) |
 | Rider workflow updates | Current registration, earnings/shift compatibility, task-first Home and company joining | Client batch locally verified; deployed/physical acceptance separate | [Plan](rider-workflow-updates/README.md) |
 | Home dashboard/navigation | Selected map/location extension; live Home foundation first | Foundation/map implemented; live-write, owned-task and device acceptance open | [Plan](home-dashboard-navigation/README.md) |
 | Philippines map focus | Country mask/bounds, retained current-stop pins, route framing and readable tiles | Merged in PR 19; physical performance and hub coordinates separate | [Plan](philippines-map-focus/README.md) |

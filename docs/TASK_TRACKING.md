@@ -5,12 +5,15 @@ aligns order completion/earnings presentation with current web version two and
 adds specific password, session, cash and custody website handoffs. It covers
 M01/M07/M11/M14/M15/M16 without clearing operational gates. Bagoo's Wallet
 recipient/proof and version-two handover source fixes are on branch
-`fix/rider-wallet-trip-evidence`; its focused backend suite and the Rider's
-pinned native Wallet consumer test passed. Azure deployment and phone acceptance
-are still pending. The latest serial full Flutter suite at Rider commit
-`866342f` passed 692 tests; six expected tests remain skipped. Analysis and the
-previously recorded Linux/Android debug builds passed on PC; phone acceptance
-is deferred.
+`fix/rider-wallet-trip-evidence`, 2 commits ahead of the live web `main`; its
+focused backend suite and the Rider's pinned native Wallet consumer test passed.
+Azure deployment and phone acceptance are still pending. The latest serial full
+Flutter suite passed 693 tests with 7 skips; `flutter analyze --no-pub` reported
+no issues. Its verification is recorded at Rider branch commit `9886648`. The
+current published Rider branch is 17 commits ahead and 0 behind Rider `main`.
+The source-backed phone-web feature comparison and defense rehearsal are in the
+[rehearsal record](plans/rider-workflow-recovery/REHEARSAL.md). The debug APK
+was rebuilt on PC; phone acceptance is deferred.
 
 **November 1 COD compatibility follow-up:** Rider commit `41f0fda` also fixes
 UUID parsing for backend rider shifts and updates the version-two COD native

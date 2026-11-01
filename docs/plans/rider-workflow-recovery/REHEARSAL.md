@@ -3,6 +3,83 @@
 The November 1 selection completes PC work first. Physical Android testing is
 deferred by the user. Keep this list open until its corresponding evidence exists.
 
+## Rider app versus phone-sized Courier website
+
+This source review compares the Rider app at `9886648` with the phone-responsive
+Courier portal on the live Bagoo `main` revision
+`f001d396b0e9ea6bfc2fdeb85ee24b66682b997e`. It covers the Courier website, not
+the Buyer app. It does not claim that either client was exercised in a real
+browser or on Android.
+
+| Area | Rider app | Courier website on a phone | Defense-safe conclusion |
+|---|---|---|---|
+| Work and stops | Tasks/Home, task map, dedicated Stop Mode, pickup claim, hub departure, delivery or failed-attempt actions. | Deliveries dashboard, current-job panel, map, pickup claim, scan and outcome actions. Its source implements a mobile sidebar. | The courier work is shared. Stop Mode is a native presentation of the same authorized stop; actual phone rendering of either client remains unverified. |
+| Waybill scanning | Android `mobile_scanner` accepts a real camera result and requires one matching parcel code. There is no typed or gallery substitute in the native scan action. | `WaybillCamera` uses browser `BarcodeDetector` and `getUserMedia`; when unavailable it offers typed entry or an external scanner. The form checks the entered code against the selected waybill. | Scanning is not app-exclusive. The native camera pipeline and stricter scan-only entry are implementation differences; neither proves physical camera acceptance. |
+| Delivery proof | Camera/gallery selection, protected original proof for uncertain commands, and private proof viewing in the rider's retained Trips detail. | Delivery and failed-attempt forms accept an image file. The Trips page shows recorded trip details and earnings, not the private proof viewer found in the app. A phone browser may offer camera or gallery through its file picker. | Both support proof submission. The app adds protected recovery and an in-app view of retained private evidence; do not claim that the website cannot take a photo. |
+| Stop Mode and Parcel Finder | Dedicated Stop Mode includes session-only personal slot labels for an owned parcel. Labels clear on restart/sign-out and do not change server custody. | The reviewed Courier pages have a current-job/map panel; no matching personal parcel-slot labels were found. | Parcel Finder is the clearest extra rider-facing feature in the app. It is a personal organization aid, not dispatch, scanning, or custody evidence. |
+| Trips and money | Trips separates recorded order status and retained evidence from Cash & remittance. The native cash screen sends pending-offer review/cancellation to the website. | Trips/Earnings combines trip history, released/pending earnings, shift cash status, earning entries, and a COD handover link; the cash page owns pending-offer review/cancellation. | Both cover trips and money, with different information grouped on screen. Some cash controls are browser-owned and reached by a handoff from the app. Show the actual returned status and ledger state; a delivery record alone is not a payout or hub receipt. |
+| Messages and notifications | Assignment-bound messages and a Home notification inbox with bounded read behavior. | Courier Messages, a notification link/page, and the same courier role boundary. | Shared capabilities; source-level interaction safeguards differ. Live send/read acceptance remains open. |
+| Company and handover | Company requests/offers and native missed-scan reporting/evidence/recovery entry points. | Company requests/offers in Profile and handover issue list/detail pages. | These are not app-only business workflows. Assignment acceptance, parcel custody, and authorized recovery remain server-owned. |
+| Account and profile | Native Profile/Settings plus first-party website handoffs for selected account/security/recovery flows. | Responsive Profile pages for information, privacy/security/session review, assignment, and vehicle records. | Some account/security controls remain browser-owned. Do not describe a browser handoff as a native feature. |
+| Retry and device behavior | Android camera lifecycle handling and an encrypted, account/API-scoped journal for uncertain commands and original proof bytes. | Browser forms use request tokens and page state; the reviewed pages do not show an equivalent protected native journal. | This is a resilience implementation difference, not full offline delivery. No offline delivery, turn-by-turn routing, live tracking, or notification push is claimed. |
+
+**Answer to “what does Rider Mobile have that the phone website does not?”** The
+best-supported user-facing example is **session-only Parcel Finder labels inside
+Stop Mode**. The strongest implementation differences are Android camera
+lifecycle integration, protected recovery of uncertain writes/proof, and the
+private proof viewer in retained Trips. The website also scans waybills and
+accepts proof photos, and owns pending cash-offer cancellation and session
+review; the app links to the relevant browser workflows. Core delivery, trips,
+messaging, notices, cash, company, and handover workflows are shared in the
+reviewed source.
+
+Neither Courier client is a Buyer or hub client. The rider records a recipient
+handoff; the server returns the applicable order status. Newer flow-version
+orders may complete automatically after verified handoff. The rider does not
+issue a separate buyer-confirmation command, create hub receipts, assign
+final-mile work, or mark hub cash receipt/platform reconciliation. The rider
+can submit a cash handover; the owning hub and ledger remain authoritative.
+
+Sources: Rider [workspace navigation](../../../lib/features/workspace/presentation/workspace_shell.dart),
+[Stop Mode](../../../lib/features/home/presentation/stop_mode_page.dart),
+[Parcel Finder](../../../lib/features/parcel_finder/presentation/parcel_finder_card.dart),
+[scanner](../../../lib/features/parcels/presentation/waybill_scanner_page.dart),
+[command journal](../../../lib/features/home/data/command_journal.dart),
+[proof viewer](../../../lib/features/trips/presentation/trip_detail_page.dart),
+[cash](../../../lib/features/cash/presentation/cash_page.dart),
+[company](../../../lib/features/company/presentation/company_page.dart),
+[messages](../../../lib/features/messages/presentation/messages_page.dart),
+[notifications](../../../lib/features/notifications/presentation/notifications_page.dart),
+and [handover](../../../lib/features/handover/presentation/handover_issues_page.dart).
+Bagoo sources are pinned to [Courier Deliveries](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Pages/Courier/Deliveries.tsx),
+[browser scanner](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Components/WaybillCamera.tsx),
+[responsive portal layout](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Layouts/CourierLayout.tsx),
+[responsive navigation](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Components/CourierSidebar.tsx),
+[Trips/Earnings](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Pages/Courier/Earnings.tsx),
+[Messages](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Pages/Courier/Messages.tsx),
+[Profile](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Pages/Courier/Profile.tsx),
+[company requests](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Components/CourierCompanyRequests.tsx),
+[COD cash UI](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Components/CodCashUI.tsx),
+[notifications layout](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Layouts/NotificationLayout.tsx),
+and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Pages/Handover/Index.tsx).
+
+## Current PC evidence and open gates
+
+- The full serial Flutter suite passed **693 tests with 7 skips**; analysis
+  reported no issues. The separate headless parcel check passed **1/1** against
+  Bagoo `9e58312`.
+- The current debug APK is `build/app/outputs/flutter-apk/app-debug.apk`,
+  SHA-256 `42ce7a5d1493fa60b9dee7b670094e5222b1ad67ed2d5771459053ffa0cbfae6`.
+  It is a debug build, not a signed release, and was not installed or run on a
+  phone.
+- Live GitHub refs were checked: Rider branch `9886648` is **17 ahead, 0 behind**
+  Rider `main` `4367331`. Bagoo web `main` is `f001d396`; the separate Wallet /
+  handover source branch `9e58312` is **2 ahead, 0 behind** and is not merged or
+  deployment evidence.
+- Azure deployment/cross-role acceptance, approved release identity/signing,
+  and physical Android lifecycle acceptance remain open. Keep the phone check
+  deferred; PC evidence does not clear these gates.
+
 | Check | Evidence needed |
 |---|---|
 | Account access | Real approved native login and restored session; pending/restricted accounts retain their restrictions; no substitute production accounts. |

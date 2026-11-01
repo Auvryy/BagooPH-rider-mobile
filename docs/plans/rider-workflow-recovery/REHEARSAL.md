@@ -5,12 +5,18 @@ deferred by the user. Keep this list open until its corresponding evidence exist
 
 ## Rider app versus phone-sized Courier website
 
-This source review compares Rider's map-disclosure code at `9d7e8cf` on
-`fix/rider-route-privacy-disclosure` with the phone-responsive Courier portal
-on Bagoo `main` at `f001d396b0e9ea6bfc2fdeb85ee24b66682b997e`. It covers the
+This source review compares Rider runtime code `30412ed` on
+`fix/rider-route-privacy-disclosure` (defense branch head `9693a6e`) with the
+phone-responsive Courier portal on Bagoo `main` at
+`f001d396b0e9ea6bfc2fdeb85ee24b66682b997e`. The remote Bagoo main ref was
+rechecked November 2, 2026 and still matches that commit. This covers the
 Courier website, not the Buyer app. It does not claim that either client was
-exercised in a real browser or on Android. The map and route-provider status
-was rechecked against the active Rider source on November 1, 2026.
+exercised in a real browser or on Android. The separate Bagoo review branch
+`fix/rider-wallet-trip-evidence` at `9e58312` fixes the native Wallet
+recipient/private-proof response, but remains unmerged and is used only for
+isolated PC compatibility checks; no deployed Wallet acceptance is claimed.
+The map and route-provider status was rechecked against Rider source on
+November 1, 2026.
 
 | Area | Rider app | Courier website on a phone | Defense-safe conclusion |
 |---|---|---|---|
@@ -18,7 +24,7 @@ was rechecked against the active Rider source on November 1, 2026.
 | Map rendering | Android uses the bundled Leaflet document in System WebView with public OSM tiles. Linux Device Preview substitutes FlutterMap so the map stays inside its simulated phone frame. | Courier pages use browser Leaflet with public OSM tiles. | The Android map and Courier web share Leaflet and the tile source. Linux preview is a layout fallback, not Android WebView evidence. |
 | Map and directions | The active map displays the saved stop or a labelled sample path using OpenStreetMap tiles. Tile coordinates and source IP address can reveal the approximate area being viewed. The default `roadRoutingProvider` is `UnavailableRoadRouting`, so Rider has no in-app road route, GPS follow or rerouting session. Explicit **External directions** opens Google Maps with the saved stop destination. | Courier maps also use OpenStreetMap tiles; the current-job directions action opens external Google Maps directions. | Both map surfaces expose tile coordinates and source IP metadata to OpenStreetMap, which can reveal the displayed area. Google Maps receives the saved destination only when the rider explicitly opens external directions. Rider does not send live GPS or a traveled-route history to Bagoo. The optional Geoapify client and route notice are not active in the default app. |
 | Waybill scanning | Android `mobile_scanner` accepts a real camera result and requires one matching parcel code. There is no typed or gallery substitute in the native scan action. | `WaybillCamera` uses browser `BarcodeDetector` and `getUserMedia`; when unavailable it offers typed entry or an external scanner. The form checks the entered code against the selected waybill. | Scanning is not app-exclusive. The native camera pipeline and stricter scan-only entry are implementation differences; neither proves physical camera acceptance. |
-| Delivery proof | Camera/gallery selection, protected original proof for uncertain commands, and private proof viewing in the rider's retained Trips detail. | Delivery and failed-attempt forms accept an image file. The Trips page shows recorded trip details and earnings, not the private proof viewer found in the app. A phone browser may offer camera or gallery through its file picker. | Both support proof submission. The app adds protected recovery and an in-app view of retained private evidence; do not claim that the website cannot take a photo. |
+| Delivery proof | Camera/gallery selection, protected original proof for uncertain commands, and private proof viewing in retained Trips. The paid Wallet recipient/proof response was fixed on Bagoo review branch `9e58312`; its Rider client scenario passes locally. | Delivery and failed-attempt forms accept an image file. The Trips page shows recorded trip details and earnings, not the private proof viewer found in the app. A phone browser may offer camera or gallery through its file picker. | Both support proof submission. The app adds protected recovery and an in-app private-evidence view; do not claim that the website cannot take a photo. Wallet-specific retained evidence is only verified against the unmerged source branch, not current main or Azure. |
 | Stop Mode and Parcel Finder | Dedicated Stop Mode includes session-only personal slot labels for an owned parcel. Labels clear on restart/sign-out and do not change server custody. | The reviewed Courier pages have a current-job/map panel; no matching personal parcel-slot labels were found. | Parcel Finder is the clearest extra rider-facing feature in the app. It is a personal organization aid, not dispatch, scanning, or custody evidence. |
 | Trips and money | Trips separates recorded order status and retained evidence from Cash & remittance. The native cash screen sends pending-offer review/cancellation to the website. | Trips/Earnings combines trip history, released/pending earnings, shift cash status, earning entries, and a COD handover link; the cash page owns pending-offer review/cancellation. | Both cover trips and money, with different information grouped on screen. Some cash controls are browser-owned and reached by a handoff from the app. Show the actual returned status and ledger state; a delivery record alone is not a payout or hub receipt. |
 | Messages and notifications | Assignment-bound messages and a Home notification inbox with bounded read behavior. | Courier Messages, a notification link/page, and the same courier role boundary. | Shared capabilities; source-level interaction safeguards differ. Live send/read acceptance remains open. |
@@ -30,13 +36,15 @@ was rechecked against the active Rider source on November 1, 2026.
 **Session-only Parcel Finder labels inside Stop Mode** are a clear additional
 rider-facing feature. Other implementation differences include Android camera
 lifecycle integration, protected recovery of uncertain writes and proof, and
-the private proof viewer in retained Trips. Both clients use OpenStreetMap for
-map tiles and open Google Maps for external directions; Rider's default build
-does not include in-app road routing or GPS-follow navigation. The website also
-scans waybills and accepts proof photos, and owns pending cash-offer
-cancellation and session review; the app links to those browser workflows. Core
-delivery, trips, messaging, notices, cash, company, and handover operations
-remain shared in the reviewed source.
+the private proof viewer in retained Trips. Wallet-specific retained proof has
+only passed against the unmerged Bagoo source branch; current main/deployed
+compatibility remains open. Both clients use OpenStreetMap for map tiles and
+open Google Maps for external directions; Rider's default build does not include
+in-app road routing or GPS-follow navigation. The website also scans waybills
+and accepts proof photos, and owns pending cash-offer cancellation and session
+review; the app links to those browser workflows. Core delivery, trips, messaging,
+notices, cash, company, and handover operations remain shared in the reviewed
+source.
 
 Neither Courier client is a Buyer or hub client. The rider records a recipient
 handoff; the server returns the applicable order status. Newer flow-version
@@ -85,11 +93,13 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
 > phone-responsive Courier website already supports the shared business flows;
 > Rider adds session-only Parcel Finder labels, Android camera and lifecycle
 > integration, protected recovery of uncertain submissions, and private proof
-> viewing in Trips. Both clients use OpenStreetMap tiles and send the saved stop
-> to Google Maps only when external directions are opened. Rider's default build
-> has no in-app road routing or GPS-follow navigation. PC checks are recorded.
-> Release signing, deployed cross-role acceptance, and physical Android
-> acceptance are still pending.
+> viewing in Trips. Wallet-specific retained proof has only passed against an
+> unmerged Bagoo review branch, so deployed Wallet compatibility remains open.
+> Both clients use OpenStreetMap tiles and send the saved stop to Google Maps
+> only when external directions are opened. Rider's default build has no in-app
+> road routing or GPS-follow navigation. PC checks are recorded. Release
+> signing, deployed cross-role acceptance, and physical Android acceptance are
+> still pending.
 
 ### Four-minute explanation
 
@@ -126,8 +136,9 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    passed **702 tests, 8 skipped, zero failures** in 4m18s on the
    `fix/rider-route-privacy-disclosure` worktree at test harness `87244ed` and
    runtime `30412ed`. The separate headless Wallet client scenario passed
-   **1/1** against Bagoo `9e58312` with an in-memory storage adapter; it does
-   not verify Android platform storage. The full suite used one worker. No
+   **1/1** against the unmerged Bagoo review branch `9e58312` with an in-memory
+   storage adapter; it does not verify the deployed API or Android platform
+   storage. The full suite used one worker. No
    phone, ADB, emulator, install, or app window was used.
    Focused photo-recovery and parcel-outcome suites passed **19/19**;
    `flutter analyze --no-pub` reported no issues in 6.4s. On November 2, fresh arm64 debug
@@ -157,7 +168,8 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
 - **What does the app add beyond the phone website?** Rider adds session-only
   Parcel Finder labels in Stop Mode, native camera lifecycle handling, protected
   recovery for uncertain submissions, and private proof viewing in Trips. Both
-  clients support waybill scanning and proof upload.
+  clients support waybill scanning and proof upload. Wallet-specific retained
+  proof still needs the unmerged Bagoo fix deployed and accepted.
 - **Does Rider provide in-app navigation?** Not in the default build. The active
   map shows a saved stop or sample path, but `roadRoutingProvider` is
   `UnavailableRoadRouting`; there is no GPS follow or rerouting session.

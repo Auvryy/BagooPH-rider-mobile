@@ -1,10 +1,13 @@
 # Local verification
 
 November 1, 2026. Client scope: delivery completion/earnings guidance, specific
-website recovery access and bounded build resources. Mobile source starts at
-`4367331`; the backend reference stays read-only at `f001d39`.
+website recovery access and bounded build resources. The Rider source baseline
+was `4367331`; the backend reference stays read-only at `f001d39`.
 
-## Current local results
+## Selected-slice local results
+
+These initial results describe the implementation handoff. A newer branch-head
+recheck is recorded at the end of this file.
 
 | Check | Result |
 |---|---|
@@ -82,3 +85,13 @@ This resolves the local source/client gap only. The code is not merged or
 confirmed deployed, the write gates remain false, and the user deferred physical
 phone testing. The existing recovery and PC build evidence above does not claim
 live Azure, cross-role or Android hardware acceptance.
+
+## Final branch-head PC recheck — November 1, 2026
+
+At Rider source revision `f9dd4cf` on `fix/rider-trips-completion-copy`,
+`flutter test --no-pub --concurrency=1 --reporter=compact` exited 0 with **693
+passed and 7 skipped** in 5 minutes 19 seconds. `flutter analyze --no-pub`
+exited 0 with no issues. Both commands ran on the PC; no phone or emulator was
+used. This recheck supersedes the earlier full-suite total above. It does not
+replace the separate Azure, cross-role, release-signing, or physical Android
+acceptance gates.

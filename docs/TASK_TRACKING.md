@@ -7,11 +7,12 @@ M01/M07/M11/M14/M15/M16 without clearing operational gates. Bagoo's Wallet
 recipient/proof and version-two handover source fixes are on branch
 `fix/rider-wallet-trip-evidence`, 2 commits ahead of the live web `main`; its
 focused backend suite and the Rider's pinned native Wallet consumer test passed.
-Azure deployment and phone acceptance are still pending. The latest serial full
-Flutter suite passed 693 tests with 7 skips; `flutter analyze --no-pub` reported
-no issues. Its verification is recorded at Rider branch commit `9886648`. At
-the comparison snapshot, published Rider branch `5c2e2a8` was 18 commits ahead
-and 0 behind Rider `main` `4367331`.
+Azure deployment and phone acceptance are still pending. A branch-head PC
+recheck at Rider source revision `f9dd4cf` passed the serial full Flutter suite
+with 693 tests and 7 skips; `flutter analyze --no-pub` reported no issues.
+Earlier verification is recorded at Rider branch commit `9886648`. At the
+comparison snapshot, published Rider branch `5c2e2a8` was 18 commits ahead and
+0 behind Rider `main` `4367331`.
 The source-backed phone-web feature comparison and defense rehearsal are in the
 [rehearsal record](plans/rider-workflow-recovery/REHEARSAL.md). The debug APK
 was rebuilt on PC; phone acceptance is deferred.

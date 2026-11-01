@@ -154,9 +154,9 @@ evidence, not as an accepted live phone demonstration.
 
 ## Current PC evidence and open gates
 
-- The full serial Flutter suite passed **693 tests with 7 skips**; analysis
-  reported no issues. The separate headless parcel check passed **1/1** against
-  Bagoo `9e58312`.
+- The full serial Flutter suite passed **693 tests with 7 skips** at Rider
+  source revision `f9dd4cf`; analysis reported no issues. The separate headless
+  parcel check passed **1/1** against Bagoo `9e58312`.
 - The focused photo-recovery suite passed **7/7** at Rider head `f17309c`. It
   covers scoped restart and lost-picker handling with a simulated picker, not
   physical Android lifecycle behavior.

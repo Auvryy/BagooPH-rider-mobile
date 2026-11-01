@@ -24,9 +24,9 @@ remain separate, and the user has deferred phone testing.
 
 ## Validation
 
-Analysis is clean; 691 Flutter tests passed with six expected skips. Configured
-Linux and Android debug builds passed sequentially with limited compile workers.
-Full local results and remaining acceptance are recorded in
-[VERIFICATION.md](VERIFICATION.md).
+At Rider source revision `f9dd4cf`, analysis is clean and the serial Flutter
+suite passed 693 tests with 7 skips. Configured Linux and Android debug builds
+passed sequentially with limited compile workers. Full local results and
+remaining acceptance are recorded in [VERIFICATION.md](VERIFICATION.md).
 The Rider branch and its commits are pushed. This file remains a PR draft; no
 pull request has been opened.

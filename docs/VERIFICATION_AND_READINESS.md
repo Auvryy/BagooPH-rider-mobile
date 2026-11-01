@@ -1,11 +1,25 @@
 # Verification and documentation assessment
 
+**Current status — November 1, 2026.** The scores and starter-screen statements
+below describe the October 5 planning snapshot, not the current Rider branch.
+`fix/rider-trips-completion-copy` contains mobile source changes and is not
+merged into `main`. Source revision `f9dd4cf` was 23 commits ahead, 0 behind
+Rider `main` at `4367331`. At that revision, the full serial Flutter suite
+passed **693 tests with 7 skips**, and `flutter analyze --no-pub` reported no
+issues. See the
+[current rehearsal and acceptance record](plans/rider-workflow-recovery/REHEARSAL.md)
+and [selected workflow verification](plans/rider-workflow-recovery/VERIFICATION.md)
+for the implemented behavior and limits. These PC checks do not clear Azure,
+cross-role, release-signing, or physical Android acceptance; phone testing is
+deferred.
+
 ## Readiness is evidenced behavior
 
-This docs branch improves the plan. It does not add runtime features, deploy an
-API, run native camera checks, or repair backend failures. The starter's previous
-Flutter analysis/Linux/web builds are historical evidence for the starter only.
-Record new verification when each implementation slice is completed.
+The October 5, 2026 planning-doc change improved the plan without adding runtime
+features, deploying an API, running native camera checks, or repairing backend
+failures. The starter's previous Flutter analysis/Linux/web builds were
+historical evidence for that starter only. Runtime and deployment acceptance
+must be recorded for the exact implementation slice.
 
 ## Acceptance matrix
 
@@ -80,8 +94,9 @@ Baseline: committed starter `36f9a57`, with a useful README but no rider docs.
 The overall score is a weighted judgment, not the arithmetic mean of the rows.
 It is below 10 because API fields/limits/expiry still require backend agreement,
 capacity is unconfirmed, hardware checks have not happened, and the exact
-presentation date remains a working target. Runtime readiness is unchanged by
-this documentation task: Flutter remains a starter screen.
+presentation date remains a working target. At the time of this October 5,
+2026 documentation task, runtime readiness was unchanged and Flutter remained
+the starter screen.
 
 ## What improves efficiency
 
@@ -130,9 +145,9 @@ Documentation checks passed on October 5, 2026:
 - A closing read of the backend confirms the public-tracking-only API and the
   same relevant roadmap prerequisites; no web files were edited by this task.
 
-The acceptance matrix above remains future runtime work. No new Flutter build,
-native camera, backend suite, PostgreSQL concurrency, or deployment check was
-performed for this docs-only branch.
+The acceptance matrix above recorded future runtime work as of October 5, 2026.
+No new Flutter build, native camera, backend suite, PostgreSQL concurrency, or
+deployment check was performed for that docs-only documentation change.
 
 ## Detailed backlog verification — October 5, 2026
 

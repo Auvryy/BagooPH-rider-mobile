@@ -1,5 +1,12 @@
 # Rider major tasks and build workflow
 
+**November 1 locally verified client work:** [Delivery guidance and recovery access](plans/rider-workflow-recovery/README.md)
+aligns order completion/earnings presentation with current web version two and
+adds specific password, session, cash and custody website handoffs. It covers
+M01/M07/M11/M14/M15/M16 without clearing operational gates or the backend Wallet
+evidence dependency. Analysis, 691 Flutter tests and Linux/Android debug builds
+passed on PC; six expected tests remain skipped and phone acceptance is deferred.
+
 This is the feature map for building BagooPH Rider Mobile, reviewed October 5,
 2026. It answers **what we need to build, in what order, and what proves each
 area works**. The [detailed backlog](SUBTASK_BACKLOG.md) now turns these areas

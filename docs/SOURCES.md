@@ -1,5 +1,13 @@
 # Sources, authority and synchronization
 
+**November 1 current source review:** web main `f001d39` and its
+`docs/new-docs-era/README.md` govern current version-two automatic completion and
+original earnings. Historical buyer-confirmation descriptions below apply only
+where retained order evidence requires them. The selected
+[delivery guidance/recovery work](plans/rider-workflow-recovery/README.md) records
+native response fields, verified website routes and remaining owner acceptance.
+No web source or deployment was changed by this mobile work.
+
 ## Reviewed source snapshot
 
 **October 9 accepted operations handoff:** clean backend main

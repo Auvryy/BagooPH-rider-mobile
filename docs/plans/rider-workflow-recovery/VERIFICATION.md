@@ -86,15 +86,39 @@ confirmed deployed, the write gates remain false, and the user deferred physical
 phone testing. The existing recovery and PC build evidence above does not claim
 live Azure, cross-role or Android hardware acceptance.
 
-## Final branch-head PC recheck — November 1, 2026
+## Earlier branch-head PC recheck — November 1, 2026
 
 At Rider source revision `f9dd4cf` on `fix/rider-trips-completion-copy`,
 `flutter test --no-pub --concurrency=1 --reporter=compact` exited 0 with **693
 passed and 7 skipped** in 5 minutes 19 seconds. `flutter analyze --no-pub`
 exited 0 with no issues. Both commands ran on the PC; no phone or emulator was
-used. This recheck supersedes the earlier full-suite total above. It does not
-replace the separate Azure, cross-role, release-signing, or physical Android
-acceptance gates.
+used. At that time this recheck superseded the older full-suite total; it is
+now superseded by the 699-test result below. It does not replace the separate
+Azure, cross-role, release-signing, or physical Android acceptance gates.
+
+## Latest full PC regression and defense APK — November 1, 2026
+
+At Rider test checkout `fc99a02` (runtime change `a9b972d`), the full serial
+Flutter suite passed **699 tests with 7 skips and zero failures** in 5m57s:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact test
+```
+
+`flutter analyze --no-pub` reported no issues after the theme update. The
+published branch later received documentation-only commits, so the tested
+runtime and tests are present in its current head. This is PC-only unit/widget
+evidence; it does not establish Android hardware, Azure or cross-role
+acceptance.
+
+An arm64-targeted debug APK was built at published Rider revision `8b50401`,
+using the same runtime code. Its current PC verification reports archive
+integrity, package/version/SDK metadata, debuggable state, a one-signer APK v2
+signature and SHA-256. It was not installed, and its scaffold package ID/debug
+signing do not make it a release artifact. See the
+[Android packaging record](../../ANDROID_RELEASE.md) for the build command,
+artifact size and full checksum. Physical Android and release-signing gates
+remain open.
 
 The isolated company consumer check also passed **1/1** in 50 seconds using
 Rider source revision `9886648` against Bagoo commit `9e58312`:
@@ -166,11 +190,11 @@ settings using the ignored `config/azure.json` file. The build completed in
 
 The build emitted an SDK XML version warning (the build tools understand XML
 version 3 while the installed SDK metadata uses version 4) and completed
-successfully. The most recent full-suite result remains the run at source
-revision `e0aa20e`; the map-disclosure code received the six focused checks
-above, not a full-suite rerun. At the same checkpoint the published
-branch was `e9fb7e3` and Rider `main` remained at `4367331` (34 commits ahead,
-0 behind). No phone or emulator was used.
+successfully. At this map checkpoint, the latest full-suite result then
+available was the run at source revision `e0aa20e`; the map-disclosure code
+received the six focused checks above, not a full-suite rerun. At the same
+checkpoint, the published branch was `e9fb7e3` and Rider `main` remained at
+`4367331` (34 commits ahead, 0 behind). No phone or emulator was used.
 
 ## Proof recovery and private Trips viewing — November 1, 2026
 

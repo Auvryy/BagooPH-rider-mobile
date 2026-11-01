@@ -121,18 +121,21 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    accuracy, or user satisfaction; claim gains only if a separate field study
    supports them.
 5. **Evidence and limits — 60 seconds.** The latest full serial Flutter suite
-   passed 696 tests with 7 skips at test checkout `38e25cf` in 8m10s. A separately
-   run headless Rider client scenario passed against the pinned
-   Bagoo kernel, including lost-response recovery, paid COD completion, cash
-   separation, retained private proof and failed-return/reassignment. Other
-   focused evidence includes 42 command/workflow/outcome tests at `3839de6`,
-   20 proof-recovery/Trips tests at `cbd6b21`, 20 Parcel Finder tests at
-   `d42c948`, and six map-disclosure checks at `9d7e8cf`/`039d40d`. Flutter
-   analysis passed at test checkout `38e25cf`. The profile APK built from
-   runtime code `9d7e8cf` passed PC archive, package, signing and disclosure
-   checks but was not installed. None of these checks establishes release signing, Azure
-   deployment, cross-role production behavior, or physical Android
-   camera/lifecycle acceptance.
+   passed **699 tests, 7 skipped, zero failures** at test checkout `fc99a02`
+   (runtime `a9b972d`) in 5m57s. Later commits on the published branch are
+   documentation-only. A separate headless Rider client scenario passed against
+   the pinned Bagoo kernel, including lost-response recovery, paid COD
+   completion, cash separation, retained private proof and failed-return /
+   reassignment. Focused evidence also includes 42 command/workflow/outcome
+   tests at `3839de6`, 20 proof-recovery/Trips tests at `cbd6b21`, 20 Parcel
+   Finder tests at `d42c948`, and six map-disclosure checks at
+   `9d7e8cf`/`039d40d`. Flutter analysis is clean after the theme change. The
+   current arm64-targeted debug APK was built from published revision `8b50401`
+   with the same runtime code; its archive, metadata and v2 debug signature
+   passed PC checks, but it was not installed. None of this evidence establishes
+   release signing, Azure deployment, cross-role production behavior, or
+   physical Android camera/lifecycle acceptance. See
+   [current APK evidence](../../ANDROID_RELEASE.md).
 
 ### Likely questions
 
@@ -175,9 +178,10 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   evidence verifies client behavior and selected isolated API flows. It does
   not measure delivery speed, accuracy, or satisfaction; those gains require a
   separate field study.
-- **Is it ready for a live Android defense demo?** A current arm64 profile APK
-  is built and verified on the PC, but it has not been installed. Approved
-  release identity/signing, deployed cross-role acceptance, and physical Android
+- **Is it ready for a live Android defense demo?** A current arm64-targeted debug
+  APK is built and verified on the PC, but it has not been installed. It uses
+  the scaffold application ID and debug signing. Approved release
+  identity/signing, deployed cross-role acceptance, and physical Android
   acceptance remain open, so a live-phone demo is not yet accepted.
 
 Present device-dependent steps only after the approved account, isolated owned
@@ -187,14 +191,11 @@ evidence, not as an accepted live phone demonstration.
 
 ## Current PC evidence and open gates
 
-- The latest full serial Flutter suite passed **696 tests with 7 skips and zero
-  failures** at local Rider test checkout `38e25cf` in 8m10s. The runtime source
-  is `9d7e8cf`; the latest test-source change is `514e1cc`, which adds the
-  simulated Android scanner callback check. `flutter analyze --no-pub` found no
-  issues in 11.1s. This is PC-only unit/widget evidence; physical Android gates
-  remain open. The seven skips are three opt-in redesign captures, the explicit
-  API-variant case, the optional map benchmark, and two loopback API scenarios
-  whose isolated fixture settings were absent.
+- The latest full serial Flutter suite passed **699 tests, 7 skipped, zero
+  failures** in 5m57s at test checkout `fc99a02`, exercising runtime change
+  `a9b972d`. All later commits on the published branch are documentation-only.
+  `flutter analyze --no-pub` is clean after the theme change. This is PC-only
+  unit/widget evidence; physical Android gates remain open.
 - Runtime code at Rider revision `9d7e8cf` and test revision `039d40d` passed
   six focused PC checks serially: saved/sample map disclosures, default
   route-provider status, Google Maps handoff disclosure, and both notices at
@@ -231,19 +232,19 @@ evidence, not as an accepted live phone demonstration.
   widget tests. It covers account/assignment scoping, cleanup, fresh ownership,
   duplicate taps, accessible controls and 320 px at 200% text. These PC checks do
   not establish physical Android layout, camera or lifecycle acceptance.
-- The arm64-targeted profile APK built from Rider code revision `9d7e8cf` is
-  `build/app/outputs/flutter-apk/app-profile.apk` (**77,606,440 bytes**; SHA-256
-  `28be6a6645ce7549ee0ad94b4c36491c75cd3fdecc601d7cfabeae689c622d84`). Its
-  archive passed integrity checking, and `apksigner verify` confirmed APK v2
-  debug signing. The manifest uses scaffold package ID
-  `com.example.bagoo_rider_mobile`, min SDK 24 and target SDK 36. It was not
-  installed or launched; see [packaging evidence](VERIFICATION.md).
-- Live GitHub refs queried November 1 show Rider `main` at `4367331` and the
-  published defense branch at `514e1cc`. Local test checkout `38e25cf` was one
-  documentation-only commit ahead of the published branch and **44 commits
-  ahead, 0 behind** Rider `main`. Bagoo web `main` is `f001d396`; the
-  Wallet/handover source branch `9e58312` is **2 commits ahead of main**, not
-  merged or deployment evidence.
+- The current arm64-targeted debug APK was built from published revision
+  `8b50401` (runtime `a9b972d`). It is 176,214,087 bytes, with SHA-256
+  `b82d9a66e19803e248e9f6004a6a7837d562743bf8d651549ed3aae5e84a8abe`.
+  Archive integrity, package/version/SDK metadata, debuggable state, and the
+  single-signer APK v2 signature passed PC checks. It was not installed; see
+  [packaging evidence](../../ANDROID_RELEASE.md). The profile APK at `9d7e8cf`
+  is historical.
+- At the GitHub ref fetch immediately before this rehearsal refresh on
+  November 1, Rider `main` was `4367331`; the published defense branch was
+  `3e6131c`, **57 commits ahead and 0 behind**.
+  The 699-test run was at `fc99a02`; its runtime is present in the published
+  branch. Bagoo web `main` remains `f001d396`; the Wallet/handover source branch
+  `9e58312` is **2 commits ahead of main**, not merged or deployment evidence.
 - At an earlier build-verification checkpoint, the branch was recorded at
   `e9fb7e3`, 34 commits ahead and 0 behind main. That is historical ref evidence.
 - A PC `--release` build request at `e0aa20e` stopped before artifact generation
@@ -270,11 +271,11 @@ checks cover the bundled document separately.
    [app-versus-website comparison](#rider-app-versus-phone-sized-courier-website).
    Make clear that the website already supports scanning and proof upload; the
    clearest extra rider-facing feature is session-only Parcel Finder labels.
-2. Show the PC evidence above with revisions attached: the full-suite result
-   is historical at `e0aa20e`; map runtime code is `9d7e8cf` and focused tests
-   at `039d40d` include the 320 px/200% cases; the arm64 profile APK matches
-   `9d7e8cf` but remains a
-   debug-signed, uninstalled preview. These do not establish hardware behavior.
+2. Show the PC evidence above with revisions attached: the latest full suite
+   passed 699 tests with 7 skips at `fc99a02` (runtime `a9b972d`); the current
+   arm64 debug APK at `8b50401` has the same runtime code and remains
+   debug-signed and uninstalled. Older focused map checks and the profile APK
+   are historical PC evidence. None of these establishes hardware behavior.
 3. If asked to demonstrate an operational transaction, explain that Azure and
    cross-role acceptance are separate open gates. Do not substitute sample data
    or imply that a PC test changed a live assignment, order, proof or cash record.

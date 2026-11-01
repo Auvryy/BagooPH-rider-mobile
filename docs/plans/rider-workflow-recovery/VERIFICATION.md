@@ -109,15 +109,15 @@ key, stale-offer rejection, exact acceptance/placement, duty remaining off, and
 no delivery checkpoint or COD account. The Bagoo worktree remained read-only;
 this check did not contact Azure or use a phone.
 
-## November 1 current-head PC evidence refresh
+## Earlier November 1 PC evidence snapshot
 
 At Rider revision `e0aa20e` on `fix/rider-trips-completion-copy`, the full
 serial Flutter suite passed **693 tests with 7 skipped** in 6 minutes 25
 seconds. `flutter analyze --no-pub` also passed without issues at this source
 revision. These checks used no phone or emulator.
 
-The current arm64-targeted profile APK was rebuilt with the repository's
-single-worker Gradle settings:
+At that earlier snapshot, the arm64-targeted profile APK was built with the
+repository's single-worker Gradle settings:
 
 - Output: `build/app/outputs/flutter-apk/app-profile.apk`
 - Size: **77,606,440 bytes**
@@ -142,3 +142,30 @@ and 2 commits ahead of the published branch. Bagoo `main` matched
 `9e58312d130809eb8cd878189b729f1f702291d8` is 2 commits ahead and not merged or
 deployment evidence. Azure cross-role acceptance, approved release identity and
 signing, and physical Android acceptance remain open.
+
+## Map-disclosure branch-head APK — November 1, 2026
+
+At Rider code revision `9d7e8cf`, the focused map/directions changes passed four
+serial PC checks and `flutter analyze --no-pub` reported no issues. A fresh
+arm64-targeted profile APK was built with the repository's single-worker Gradle
+settings using the ignored `config/azure.json` file. The build completed in
+276.7 seconds.
+
+- Output: `build/app/outputs/flutter-apk/app-profile.apk`
+- Size: **77,606,440 bytes**; SHA-256
+  `28be6a6645ce7549ee0ad94b4c36491c75cd3fdecc601d7cfabeae689c622d84`
+- `aapt dump badging`: package `com.example.bagoo_rider_mobile`, min SDK 24,
+  target SDK 36, version code 1, version name `0.1.0`
+- Zip archive integrity passed. `apksigner verify` passed with APK Signature
+  Scheme v2 and one debug signer. AOT string inspection found both the OSM tile
+  notice and the external Google Maps destination notice in `libapp.so`.
+- The APK was not installed or launched; this is PC packaging evidence, not
+  physical Android acceptance or a release artifact.
+
+The build emitted an SDK XML version warning (the build tools understand XML
+version 3 while the installed SDK metadata uses version 4) and completed
+successfully. The most recent full-suite result remains the run at source
+revision `e0aa20e`; the current map-disclosure code received the four focused
+checks above, not a full-suite rerun. At the same checkpoint the published
+branch was `e9fb7e3` and Rider `main` remained at `4367331` (34 commits ahead,
+0 behind). No phone or emulator was used.

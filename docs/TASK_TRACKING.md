@@ -7,15 +7,16 @@ M01/M07/M11/M14/M15/M16 without clearing operational gates. Bagoo's Wallet
 recipient/proof and version-two handover source fixes are on branch
 `fix/rider-wallet-trip-evidence`, 2 commits ahead of the live web `main`; its
 focused backend suite and the Rider's pinned native Wallet consumer test passed.
-Azure deployment and phone acceptance are still pending. A branch-head PC
-recheck at Rider source revision `f9dd4cf` passed the serial full Flutter suite
-with 693 tests and 7 skips; `flutter analyze --no-pub` reported no issues.
-Earlier verification is recorded at Rider branch commit `9886648`. At the
-comparison snapshot, published Rider branch `5c2e2a8` was 18 commits ahead and
-0 behind Rider `main` `4367331`.
-The source-backed phone-web feature comparison and defense rehearsal are in the
-[rehearsal record](plans/rider-workflow-recovery/REHEARSAL.md). The debug APK
-was rebuilt on PC; phone acceptance is deferred.
+Azure deployment and phone acceptance are still pending. The latest documented
+full serial Flutter run was at code revision `e0aa20e` (693 tests, 7 skips; clean
+analysis). The later map/privacy code at `9d7e8cf` passed four focused PC checks
+and clean analysis. An arm64 profile APK was rebuilt from that code revision and
+passed archive-integrity, package-metadata, APK v2 debug-signature and embedded-
+disclosure checks; it was not installed. See [Android release packaging](ANDROID_RELEASE.md)
+and the [rehearsal record](plans/rider-workflow-recovery/REHEARSAL.md). At the
+last remote check, Rider defense branch `e9fb7e3` was 34 commits ahead and 0
+behind Rider `main` `4367331`; subsequent changes here are documentation only.
+Physical phone acceptance remains deferred.
 
 **November 1 COD compatibility follow-up:** Rider commit `41f0fda` also fixes
 UUID parsing for backend rider shifts and updates the version-two COD native

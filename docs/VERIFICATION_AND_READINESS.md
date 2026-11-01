@@ -1,17 +1,19 @@
 # Verification and documentation assessment
 
 **Current status — November 1, 2026.** The scores and starter-screen statements
-below describe the October 5 planning snapshot, not the current Rider branch.
-`fix/rider-trips-completion-copy` contains mobile source changes and is not
-merged into `main`. Source revision `f9dd4cf` was 23 commits ahead, 0 behind
-Rider `main` at `4367331`. At that revision, the full serial Flutter suite
-passed **693 tests with 7 skips**, and `flutter analyze --no-pub` reported no
-issues. See the
-[current rehearsal and acceptance record](plans/rider-workflow-recovery/REHEARSAL.md)
-and [selected workflow verification](plans/rider-workflow-recovery/VERIFICATION.md)
-for the implemented behavior and limits. These PC checks do not clear Azure,
-cross-role, release-signing, or physical Android acceptance; phone testing is
-deferred.
+below describe the October 5 planning snapshot, not current Rider behavior.
+At the last remote check, defense branch `fix/rider-route-privacy-disclosure`
+was at `e9fb7e3`, 34 commits ahead and 0 behind Rider `main` `4367331`; the
+subsequent changes in this record are documentation only. The latest documented
+full serial suite was at code revision `e0aa20e` (693 tests, 7 skips). Current
+map/privacy code `9d7e8cf` passed four focused PC tests and clean analysis; its
+arm64 profile APK passed archive, package-metadata, v2 debug-signature and
+embedded-disclosure checks. The APK was not installed. See the [current rehearsal
+and acceptance record](plans/rider-workflow-recovery/REHEARSAL.md), [selected
+workflow verification](plans/rider-workflow-recovery/VERIFICATION.md), and
+[Android packaging record](ANDROID_RELEASE.md). These PC checks do not clear
+Azure, cross-role, release-signing, or physical Android acceptance; phone testing
+is deferred.
 
 ## Readiness is evidenced behavior
 

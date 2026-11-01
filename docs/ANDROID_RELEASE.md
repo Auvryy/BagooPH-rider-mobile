@@ -20,16 +20,16 @@ flutter build apk --profile --target-platform android-arm64 --dart-define-from-f
 The expected output is `build/app/outputs/flutter-apk/app-profile.apk`. The
 profile variant uses debug signing, and this project uses the scaffold
 application ID unless an approved `RIDER_APPLICATION_ID` is supplied. The
-November 1, 2026 PC build at Rider revision `e0aa20e` produced a 77,606,440-byte
+current PC build at Rider code revision `9d7e8cf` produced a 77,606,440-byte
 APK with SHA-256
-`74b52c2bc2cdc3fcb965b829bcb9d3ffcbe51e9fef0b3229e5bbde950fafc84b`. Its
+`28be6a6645ce7549ee0ad94b4c36491c75cd3fdecc601d7cfabeae689c622d84`. The
 merged manifest reports package `com.example.bagoo_rider_mobile`, min SDK 24,
 target SDK 36, version code 1 and version name `0.1.0`. Flutter's app library
 targets arm64; some plugin libraries for other ABIs remain in the APK. The APK
-archive integrity check passed. A fresh `apksigner verify` could not run because
-Java is not available on the PC shell's PATH, so this artifact's signature was
-not independently verified. This is a local preview, not a distributable
-release; it was not installed and does not establish Android device acceptance.
+archive passed integrity verification. `apksigner verify` confirmed the APK v2
+signature with one signer. This is a local profile preview using the scaffold
+application ID and debug signing, not a distributable release. It was not
+installed and does not establish Android device acceptance.
 
 ## Local configuration
 

@@ -13,7 +13,8 @@ Azure deployment and phone acceptance are still pending.
 **713 tests with 8 skips and zero failures** in 4m37s using
 `flutter test --no-pub --concurrency=1 --reporter=compact test`. It ran on the
 working tree based at Rider branch commit `968e18f`, including the account-
-access photo cleanup follow-up recorded below. The new
+access photo cleanup follow-up recorded below; that tested source is now
+published as commit `961d8b8`. The new
 fixture-dependent Wallet test is one skip in that ordinary suite; its
 windowless opt-in run passed **1/1** against Bagoo `9e58312` using an in-memory
 storage adapter.
@@ -49,12 +50,12 @@ lifecycle acceptance remain open. The serial command was:
 flutter test --no-pub --concurrency=1 --reporter=compact test/parcel_photo_recovery_test.dart test/parcel_outcome_pages_test.dart test/parcel_workflow_test.dart test/workspace_photo_access_lifecycle_test.dart test/parcel_finder_session_test.dart
 ```
 
-On November 2, arm64 debug and profile APKs were built from branch head
-`94d2aaf` (runtime `30412ed`) and passed PC archive, metadata, arm64-content
-and APK v2 signature checks. They predate the account-access photo cleanup
-follow-up above. Neither was installed; both retain the scaffold ID and Android
-Debug signing. They use the default deployed HTTPS API; the accepted operations gate
-enables duty and pickup claims only, with other write gates still false. See
+After the account-access cleanup was pushed as `961d8b8`, arm64 debug and
+profile APKs were built sequentially with Gradle limited to one worker and a
+1 GiB heap. Both passed ZIP integrity, package/SDK metadata, ARM64 engine and
+APK v2 signature checks. Neither was installed; both use the scaffold ID and
+Android Debug signing. The local build config supplied only
+`OPERATIONS_WRITES_VERIFIED=true`; see the artifact hashes and limits in
 [Android release evidence](ANDROID_RELEASE.md) and
 [HDB-05 acceptance](plans/home-dashboard-branch-plan/HDB-05-EVIDENCE.md).
 The same-config fake-server activation test passed **2/2** without network

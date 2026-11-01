@@ -5,15 +5,16 @@ below describe the October 5 planning snapshot, not current Rider behavior.
 The latest full serial PC regression passed **713 tests with 8 skips and zero
 failures** in 4m37s using one Flutter test worker. It ran on the
 `fix/rider-route-privacy-disclosure` working tree based at Rider commit
-`968e18f`, including the account-access photo cleanup follow-up. The new
+`968e18f`, including the account-access photo cleanup follow-up; that tested
+source is now published as commit `961d8b8`. The new
 fixture-dependent Wallet test is one of the skips in the ordinary suite; its
 isolated headless run passed separately. The expanded photo-recovery, parcel
 outcome, parcel workflow, workspace account-lifecycle, and Parcel Finder suites
-passed **45/45**; `flutter analyze --no-pub` reported no issues in 6.4s. The
-November 2 arm64 debug and profile APKs were built from earlier branch head
-`94d2aaf` (runtime `30412ed`) and predate the account-access photo cleanup
-follow-up. They passed PC archive, metadata, arm64-content and APK v2 signature
-checks; neither was installed. The same-config fake-server activation test
+passed **45/45**; `flutter analyze --no-pub` reported no issues in 6.4s. After
+the fix was pushed, arm64 debug and profile APKs were built from commit
+`961d8b8` and passed archive, metadata, ARM64 engine and APK v2 signature
+checks. They use the scaffold package ID and Android Debug signing and were
+not installed. The same-config fake-server activation test
 passed **2/2**, verifying duty and pickup-claim UI/flow gating without live
 writes. No phone, ADB, emulator, install, or app window was used.
 
@@ -169,7 +170,7 @@ At the first post-publication GitHub fetch on November 1, Rider `main` was
 previous published ref `2f8fc69`:
 the contrast fix and two evidence updates. The 699-test run at `fc99a02` records
 the published-branch result from that checkpoint. The 700-test run at `d04cb54`
-was a later local checkpoint and is superseded by the current 702-test result
+was a later local checkpoint and is superseded by the current 713-test result
 above. At the original full-test checkout,
 `38e25cf` was one documentation-only commit ahead of the then-published
 `514e1cc` and 44 commits ahead, 0 behind Rider `main`. Bagoo `main` was
@@ -179,9 +180,10 @@ command/workflow/outcome tests at `3839de6`,
 20 proof-recovery/Trips tests at `cbd6b21`, 20 Parcel Finder tests at `d42c948`,
 six map-disclosure checks at `9d7e8cf`/`039d40d`, and one headless Rider-to-kernel
 scenario at `6a0ab47` against Bagoo `9e58312`. Earlier APKs described in this
-historical November 1 checkpoint have been superseded by the November 2 builds
-from branch head `94d2aaf`; see [Android release packaging](ANDROID_RELEASE.md)
-for current sizes, hashes, metadata and signature checks. The current PC
+historical November 1 checkpoint have been superseded by the latest November 2
+builds from pushed Rider commit `961d8b8`; see
+[Android release packaging](ANDROID_RELEASE.md) for sizes, hashes, metadata
+and signature checks. The current PC
 check found no `RIDER_APPLICATION_ID` and no `android/key.properties`, so these
 debug-signed scaffold-ID builds are not release artifacts and do not establish
 Android device acceptance.

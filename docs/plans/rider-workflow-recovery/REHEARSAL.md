@@ -142,7 +142,8 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
 5. **Evidence and limits — 60 seconds.** The latest full serial Flutter suite
    passed **713 tests, 8 skipped, zero failures** in 4m37s on the
    `fix/rider-route-privacy-disclosure` working tree based at commit `968e18f`,
-   including the account-access photo cleanup follow-up. The
+   including the account-access photo cleanup follow-up, now pushed as
+   `961d8b8`. The
    separate headless Wallet client scenario passed
    **1/1** against the unmerged Bagoo review branch `9e58312` with an in-memory
    storage adapter; it does not verify the deployed API or Android platform
@@ -153,12 +154,12 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    across photo recovery, parcel outcomes and parcel workflows; `flutter analyze
    --no-pub` reported no issues in 6.4s. The expanded serial **45/45** check
    includes approval-loss cleanup. These remain simulated PC checks, not
-   physical Android acceptance. The November 2 arm64 debug and profile APKs
-   were built from branch head `94d2aaf` (runtime `30412ed`), before the
-   account-access photo cleanup follow-up; they passed PC archive, metadata,
-   arm64-content and APK v2 signature checks, and neither was installed. Both
-   use the scaffold ID and Android Debug signing.
-   Their build profile uses the default deployed HTTPS API and enables only the
+   physical Android acceptance. The latest arm64 debug and profile APKs were
+   built from pushed commit `961d8b8` after the account-access photo cleanup.
+   Both passed PC archive, metadata, ARM64-engine and APK v2 signature checks;
+   exact hashes are in [Android release evidence](../../ANDROID_RELEASE.md).
+   Neither was installed. Both use the scaffold ID and Android Debug signing.
+   Their build config uses the default deployed HTTPS API and enables only the
    HDB-05 accepted duty/pickup-claim writes; parcel, cash and other write gates
    remain false. The same-config fake-server activation test passed **2/2**
    without network requests; this is configuration evidence, not a live
@@ -242,8 +243,8 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   separate field study.
 - **Is it ready for a live Android defense demo?** The available
   arm64-targeted debug and profile APKs were built and verified on the PC from
-  branch head `94d2aaf` before the account-access photo cleanup follow-up;
-  neither has been installed.
+  pushed commit `961d8b8` after the account-access photo cleanup; neither has
+  been installed.
   Both use the scaffold application ID and debug signing. Approved release
   identity/signing, deployed cross-role acceptance, and physical Android
   acceptance remain open, so a live-phone demo is not yet accepted.
@@ -280,6 +281,7 @@ evidence, not as an accepted live phone demonstration.
   private-state cleanup and physical Android behavior remain open.
   The subsequent complete serial suite passed **713 tests, 8 skipped, zero
   failures** in 4m37s on the working tree based at `968e18f`.
+  The tested account-access cleanup source is now pushed as `961d8b8`.
 - Runtime code at Rider revision `9d7e8cf` and test revision `039d40d` passed
   six focused PC checks serially: saved/sample map disclosures, default
   route-provider status, Google Maps handoff disclosure, and both notices at
@@ -317,27 +319,24 @@ evidence, not as an accepted live phone demonstration.
   widget tests. It covers account/assignment scoping, cleanup, fresh ownership,
   duplicate taps, accessible controls and 320 px at 200% text. These PC checks do
   not establish physical Android layout, camera or lifecycle acceptance.
-- The November 2 arm64 debug APK was built from pushed Rider branch head `94d2aaf`
-  (runtime `30412ed`). It is 176,219,115 bytes, with SHA-256
-  `60048103e9969765b7ec3237957a6bca45d368ce850cbd6c29d14645ba6e9d23`.
+- The latest arm64 debug APK was built from pushed Rider commit `961d8b8`. It
+  is 176,229,927 bytes, with SHA-256
+  `5050251401b82e6d2e4f2d8e829ed23326be9138e699c983167b1c6bb71b3ce0`.
   Archive integrity, package/version/SDK metadata, debuggable state, arm64
-  engine/kernel contents and the single-signer APK v2 signature passed PC
-  checks. Its build enables only the accepted duty/pickup-claim writes; the
-  other operational write gates remain false. It was not installed; see
-  [packaging evidence](../../ANDROID_RELEASE.md).
+  engine and the single-signer APK v2 signature passed PC checks. It was not
+  installed; see [packaging evidence](../../ANDROID_RELEASE.md).
 - At the GitHub ref fetch immediately before the November 1 rehearsal refresh,
   Rider `main` was `4367331`; the published defense branch was `3e6131c`, 57
   commits ahead and 0 behind. The 699-test run was at `fc99a02`; its runtime is
   present in the published branch. Bagoo web `main` remains `f001d396`; the
   Wallet/handover source branch `9e58312` is 2 commits ahead of main, not merged
   or deployment evidence.
-- The November 2 arm64 profile preview was built from pushed Rider branch head
-  `94d2aaf` (runtime `30412ed`). It is 77,671,976 bytes, with SHA-256
-  `b43c41ffa07ab9e459843fd1b5ca67c51dff6bbc1d6d6c8d89f539f6bfa1bd54`.
-  Archive, package/version/SDK metadata, arm64 AOT contents and v2 `Android
-  Debug` signing passed PC checks. It is debuggable, uses the scaffold package
-  ID, and was not installed. Flutter targeted arm64, while plugins retain
-  libraries for three Android ABIs. See [packaging evidence](../../ANDROID_RELEASE.md).
+- The latest arm64 profile preview was built from pushed Rider commit
+  `961d8b8`. It is 77,671,976 bytes, with SHA-256
+  `9d7e1041c013f67e9bafd438b5075668a4489f0fdc6721d6bad1ad9ff731ea64`.
+  Archive integrity, package/version/SDK metadata, arm64 engine contents and
+  v2 Android Debug signing passed PC checks. It uses the scaffold package ID
+  and was not installed. See [packaging evidence](../../ANDROID_RELEASE.md).
 - At an earlier build-verification checkpoint, the branch was recorded at
   `e9fb7e3`, 34 commits ahead and 0 behind main. That is historical ref evidence.
 - A PC `--release` build request at `e0aa20e` stopped before artifact generation
@@ -368,9 +367,8 @@ checks cover the bundled document separately.
    passed 713 tests with 8 skips in the working tree based at `968e18f`;
    the headless Wallet client scenario passed 1/1 against Bagoo `9e58312` with
    an in-memory storage adapter;
-   the November 2 debug and profile APKs at `94d2aaf` are PC-verified,
-   debug-signed, and uninstalled. They predate the account-access photo cleanup
-   follow-up and do not establish hardware behavior.
+   the debug and profile APKs from `961d8b8` are PC-verified, debug-signed, and
+   uninstalled. They do not establish hardware behavior.
 3. If asked to demonstrate an operational transaction, explain that Azure and
    cross-role acceptance are separate open gates. Do not substitute sample data
    or imply that a PC test changed a live assignment, order, proof or cash record.

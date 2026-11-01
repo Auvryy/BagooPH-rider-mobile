@@ -9,20 +9,25 @@ This verifies the fail-closed guard; it is not release-build acceptance.
 The November 2 configuration check found `RIDER_APPLICATION_ID` unset and
 `android/key.properties` absent. No release APK was produced in this follow-up.
 
-## Latest available PC build artifacts — November 2, 2026
+## Latest PC build artifacts — November 2, 2026
 
-Fresh arm64-targeted debug and profile APKs were built from pushed Rider branch
-head `94d2aaf` (runtime code `30412ed`) with the ignored local
-`.env.rider.json` build configuration. Both use the scaffold application ID
-`com.example.bagoo_rider_mobile` and the standard Android Debug signing
-certificate. Archive integrity, manifest metadata, arm64 contents, and APK v2
-signatures passed PC checks. Neither APK was installed or launched; these builds
-do not establish physical Android, Azure, or cross-role acceptance. They
-predate the later account-access photo cleanup follow-up, so rebuild from the
-current branch source before presenting an APK as containing that change.
-Gradle emitted a nonfatal warning that the installed Android tools understand
-SDK XML through version 3 while the SDK metadata uses version 4; both builds
-completed successfully.
+Arm64-targeted debug and profile APKs were built sequentially from pushed Rider
+commit `961d8b8` (`fix/rider-route-privacy-disclosure`) after the parcel photo
+access-loss cleanup change. The ignored `.env.rider.json` supplied only
+`OPERATIONS_WRITES_VERIFIED=true`; no API override or local-auth define was
+present. Gradle used one worker and a 1 GiB heap cap. Both builds completed
+with a nonfatal SDK XML version warning.
+
+| Variant | Size | SHA-256 | Verification |
+|---|---:|---|---|
+| Debug | 176,229,927 bytes | `5050251401b82e6d2e4f2d8e829ed23326be9138e699c983167b1c6bb71b3ce0` | ZIP integrity; package/SDK metadata; ARM64 engine; APK v2 signature |
+| Profile | 77,671,976 bytes | `9d7e1041c013f67e9bafd438b5075668a4489f0fdc6721d6bad1ad9ff731ea64` | ZIP integrity; package/SDK metadata; ARM64 engine; APK v2 signature |
+
+Both have package ID `com.example.bagoo_rider_mobile`, version `0.1.0` (code
+1), minimum SDK 24, target SDK 36, and one standard Android Debug signer. Both
+are debuggable and are not distributable release artifacts. They were not
+installed or launched; no phone, ADB, or emulator was used. These PC artifacts
+do not establish Android hardware, Azure, or production cross-role acceptance.
 
 The local build file set only `OPERATIONS_WRITES_VERIFIED=true`; it supplied no
 API override or local-auth flag. `AppConfig` therefore uses the default deployed
@@ -50,10 +55,10 @@ On November 2, a PC read-only request to `/api/v1/rider/home` returned HTTP
 the unauthenticated response private; it does not test sign-in, an approved
 account, or operational commands.
 
-## arm64 debug review APK record
+## Earlier arm64 debug APK record (commit `94d2aaf`)
 
 At Rider branch head `94d2aaf` (runtime `30412ed`), this PC-only build produced
-the current arm64-targeted debug APK:
+an earlier arm64-targeted debug APK:
 
 ```sh
 flutter build apk --no-pub --debug --target-platform android-arm64 \
@@ -71,10 +76,10 @@ libraries also include `armeabi-v7a` and `x86_64`. `apksigner verify --verbose`
 confirmed one signer and APK v2 signing with the standard `Android Debug`
 certificate. It is not a distributable release and was not installed.
 
-## arm64 profile defense preview record
+## Earlier arm64 profile APK record (commit `94d2aaf`)
 
 At Rider branch head `94d2aaf` (runtime `30412ed`), this PC-only profile build
-produced the current arm64-targeted preview:
+produced an earlier arm64-targeted preview:
 
 ```sh
 flutter build apk --no-pub --profile --target-platform android-arm64 \

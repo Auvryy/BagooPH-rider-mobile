@@ -1,5 +1,9 @@
 # HDB-03 — Home work overview and shared task stages
 
+> **Historical branch evidence.** This is a dated implementation snapshot.
+> Geoapify setup and map statements describe the earlier map and do not verify
+> current map behavior; see the [current street-map plan](../rider-street-map/README.md).
+
 Selected October 14, 2026. Branch `feat/home-dashboard-overview` starts from
 clean, updated mobile `main` `d6ff936`, after the prerequisite Home repairs and
 Philippines map slice were merged. Estimate: six client hours; October 14–16,

@@ -25,7 +25,7 @@ and dispatch explanation live in [FEATURE_DIRECTION.md](FEATURE_DIRECTION.md).
 
 | Selected feature | Intended value | Remaining implementation decision |
 |---|---|---|
-| Stop Mode | Current stop, parcel, instructions, cash and action together | Accepted task-detail/actions; embedded map remains its own M09.07 decision |
+| Stop Mode | Current stop, parcel, instructions, cash and action together | Accepted task-detail/actions; its saved-stop/sample map is implemented separately and does not enable GPS follow or in-app road routing |
 | Parcel Finder | Show where this rider placed the parcel | Account/parcel binding, session-only or private persisted tags, cleanup and estimate |
 | Doorstep Guide | Collection/entrance information visible before it is needed | Authorized instruction fields, update ownership, phase visibility and estimate |
 
@@ -47,7 +47,7 @@ review before each integration slice.
 | Command retention and restart recovery | Seven-day lookup proposal plus tested minimal pending-intent storage | Needs persistence, privacy cleanup, and replay semantics |
 | Barcode format and Android device floor | Read actual waybill format and test a real intended device | Plugin minimum SDK, image quality and APK size affect selection |
 | Cash remittance workflow and earnings rate | Server ledger contract; no invented rate or payout endpoint | Financial phase must define receiver evidence and final-mile attribution |
-| Embedded map parity | Implement after essential stop/directions; agree tile provider and configuration | Web Leaflet cannot be reused in Flutter; external service policy matters |
+| Embedded map and provider | Current Rider map uses OpenStreetMap tiles, Leaflet on Android and FlutterMap in Linux Device Preview | Public tile service is best-effort without an SLA; approve a suitable hosted or self-hosted provider before broad rollout |
 
 When deciding, update the relevant contract, acceptance cases, dependency and
 estimate together. Reject a choice that needs new infrastructure or an
@@ -62,7 +62,7 @@ unavailable backend phase unless scope/capacity is explicitly approved.
 | Safe proof draft preservation and Android lost-data recovery | **Recommended, bounded** | Avoids retaking evidence after normal rejection/process interruption; private cleanup/account binding required |
 | Minimal pending-command recovery after app restart | **Recommended with mutation work** | Lets rider verify a lost response without duplicate results; stores references only, not private proof/contact bodies |
 | External directions with address fallback | **Recommended for stop details** | Useful without a map server, live location or guessed pin; explicit tap and valid destination |
-| Embedded selected-stop street map | **Useful after core readiness** | Native parity and visual context; lazily load, attribution, provider policy and no default/live rider pin |
+| Embedded selected-stop street map | **Implemented as a saved-stop/sample map** | Android and Courier web use Leaflet; Linux Device Preview uses FlutterMap; OSM tile disclosure is in place; the public tile service has no SLA, so production-provider acceptance remains open |
 | Fully generated API client | **Wait for stable contract** | Helps many models later, but adds build tooling and generated review churn now; hand-written DTOs first |
 | Local encrypted history database | **Defer** | Offline reading may help later, but adds storage/privacy/migration complexity; memory-only initial scope |
 | Full offline custody/write synchronization | **Defer; high correctness risk** | Ownership/capacity/source state can change while offline; server confirmation remains mandatory |

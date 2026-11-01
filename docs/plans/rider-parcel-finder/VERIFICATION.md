@@ -64,6 +64,11 @@ with exit 0. The final run includes the Enter-key selection check.
 
 Final commands:
 
+> These October build commands retain the Geoapify-era configuration used for
+> that run. They are historical evidence, not current launch/build instructions;
+> the current map and configuration are described in the
+> [street-map plan](../rider-street-map/README.md).
+
 ```sh
 flutter analyze --no-pub
 flutter test --no-pub --reporter expanded

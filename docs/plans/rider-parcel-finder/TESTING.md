@@ -24,7 +24,7 @@
 From the Rider Mobile repository root:
 
 ```sh
-flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.geoapify.json
+flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.rider.json
 ```
 
 Use real Azure login privately. Open a currently owned task, then **Work this

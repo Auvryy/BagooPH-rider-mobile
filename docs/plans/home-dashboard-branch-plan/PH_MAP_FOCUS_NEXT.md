@@ -1,5 +1,10 @@
 # Next map improvement: Philippines view and current-stop focus
 
+> **Historical map proposal (superseded October 25, 2026).** The Geoapify style,
+> location-follow, tile-cache and route recommendations below predate the current
+> OpenStreetMap map. Do not use them as current setup or acceptance steps. See
+> the [current street-map plan](../rider-street-map/README.md).
+
 Requested after HDB-02 on October 13, 2026 and **selected for implementation on
 October 14**, after PR 18 was merged. The separate
 [Philippines map-focus package](../philippines-map-focus/README.md) owns branch

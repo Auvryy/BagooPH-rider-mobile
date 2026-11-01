@@ -4,7 +4,7 @@ Run from the Rider repository root. The PC phone frame retains normal Azure
 login; without accepted write gates it permits browsing rather than delivery:
 
 ```sh
-flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.geoapify.json
+flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.rider.json
 ```
 
 Select an owned task to inspect the returned payment instructions. A Wallet task

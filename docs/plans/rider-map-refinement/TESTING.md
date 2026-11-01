@@ -1,11 +1,18 @@
 # Reviewing the rider map
 
-Run these from the Rider repository root. The existing ignored configuration
-supplies the Geoapify key and real Azure account endpoint; no new key or backend
-deployment is required for this presentation slice.
+> **Historical map/location test guide (superseded October 25, 2026).** The
+> Geoapify, GPS snapshot, follow-route and provider-artwork steps below describe
+> the earlier design, not the current app. Current maps use OpenStreetMap tiles;
+> live rider GPS and in-app road routing are inactive by default. Current
+> disclosure and renderer behavior are in the
+> [street-map plan](../rider-street-map/README.md). Use the current Rider
+> configuration in the launch command below.
+
+Run from the Rider repository root. This starts the current Azure-connected app;
+the old provider and location steps below remain historical evidence only.
 
 ```sh
-flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.geoapify.json
+flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.rider.json
 ```
 
 On PC, Home opens the Philippines/current returned stops. Use **Preview area**,

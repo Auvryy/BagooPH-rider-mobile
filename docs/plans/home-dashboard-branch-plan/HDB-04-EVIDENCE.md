@@ -1,5 +1,9 @@
 # HDB-04 — Focused current-stop guidance
 
+> **Historical branch evidence.** This is a dated implementation snapshot.
+> Geoapify setup and map statements describe the earlier map and do not verify
+> current map behavior; see the [current street-map plan](../rider-street-map/README.md).
+
 Implemented October 14, 2026 on `feat/home-stop-mode-guidance`, from clean,
 fetched mobile `main` `d13eefab360fabf704ec56c3878c5f2d8a3f981f` (PR 20).
 Selected estimate: six client hours, October 14–16, due October 16 at 18:00

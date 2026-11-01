@@ -3,7 +3,7 @@
 From the Rider repository root, open the normal Azure app in a PC phone frame:
 
 ```sh
-flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.geoapify.json
+flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.rider.json
 ```
 
 Open Profile → Cash & Remittance. A fresh operations-v1 session and actual cash

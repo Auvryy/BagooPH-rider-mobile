@@ -82,10 +82,12 @@ parcel mutation, deployment or physical-device acceptance is part of this slice.
    ordinary Linux/Android builds. Real Android profile-mode timing remains a
    separate physical-device check; never infer it from desktop debug performance.
 
-Run from the Rider repository root for the PC phone view:
+The command below opens the current Rider app in its PC phone view. The
+Geoapify-specific loading and cache steps above are historical and do not
+describe the current OpenStreetMap map.
 
 ```sh
-flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.geoapify.json
+flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.rider.json
 ```
 
 ## Primary references

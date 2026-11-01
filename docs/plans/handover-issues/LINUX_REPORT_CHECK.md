@@ -43,7 +43,8 @@ file, run:
 flutter test --no-pub integration_test/handover_live_report_test.dart -d linux --dart-define=LIVE_HANDOVER_REPORT_CHECK=true --dart-define=HANDOVER_WRITES_VERIFIED=true --reporter expanded
 ```
 
-Keep `OPERATIONS_WRITES_VERIFIED` false. No Geoapify key is needed by this test.
+Keep `OPERATIONS_WRITES_VERIFIED` false. This report check uses the authenticated
+Bagoo API and needs no map-provider configuration.
 Without the explicit live-report definition, the test is skipped.
 
 ## Result and restart handling
@@ -74,5 +75,5 @@ and physical Android behavior retain their separate acceptance rows.
 For ordinary PC phone-frame review with real Azure login:
 
 ```sh
-flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.geoapify.json
+flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.rider.json
 ```

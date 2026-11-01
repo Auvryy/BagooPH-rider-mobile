@@ -39,6 +39,26 @@ directions retain their authorization/revalidation checks. The sample never
 substitutes for delivery confirmation, a scan, a custody event or a dispatch route.
 Existing account, duty, claim, proof, payment and recovery gates remain authoritative.
 
+## Public tile-service constraint
+
+Rider requests standard OpenStreetMap raster tiles for the map currently in view.
+The Android WebView sets an app-identifying User-Agent; the Linux FlutterMap
+fallback sets its current package identity and uses `flutter_map`'s built-in
+cache, which follows HTTP freshness headers and falls back to seven days when
+they are insufficient. The map offers no offline download or bulk-prefetch
+feature. The [OpenStreetMap Foundation tile policy](https://operations.osmfoundation.org/policies/tiles/)
+requires the correct HTTPS endpoint, visible attribution, an identifying client,
+and cache-aware normal interactive use. It describes its public tile service as
+best-effort with no SLA and says access may be blocked if use harms the service.
+
+For a low-volume, human-viewed thesis demonstration, this use appears consistent
+with the policy's permitted normal interactive viewing; that is an inference,
+not a service guarantee. Before broad public rollout, review traffic and select
+a hosted tile service with suitable terms or self-hosting.
+Changing the provider requires rechecking attribution, caching, request
+identification, and the location-data disclosure. Android request and cache
+behavior remain a physical-device acceptance item.
+
 Source review: web branch through `9d8cff2`, mobile through `e3a5818`, October 25,
 2026. No Azure deployment or live parcel/account/cash command was performed.
 

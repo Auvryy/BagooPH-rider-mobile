@@ -85,5 +85,5 @@ geography. Ordinary builds retain Azure login and their existing command gates.
 Run from the Rider repository root for the PC phone frame:
 
 ```sh
-flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.geoapify.json
+flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.rider.json
 ```

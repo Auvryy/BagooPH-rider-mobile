@@ -143,6 +143,12 @@ layouts. The decoder check rejects the old invalid synthetic PNG checksum.
 
 Commands used:
 
+> The two `flutter build` commands below preserve the earlier
+> `.env.geoapify.json` verification setup. They are a historical command record,
+> not current Rider map setup; the November 1 check above uses
+> `.env.rider.json`. Current map/provider behavior is in the
+> [street-map plan](../rider-street-map/README.md).
+
 ```sh
 flutter analyze --no-pub
 flutter test --no-pub --reporter expanded

@@ -86,11 +86,12 @@ verified its private evidence; it does not certify physical possession or receip
 `HANDOVER_WRITES_VERIFIED` defaults false, independently of the duty/claim gate.
 It was enabled only for the explicit controlled acceptance run; ordinary local
 configuration remains unchanged. Independent web review and any subsequent
-current grant remain separate. Geoapify configuration is unchanged; handover
-needs no additional provider key.
+current grant remain separate. Handover does not depend on Geoapify configuration
+or a map-provider key. Current map behavior is documented in the
+[street-map plan](../rider-street-map/README.md).
 
 From the Rider repository root, review the PC phone frame with real Azure login:
 
 ```sh
-flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.geoapify.json
+flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.rider.json
 ```

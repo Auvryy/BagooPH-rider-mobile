@@ -1,5 +1,10 @@
 # HDB-02 navigation lifecycle and map-loading evidence
 
+> **Historical Geoapify implementation evidence.** These results record the
+> earlier provider-backed map/runtime. They remain evidence for that revision,
+> not the current OpenStreetMap map. See the
+> [current street-map plan](../rider-street-map/README.md).
+
 October 13–14, 2026. Branch `fix/home-navigation-lifecycle`, based on merged mobile
 `main` `7a5dbe8` (HDB-01/PR 17). Only this lifecycle slice and the user's map-loading
 investigation/future recommendation are activated.

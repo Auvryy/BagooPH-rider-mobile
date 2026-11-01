@@ -149,7 +149,10 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   explicitly opens External directions, Google Maps receives the saved stop
   address or coordinates. Rider sends no live GPS feed or traveled-route history
   to Bagoo. The optional Geoapify route client is not wired into the default
-  provider path.
+  provider path. The public OSM tile service is best-effort without an SLA, so
+  this is a bounded demo provider, not a production availability promise; its
+  official policy and the current provider follow-up are recorded in the
+  [street-map plan](../rider-street-map/README.md).
 - **Does delivery still work without internet?** No full offline delivery is
   claimed. The journal retains the original uncertain request and proof so the
   app can reconcile or retry that same operation when connectivity returns.

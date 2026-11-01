@@ -1,5 +1,10 @@
 # HDB-05 native acceptance and website handoff
 
+> **Historical acceptance record (October 16, 2026).** The results below
+> describe that dated run. The `.env.geoapify.json` launch command is retained
+> as historical evidence and is not the current Rider configuration; see the
+> [current street-map plan](../rider-street-map/README.md).
+
 October 16, 2026. Branch `feat/home-duty-claim-acceptance` starts from merged
 mobile `main` `179a1ce`. Only [HDB-05](05-home-duty-claim-acceptance.md) is active.
 Scanning, delivery, Trips, Messages and cash remain separate deliveries.

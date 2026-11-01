@@ -230,15 +230,14 @@ uncertain-result blocking, duplicate-submit prevention, and access/payment
 changes. The 10 outcome-page tests cover paid Wallet and COD forms, required
 failure evidence, server rejection correction, and 320/840 px layouts at 200%
 text. These are local PC tests; they do not establish camera hardware, deployed
-API behavior, physical lifecycle handling, or the full-suite result at this
-revision. The latest documented full-suite run remains 693 passed and 7 skipped
-at the older revision `e0aa20e`.
+API behavior, or physical lifecycle handling.
 
 ## Headless Rider-to-kernel recheck — November 1, 2026
 
 At Rider revision `6a0ab47`, the focused native HTTP client scenario passed
 **1/1** against the pinned Bagoo source revision
-`9e58312d130809eb8cd878189b729f1f702291d8` in 76 seconds:
+`9e58312d130809eb8cd878189b729f1f702291d8` in 76 seconds. This was run
+separately from the ordinary Flutter suite because it requires a loopback fixture:
 
 ```sh
 node tool/parcel_local_api/run.mjs ../bagoo parcel-headless \
@@ -255,3 +254,12 @@ return, authorized retry assignment, and denial of the original proof to a
 different rider. The Bagoo worktree was read-only and remained unchanged. This
 is local compatibility evidence only; it does not verify the deployed PHP
 upload stack, Azure, or physical Android behavior.
+
+## Current branch-head Flutter suite — November 1, 2026
+
+At Rider revision `54d56f2` on `fix/rider-route-privacy-disclosure`,
+`flutter test --no-pub --concurrency=1 --reporter=compact` completed with
+**695 passed, 7 skipped, and zero failures** in 11m49s. This ran on the PC with
+one worker; no phone or emulator was used. It supersedes the earlier full-suite
+totals recorded above. The dedicated headless Rider-to-kernel check is recorded
+separately because it requires its isolated loopback runner.

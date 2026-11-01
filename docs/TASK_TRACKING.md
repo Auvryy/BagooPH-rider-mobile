@@ -7,9 +7,11 @@ M01/M07/M11/M14/M15/M16 without clearing operational gates. Bagoo's Wallet
 recipient/proof and version-two handover source fixes are on branch
 `fix/rider-wallet-trip-evidence`, 2 commits ahead of the live web `main`; its
 focused backend suite and the Rider's pinned native Wallet consumer test passed.
-Azure deployment and phone acceptance are still pending. The latest documented
-full serial Flutter run was at code revision `e0aa20e` (693 tests, 7 skips; clean
-analysis). The map/privacy runtime code at `9d7e8cf` and test-only revision
+Azure deployment and phone acceptance are still pending. At Rider revision
+`54d56f2`, the full serial Flutter suite passed **695 tests with 7 skips** in
+11m49s. `flutter analyze --no-pub` last passed at runtime revision `9d7e8cf`;
+the later commits changed tests and documentation only. The map/privacy runtime
+code at `9d7e8cf` and test-only revision
 `039d40d` passed six focused PC checks, including 320 px Home/Stop Mode layouts
 at 200% text, plus clean analysis. The app-only Parcel Finder feature also passed
 its current focused suite (**20/20**), including 320 px/200% Stop Mode layout. An
@@ -17,11 +19,11 @@ arm64 profile APK was rebuilt from runtime
 code `9d7e8cf` and passed archive-integrity, package-metadata, APK v2
 debug-signature and embedded-disclosure checks; it was not installed. See
 [Android release packaging](ANDROID_RELEASE.md) and the
-[rehearsal record](plans/rider-workflow-recovery/REHEARSAL.md). At the last
-remote check, Rider defense branch `6a0ab47` was 40 commits ahead and 0 behind
-Rider `main` `4367331`; subsequent commits are docs/test-only and do not change
-runtime code. The proof recovery and Trips viewer PC suites have since passed
-**20/20** at Rider revision `cbd6b21`; simulated picker and widget tests do not
+[rehearsal record](plans/rider-workflow-recovery/REHEARSAL.md). At the branch
+ref check for the full run, Rider revision `54d56f2` was 41 commits ahead and 0
+behind Rider `main` `4367331`; later commits are docs/test-only and do not
+change runtime code. The proof recovery and Trips viewer PC suites have since
+passed **20/20** at Rider revision `cbd6b21`; simulated picker and widget tests do not
 establish physical phone behavior. The parcel command/workflow/outcome suites
 also passed **42/42** at `3839de6`, including simulated exact replay and
 large-text phone-width forms. A headless Rider-to-kernel scenario passed **1/1**

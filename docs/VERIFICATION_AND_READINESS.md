@@ -2,11 +2,12 @@
 
 **Current status — November 1, 2026.** The scores and starter-screen statements
 below describe the October 5 planning snapshot, not current Rider behavior.
-At the latest remote check, defense branch `fix/rider-route-privacy-disclosure`
-was at `6a0ab47`, 40 commits ahead and 0 behind Rider `main` `4367331`. Later
-commits add documentation and PC regression evidence; runtime code remains at
-`9d7e8cf`. The latest documented full serial suite was at code revision
-`e0aa20e` (693 tests, 7 skips). Current focused evidence includes 42
+At the branch ref check for the full test run, defense branch
+`fix/rider-route-privacy-disclosure` was at `54d56f2`, 41 commits ahead and 0
+behind Rider `main` `4367331`. Later commits add documentation and PC regression
+evidence; runtime code remains at
+`9d7e8cf`. At Rider revision `54d56f2`, the full serial Flutter suite passed
+695 tests with 7 skips in 11m49s. Current focused evidence includes 42
 command/workflow/outcome tests at `3839de6`, 20 proof-recovery/Trips tests at
 `cbd6b21`, 20 Parcel Finder tests at `d42c948`, six map-disclosure checks at
 `9d7e8cf`/`039d40d`, and one headless Rider-to-kernel scenario at `6a0ab47`

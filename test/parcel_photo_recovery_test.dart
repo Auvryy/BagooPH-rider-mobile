@@ -245,6 +245,63 @@ void main() {
     },
   );
 
+  test('access loss purges the unsubmitted draft while preserving command proof', () async {
+    picker = TestParcelPhotoPicker(
+      supportsCamera: true,
+      recoversLostData: true,
+    );
+    final photos = service();
+    final original = await choose(photos);
+    final commandCopy = await proofs.save(commandUuid(), original!);
+    final storage = const FlutterSecureStorage();
+    await storage.write(
+      key: 'bagoo_rider_parcel_active_photo',
+      value: jsonEncode(photos.recovered!.context.toJson()),
+    );
+
+    await photos.clearForAccessLoss();
+    expect(photos.recovered, isNull);
+    expect(proofs.files.keys, [commandCopy.key]);
+    expect(await storage.read(key: 'bagoo_rider_parcel_active_photo'), isNull);
+    expect(
+      await storage.read(
+        key:
+            'bagoo_rider_parcel_photo_${base64UrlEncode(utf8.encode('https://example.test/api/v1/5'))}_access_lost',
+      ),
+      isNull,
+    );
+    photos.dispose();
+  });
+
+  test('access-loss marker blocks recovery and retries draft deletion before reuse', () async {
+    final photos = service();
+    final original = await choose(photos);
+    final commandCopy = await proofs.save(commandUuid(), original!);
+    proofs.failDelete = true;
+
+    await expectLater(photos.clearForAccessLoss(), throwsA(isA<StateError>()));
+    expect(photos.recovered, isNull);
+    final storage = const FlutterSecureStorage();
+    final blockedKey =
+        'bagoo_rider_parcel_photo_${base64UrlEncode(utf8.encode('https://example.test/api/v1/5'))}_access_lost';
+    expect(await storage.read(key: blockedKey), '1');
+
+    final afterRestriction = service();
+    await afterRestriction.restore();
+    expect(afterRestriction.recovered, isNull);
+    expect(afterRestriction.notice, contains('cleanup could not be confirmed'));
+    await expectLater(choose(afterRestriction), throwsA(isA<AccountFailure>()));
+    expect(await storage.read(key: blockedKey), '1');
+
+    proofs.failDelete = false;
+    await afterRestriction.restore();
+    expect(afterRestriction.recovered, isNull);
+    expect(await storage.read(key: blockedKey), isNull);
+    expect(proofs.files.keys, [commandCopy.key]);
+    photos.dispose();
+    afterRestriction.dispose();
+  });
+
   test(
     'sign-out blocks a picker result that returns after draft cleanup',
     () async {

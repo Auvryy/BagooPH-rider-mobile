@@ -24,9 +24,31 @@ import '../../trips/data/trip_models.dart';
 import '../data/workspace_models.dart';
 import '../data/workspace_repository.dart';
 
+typedef ParcelPhotoServiceFactory = ParcelPhotoService Function({
+  required Uri origin,
+  required String accountId,
+  required ParcelProofStore proofs,
+  required bool Function() isCurrent,
+});
+
+final parcelPhotoServiceFactoryProvider = Provider<ParcelPhotoServiceFactory>(
+  (ref) =>
+      ({
+        required origin,
+        required accountId,
+        required proofs,
+        required isCurrent,
+      }) => ParcelPhotoService(
+        origin: origin,
+        accountId: accountId,
+        proofs: proofs,
+        isCurrent: isCurrent,
+      ),
+);
+
 final workspaceRepositoryProvider = Provider<WorkspaceRepository>(
   (ref) {
-    final account = ref.watch(
+    final currentAccess = ref.read(
       authControllerProvider.select(
         (s) => (
           id: s.user?.id,
@@ -35,11 +57,37 @@ final workspaceRepositoryProvider = Provider<WorkspaceRepository>(
         ),
       ),
     );
+    ParcelPhotoService? activePhotos;
+    ref.listen(
+      authControllerProvider.select(
+        (s) => (
+          id: s.user?.id,
+          approved: s.user?.approved,
+          version: s.user?.operationsApiVersion,
+        ),
+      ),
+      (previous, next) {
+        final lostAccess =
+            previous?.id != null &&
+            previous?.approved == true &&
+            (next.id != previous!.id ||
+                next.approved != true ||
+                next.version != 1);
+        if (lostAccess) {
+          final photos = activePhotos;
+          if (photos != null) {
+            unawaited(photos.clearForAccessLoss().catchError((_) {}));
+          }
+        }
+        ref.invalidateSelf();
+      },
+    );
     final repository = ref.watch(authRepositoryProvider);
     final config = ref.watch(appConfigProvider);
-    if (account.id == null ||
-        account.approved != true ||
-        account.version != 1 ||
+    final photoFactory = ref.watch(parcelPhotoServiceFactoryProvider);
+    if (currentAccess.id == null ||
+        currentAccess.approved != true ||
+        currentAccess.version != 1 ||
         repository is! RiderSessionApi) {
       return const UnavailableWorkspaceRepository();
     }
@@ -47,25 +95,26 @@ final workspaceRepositoryProvider = Provider<WorkspaceRepository>(
     ref.onDispose(() => alive = false);
     bool isCurrent() =>
         alive &&
-        ref.read(authControllerProvider).user?.id == account.id &&
+        ref.read(authControllerProvider).user?.id == currentAccess.id &&
         ref.read(authControllerProvider).user?.approved == true;
     final proofs = ProtectedParcelProofStore(
       origin: config.origin,
-      accountId: account.id!,
+      accountId: currentAccess.id!,
     );
-    final photos = ParcelPhotoService(
+    final photos = photoFactory(
       origin: config.origin,
-      accountId: account.id!,
+      accountId: currentAccess.id!,
       proofs: proofs,
       isCurrent: isCurrent,
     );
+    activePhotos = photos;
     ref.onDispose(photos.dispose);
     return OperationsRepository(
       repository as RiderSessionApi,
-      accountId: account.id!,
+      accountId: currentAccess.id!,
       journal: SecureCommandJournal(
         origin: config.origin,
-        accountId: account.id!,
+        accountId: currentAccess.id!,
       ),
       writesVerified: config.operationsWritesVerified,
       parcelWritesVerified: config.parcelWritesVerified,

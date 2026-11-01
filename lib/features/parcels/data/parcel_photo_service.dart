@@ -126,6 +126,7 @@ class ParcelPhotoService extends ChangeNotifier {
   bool busy = false, _restored = false, _disposed = false;
   bool _foreground = true, _restorePending = false, _endingSession = false;
   bool _lostDataRestoreAttempted = false;
+  bool _accessLossBlocked = false;
   int _foregroundGeneration = 0;
   RecoveredParcelPhoto? recovered;
   String? notice;
@@ -133,6 +134,8 @@ class ParcelPhotoService extends ChangeNotifier {
   String? _scheduledExpiryKey;
   String? _expiringDraftKey;
   _PendingPhotoExpiry? _queuedExpiredDraft;
+  Future<void>? _accessLossCleanup;
+  String get _accessLossKey => '${_draftKey}_access_lost';
 
   void _guard() {
     if (_disposed || _endingSession || !isCurrent()) {
@@ -213,6 +216,34 @@ class ParcelPhotoService extends ChangeNotifier {
     if (context.key == key) await _storage.delete(key: _pickerKey);
   }
 
+  Future<void> _clearOwnedDraftData({required bool requireSessionOwner}) async {
+    final pendingPicker = await _storage.read(key: _pickerKey);
+    if (requireSessionOwner) _guardSessionOwner();
+    if (pendingPicker != null) {
+      final context = ParcelPhotoContext.fromJson(
+        Wire.object(jsonDecode(pendingPicker)),
+      );
+      if (_owns(context)) {
+        await _storage.delete(key: _pickerKey);
+        if (requireSessionOwner) _guardSessionOwner();
+      }
+    }
+    final saved = await _storage.read(key: _draftKey);
+    if (requireSessionOwner) _guardSessionOwner();
+    if (saved == null) return;
+    final draft = Wire.object(jsonDecode(saved));
+    final context = ParcelPhotoContext.fromJson(Wire.object(draft['context']));
+    if (!_owns(context)) Wire.invalid();
+    final reference = ParcelProofReference.fromJson(
+      Wire.object(draft['proof']),
+    );
+    if (reference.key != context.key) Wire.invalid();
+    await proofs.delete(reference);
+    if (requireSessionOwner) _guardSessionOwner();
+    await _storage.delete(key: _draftKey);
+    if (requireSessionOwner) _guardSessionOwner();
+  }
+
   Future<void> _save(ParcelPhotoContext context, ParcelProof proof) async {
     _guard();
     final previous = await _saved();
@@ -282,6 +313,15 @@ class ParcelPhotoService extends ChangeNotifier {
     final generation = _foregroundGeneration;
     try {
       _guard();
+      if (await _storage.read(key: _accessLossKey) != null) {
+        _guard();
+        _accessLossBlocked = true;
+        await _clearOwnedDraftData(requireSessionOwner: true);
+        _guard();
+        await _storage.delete(key: _accessLossKey);
+        _guard();
+        _accessLossBlocked = false;
+      }
       if (recovered == null) {
         final draft = await _saved();
         if (!_foreground || generation != _foregroundGeneration) {
@@ -335,7 +375,9 @@ class ParcelPhotoService extends ChangeNotifier {
       }
     } catch (_) {
       if (!_disposed && isCurrent()) {
-        notice = 'An unfinished photo could not be restored. Check saved work requests before choosing another image.';
+        notice = _accessLossBlocked
+            ? 'Unfinished photo cleanup could not be confirmed. Refresh Rider before choosing another image.'
+            : 'An unfinished photo could not be restored. Check saved work requests before choosing another image.';
       }
     } finally {
       _restored = true;
@@ -495,7 +537,8 @@ class ParcelPhotoService extends ChangeNotifier {
     required bool camera,
   }) async {
     _guard();
-    if (!_foreground ||
+    if (_accessLossBlocked ||
+        !_foreground ||
         busy ||
         _expiringDraftKey != null ||
         _queuedExpiredDraft != null ||
@@ -601,34 +644,10 @@ class ParcelPhotoService extends ChangeNotifier {
     notice = null;
     _changed();
     try {
-      final pendingPicker = await _storage.read(key: _pickerKey);
+      await _clearOwnedDraftData(requireSessionOwner: true);
+      await _storage.delete(key: _accessLossKey);
       _guardSessionOwner();
-      if (pendingPicker != null) {
-        final context = ParcelPhotoContext.fromJson(
-          Wire.object(jsonDecode(pendingPicker)),
-        );
-        if (_owns(context)) {
-          await _storage.delete(key: _pickerKey);
-          _guardSessionOwner();
-        }
-      }
-      final saved = await _storage.read(key: _draftKey);
-      _guardSessionOwner();
-      if (saved != null) {
-        final draft = Wire.object(jsonDecode(saved));
-        final context = ParcelPhotoContext.fromJson(
-          Wire.object(draft['context']),
-        );
-        if (!_owns(context)) Wire.invalid();
-        final reference = ParcelProofReference.fromJson(
-          Wire.object(draft['proof']),
-        );
-        if (reference.key != context.key) Wire.invalid();
-        await proofs.delete(reference);
-        _guardSessionOwner();
-        await _storage.delete(key: _draftKey);
-        _guardSessionOwner();
-      }
+      _accessLossBlocked = false;
       _queuedExpiredDraft = null;
       _changed();
     } catch (_) {
@@ -638,6 +657,51 @@ class ParcelPhotoService extends ChangeNotifier {
         _restorePending = true;
         _retryPendingRestore();
       }
+      rethrow;
+    }
+  }
+
+  /// Purges a temporary draft when authoritative account access is lost.
+  /// A secure marker makes a later workspace retry cleanup before recovery.
+  Future<void> clearForAccessLoss() {
+    final pending = _accessLossCleanup;
+    if (pending != null) return pending;
+    if (_endingSession) return Future<void>.value();
+    return _accessLossCleanup = _clearForAccessLoss();
+  }
+
+  Future<void> _clearForAccessLoss() async {
+    _endingSession = true;
+    _foregroundGeneration++;
+    _restorePending = false;
+    _draftExpiryTimer?.cancel();
+    _draftExpiryTimer = null;
+    _scheduledExpiryKey = null;
+    recovered = null;
+    notice = null;
+    _accessLossBlocked = true;
+    _changed();
+    var markerStored = false;
+    try {
+      try {
+        await _storage.write(key: _accessLossKey, value: '1');
+        markerStored = true;
+      } catch (_) {
+        // Still remove the draft now; retry the marker if cleanup then fails.
+      }
+      await _clearOwnedDraftData(requireSessionOwner: false);
+      if (markerStored) await _storage.delete(key: _accessLossKey);
+      _accessLossBlocked = false;
+      _queuedExpiredDraft = null;
+      _changed();
+    } catch (_) {
+      if (!markerStored) {
+        try {
+          await _storage.write(key: _accessLossKey, value: '1');
+        } catch (_) {}
+      }
+      _accessLossBlocked = true;
+      _changed();
       rethrow;
     }
   }

@@ -6,7 +6,7 @@ deferred by the user. Keep this list open until its corresponding evidence exist
 ## Rider app versus phone-sized Courier website
 
 This source review compares Rider runtime code `30412ed` on
-`fix/rider-route-privacy-disclosure` (defense branch head `9693a6e`) with the
+`fix/rider-route-privacy-disclosure` (review snapshot `9693a6e`) with the
 phone-responsive Courier portal on Bagoo `main` at
 `f001d396b0e9ea6bfc2fdeb85ee24b66682b997e`. The remote Bagoo main ref was
 rechecked November 2, 2026 and still matches that commit. This covers the
@@ -125,10 +125,13 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    encrypted separately. An unsubmitted photo draft is removed from memory on
    background and restored only from its encrypted, account-scoped copy on
    resume before the 24-hour cutoff. Explicit sign-out and invalid-session
-   paths remove that draft while preserving command proof; approval/restriction
-   transitions still need cleanup coverage. Rider does not claim full offline
-   delivery. The local journal can retain private action-body fields, and its
-   long-term cleanup policy remains open.
+   paths remove that draft while preserving command proof. An auth transition
+   that changes account identity, approval or operations API version also purges
+   the draft; a secure marker blocks later recovery and retries cleanup after a
+   storage failure. Whole-app private-state cleanup and owner policy acceptance
+   remain open. Rider does not claim full offline delivery. The local journal can
+   retain private action-body fields, and its long-term cleanup policy remains
+   open.
 4. **Relationship to web — 45 seconds.** Courier web already includes queues,
    maps, camera scanning, proof upload, Trips/Earnings, Messages, notifications,
    cash handovers, company requests, and handover issues. Both clients use
@@ -137,9 +140,10 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    accuracy, or user satisfaction; claim gains only if a separate field study
    supports them.
 5. **Evidence and limits — 60 seconds.** The latest full serial Flutter suite
-   passed **702 tests, 8 skipped, zero failures** in 4m18s on the
-   `fix/rider-route-privacy-disclosure` worktree at test harness `87244ed` and
-   runtime `30412ed`. The separate headless Wallet client scenario passed
+   passed **713 tests, 8 skipped, zero failures** in 4m37s on the
+   `fix/rider-route-privacy-disclosure` working tree based at commit `968e18f`,
+   including the account-access photo cleanup follow-up. The
+   separate headless Wallet client scenario passed
    **1/1** against the unmerged Bagoo review branch `9e58312` with an in-memory
    storage adapter; it does not verify the deployed API or Android platform
    storage. The full suite used one worker. No
@@ -147,11 +151,13 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    Focused photo-recovery and parcel-outcome suites passed **19/19** before the
    November 2 background-memory follow-up. Its final serial run passed **41/41**
    across photo recovery, parcel outcomes and parcel workflows; `flutter analyze
-   --no-pub` reported no issues in 6.4s. These remain simulated PC checks, not
-   physical Android acceptance. On November 2, fresh arm64 debug
-   and profile APKs were built from branch head `94d2aaf` (runtime `30412ed`)
-   and passed PC archive, metadata, arm64-content and APK v2 signature checks;
-   neither was installed. Both use the scaffold ID and Android Debug signing.
+   --no-pub` reported no issues in 6.4s. The expanded serial **45/45** check
+   includes approval-loss cleanup. These remain simulated PC checks, not
+   physical Android acceptance. The November 2 arm64 debug and profile APKs
+   were built from branch head `94d2aaf` (runtime `30412ed`), before the
+   account-access photo cleanup follow-up; they passed PC archive, metadata,
+   arm64-content and APK v2 signature checks, and neither was installed. Both
+   use the scaffold ID and Android Debug signing.
    Their build profile uses the default deployed HTTPS API and enables only the
    HDB-05 accepted duty/pickup-claim writes; parcel, cash and other write gates
    remain false. The same-config fake-server activation test passed **2/2**
@@ -222,10 +228,10 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   or the next same-account restore. Explicit sign-out and invalid-session paths
   delete its encrypted draft and picker marker; an unresolved command's
   separately retained proof survives for reconciliation. Approval/restriction
-  transitions still need cleanup coverage. The Trips proof
-  viewer clears on background. See the [source audit](PRIVATE_DATA_LIFECYCLE.md);
-  message-draft policy, restriction cleanup and real Android lifecycle acceptance
-  remain open.
+  transitions clear the unsubmitted photo when the auth provider publishes the
+  changed account state. The Trips proof viewer clears on background. See the
+  [source audit](PRIVATE_DATA_LIFECYCLE.md); message-draft policy, whole-app
+  cleanup and real Android lifecycle acceptance remain open.
 - **Does the rider confirm that the buyer received the parcel?** The rider
   records the handoff. The backend returns the applicable status; newer
   flow-version orders may complete automatically. There is no separate
@@ -236,7 +242,8 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   separate field study.
 - **Is it ready for a live Android defense demo?** The available
   arm64-targeted debug and profile APKs were built and verified on the PC from
-  branch head `94d2aaf` after runtime `30412ed`; neither has been installed.
+  branch head `94d2aaf` before the account-access photo cleanup follow-up;
+  neither has been installed.
   Both use the scaffold application ID and debug signing. Approved release
   identity/signing, deployed cross-role acceptance, and physical Android
   acceptance remain open, so a live-phone demo is not yet accepted.
@@ -248,11 +255,13 @@ evidence, not as an accepted live phone demonstration.
 
 ## Current PC evidence and open gates
 
-- The latest full serial Flutter suite passed **702 tests, 8 skipped, zero
-  failures** in 4m18s on `fix/rider-route-privacy-disclosure`, at test harness
-  `87244ed` and runtime `30412ed`. The headless Wallet client scenario passed
+- The latest full serial Flutter suite passed **713 tests, 8 skipped, zero
+  failures** in 4m37s on `fix/rider-route-privacy-disclosure`, with the working
+  tree based at commit `968e18f` and containing the account-access photo
+  cleanup follow-up. The headless Wallet client scenario passed
   **1/1** against Bagoo `9e58312` with an in-memory storage adapter.
-  Focused photo-recovery and parcel-outcome suites passed **19/19**;
+  Focused photo recovery and parcel outcomes passed **19/19** before the
+  lifecycle follow-up; the expanded relevant suite passed **45/45** afterward.
   `flutter analyze --no-pub` found no issues in 6.4s. The suite and Wallet
   scenario are PC-only checks; the latter does not test Android platform
   storage. Android picker process-death, Azure deployment, release
@@ -265,8 +274,12 @@ evidence, not as an accepted live phone demonstration.
   and removes proof saved by an in-flight selection. `flutter analyze --no-pub`
   found no issues in 6.4s. Simulated
   storage/picker checks do not establish physical Android lifecycle or OS
-  storage behavior; cleanup on approval or
-  restriction transitions remains open.
+  storage behavior. The expanded serial **45/45** PC pass includes
+  approved-to-holding cleanup through the workspace provider and marker-backed
+  retry after a proof deletion failure. M16.02 owner policy acceptance, other
+  private-state cleanup and physical Android behavior remain open.
+  The subsequent complete serial suite passed **713 tests, 8 skipped, zero
+  failures** in 4m37s on the working tree based at `968e18f`.
 - Runtime code at Rider revision `9d7e8cf` and test revision `039d40d` passed
   six focused PC checks serially: saved/sample map disclosures, default
   route-provider status, Google Maps handoff disclosure, and both notices at
@@ -304,7 +317,7 @@ evidence, not as an accepted live phone demonstration.
   widget tests. It covers account/assignment scoping, cleanup, fresh ownership,
   duplicate taps, accessible controls and 320 px at 200% text. These PC checks do
   not establish physical Android layout, camera or lifecycle acceptance.
-- The current arm64 debug APK was built from pushed Rider branch head `94d2aaf`
+- The November 2 arm64 debug APK was built from pushed Rider branch head `94d2aaf`
   (runtime `30412ed`). It is 176,219,115 bytes, with SHA-256
   `60048103e9969765b7ec3237957a6bca45d368ce850cbd6c29d14645ba6e9d23`.
   Archive integrity, package/version/SDK metadata, debuggable state, arm64
@@ -318,7 +331,7 @@ evidence, not as an accepted live phone demonstration.
   present in the published branch. Bagoo web `main` remains `f001d396`; the
   Wallet/handover source branch `9e58312` is 2 commits ahead of main, not merged
   or deployment evidence.
-- The current arm64 profile preview was built from pushed Rider branch head
+- The November 2 arm64 profile preview was built from pushed Rider branch head
   `94d2aaf` (runtime `30412ed`). It is 77,671,976 bytes, with SHA-256
   `b43c41ffa07ab9e459843fd1b5ca67c51dff6bbc1d6d6c8d89f539f6bfa1bd54`.
   Archive, package/version/SDK metadata, arm64 AOT contents and v2 `Android
@@ -352,11 +365,12 @@ checks cover the bundled document separately.
    Make clear that the website already supports scanning and proof upload; the
    clearest extra rider-facing feature is session-only Parcel Finder labels.
 2. Show the PC evidence above with revisions attached: the latest full suite
-   passed 702 tests with 8 skips at harness `87244ed` and runtime `30412ed`;
+   passed 713 tests with 8 skips in the working tree based at `968e18f`;
    the headless Wallet client scenario passed 1/1 against Bagoo `9e58312` with
    an in-memory storage adapter;
-   the current debug and profile APKs at `94d2aaf` are PC-verified, debug-signed
-   and uninstalled. They do not establish hardware behavior.
+   the November 2 debug and profile APKs at `94d2aaf` are PC-verified,
+   debug-signed, and uninstalled. They predate the account-access photo cleanup
+   follow-up and do not establish hardware behavior.
 3. If asked to demonstrate an operational transaction, explain that Azure and
    cross-role acceptance are separate open gates. Do not substitute sample data
    or imply that a PC test changed a live assignment, order, proof or cash record.

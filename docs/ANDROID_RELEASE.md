@@ -9,7 +9,7 @@ This verifies the fail-closed guard; it is not release-build acceptance.
 The November 2 configuration check found `RIDER_APPLICATION_ID` unset and
 `android/key.properties` absent. No release APK was produced in this follow-up.
 
-## Current PC builds — November 2, 2026
+## Latest available PC build artifacts — November 2, 2026
 
 Fresh arm64-targeted debug and profile APKs were built from pushed Rider branch
 head `94d2aaf` (runtime code `30412ed`) with the ignored local
@@ -17,7 +17,9 @@ head `94d2aaf` (runtime code `30412ed`) with the ignored local
 `com.example.bagoo_rider_mobile` and the standard Android Debug signing
 certificate. Archive integrity, manifest metadata, arm64 contents, and APK v2
 signatures passed PC checks. Neither APK was installed or launched; these builds
-do not establish physical Android, Azure, or cross-role acceptance.
+do not establish physical Android, Azure, or cross-role acceptance. They
+predate the later account-access photo cleanup follow-up, so rebuild from the
+current branch source before presenting an APK as containing that change.
 Gradle emitted a nonfatal warning that the installed Android tools understand
 SDK XML through version 3 while the SDK metadata uses version 4; both builds
 completed successfully.
@@ -48,7 +50,7 @@ On November 2, a PC read-only request to `/api/v1/rider/home` returned HTTP
 the unauthenticated response private; it does not test sign-in, an approved
 account, or operational commands.
 
-## Current arm64 debug review APK
+## arm64 debug review APK record
 
 At Rider branch head `94d2aaf` (runtime `30412ed`), this PC-only build produced
 the current arm64-targeted debug APK:
@@ -69,7 +71,7 @@ libraries also include `armeabi-v7a` and `x86_64`. `apksigner verify --verbose`
 confirmed one signer and APK v2 signing with the standard `Android Debug`
 certificate. It is not a distributable release and was not installed.
 
-## Current arm64 profile defense preview
+## arm64 profile defense preview record
 
 At Rider branch head `94d2aaf` (runtime `30412ed`), this PC-only profile build
 produced the current arm64-targeted preview:

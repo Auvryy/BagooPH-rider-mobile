@@ -9,10 +9,11 @@ recipient/proof and version-two handover source fixes are on branch
 focused backend suite and the Rider's pinned native Wallet consumer test passed.
 Azure deployment and phone acceptance are still pending.
 
-**Latest full serial PC regression (November 2):** Rider runtime at `30412ed`
-and test harness at `87244ed`. The full Flutter suite passed **702 tests with
-8 skips and zero failures** in 4m18s with
-`flutter test --no-pub --concurrency=1 --reporter=compact test`. The new
+**Latest full serial PC regression (November 2):** the complete suite passed
+**713 tests with 8 skips and zero failures** in 4m37s using
+`flutter test --no-pub --concurrency=1 --reporter=compact test`. It ran on the
+working tree based at Rider branch commit `968e18f`, including the account-
+access photo cleanup follow-up recorded below. The new
 fixture-dependent Wallet test is one skip in that ordinary suite; its
 windowless opt-in run passed **1/1** against Bagoo `9e58312` using an in-memory
 storage adapter.
@@ -24,7 +25,6 @@ same-account photo recovery on resume, background memory clearing, stale
 in-flight restore protection, expiry cleanup and sign-out removal that
 preserves separately retained command proof, including a late picker result.
 It also removes a proof file from a save that finishes during sign-out.
-Approval-restriction cleanup of the unsubmitted encrypted photo remains open.
 These are simulated PC checks, not Android lifecycle acceptance. The serial
 command was:
 
@@ -32,11 +32,28 @@ command was:
 flutter test --no-pub --concurrency=1 --reporter=compact test/parcel_photo_recovery_test.dart test/parcel_outcome_pages_test.dart test/parcel_workflow_test.dart
 ```
 
-It did not touch a phone, ADB, emulator, install, or app window. On November 2,
-arm64 debug and profile APKs were rebuilt from branch head `94d2aaf` (runtime
-`30412ed`) and passed PC archive, metadata, arm64-content and APK v2 signature
-checks. Neither was installed; both retain the scaffold ID and Android Debug
-signing. They use the default deployed HTTPS API; the accepted operations gate
+It did not touch a phone, ADB, emulator, install, or app window. A further
+November 2 account-access follow-up passed **19/19** across photo recovery, the
+workspace account lifecycle, and Parcel Finder session checks. The expanded
+final run passed **45/45** across photo recovery, parcel outcomes, parcel
+workflows, workspace account lifecycle, and Parcel Finder session checks. It
+covers an approved-to-holding refresh, encrypted draft and picker-marker deletion,
+command-proof preservation, and marker-backed retry after storage cleanup
+fails. `flutter analyze --no-pub` found no issues in 6.4s. These checks used
+mocked storage on the PC. The full suite also passed after these changes;
+neither run accessed the connected phone, ADB, an emulator, or an app window.
+M16.02 owner policy acceptance, whole-app private cleanup, and physical Android
+lifecycle acceptance remain open. The serial command was:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact test/parcel_photo_recovery_test.dart test/parcel_outcome_pages_test.dart test/parcel_workflow_test.dart test/workspace_photo_access_lifecycle_test.dart test/parcel_finder_session_test.dart
+```
+
+On November 2, arm64 debug and profile APKs were built from branch head
+`94d2aaf` (runtime `30412ed`) and passed PC archive, metadata, arm64-content
+and APK v2 signature checks. They predate the account-access photo cleanup
+follow-up above. Neither was installed; both retain the scaffold ID and Android
+Debug signing. They use the default deployed HTTPS API; the accepted operations gate
 enables duty and pickup claims only, with other write gates still false. See
 [Android release evidence](ANDROID_RELEASE.md) and
 [HDB-05 acceptance](plans/home-dashboard-branch-plan/HDB-05-EVIDENCE.md).

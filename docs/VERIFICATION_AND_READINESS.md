@@ -2,20 +2,20 @@
 
 **Current status — November 2, 2026.** The scores and starter-screen statements
 below describe the October 5 planning snapshot, not current Rider behavior.
-The latest full serial PC regression ran on
-`fix/rider-route-privacy-disclosure` at Rider commit `87244ed` with runtime
-code `30412ed`, the photo-expiry regressions and the opt-in Wallet test path.
-`flutter test --no-pub --concurrency=1 --reporter=compact test` passed
-**702 tests with 8 skips and zero failures** in 4m18s using one Flutter test
-worker. The new fixture-dependent Wallet test is one of the skips in the
-ordinary suite; its isolated headless run passed separately. The focused
-photo-recovery and parcel-outcome suites passed **19/19**. `flutter analyze
---no-pub` reported no issues in 6.4s. On November 2, fresh arm64 debug and
-profile APKs were built from branch head `94d2aaf` (runtime `30412ed`) and
-passed PC archive, metadata, arm64-content and APK v2 signature checks; neither
-was installed. The same-config fake-server activation test passed **2/2**,
-verifying duty and pickup-claim UI/flow gating without live writes. No phone,
-ADB, emulator, or app window was used.
+The latest full serial PC regression passed **713 tests with 8 skips and zero
+failures** in 4m37s using one Flutter test worker. It ran on the
+`fix/rider-route-privacy-disclosure` working tree based at Rider commit
+`968e18f`, including the account-access photo cleanup follow-up. The new
+fixture-dependent Wallet test is one of the skips in the ordinary suite; its
+isolated headless run passed separately. The expanded photo-recovery, parcel
+outcome, parcel workflow, workspace account-lifecycle, and Parcel Finder suites
+passed **45/45**; `flutter analyze --no-pub` reported no issues in 6.4s. The
+November 2 arm64 debug and profile APKs were built from earlier branch head
+`94d2aaf` (runtime `30412ed`) and predate the account-access photo cleanup
+follow-up. They passed PC archive, metadata, arm64-content and APK v2 signature
+checks; neither was installed. The same-config fake-server activation test
+passed **2/2**, verifying duty and pickup-claim UI/flow gating without live
+writes. No phone, ADB, emulator, install, or app window was used.
 
 The new windowless Rider Wallet client scenario passed **1/1** in 35 seconds
 against Bagoo `9e58312d130809eb8cd878189b729f1f702291d8`. It verified lost-result

@@ -2,13 +2,19 @@
 
 **Current status — November 1, 2026.** The scores and starter-screen statements
 below describe the October 5 planning snapshot, not current Rider behavior.
-The current full PC regression ran at local Rider checkout `38e25cf` on
+The latest full PC regression ran at test checkout `38e25cf` on
 `fix/rider-route-privacy-disclosure`. Runtime code is `9d7e8cf`; the latest
 test-source change is `514e1cc` (Android scanner callback simulation).
 `flutter test --no-pub --concurrency=1 --reporter=compact test` passed **696
 tests with 7 skips and zero failures** in 8m10s. `flutter analyze --no-pub`
 reported no issues in 11.1s. No phone, ADB, emulator, install, or app window was
 used.
+
+Documentation-only commits followed that test checkout, including `cf99ac6`;
+the branch-head evidence refresh did not change Dart, runtime, or test sources.
+The 696-test result therefore remains evidence for the current code/test tree,
+not for Android hardware, Azure deployment, or a release build. These local
+documentation commits have not been pushed.
 
 Live GitHub refs queried November 1: Rider `main` is `4367331`, and the published
 defense branch is `514e1cc`. At the test checkout, local `38e25cf` was one

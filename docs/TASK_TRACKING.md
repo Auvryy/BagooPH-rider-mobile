@@ -16,6 +16,9 @@ passed **696 tests with 7 skips and zero failures** in 8m10s using
 `flutter test --no-pub --concurrency=1 --reporter=compact test`.
 `flutter analyze --no-pub` reported no issues in 11.1s. This PC run did not
 touch a phone or emulator. The earlier 695-test run at `54d56f2` is superseded.
+Later local commits only refreshed documentation; they did not change the
+tested Dart/runtime/test sources. The recorded pass count belongs to checkout
+`38e25cf`, and later docs updates remain unpublished.
 
 The map/privacy runtime code at `9d7e8cf` and test-only revision `039d40d`
 passed six focused PC checks, including 320 px Home/Stop Mode layouts at 200%

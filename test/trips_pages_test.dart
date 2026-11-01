@@ -49,6 +49,44 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
+  for (final available in [true, false]) {
+    testWidgets(
+      'retained earnings explanation respects available=$available without implying payout',
+      (tester) async {
+        final h = TripHarness();
+        addTearDown(h.dispose);
+        h.rows.first['earnings'] = {
+          'available': available,
+          'confirmed_cents': available ? '2500' : null,
+          'pending_cents': available ? '1000' : null,
+          if (available) 'basis': 'original_delivery_earnings_ledger',
+        };
+        await tester.runAsync(h.boot);
+        await tester.pumpWidget(
+          _app(TripDetailPage(work: h.work, id: 'trip-41')),
+        );
+        await tester.pumpAndSettle();
+        await tester.scrollUntilVisible(
+          find.textContaining(
+            available
+                ? 'Earnings above come from'
+                : 'Earnings are unavailable for this assignment.',
+          ),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        expect(find.textContaining('external payout'), findsOneWidget);
+        expect(
+          find.textContaining('No earnings are confirmed here'),
+          findsNothing,
+        );
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+        h.dispose();
+      },
+    );
+  }
+
   setUpAll(() async {
     await (FontLoader(
       'Plus Jakarta Sans',

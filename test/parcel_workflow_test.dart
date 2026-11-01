@@ -44,6 +44,31 @@ class _Workflow {
 }
 
 void main() {
+  test('version-two delivery uses the committed order status without confirming cash receipt', () async {
+    final h = _Workflow(action: ParcelAction.deliver);
+    addTearDown(h.dispose);
+    final c = await h.open();
+    h.domain.api.respond = (path, method, body, headers) async {
+      if (method == 'POST') {
+        final response = parcelCommand(h.domain.journal.value!);
+        response['data']['result']['commercial_status'] = 'completed';
+        return response;
+      }
+      return h.domain.standardResponse(path, method, body, headers);
+    };
+    c.acceptScan(h.domain.task.tracking);
+    expect(
+      await c.submit(fields: h.domain.fields, proof: h.domain.proof),
+      isTrue,
+    );
+    expect(c.result?['commercial_status'], 'completed');
+    expect(h.work.workNotice, contains('order completed'));
+    expect(h.work.workNotice, contains('separate hub receipt'));
+    expect(h.work.pendingIntent, isNull);
+    expect(h.work.selectedTask, isNull);
+    expect(h.writes, 1);
+  });
+
   test(
     'fresh owned pickup requires a submitted matching scan before collection',
     () async {
@@ -247,7 +272,7 @@ void main() {
     );
     expect(h.work.selectedTask, isNull);
     expect(h.work.workFailure, isNull);
-    expect(h.work.workNotice, contains('buyer confirms receipt separately'));
+    expect(h.work.workNotice, contains('order status Delivered'));
     expect(h.work.queue, TaskQueue.delivery);
   });
 

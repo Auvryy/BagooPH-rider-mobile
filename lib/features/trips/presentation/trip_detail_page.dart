@@ -240,8 +240,10 @@ class _RecordedAssignment extends StatelessWidget {
         ),
       ),
       const SizedBox(height: 20),
-      const Text(
-        'Buyer receipt, cash remittance and rider earnings are separate records. No earnings are confirmed here.',
+      Text(
+        trip.earnings.available
+            ? 'Earnings above come from the recorded ledger. A released amount does not prove an external payout. Cash handover and reconciliation are recorded separately.'
+            : 'Earnings are unavailable for this assignment. Cash collected or remitted does not establish rider income or an external payout.',
       ),
       const SizedBox(height: 28),
     ],

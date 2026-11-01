@@ -217,7 +217,7 @@ class _NotificationResourcePageState extends State<NotificationResourcePage>
                           ),
                           const SizedBox(height: 16),
                           const Text(
-                            'Collection, recipient receipt and platform reconciliation are separate. Earnings are unavailable.',
+                            'Collection, recipient receipt and platform reconciliation are separate. These COD records are not an earnings or payout total.',
                           ),
                         ],
                       ),

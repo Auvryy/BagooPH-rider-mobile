@@ -12,6 +12,7 @@ import '../../auth/presentation/auth_controller.dart';
 import '../../cash/presentation/cash_controller.dart';
 import '../../home/data/command_journal.dart';
 import '../../home/data/operations_models.dart';
+import '../../home/presentation/stop_guidance.dart';
 import '../../home/data/operations_repository.dart';
 import '../../parcels/data/parcel_photo_service.dart';
 import '../../messages/data/messages_repository.dart';
@@ -703,8 +704,7 @@ class WorkspaceController extends ChangeNotifier {
             'Collection recorded. Bring the parcel to its origin hub.',
           'out_for_delivery' =>
             'Departure recorded. Follow the current buyer stop.',
-          'delivered' =>
-            'Delivery recorded. The buyer confirms receipt separately.',
+          'delivered' => deliveryRecordedNotice(result['commercial_status']),
           'delivery_failed' =>
             'Attempt recorded. Return the parcel to its destination hub.',
           _ => 'Work request confirmed.',

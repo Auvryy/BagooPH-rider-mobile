@@ -1,5 +1,29 @@
 import '../data/operations_models.dart';
 
+/// The committed order status is independent from the parcel checkpoint and
+/// from a hub's receipt of collected COD. Never infer a flow version here.
+String deliveryRecordedNotice(Object? commercialStatus) =>
+    switch (commercialStatus) {
+      'completed' => 'Delivery verified and order completed. Any collected COD still needs a separate hub receipt. Review recorded earnings in Trips or Cash.',
+      'delivered' => 'Delivery recorded with order status Delivered. Refresh Trips for the latest completion status. Any collected COD still needs a separate hub receipt.',
+      _ => 'Delivery recorded. Refresh Trips to check the order status. Any collected COD still needs a separate hub receipt.',
+    };
+
+String taskInstruction(OperationTask task) {
+  if (task.preview || task.actionDenials['handover'] != null) {
+    return task.nextInstruction;
+  }
+  if (task.phase == 'final_mile' && task.stage == 'delivered') {
+    return deliveryRecordedNotice(task.commercialStatus);
+  }
+  // The deployed v1 envelope serves version-two orders too. Retain the actual
+  // server instruction while correcting this older unconditional completion copy.
+  return task.nextInstruction.replaceAll(
+    'The buyer confirms receipt separately.',
+    'Check the recorded order status after delivery. Any COD handover remains separate.',
+  );
+}
+
 String custodyLabel(OperationTask task) => switch (task.custodyKind) {
   'seller' => 'Recorded custody: seller',
   'hub' =>
@@ -29,7 +53,10 @@ String nextActorLabel(OperationTask task) {
     ('destination_hub', 'delivery_failed') =>
       'You, then the destination hub handler',
     ('buyer', 'out_for_delivery') => 'You · assigned delivery rider',
-    ('buyer', 'delivered') => 'Buyer · confirms receipt separately',
+    ('buyer', 'delivered') =>
+      task.commercialStatus == 'completed'
+          ? 'Delivery complete · check any outstanding cash responsibility'
+          : 'Check the recorded order completion status',
     _ => 'Check the current instruction',
   };
 }
@@ -38,7 +65,7 @@ String legGuide(OperationTask task) => task.phase == 'pickup'
     ? 'Pickup leg: seller → origin hub. The hub confirms intake.'
     : task.stage == 'delivery_failed'
     ? 'Return leg: bring the parcel to the destination hub. The hub records receipt and decides any retry.'
-    : 'Delivery leg: destination hub → buyer. The buyer confirms receipt separately.';
+    : 'Delivery leg: destination hub → buyer. Valid handover evidence determines order completion; cash receipt is recorded separately.';
 
 /// Compare the destination and authority the rider actually reviewed, rather
 /// than a timestamp or an opaque version that may change for unrelated reasons.
@@ -49,6 +76,7 @@ bool sameReviewedStop(OperationTask a, OperationTask b) =>
     a.preview == b.preview &&
     a.assignmentReference == b.assignmentReference &&
     a.stage == b.stage &&
+    a.commercialStatus == b.commercialStatus &&
     a.custodyKind == b.custodyKind &&
     a.custodyHubId == b.custodyHubId &&
     a.heldByMe == b.heldByMe &&

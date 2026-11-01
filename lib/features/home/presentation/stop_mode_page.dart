@@ -649,7 +649,7 @@ class _StopModePageState extends State<StopModePage>
       children: [
         Text('Next step', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
-        Text(task.nextInstruction, key: const ValueKey('stop-instruction')),
+        Text(taskInstruction(task), key: const ValueKey('stop-instruction')),
         const SizedBox(height: 12),
         Text('Next responsible actor: ${nextActorLabel(task)}'),
         const SizedBox(height: 12),

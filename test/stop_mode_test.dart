@@ -814,6 +814,16 @@ void main() {
           h.data['stop']['longitude'] = 121.0;
         },
       );
+      await _reveal(
+        tester,
+        find.byKey(const ValueKey('stop-external-directions-disclosure')),
+      );
+      expect(
+        find.textContaining(
+          'sends this stop’s saved coordinates or address to Google Maps',
+        ),
+        findsOneWidget,
+      );
       h.data['stop']['latitude'] = 14.7;
       await _tap(tester, 'stop-external-directions');
       expect(h.actions.opened, isEmpty);

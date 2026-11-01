@@ -188,7 +188,13 @@ class _NavigationControlsState extends State<NavigationControls> {
                 onPressed: nav.stop,
                 child: const Text('Stop navigation'),
               ),
-            if (stop.address?.trim().isNotEmpty == true || coords)
+            if (stop.address?.trim().isNotEmpty == true || coords) ...[
+              const SizedBox(height: 12),
+              Text(
+                'External directions sends this stop’s saved coordinates or address to Google Maps.',
+                key: const ValueKey('stop-external-directions-disclosure'),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
               TextButton.icon(
                 key: const ValueKey('stop-external-directions'),
                 style: TextButton.styleFrom(minimumSize: const Size(0, 48)),
@@ -263,6 +269,7 @@ class _NavigationControlsState extends State<NavigationControls> {
                         }
                       },
               ),
+            ],
           ],
         ),
       );

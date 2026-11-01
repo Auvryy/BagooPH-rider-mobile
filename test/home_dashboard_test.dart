@@ -86,6 +86,14 @@ void main() {
       expect(find.byType(LeafletDeliveryMap), findsNothing);
       await tapHome(tester, find.byKey(const ValueKey('home-sample-toggle')));
       expect(find.byType(LeafletDeliveryMap), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('home-map-area-disclosure')),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('Tile coordinates and source IP'),
+        findsOneWidget,
+      );
       expect(find.text('Sample rider → Sample delivery point'), findsOneWidget);
       expect(
         find.textContaining('not a live rider or an assigned parcel'),
@@ -105,6 +113,10 @@ void main() {
       expect(h.controller.selectedTask?.id, h.task.id);
       final map = tester.widget<LeafletDeliveryMap>(
         find.byType(LeafletDeliveryMap),
+      );
+      expect(
+        find.byKey(const ValueKey('home-map-area-disclosure')),
+        findsOneWidget,
       );
       expect(map.stop?.latitude, h.task.stop.latitude);
       expect(map.stop?.longitude, h.task.stop.longitude);

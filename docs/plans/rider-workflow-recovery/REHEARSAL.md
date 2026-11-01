@@ -120,11 +120,13 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    operations remain shared. These checks do not measure delivery speed,
    accuracy, or user satisfaction; claim gains only if a separate field study
    supports them.
-5. **Evidence and limits — 60 seconds.** The serial Flutter suite passed 693
-   tests with 7 skips, analysis reported no issues, and isolated parcel and
-   company API checks passed. The available APK is a debug build. These checks
-   do not establish a signed release, Azure deployment, cross-role production
-   behavior, or physical Android camera/lifecycle acceptance.
+5. **Evidence and limits — 60 seconds.** At the earlier source revision
+   `e0aa20e`, the full serial Flutter suite passed 693 tests with 7 skips and
+   analysis was clean. The current map/privacy code revision `9d7e8cf` passed
+   four focused PC tests and analysis, but the full suite was not rerun. The
+   retained debug APK also predates `9d7e8cf`. These checks do not establish a
+   signed release, Azure deployment, cross-role production behavior, or
+   physical Android camera/lifecycle acceptance.
 
 ### Likely questions
 
@@ -200,10 +202,11 @@ evidence, not as an accepted live phone demonstration.
 - The arm64-targeted profile build at Rider revision `e0aa20e` produced
   `build/app/outputs/flutter-apk/app-profile.apk` (**77,606,440 bytes**; SHA-256
   `74b52c2bc2cdc3fcb965b829bcb9d3ffcbe51e9fef0b3229e5bbde950fafc84b`). The
-  archive integrity check passed. The artifact uses the scaffold application ID;
-  `apksigner verify` was unavailable because Java is missing from the PC shell's
-  PATH, so its signature is not independently verified. It was not installed or
-  run on a phone.
+  archive integrity check passed. This APK predates the map/privacy correction
+  at `9d7e8cf` and is not an artifact for the current source. It uses the scaffold
+  application ID; `apksigner verify` was unavailable because Java is missing from
+  the PC shell's PATH, so its signature is not independently verified. It was
+  not installed or run on a phone.
 - Immediately before the map/privacy correction, the checked GitHub refs were
   Rider `main` `4367331` and the published defense branch `46bf25e`; the code
   correction reviewed here is `9d7e8cf`. Bagoo web `main` is `f001d396`; the

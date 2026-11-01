@@ -142,12 +142,12 @@ flutter test --no-pub --concurrency=1 --reporter=compact \
   test/philippines_map_test.dart
 ```
 
-Live GitHub refs fetched November 1 after publication: Rider `main` is
-`4367331`; the published defense branch
-`fix/rider-route-privacy-disclosure` is `e099156`, 54 commits ahead and 0 behind
-`main`. It includes three commits since the previous published ref `2f8fc69`:
+At the first post-publication GitHub fetch on November 1, Rider `main` was
+`4367331` and defense branch `fix/rider-route-privacy-disclosure` was `e099156`,
+54 commits ahead and 0 behind `main`. It included three commits since the
+previous published ref `2f8fc69`:
 the contrast fix and two evidence updates. The 699-test run above executed at
-`fc99a02`; the only later commit is documentation-only. At the original
+`fc99a02`; all commits after that run are documentation-only. At the original
 full-test checkout,
 `38e25cf` was one documentation-only commit ahead of the then-published
 `514e1cc` and 44 commits ahead, 0 behind Rider `main`. Bagoo `main` was

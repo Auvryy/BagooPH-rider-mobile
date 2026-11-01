@@ -34,11 +34,12 @@ integrity, package-metadata, APK v2 debug-signature and embedded-disclosure
 checks; it was not installed. See [Android release packaging](ANDROID_RELEASE.md)
 and the [rehearsal record](plans/rider-workflow-recovery/REHEARSAL.md).
 
-**Live refs fetched November 1 after publication:** Rider `main` is `4367331`;
-the published defense branch `fix/rider-route-privacy-disclosure` is `e099156`,
-54 commits ahead and 0 behind `main`. This includes the three reviewed commits
-since the previous published ref `2f8fc69`. The 699-test run executed at
-`fc99a02`; only a documentation commit followed. At the original test checkout,
+**Initial post-publication GitHub fetch (November 1):** Rider `main` was
+`4367331`; the defense branch `fix/rider-route-privacy-disclosure` was
+`e099156`, 54 commits ahead and 0 behind `main`. This included the three
+reviewed commits since the previous published ref `2f8fc69`. The 699-test run
+executed at `fc99a02`; all later commits are documentation-only. At the original
+test checkout,
 `38e25cf` was one documentation-only commit ahead of the then-published
 `514e1cc` and 44 commits ahead, 0 behind `main`. The published accessibility
 follow-up adds an AA-readable theme text shade, regression tests and expanded

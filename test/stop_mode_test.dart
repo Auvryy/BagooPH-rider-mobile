@@ -911,6 +911,16 @@ void main() {
             tester,
             find.byKey(const ValueKey('stop-copy-address')),
           );
+          await _reveal(
+            tester,
+            find.byKey(const ValueKey('stop-external-directions-disclosure')),
+          );
+          expect(
+            find.textContaining(
+              'sends this stop’s saved coordinates or address to Google Maps',
+            ),
+            findsOneWidget,
+          );
           for (final key in [
             'stop-copy-tracking',
             'stop-copy-order',

@@ -183,6 +183,14 @@ void main() {
         await tapHome(tester, find.byKey(ValueKey('home-task-${h.task.id}')));
         await revealHome(tester, find.byType(LeafletDeliveryMap));
         expect(
+          find.byKey(const ValueKey('home-map-area-disclosure')),
+          findsOneWidget,
+        );
+        expect(
+          find.textContaining('Tile coordinates and source IP'),
+          findsOneWidget,
+        );
+        expect(
           tester
               .widget<LeafletDeliveryMap>(find.byType(LeafletDeliveryMap))
               .stop

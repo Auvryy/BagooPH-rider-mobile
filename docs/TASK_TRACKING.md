@@ -16,8 +16,11 @@ failures** in 4m20s with
 `flutter test --no-pub --concurrency=1 --reporter=compact test`.
 The focused photo-recovery and parcel-outcome suites passed **19/19**;
 `flutter analyze --no-pub` reported no issues in 6.3s. The run used one worker
-and did not touch a phone, ADB, emulator, install, or app window. Available
-debug/profile APKs predate runtime `30412ed` and were not rebuilt or installed.
+and did not touch a phone, ADB, emulator, install, or app window. On November 2,
+arm64 debug and profile APKs were rebuilt from branch head `94d2aaf` (runtime
+`30412ed`) and passed PC archive, metadata, arm64-content and APK v2 signature
+checks. Neither was installed; both retain the scaffold ID and Android Debug
+signing. See [Android release evidence](ANDROID_RELEASE.md).
 The earlier full run at historical checkout `38e25cf` passed
 696 tests in 8m10s; the 695-test run at `54d56f2` is superseded. Focused PC
 checks also include scanner layout coverage, 145 extended page tests and 23
@@ -33,10 +36,10 @@ remain separate.
 The map/privacy runtime code at `9d7e8cf` and test-only revision `039d40d`
 passed six focused PC checks, including 320 px Home/Stop Mode layouts at 200%
 text, plus clean analysis. The app-only Parcel Finder feature also passed its
-current focused suite (**20/20**), including 320 px/200% Stop Mode layout. An
+focused suite (**20/20**), including 320 px/200% Stop Mode layout. A historical
 arm64 profile APK was rebuilt from runtime code `9d7e8cf` and passed archive-
 integrity, package-metadata, APK v2 debug-signature and embedded-disclosure
-checks; it was not installed. After the contrast update, a current arm64-targeted
+checks; it was not installed. At the contrast-update checkpoint, an arm64-targeted
 debug APK was built from published revision `8b50401` and passed archive,
 package/SDK/version, debug-signature and SHA-256 checks; it was not installed.
 See [Android release packaging](ANDROID_RELEASE.md) and the

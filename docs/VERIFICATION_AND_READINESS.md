@@ -1,6 +1,6 @@
 # Verification and documentation assessment
 
-**Current status — November 1, 2026.** The scores and starter-screen statements
+**Current status — November 2, 2026.** The scores and starter-screen statements
 below describe the October 5 planning snapshot, not current Rider behavior.
 The latest full serial PC regression ran on
 `fix/rider-route-privacy-disclosure` with runtime code at `30412ed` and the two
@@ -8,11 +8,13 @@ expiry regressions included in this verification update.
 `flutter test --no-pub --concurrency=1 --reporter=compact test` passed
 **702 tests with 7 skips and zero failures** in 4m20s using one Flutter test
 worker. The focused photo-recovery and parcel-outcome suites passed **19/19**;
-`flutter analyze --no-pub` reported no issues in 6.3s. No phone, ADB, emulator,
-install, or app window was used. This is PC-only evidence: Android picker
-process-death behavior, Azure deployment, production cross-role acceptance,
-and release signing remain open. Available APKs predate runtime `30412ed` and
-were not rebuilt or installed during this follow-up.
+`flutter analyze --no-pub` reported no issues in 6.3s. On November 2, fresh
+arm64 debug and profile APKs were built from branch head `94d2aaf` (runtime
+`30412ed`) and passed PC archive, metadata, arm64-content and APK v2 signature
+checks; neither was installed. No phone, ADB, emulator, or app window was used.
+This is PC-only evidence: Android picker process-death behavior, Azure
+deployment, production cross-role acceptance, approved release identity and
+signing remain open. See [Android release packaging](ANDROID_RELEASE.md).
 
 An earlier full serial PC regression ran at historical test checkout `38e25cf` on
 `fix/rider-route-privacy-disclosure`. Runtime code was `9d7e8cf`; the latest
@@ -161,19 +163,13 @@ not merged or deployment evidence. Other focused evidence includes 42
 command/workflow/outcome tests at `3839de6`,
 20 proof-recovery/Trips tests at `cbd6b21`, 20 Parcel Finder tests at `d42c948`,
 six map-disclosure checks at `9d7e8cf`/`039d40d`, and one headless Rider-to-kernel
-scenario at `6a0ab47` against Bagoo `9e58312`. The arm64 profile APK for runtime
-code `9d7e8cf` is historical. The latest published-source arm64 profile preview was built
-from published branch head `82f3bc6` (runtime `a9b972d`): 77,606,440 bytes,
-SHA-256 `c6706a114cac8807265b49a67890e6ceb260896cbad222015e11c5f361e9e0c6`.
-Archive integrity, package/SDK/version metadata, debuggable state and the
-single-signer APK v2 debug signature passed PC checks. The profile build is
-debug-signed, uses the scaffold package ID, and was not installed. The separate
-available arm64 debug APK was built from published revision `8b50401` with the
-same runtime code and also passed archive, metadata, signature and SHA-256
-checks. Neither artifact establishes a signed release or Android device
-acceptance. See [Android release packaging](ANDROID_RELEASE.md). The current PC
-environment has no `RIDER_APPLICATION_ID`, `android/key.properties`, or default
-release keystore.
+scenario at `6a0ab47` against Bagoo `9e58312`. Earlier APKs described in this
+historical November 1 checkpoint have been superseded by the November 2 builds
+from branch head `94d2aaf`; see [Android release packaging](ANDROID_RELEASE.md)
+for current sizes, hashes, metadata and signature checks. The current PC
+check found no `RIDER_APPLICATION_ID` and no `android/key.properties`, so these
+debug-signed scaffold-ID builds are not release artifacts and do not establish
+Android device acceptance.
 See the [current rehearsal and acceptance record](plans/rider-workflow-recovery/REHEARSAL.md),
 [selected workflow verification](plans/rider-workflow-recovery/VERIFICATION.md),
 and [Android packaging record](ANDROID_RELEASE.md). Azure, cross-role,

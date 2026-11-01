@@ -6,51 +6,65 @@ ID and a local signing key; the build never falls back to the Android debug key.
 At Rider revision `e0aa20e`, a PC release-build request stopped before artifact
 generation because the approved ID and all local signing settings were absent.
 This verifies the fail-closed guard; it is not release-build acceptance.
+The November 2 configuration check found `RIDER_APPLICATION_ID` unset and
+`android/key.properties` absent. No release APK was produced in this follow-up.
+
+## Current PC builds — November 2, 2026
+
+Fresh arm64-targeted debug and profile APKs were built from pushed Rider branch
+head `94d2aaf` (runtime code `30412ed`) with the ignored local
+`.env.rider.json` build configuration. Both use the scaffold application ID
+`com.example.bagoo_rider_mobile` and the standard Android Debug signing
+certificate. Archive integrity, manifest metadata, arm64 contents, and APK v2
+signatures passed PC checks. Neither APK was installed or launched; these builds
+do not establish physical Android, Azure, or cross-role acceptance.
+Gradle emitted a nonfatal warning that the installed Android tools understand
+SDK XML through version 3 while the SDK metadata uses version 4; both builds
+completed successfully.
 
 ## Current arm64 debug review APK
 
-At published Rider revision `8b50401` (runtime change `a9b972d`), this PC-only
-build produced the current arm64-targeted debug APK:
+At Rider branch head `94d2aaf` (runtime `30412ed`), this PC-only build produced
+the current arm64-targeted debug APK:
 
 ```sh
 flutter build apk --no-pub --debug --target-platform android-arm64 \
   --dart-define-from-file=.env.rider.json
 ```
 
-The output is `build/app/outputs/flutter-apk/app-debug.apk`, 176,214,087 bytes,
+The output is `build/app/outputs/flutter-apk/app-debug.apk`, 176,219,115 bytes,
 with SHA-256
-`b82d9a66e19803e248e9f6004a6a7837d562743bf8d651549ed3aae5e84a8abe`.
-`unzip -tq` reported no archive errors. The merged manifest reports package
-`com.example.bagoo_rider_mobile`, version `0.1.0` (code 1), min SDK 24 and
-target SDK 36. `apksigner verify --verbose` confirmed one signer and APK v2
-signature; the manifest marks the app debuggable. Flutter targeted arm64;
-some plugin libraries for other ABIs remain in the APK. This debug-signed APK
-uses the scaffold ID, is not a distributable release, and was not installed or
-checked on a phone.
+`60048103e9969765b7ec3237957a6bca45d368ce850cbd6c29d14645ba6e9d23`.
+The ZIP archive passed integrity checks. `aapt` reports package
+`com.example.bagoo_rider_mobile`, label `BagooPH Rider`, version `0.1.0`
+(code 1), min SDK 24 and target SDK 36; the manifest marks it debuggable.
+The debug kernel asset and `arm64-v8a` Flutter engine are present. Plugin
+libraries also include `armeabi-v7a` and `x86_64`. `apksigner verify --verbose`
+confirmed one signer and APK v2 signing with the standard `Android Debug`
+certificate. It is not a distributable release and was not installed.
 
 ## Current arm64 profile defense preview
 
-At published Rider branch head `82f3bc6` (runtime code `a9b972d`), this
-PC-only profile build produced an arm64-targeted preview:
+At Rider branch head `94d2aaf` (runtime `30412ed`), this PC-only profile build
+produced the current arm64-targeted preview:
 
 ```sh
 flutter build apk --no-pub --profile --target-platform android-arm64 \
   --dart-define-from-file=.env.rider.json
 ```
 
-The output is `build/app/outputs/flutter-apk/app-profile.apk`, 77,606,440 bytes,
+The output is `build/app/outputs/flutter-apk/app-profile.apk`, 77,671,976 bytes,
 with SHA-256
-`c6706a114cac8807265b49a67890e6ceb260896cbad222015e11c5f361e9e0c6`. The
-archive passed `unzip -tq`. `aapt` reports package
+`b43c41ffa07ab9e459843fd1b5ca67c51dff6bbc1d6d6c8d89f539f6bfa1bd54`. The
+ZIP archive passed integrity checks. `aapt` reports package
 `com.example.bagoo_rider_mobile`, label `BagooPH Rider`, version `0.1.0` (code
-1), min SDK 24 and target SDK 36. The profile manifest is debuggable. Flutter
-targeted the app to arm64, while plugin libraries for `arm64-v8a`,
-`armeabi-v7a` and `x86_64` remain in the APK. `apksigner verify --verbose`
-confirmed one signer and APK v2 signing with the standard `Android Debug`
-certificate. This is a local performance-preview build with the scaffold
-application ID and debug signing, not a distributable release. It was not
-installed and does not establish Android device acceptance. The previous
-profile hash at runtime `9d7e8cf` is historical.
+1), min SDK 24 and target SDK 36; the profile manifest is debuggable. The
+arm64 `libapp.so` is present, and plugin libraries include `arm64-v8a`,
+`armeabi-v7a` and `x86_64`. `apksigner verify --verbose` confirmed one signer
+and APK v2 signing with the standard `Android Debug` certificate. This is a
+performance-preview build with the scaffold ID and debug signing, not a
+distributable release. It was not installed and does not establish Android
+device acceptance. Older profile builds are historical.
 
 ## Local configuration
 

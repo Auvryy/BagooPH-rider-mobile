@@ -20,8 +20,9 @@ The 696-test result belongs to checkout `38e25cf`; later documentation and
 accessibility-test commits do not change its tested runtime code. This follow-up
 adds PC-only scanner layout coverage, 145 extended page tests and 23 motion/
 high-contrast tests; see [verification evidence](VERIFICATION_AND_READINESS.md).
-The later contrast/status review adds an AA-readable brand text shade, readable
-muted text, and 94 targeted PC tests across the shared-theme consumer screens.
+The later contrast/status review adds an AA-readable brand text shade and
+readable muted text. Three current-theme serial PC batches passed 303 selected
+contrast, status, responsive, and map/navigation tests across the app.
 Android TalkBack, grayscale, physical-device, Azure and staging acceptance
 remain separate.
 

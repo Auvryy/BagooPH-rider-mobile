@@ -10,11 +10,11 @@ passed **696 tests with 7 skips and zero failures** in 8m10s.
 `flutter analyze --no-pub` reported no issues in 11.1s. No phone, ADB,
 emulator, install, or app window was used.
 
-Later local commits refreshed documentation; this accessibility follow-up adds
-PC widget-test coverage but no runtime changes. The 696-test result remains
-evidence for runtime code `9d7e8cf`; it predates the new scanner layout cases
-recorded below and does not establish Android hardware, Azure deployment, or a
-release build.
+Later commits added PC widget-test coverage and, in local commit `a9b972d`, an
+accessible theme text adjustment. The 696-test result remains evidence for
+runtime code `9d7e8cf`; it predates the scanner layout and theme changes recorded
+below and does not establish Android hardware, Azure deployment, or a release
+build.
 
 A focused PC accessibility/layout run then passed **71 tests** serially on the
 documentation-only branch head `ac1d55d`:
@@ -111,6 +111,27 @@ flutter test --no-pub --concurrency=1 --reporter=compact \
   test/parcel_outcome_pages_test.dart test/parcel_finder_pages_test.dart \
   test/settings_pages_test.dart test/trips_pages_test.dart \
   test/waybill_scanner_android_test.dart
+```
+
+Two further serial PC runs passed **129 core/responsive tests** and **80
+map/navigation tests** on the same theme revision. Together with the 94 tests
+above, these are **303 tests across disjoint selected suites**, not a complete
+app coverage claim. All used one Flutter test worker and no device or emulator.
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact \
+  test/auth_preview_test.dart test/onboarding_test.dart \
+  test/workspace_pages_test.dart test/messages_pages_test.dart \
+  test/home_overview_test.dart test/stop_mode_test.dart \
+  test/settings_layout_test.dart test/rider_surface_test.dart
+```
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact \
+  test/native_delivery_map_test.dart test/leaflet_delivery_map_test.dart \
+  test/navigation_banner_test.dart test/navigation_test.dart \
+  test/navigation_lifecycle_test.dart test/rider_map_refinement_test.dart \
+  test/philippines_map_test.dart
 ```
 
 Live GitHub refs checked November 1 before this follow-up: Rider `main` is

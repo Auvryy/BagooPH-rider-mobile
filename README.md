@@ -124,11 +124,11 @@ no phone, ADB, emulator or visible app. Since then, focused PC accessibility
 suites passed **71 core-flow**, **145 extended-page** and **23 motion/high-
 contrast** tests; the updated scanner widget file passed **3/3**, including two
 new responsive cases. `flutter analyze --no-pub` is also clean after those test
-changes. A later 94-test PC pass covered theme contrast thresholds and Home,
-notification, handover, cash, company, parcel, settings, Trips and scanner
-flows. The red text token now meets 4.5:1 on the brand tint. Grayscale and
-physical display checks remain open. No device was used. Runtime changes are
-limited to theme text tokens. Exact commands, revisions, skip reasons,
+changes. Three serial PC batches passed 303 selected theme, status, responsive,
+and map/navigation tests on the current theme. The red text token now meets
+4.5:1 on the brand tint. Grayscale and physical display checks remain open; no
+device was used. Runtime changes are limited to theme text tokens. Exact
+commands, revisions, skip reasons,
 APK evidence and remaining gates are in
 [verification and readiness](docs/VERIFICATION_AND_READINESS.md).
 

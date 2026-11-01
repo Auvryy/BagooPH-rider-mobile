@@ -9,16 +9,19 @@ recipient/proof and version-two handover source fixes are on branch
 focused backend suite and the Rider's pinned native Wallet consumer test passed.
 Azure deployment and phone acceptance are still pending.
 
-**Current branch-head PC regression (November 1):** local Rider checkout
-`38e25cf`; runtime code `9d7e8cf`; latest test-source change `514e1cc` (Android
-scanner callback simulation). The full serial Flutter suite
-passed **696 tests with 7 skips and zero failures** in 8m10s using
+**Full serial PC regression (November 1, historical test checkout):** Rider
+revision `38e25cf`; runtime code `9d7e8cf`; latest test-source change at that
+checkout `514e1cc` (Android scanner callback simulation). The full serial
+Flutter suite passed **696 tests with 7 skips and zero failures** in 8m10s using
 `flutter test --no-pub --concurrency=1 --reporter=compact test`.
 `flutter analyze --no-pub` reported no issues in 11.1s. This PC run did not
 touch a phone or emulator. The earlier 695-test run at `54d56f2` is superseded.
-Later local commits only refreshed documentation; they did not change the
-tested Dart/runtime/test sources. The recorded pass count belongs to checkout
-`38e25cf`, and later docs updates remain unpublished.
+The 696-test result belongs to checkout `38e25cf`; later documentation and
+accessibility-test commits do not change its tested runtime code. This follow-up
+adds PC-only scanner layout coverage, 145 extended page tests and 23 motion/
+high-contrast tests; see [verification evidence](VERIFICATION_AND_READINESS.md).
+Android TalkBack, grayscale, physical-device, Azure and staging acceptance
+remain separate.
 
 The map/privacy runtime code at `9d7e8cf` and test-only revision `039d40d`
 passed six focused PC checks, including 320 px Home/Stop Mode layouts at 200%
@@ -29,15 +32,18 @@ integrity, package-metadata, APK v2 debug-signature and embedded-disclosure
 checks; it was not installed. See [Android release packaging](ANDROID_RELEASE.md)
 and the [rehearsal record](plans/rider-workflow-recovery/REHEARSAL.md).
 
-**Current live refs (November 1):** Rider `main` is `4367331`, the published
-defense branch is `514e1cc`, and test checkout `38e25cf` is one local
-documentation-only commit ahead of the published branch and 44 commits ahead,
-0 behind main. The earlier branch-ref check at `54d56f2` was 41 commits ahead,
-0 behind main. The proof recovery and Trips viewer PC suites have since
-passed **20/20** at Rider revision `cbd6b21`; simulated picker and widget tests do not
-establish physical phone behavior. The parcel command/workflow/outcome suites
-also passed **42/42** at `3839de6`, including simulated exact replay and
-large-text phone-width forms. A headless Rider-to-kernel scenario passed **1/1**
+**Live refs checked November 1 before the current accessibility follow-up:**
+Rider `main` is `4367331`; the published defense branch is `4f6a85d`, synced to
+its GitHub ref and 50 commits ahead, 0 behind `main`. At the original test
+checkout, `38e25cf` was one documentation-only commit ahead of the then-published
+`514e1cc` and 44 commits ahead, 0 behind `main`. The current accessibility
+follow-up adds tests and evidence without changing runtime code. The proof
+recovery and Trips viewer PC suites have since passed **20/20** at Rider
+revision `cbd6b21`;
+simulated picker and widget tests do not establish physical phone behavior.
+The parcel command/workflow/outcome suites also passed **42/42** at `3839de6`,
+including simulated exact replay and large-text phone-width forms. A headless
+Rider-to-kernel scenario passed **1/1**
 against Bagoo `9e58312`, covering COD replay and proof retention plus failed
 return and foreign denial. Physical phone acceptance remains deferred.
 

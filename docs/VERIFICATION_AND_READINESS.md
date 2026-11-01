@@ -2,18 +2,19 @@
 
 **Current status — November 1, 2026.** The scores and starter-screen statements
 below describe the October 5 planning snapshot, not current Rider behavior.
-The latest full PC regression ran at test checkout `38e25cf` on
-`fix/rider-route-privacy-disclosure`. Runtime code is `9d7e8cf`; the latest
-test-source change is `514e1cc` (Android scanner callback simulation).
-`flutter test --no-pub --concurrency=1 --reporter=compact test` passed **696
-tests with 7 skips and zero failures** in 8m10s. `flutter analyze --no-pub`
-reported no issues in 11.1s. No phone, ADB, emulator, install, or app window was
-used.
+The full serial PC regression ran at historical test checkout `38e25cf` on
+`fix/rider-route-privacy-disclosure`. Runtime code was `9d7e8cf`; the latest
+test-source change at that checkout was `514e1cc` (Android scanner callback
+simulation). `flutter test --no-pub --concurrency=1 --reporter=compact test`
+passed **696 tests with 7 skips and zero failures** in 8m10s.
+`flutter analyze --no-pub` reported no issues in 11.1s. No phone, ADB,
+emulator, install, or app window was used.
 
-Documentation-only commits followed that test checkout, including `cf99ac6`;
-the branch-head evidence refresh did not change Dart, runtime, or test sources.
-The 696-test result therefore remains evidence for the current code/test tree,
-not for Android hardware, Azure deployment, or a release build.
+Later local commits refreshed documentation; this accessibility follow-up adds
+PC widget-test coverage but no runtime changes. The 696-test result remains
+evidence for runtime code `9d7e8cf`; it predates the new scanner layout cases
+recorded below and does not establish Android hardware, Azure deployment, or a
+release build.
 
 A focused PC accessibility/layout run then passed **71 tests** serially on the
 documentation-only branch head `ac1d55d`:
@@ -35,12 +36,68 @@ subset, not a complete accessibility audit: Android TalkBack/focus behavior,
 physical-device review, and staging acceptance remain open. No phone, ADB,
 emulator, install, or app window was used.
 
-Live GitHub refs queried November 1: Rider `main` is `4367331`, and the published
-defense branch is `514e1cc`. At the test checkout, local `38e25cf` was one
-documentation-only commit ahead of that published branch and 44 commits ahead,
-0 behind Rider `main`. Bagoo `main` is `f001d39`; its Wallet/handover source
-branch `9e58312` is 2 commits ahead, not merged or deployment evidence. Current
-focused evidence also includes 42 command/workflow/outcome tests at `3839de6`,
+An expanded serial PC run passed **145 tests** across the remaining selected
+production-page suites at branch head `4f6a85d`:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact \
+  test/auth_preview_test.dart \
+  test/onboarding_test.dart \
+  test/workspace_pages_test.dart \
+  test/settings_layout_test.dart \
+  test/settings_pages_test.dart \
+  test/messages_pages_test.dart \
+  test/notifications_pages_test.dart \
+  test/cash_pages_test.dart \
+  test/rider_financial_summary_test.dart \
+  test/handover_pages_test.dart \
+  test/parcel_outcome_pages_test.dart \
+  test/parcel_workflow_test.dart \
+  test/company_pages_test.dart \
+  test/task_payment_instruction_test.dart \
+  test/waybill_scanner_android_test.dart
+```
+
+After adding scanner layout assertions, its updated widget file passed **3/3**
+tests, including 320×568 at 200% text and 430×932 at normal text with simulated
+safe-area insets. The fake Android camera platform verifies the 48-pixel Cancel
+control's accessible name/actions and that wrong-waybill feedback is announced
+as a live region.
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact \
+  test/waybill_scanner_android_test.dart
+```
+
+A targeted reduced-motion/high-contrast run passed **23 tests**:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact \
+  test/rider_surface_test.dart \
+  test/home_dashboard_test.dart \
+  test/app_theme_test.dart
+```
+
+Across the selected runs, **241 distinct PC test cases** passed; the count is
+not a coverage percentage. The checks include
+320–430 pixel layouts, 200% text, modeled keyboard/safe-area insets, selected
+48-pixel targets, named/focusable/tappable semantics, scanner live-region
+feedback, reduced-motion behavior and the high-contrast theme. Grayscale
+acceptance and full screen-reader order are not established. These fixture and
+widget checks do not replace Android TalkBack, physical permission/camera and
+device-layout review, or staging acceptance. This remains partial M16.07
+verification; the whole-app accessibility card remains open.
+
+After these test additions, `flutter analyze --no-pub` reported no issues.
+
+Live GitHub refs checked November 1 before this follow-up: Rider `main` is
+`4367331`; the published defense branch is `4f6a85d`, synced to that remote
+ref and 50 commits ahead, 0 behind `main`. At the original full-test checkout,
+`38e25cf` was one documentation-only commit ahead of the then-published
+`514e1cc` and 44 commits ahead, 0 behind Rider `main`. Bagoo `main` was
+`f001d39`; its Wallet/handover source branch `9e58312` was 2 commits ahead,
+not merged or deployment evidence. Other focused evidence includes 42
+command/workflow/outcome tests at `3839de6`,
 20 proof-recovery/Trips tests at `cbd6b21`, 20 Parcel Finder tests at `d42c948`,
 six map-disclosure checks at `9d7e8cf`/`039d40d`, and one headless Rider-to-kernel
 scenario at `6a0ab47` against Bagoo `9e58312`. The arm64 profile APK for runtime

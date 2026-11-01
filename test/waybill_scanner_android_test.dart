@@ -86,6 +86,105 @@ void main() {
       }
     },
   );
+
+  for (final (size, scale) in [
+    (const Size(320, 568), 2.0),
+    (const Size(430, 932), 1.0),
+  ]) {
+    testWidgets(
+      'scanner controls and live feedback fit $size at ${scale}x text',
+      (tester) async {
+        tester.view.physicalSize = size;
+        tester.view.devicePixelRatio = 1;
+        tester.view.viewPadding = const FakeViewPadding(
+          top: 24,
+          bottom: 34,
+          left: 8,
+          right: 8,
+        );
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        addTearDown(tester.view.resetViewPadding);
+
+        final previousScannerPlatform = MobileScannerPlatform.instance;
+        final previousTargetPlatform = debugDefaultTargetPlatformOverride;
+        final scannerPlatform = FakeAndroidScannerPlatform();
+        debugDefaultTargetPlatformOverride = TargetPlatform.android;
+        MobileScannerPlatform.instance = scannerPlatform;
+        final semantics = tester.ensureSemantics();
+        try {
+          await tester.pumpWidget(
+            MaterialApp(
+              builder: (context, child) => MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  textScaler: TextScaler.linear(scale),
+                  disableAnimations: true,
+                ),
+                child: child!,
+              ),
+              home: Builder(
+                builder: (context) => Scaffold(
+                  body: Center(
+                    child: TextButton(
+                      onPressed: () => Navigator.of(context).push<String>(
+                        MaterialPageRoute(
+                          builder: (_) => const WaybillScannerPage(
+                            expectedWaybill: 'BGO-SELECTED-LONG-1234567890',
+                          ),
+                        ),
+                      ),
+                      child: const Text('Open scanner'),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+          await tester.tap(find.text('Open scanner'));
+          await tester.pumpAndSettle();
+          expect(find.text('BGO-SELECTED-LONG-1234567890'), findsOneWidget);
+
+          final cancel = find.widgetWithText(OutlinedButton, 'Cancel scan');
+          await tester.ensureVisible(cancel);
+          await tester.pumpAndSettle();
+          expect(tester.getSize(cancel).height, greaterThanOrEqualTo(48));
+          expect(
+            tester.getSemantics(cancel),
+            matchesSemantics(
+              isButton: true,
+              isEnabled: true,
+              hasEnabledState: true,
+              isFocusable: true,
+              label: 'Cancel scan',
+              hasTapAction: true,
+              hasFocusAction: true,
+            ),
+          );
+
+          const notice =
+              'That waybill belongs to another parcel. Scan the selected parcel.';
+          scannerPlatform.addCapture(
+            const BarcodeCapture(
+              barcodes: [Barcode(rawValue: 'BGO-OTHER-456')],
+            ),
+          );
+          await tester.pumpAndSettle();
+          final noticeData = tester
+              .getSemantics(find.text(notice))
+              .getSemanticsData();
+          expect(noticeData.flagsCollection.isLiveRegion, isTrue);
+          expect(tester.takeException(), isNull);
+        } finally {
+          await tester.pumpWidget(const SizedBox.shrink());
+          await tester.pump();
+          semantics.dispose();
+          MobileScannerPlatform.instance = previousScannerPlatform;
+          debugDefaultTargetPlatformOverride = previousTargetPlatform;
+          await scannerPlatform.dispose();
+        }
+      },
+    );
+  }
 }
 
 class FakeAndroidScannerPlatform extends MobileScannerPlatform {

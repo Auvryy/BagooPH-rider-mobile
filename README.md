@@ -118,13 +118,15 @@ APK alone does not establish device, deployment or cross-role acceptance.
 
 ## Verification
 
-The latest full PC regression passed **696 tests with 7 expected skips and zero
-failures**, and `flutter analyze --no-pub` reported no issues. That run used one
-Flutter test worker and did not access a phone, ADB, emulator or visible app.
-Its exact test revision, skip reasons, APK evidence and remaining gates are in
-[verification and readiness](docs/VERIFICATION_AND_READINESS.md). The recorded
-test checkout is earlier than the current documentation-only commits; no later
-Dart/runtime/test changes are claimed.
+The full PC regression passed **696 tests with 7 expected skips and zero
+failures** at historical checkout `38e25cf`, with one Flutter test worker and
+no phone, ADB, emulator or visible app. Since then, focused PC accessibility
+suites passed **71 core-flow**, **145 extended-page** and **23 motion/high-
+contrast** tests; the updated scanner widget file passed **3/3**, including two
+new responsive cases. `flutter analyze --no-pub` is also clean after those test
+changes. No runtime Dart code changed. Exact commands, revisions, skip reasons,
+APK evidence and remaining gates are in
+[verification and readiness](docs/VERIFICATION_AND_READINESS.md).
 
 Run the serial checks individually to keep resource use bounded:
 

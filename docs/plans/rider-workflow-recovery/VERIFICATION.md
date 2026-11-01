@@ -95,3 +95,16 @@ exited 0 with no issues. Both commands ran on the PC; no phone or emulator was
 used. This recheck supersedes the earlier full-suite total above. It does not
 replace the separate Azure, cross-role, release-signing, or physical Android
 acceptance gates.
+
+The isolated company consumer check also passed **1/1** in 50 seconds using
+Rider source revision `9886648` against Bagoo commit `9e58312`:
+
+```sh
+node tool/parcel_local_api/run.mjs ../bagoo company 9e58312
+```
+
+The runner used the committed backend snapshot, SQLite `:memory:` and a
+headless Dart client. It verified uncertain-request replay with the original
+key, stale-offer rejection, exact acceptance/placement, duty remaining off, and
+no delivery checkpoint or COD account. The Bagoo worktree remained read-only;
+this check did not contact Azure or use a phone.

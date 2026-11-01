@@ -109,9 +109,9 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    accuracy, or user satisfaction; claim gains only if a separate field study
    supports them.
 5. **Evidence and limits — 60 seconds.** The serial Flutter suite passed 693
-   tests with 7 skips, analysis reported no issues, and the isolated headless
-   parcel check passed 1/1. The available APK is a debug build. These checks do
-   not establish a signed release, Azure deployment, cross-role production
+   tests with 7 skips, analysis reported no issues, and isolated parcel and
+   company API checks passed. The available APK is a debug build. These checks
+   do not establish a signed release, Azure deployment, cross-role production
    behavior, or physical Android camera/lifecycle acceptance.
 
 ### Likely questions
@@ -157,6 +157,10 @@ evidence, not as an accepted live phone demonstration.
 - The full serial Flutter suite passed **693 tests with 7 skips** at Rider
   source revision `f9dd4cf`; analysis reported no issues. The separate headless
   parcel check passed **1/1** against Bagoo `9e58312`.
+- The isolated company API check passed **1/1** against Bagoo `9e58312` in 50
+  seconds. It used SQLite `:memory:` and a headless Dart client, verifying
+  uncertain-request replay, stale-offer rejection, exact consent/placement,
+  duty still off, and no delivery checkpoint or COD account.
 - The focused photo-recovery suite passed **7/7** at Rider head `f17309c`. It
   covers scoped restart and lost-picker handling with a simulated picker, not
   physical Android lifecycle behavior.

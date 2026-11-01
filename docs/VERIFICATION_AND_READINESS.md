@@ -11,7 +11,13 @@ worker. The focused photo-recovery and parcel-outcome suites passed **19/19**;
 `flutter analyze --no-pub` reported no issues in 6.3s. On November 2, fresh
 arm64 debug and profile APKs were built from branch head `94d2aaf` (runtime
 `30412ed`) and passed PC archive, metadata, arm64-content and APK v2 signature
-checks; neither was installed. No phone, ADB, emulator, or app window was used.
+checks; neither was installed. The same-config fake-server activation test
+passed **2/2**, verifying duty and pickup-claim UI/flow gating without live
+writes. No phone, ADB, emulator, or app window was used.
+An unauthenticated, read-only request to the deployed Rider Home endpoint
+returned HTTP 401 JSON with `no-store, private` and `no-cache` headers and no
+redirect. It confirms endpoint response/auth behavior only, not sign-in or a
+live rider transaction.
 This is PC-only evidence: Android picker process-death behavior, Azure
 deployment, production cross-role acceptance, approved release identity and
 signing remain open. See [Android release packaging](ANDROID_RELEASE.md).

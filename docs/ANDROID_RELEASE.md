@@ -22,6 +22,32 @@ Gradle emitted a nonfatal warning that the installed Android tools understand
 SDK XML through version 3 while the SDK metadata uses version 4; both builds
 completed successfully.
 
+The local build file set only `OPERATIONS_WRITES_VERIFIED=true`; it supplied no
+API override or local-auth flag. `AppConfig` therefore uses the default deployed
+HTTPS API, whose string is present in both compiled APK payloads. Under the
+accepted [HDB-05 profile](plans/home-dashboard-branch-plan/HDB-05-EVIDENCE.md),
+that flag enables duty and pickup claims only. Parcel, paid delivery, cash,
+messages, notifications and handover write gates remain false. This confirms
+build configuration, not current service availability or live transaction
+acceptance. Use only an approved rider and isolated owned resources for any
+future live rehearsal.
+
+The build-profile activation test passed **2/2** serially with the same local
+configuration. Its fake server confirms the duty control and pickup-claim
+follow-up behavior; it does not send requests to the deployed API:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact \
+  --dart-define-from-file=.env.rider.json \
+  test/operations_activation_test.dart
+```
+
+On November 2, a PC read-only request to `/api/v1/rider/home` returned HTTP
+401 JSON without a redirect, with `Cache-Control: no-store, private` and
+`Pragma: no-cache`. This confirms the deployed HTTPS route responds and keeps
+the unauthenticated response private; it does not test sign-in, an approved
+account, or operational commands.
+
 ## Current arm64 debug review APK
 
 At Rider branch head `94d2aaf` (runtime `30412ed`), this PC-only build produced

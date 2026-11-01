@@ -20,7 +20,14 @@ and did not touch a phone, ADB, emulator, install, or app window. On November 2,
 arm64 debug and profile APKs were rebuilt from branch head `94d2aaf` (runtime
 `30412ed`) and passed PC archive, metadata, arm64-content and APK v2 signature
 checks. Neither was installed; both retain the scaffold ID and Android Debug
-signing. See [Android release evidence](ANDROID_RELEASE.md).
+signing. They use the default deployed HTTPS API; the accepted operations gate
+enables duty and pickup claims only, with other write gates still false. See
+[Android release evidence](ANDROID_RELEASE.md) and
+[HDB-05 acceptance](plans/home-dashboard-branch-plan/HDB-05-EVIDENCE.md).
+The same-config fake-server activation test passed **2/2** without network
+requests.
+An unauthenticated PC GET to Rider Home returned 401 JSON with private/no-cache
+headers and no redirect; no credentials or command writes were sent.
 The earlier full run at historical checkout `38e25cf` passed
 696 tests in 8m10s; the 695-test run at `54d56f2` is superseded. Focused PC
 checks also include scanner layout coverage, 145 extended page tests and 23

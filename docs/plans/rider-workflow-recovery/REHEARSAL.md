@@ -132,6 +132,13 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    and profile APKs were built from branch head `94d2aaf` (runtime `30412ed`)
    and passed PC archive, metadata, arm64-content and APK v2 signature checks;
    neither was installed. Both use the scaffold ID and Android Debug signing.
+   Their build profile uses the default deployed HTTPS API and enables only the
+   HDB-05 accepted duty/pickup-claim writes; parcel, cash and other write gates
+   remain false. The same-config fake-server activation test passed **2/2**
+   without network requests; this is configuration evidence, not a live
+   transaction check.
+   An unauthenticated PC GET to Rider Home returned 401 JSON with private/no-cache
+   headers and no redirect; no credentials or command writes were sent.
    A separate headless Rider client scenario passed against the pinned Bagoo kernel,
    including lost-response recovery, paid COD
    completion, cash separation, retained private proof and failed-return /
@@ -267,7 +274,9 @@ evidence, not as an accepted live phone demonstration.
   `60048103e9969765b7ec3237957a6bca45d368ce850cbd6c29d14645ba6e9d23`.
   Archive integrity, package/version/SDK metadata, debuggable state, arm64
   engine/kernel contents and the single-signer APK v2 signature passed PC
-  checks. It was not installed; see [packaging evidence](../../ANDROID_RELEASE.md).
+  checks. Its build enables only the accepted duty/pickup-claim writes; the
+  other operational write gates remain false. It was not installed; see
+  [packaging evidence](../../ANDROID_RELEASE.md).
 - At the GitHub ref fetch immediately before the November 1 rehearsal refresh,
   Rider `main` was `4367331`; the published defense branch was `3e6131c`, 57
   commits ahead and 0 behind. The 699-test run was at `fc99a02`; its runtime is

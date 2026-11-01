@@ -7,8 +7,10 @@ M01/M07/M11/M14/M15/M16 without clearing operational gates. Bagoo's Wallet
 recipient/proof and version-two handover source fixes are on branch
 `fix/rider-wallet-trip-evidence`; its focused backend suite and the Rider's
 pinned native Wallet consumer test passed. Azure deployment and phone acceptance
-are still pending. Analysis, 691 Flutter tests and Linux/Android debug builds
-passed on PC; six expected tests remain skipped and phone acceptance is deferred.
+are still pending. The latest serial full Flutter suite at Rider commit
+`866342f` passed 692 tests; six expected tests remain skipped. Analysis and the
+previously recorded Linux/Android debug builds passed on PC; phone acceptance
+is deferred.
 
 **November 1 COD compatibility follow-up:** Rider commit `41f0fda` also fixes
 UUID parsing for backend rider shifts and updates the version-two COD native

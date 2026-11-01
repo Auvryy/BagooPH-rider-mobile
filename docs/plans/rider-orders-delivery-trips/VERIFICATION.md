@@ -4,6 +4,22 @@ October 18, 2026 · branch `feat/rider-orders-delivery-trips` · base `3c68857`.
 This records implemented client behavior and its evidence. Controlled Azure and
 physical Android acceptance remain unfinished parts of the selected objective.
 
+## November 1 branch regression recheck
+
+At Rider commit `866342f` on `fix/rider-workflow-recovery`, the serial Flutter
+unit/widget/transport suite passed **692 tests**, with six skips, and exited 0.
+`flutter analyze --no-pub` and targeted analysis of
+`integration_test/parcel_local_api_test.dart` reported no issues. Commands:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact test
+flutter analyze --no-pub
+dart analyze integration_test/parcel_local_api_test.dart
+```
+
+This recheck did not run native integration, Azure, physical Android or deployed
+cross-role acceptance. Their separate evidence and gates below remain unchanged.
+
 ## Passed local checks
 
 | Check | Result |

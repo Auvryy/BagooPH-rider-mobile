@@ -34,6 +34,22 @@ was not installed or exercised on a phone.
 This recheck did not run native integration, Azure, physical Android or deployed
 cross-role acceptance. Their separate evidence and gates below remain unchanged.
 
+## November 1 full PC regression on the defense branch
+
+At pushed Rider branch `fix/rider-trips-completion-copy` (`d7a44f6`), the full
+serial Flutter unit/widget/transport suite passed **693 tests with 7 skips**;
+`flutter analyze --no-pub` reported no issues. Commands:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact test
+flutter analyze --no-pub
+```
+
+The additional skip is the opt-in local-kernel test when its isolated runner
+configuration is absent. The seven skips do not include live Azure or physical
+Android checks. The separate `parcel-headless` run above supplies its own
+client-to-kernel evidence. No phone or desktop app window was used.
+
 A separate focused headless PC check passed **1/1** against Bagoo commit
 `9e58312`. It ran with the exact pinned source:
 

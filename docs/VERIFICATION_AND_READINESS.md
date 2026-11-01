@@ -2,23 +2,31 @@
 
 **Current status — November 1, 2026.** The scores and starter-screen statements
 below describe the October 5 planning snapshot, not current Rider behavior.
-At the branch ref check for the full test run, defense branch
-`fix/rider-route-privacy-disclosure` was at `54d56f2`, 41 commits ahead and 0
-behind Rider `main` `4367331`. Later commits add documentation and PC regression
-evidence; runtime code remains at
-`9d7e8cf`. At Rider revision `54d56f2`, the full serial Flutter suite passed
-695 tests with 7 skips in 11m49s. Current focused evidence includes 42
-command/workflow/outcome tests at `3839de6`, 20 proof-recovery/Trips tests at
-`cbd6b21`, 20 Parcel Finder tests at `d42c948`, six map-disclosure checks at
-`9d7e8cf`/`039d40d`, and one headless Rider-to-kernel scenario at `6a0ab47`
-against Bagoo `9e58312`. The arm64 profile APK for runtime code `9d7e8cf` passed
-archive, package-metadata, v2 debug-signature and embedded-disclosure checks. It
-was not installed. See the [current rehearsal
-and acceptance record](plans/rider-workflow-recovery/REHEARSAL.md), [selected
-workflow verification](plans/rider-workflow-recovery/VERIFICATION.md), and
-[Android packaging record](ANDROID_RELEASE.md). These PC checks do not clear
-Azure, cross-role, release-signing, or physical Android acceptance; phone testing
-is deferred.
+The current full PC regression ran at local Rider checkout `38e25cf` on
+`fix/rider-route-privacy-disclosure`. Runtime code is `9d7e8cf`; the latest
+test-source change is `514e1cc` (Android scanner callback simulation).
+`flutter test --no-pub --concurrency=1 --reporter=compact test` passed **696
+tests with 7 skips and zero failures** in 8m10s. `flutter analyze --no-pub`
+reported no issues in 11.1s. No phone, ADB, emulator, install, or app window was
+used.
+
+Live GitHub refs queried November 1: Rider `main` is `4367331`, and the published
+defense branch is `514e1cc`. At the test checkout, local `38e25cf` was one
+documentation-only commit ahead of that published branch and 44 commits ahead,
+0 behind Rider `main`. Bagoo `main` is `f001d39`; its Wallet/handover source
+branch `9e58312` is 2 commits ahead, not merged or deployment evidence. Current
+focused evidence also includes 42 command/workflow/outcome tests at `3839de6`,
+20 proof-recovery/Trips tests at `cbd6b21`, 20 Parcel Finder tests at `d42c948`,
+six map-disclosure checks at `9d7e8cf`/`039d40d`, and one headless Rider-to-kernel
+scenario at `6a0ab47` against Bagoo `9e58312`. The arm64 profile APK for runtime
+code `9d7e8cf` passed archive, package-metadata, v2 debug-signature and embedded-
+disclosure checks; it was not installed. The current PC environment has no
+`RIDER_APPLICATION_ID`, `android/key.properties`, or default release keystore.
+See the [current rehearsal and acceptance record](plans/rider-workflow-recovery/REHEARSAL.md),
+[selected workflow verification](plans/rider-workflow-recovery/VERIFICATION.md),
+and [Android packaging record](ANDROID_RELEASE.md). Azure, cross-role,
+release-signing, and physical Android acceptance remain open; phone testing is
+deferred.
 
 ## Readiness is evidenced behavior
 

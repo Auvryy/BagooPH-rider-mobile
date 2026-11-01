@@ -261,14 +261,32 @@ different rider. The Bagoo worktree was read-only and remained unchanged. This
 is local compatibility evidence only; it does not verify the deployed PHP
 upload stack, Azure, or physical Android behavior.
 
-## Current branch-head Flutter suite — November 1, 2026
+## Previous branch-head Flutter suite — November 1, 2026
 
 At Rider revision `54d56f2` on `fix/rider-route-privacy-disclosure`,
 `flutter test --no-pub --concurrency=1 --reporter=compact` completed with
 **695 passed, 7 skipped, and zero failures** in 11m49s. This ran on the PC with
-one worker; no phone or emulator was used. It supersedes the earlier full-suite
-totals recorded above. The dedicated headless Rider-to-kernel check is recorded
-separately because it requires its isolated loopback runner.
+one worker; no phone or emulator was used. The dedicated headless
+Rider-to-kernel check is recorded separately because it requires its isolated
+loopback runner. The latest full-suite result is recorded below.
+
+## Latest PC regression — November 1, 2026
+
+At local Rider test checkout `38e25cf` on
+`fix/rider-route-privacy-disclosure`, with runtime code `9d7e8cf` and scanner
+test change `514e1cc`, the full serial Flutter unit/widget/transport suite
+passed **696 tests with 7 skips and zero failures** in 8m10s. Command:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact test
+```
+
+`flutter analyze --no-pub` reported no issues in 11.1s. No phone, ADB,
+emulator, installation, or app window was used. These checks do not establish
+physical Android camera/lifecycle, Azure deployment, cross-role acceptance, or
+release signing. The seven skips are three opt-in redesign captures, the
+explicit API-variant case, the optional map benchmark, and two loopback API
+scenarios whose isolated fixture settings were absent.
 
 ## Android scanner callback simulation — November 1, 2026
 

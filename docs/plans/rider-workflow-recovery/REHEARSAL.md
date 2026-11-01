@@ -120,17 +120,17 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    operations remain shared. These checks do not measure delivery speed,
    accuracy, or user satisfaction; claim gains only if a separate field study
    supports them.
-5. **Evidence and limits — 60 seconds.** The full serial Flutter suite passed
-   695 tests with 7 skips at Rider revision `54d56f2` in 11m49s. A separately
+5. **Evidence and limits — 60 seconds.** The latest full serial Flutter suite
+   passed 696 tests with 7 skips at test checkout `38e25cf` in 8m10s. A separately
    run headless Rider client scenario passed against the pinned
    Bagoo kernel, including lost-response recovery, paid COD completion, cash
    separation, retained private proof and failed-return/reassignment. Other
    focused evidence includes 42 command/workflow/outcome tests at `3839de6`,
    20 proof-recovery/Trips tests at `cbd6b21`, 20 Parcel Finder tests at
-   `d42c948`, and six map-disclosure checks at `9d7e8cf`/`039d40d`. Analysis
-   passed at runtime revision `9d7e8cf`. The profile APK from that runtime
-   revision passed PC archive, package, signing and disclosure checks but was
-   not installed. None of these checks establishes release signing, Azure
+   `d42c948`, and six map-disclosure checks at `9d7e8cf`/`039d40d`. Flutter
+   analysis passed at test checkout `38e25cf`. The profile APK built from
+   runtime code `9d7e8cf` passed PC archive, package, signing and disclosure
+   checks but was not installed. None of these checks establishes release signing, Azure
    deployment, cross-role production behavior, or physical Android
    camera/lifecycle acceptance.
 
@@ -187,11 +187,14 @@ evidence, not as an accepted live phone demonstration.
 
 ## Current PC evidence and open gates
 
-- The full serial Flutter suite passed **695 tests with 7 skips** at Rider
-  revision `54d56f2` in 11m49s. This is PC-only unit/widget evidence; the
-  physical Android gates remain open. `flutter analyze --no-pub` last reported
-  no issues at runtime revision `9d7e8cf`, and later commits changed tests and
-  documentation only.
+- The latest full serial Flutter suite passed **696 tests with 7 skips and zero
+  failures** at local Rider test checkout `38e25cf` in 8m10s. The runtime source
+  is `9d7e8cf`; the latest test-source change is `514e1cc`, which adds the
+  simulated Android scanner callback check. `flutter analyze --no-pub` found no
+  issues in 11.1s. This is PC-only unit/widget evidence; physical Android gates
+  remain open. The seven skips are three opt-in redesign captures, the explicit
+  API-variant case, the optional map benchmark, and two loopback API scenarios
+  whose isolated fixture settings were absent.
 - Runtime code at Rider revision `9d7e8cf` and test revision `039d40d` passed
   six focused PC checks serially: saved/sample map disclosures, default
   route-provider status, Google Maps handoff disclosure, and both notices at
@@ -235,15 +238,19 @@ evidence, not as an accepted live phone demonstration.
   debug signing. The manifest uses scaffold package ID
   `com.example.bagoo_rider_mobile`, min SDK 24 and target SDK 36. It was not
   installed or launched; see [packaging evidence](VERIFICATION.md).
-- At the build-verification checkpoint, GitHub refs were Rider defense branch
-  `e9fb7e3` and Rider `main` `4367331`; the branch was **34 commits ahead and 0
-  behind**. Later commits add the phone-size widget checks and update evidence;
-  they do not change runtime code. Bagoo web
-  `main` is `f001d396`; the Wallet/handover source branch `9e58312` is **2
-  commits ahead of main**, not merged or deployment evidence.
+- Live GitHub refs queried November 1 show Rider `main` at `4367331` and the
+  published defense branch at `514e1cc`. Local test checkout `38e25cf` was one
+  documentation-only commit ahead of the published branch and **44 commits
+  ahead, 0 behind** Rider `main`. Bagoo web `main` is `f001d396`; the
+  Wallet/handover source branch `9e58312` is **2 commits ahead of main**, not
+  merged or deployment evidence.
+- At an earlier build-verification checkpoint, the branch was recorded at
+  `e9fb7e3`, 34 commits ahead and 0 behind main. That is historical ref evidence.
 - A PC `--release` build request at `e0aa20e` stopped before artifact generation
-  because the approved package ID and local signing settings are absent. This
-  confirms fail-closed packaging; it does not produce a distributable APK.
+  because the approved package ID and local signing settings were absent. The
+  November 1 workspace check also found no `RIDER_APPLICATION_ID`,
+  `android/key.properties`, or default release keystore. This confirms the
+  release gate remains open; it does not produce a distributable APK.
 - Azure deployment/cross-role acceptance, approved release identity/signing,
   and physical Android lifecycle acceptance remain open. Keep the phone check
   deferred; PC evidence does not clear these gates.

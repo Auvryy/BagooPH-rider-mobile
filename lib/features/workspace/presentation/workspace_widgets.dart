@@ -46,10 +46,7 @@ class WorkspaceAvatar extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              RiderColors.accentGlow,
-              RiderColors.accent,
-            ],
+            colors: [RiderColors.accentGlow, RiderColors.accent],
           ),
           border: Border.all(color: Colors.white, width: 2.2),
           boxShadow: const [
@@ -225,7 +222,7 @@ class WebsiteButton extends ConsumerWidget {
       child: OutlinedButton.icon(
         onPressed: () async {
           final messenger = ScaffoldMessenger.of(context);
-          if (!await openRiderWebsite(ref, page)) {
+          if (!await openRiderWebsite(ref, page) && context.mounted) {
             messenger.showSnackBar(
               const SnackBar(
                 content: Text('Could not open the Rider website. Try again.'),

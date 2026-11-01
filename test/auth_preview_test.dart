@@ -1,5 +1,7 @@
 import 'support/onboarding_support.dart';
 
+import 'package:bagoo_rider_mobile/core/platform/rider_website.dart';
+
 import 'package:bagoo_rider_mobile/features/auth/presentation/widgets/auth_field.dart';
 import 'package:bagoo_rider_mobile/main.dart';
 import 'package:file_selector_platform_interface/file_selector_platform_interface.dart';
@@ -10,6 +12,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bagoo_rider_mobile/features/auth/presentation/auth_controller.dart';
 
 import 'support/test_auth_repository.dart';
+
+class _RecoveryLauncher implements WebsiteLauncher {
+  final opened = <Uri>[];
+  @override
+  Future<bool> open(Uri uri) async {
+    opened.add(uri);
+    return true;
+  }
+}
 
 Finder field(String label) => find.descendant(
   of: find.byWidgetPredicate(
@@ -26,6 +37,7 @@ Future<void> openApp(
   String route = '/',
   TestAuthRepository? repository,
   bool skipOnboarding = true,
+  WebsiteLauncher? launcher,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -41,6 +53,8 @@ Future<void> openApp(
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
+        if (launcher != null)
+          websiteLauncherProvider.overrideWithValue(launcher),
         authRepositoryProvider.overrideWithValue(
           repository ?? TestAuthRepository(),
         ),
@@ -104,13 +118,14 @@ void main() {
   testWidgets(
     'login links open registration and recovery without a fake account',
     (tester) async {
-      await openApp(tester);
+      final launcher = _RecoveryLauncher();
+      final repository = TestAuthRepository();
+      await openApp(tester, launcher: launcher, repository: repository);
       await tapVisible(tester, find.text('Forgot password?'));
-      expect(
-        find.textContaining('does not send recovery emails'),
-        findsOneWidget,
-      );
-      await tapVisible(tester, find.text('Back to preview'));
+      expect(launcher.opened.single.path, '/forgot-password');
+      expect(repository.loginCalls, 0);
+      expect(repository.registrationCalls, 0);
+      expect(find.text('Welcome back.'), findsOneWidget);
       await tapVisible(tester, find.byKey(const ValueKey('open-register')));
       expect(find.text('Let’s get to know you.'), findsOneWidget);
       await tapVisible(tester, find.byTooltip('Back to sign in'));

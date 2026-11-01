@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'support/cash_support.dart';
 
@@ -35,16 +36,18 @@ Future<void> mount(
   double scale = 2,
 }) async {
   await tester.pumpWidget(
-    MaterialApp(
-      theme: buildRiderTheme(),
-      builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(context).copyWith(
-          textScaler: TextScaler.linear(scale),
-          disableAnimations: true,
+    ProviderScope(
+      child: MaterialApp(
+        theme: buildRiderTheme(),
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(scale),
+            disableAnimations: true,
+          ),
+          child: RepaintBoundary(key: renderKey, child: child!),
         ),
-        child: RepaintBoundary(key: renderKey, child: child!),
+        home: CashPageView(controller: c, initialAccountId: id),
       ),
-      home: CashPageView(controller: c, initialAccountId: id),
     ),
   );
   await tester.pumpAndSettle();

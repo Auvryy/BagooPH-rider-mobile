@@ -9,6 +9,9 @@ enum RiderWebsitePage {
   messages('/messages'),
   profile('/profile'),
   settings('/account/settings'),
+  security('/account/security'),
+  cash('/cod'),
+  custodyRecovery('/custody-recovery'),
   recovery('/forgot-password');
 
   const RiderWebsitePage(this.path);

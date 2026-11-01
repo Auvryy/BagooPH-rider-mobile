@@ -263,3 +263,14 @@ At Rider revision `54d56f2` on `fix/rider-route-privacy-disclosure`,
 one worker; no phone or emulator was used. It supersedes the earlier full-suite
 totals recorded above. The dedicated headless Rider-to-kernel check is recorded
 separately because it requires its isolated loopback runner.
+
+## Android scanner callback simulation — November 1, 2026
+
+`flutter test --no-pub --concurrency=1 --reporter=compact test/waybill_scanner_android_test.dart`
+passed **1 test** using `mobile_scanner`'s fake platform with Flutter's target
+platform set to Android. A different parcel's scanned waybill stayed on the
+scanner and did not stop capture; the selected parcel's case/space-normalized
+waybill returned from the scanner and stopped it. This exercises the app's
+Android callback handling on the PC without opening the camera, phone, or
+emulator. It does not replace physical camera, permission, low-light, or device
+lifecycle acceptance.

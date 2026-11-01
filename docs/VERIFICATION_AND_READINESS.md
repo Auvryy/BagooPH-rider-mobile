@@ -36,7 +36,7 @@ must be recorded for the exact implementation slice.
 | Privacy | Another account/company/hub/task/proof/thread denied; list/page/detail agree; no tokens/KYC/proof paths/contact leaks in JSON, logs or cache | Resource/policy tests + consumer DTO review |
 | Duty | One explicit desired state; failed response does not fake a toggle; new claims stop off duty while existing actions remain | API tests + task-controller/widget checks |
 | Claim | Two simultaneous riders, capacity reached, stale cancellation, wrong hub/company/barangay, one winner, no double assignment | Isolated PostgreSQL concurrency + cross-role acceptance |
-| Pickup | Genuine matching/wrong/malformed waybill; correct assigned actor/phase; duplicate result; wrong hub; release before/after custody | Backend transaction tests + phone scanner + origin web intake |
+| Pickup | Genuine matching/wrong/malformed waybill; correct assigned actor/phase; duplicate result; wrong hub; release before/after custody | Backend transaction tests + Android fake-platform callback test + physical phone scanner + origin web intake |
 | Mother-Hub route | Same/cross-region required hubs, missing manifests/parcels, scoped handlers, no direct route shortcut | Backend logistics tests + real web handoffs in staging |
 | Departure | Only assigned final-mile rider and destination hub; wrong waybill/source state/actor denied | API tests + phone + destination web queue |
 | Delivery proof | Actual image and recipient evidence; exact COD; wrong MIME/oversize/cancel/denial/storage failure; double tap; lost response and same-key replay | Backend proof/idempotency + mobile controller + physical Android |

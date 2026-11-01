@@ -210,3 +210,26 @@ not evidence that Azure writes or phone behavior passed.
 is independent. No additional map key is needed. See the
 [operator/API checklist](../../api/ORDER_DELIVERY_TRIPS_NEEDS.md) and
 [testing procedure](TESTING.md); local success does not activate parcel writes.
+
+## Current Rider command and outcome PC recheck — November 1, 2026
+
+At Rider branch revision `3839de6` on `fix/rider-route-privacy-disclosure`,
+these focused suites passed serially: **42 tests, zero failures**.
+
+```sh
+flutter test --no-pub --concurrency=1 \
+  test/parcel_commands_test.dart \
+  test/parcel_workflow_test.dart \
+  test/parcel_outcome_pages_test.dart
+```
+
+The 18 command tests cover persist-before-dispatch, exact-key/body/proof
+recovery, result reconciliation, stale assignment denial, and exact COD
+received-minus-change. The 14 workflow tests cover pickup/departure refresh,
+uncertain-result blocking, duplicate-submit prevention, and access/payment
+changes. The 10 outcome-page tests cover paid Wallet and COD forms, required
+failure evidence, server rejection correction, and 320/840 px layouts at 200%
+text. These are local PC tests; they do not establish camera hardware, deployed
+API behavior, physical lifecycle handling, or the full-suite result at this
+revision. The latest documented full-suite run remains 693 passed and 7 skipped
+at the older revision `e0aa20e`.

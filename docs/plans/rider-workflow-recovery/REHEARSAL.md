@@ -5,11 +5,14 @@ deferred by the user. Keep this list open until its corresponding evidence exist
 
 ## Rider app versus phone-sized Courier website
 
-This source review compares the Rider app at `9886648` with the phone-responsive
-Courier portal on the live Bagoo `main` revision
+This source review compares Rider app source at `9886648` with the
+phone-responsive Courier portal on the live Bagoo `main` revision
 `f001d396b0e9ea6bfc2fdeb85ee24b66682b997e`. It covers the Courier website, not
 the Buyer app. It does not claim that either client was exercised in a real
-browser or on Android.
+browser or on Android. The Rider comparison snapshot was branch head `5c2e2a8`;
+it contains documentation updates after the reviewed app source and does not
+change that source. At that snapshot, the published Rider branch was 18 commits
+ahead and 0 behind Rider `main` at `4367331`.
 
 | Area | Rider app | Courier website on a phone | Defense-safe conclusion |
 |---|---|---|---|
@@ -63,6 +66,78 @@ Bagoo sources are pinned to [Courier Deliveries](https://github.com/Auvryy/Bagoo
 [notifications layout](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Layouts/NotificationLayout.tsx),
 and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Pages/Handover/Index.tsx).
 
+## Thesis defense talk track
+
+### Short spoken summary
+
+> BagooPH Rider Mobile is a native Flutter client for courier pickup and
+> final-mile work. It brings the rider's authorized task, next stop, scan, and
+> delivery evidence into a field-focused workflow. The backend remains the
+> authority for assignment, custody, order status, and cash records. The
+> phone-responsive Courier website already supports the shared business flows;
+> the app adds Stop Mode, session-only Parcel Finder labels, Android camera and
+> lifecycle integration, protected recovery of uncertain submissions, and
+> private proof viewing in Trips. The latest recorded PC checks passed, while
+> release signing, deployed cross-role acceptance, and physical Android
+> acceptance are still pending.
+
+### Four-minute explanation
+
+1. **Problem and scope — 30 seconds.** A rider needs to know which parcel they
+   are authorized to handle, what stop comes next, and what evidence is required.
+   This app serves the courier role; it is not a Buyer or hub application.
+2. **End-to-end responsibility — 50 seconds.** A rider may claim an available
+   seller pickup and record the actual scan. The origin hub records intake; the
+   destination hub assigns final-mile work. The assigned rider records recipient
+   handoff, proof, and exact COD when applicable. The server returns the order
+   status. Failed delivery keeps the rider responsible until the hub records
+   return; cash remittance remains a separate handoff.
+3. **Native contribution — 55 seconds.** Stop Mode gathers the authorized stop
+   details into one screen. Parcel Finder adds a personal compartment label that
+   clears with the app session and never changes server custody. The Android
+   client uses the native scanner lifecycle and protects the original request
+   and proof when a command outcome is uncertain. It does not claim full offline
+   delivery.
+4. **Relationship to web — 45 seconds.** Courier web already includes queues,
+   maps, camera scanning, proof upload, Trips/Earnings, Messages, notifications,
+   cash handovers, company requests, and handover issues. The thesis contribution
+   is the native field workflow and recovery behavior, not exclusive access to
+   these courier operations. These app checks do not measure delivery speed,
+   accuracy, or user satisfaction; claim gains only if a separate field study
+   supports them.
+5. **Evidence and limits — 60 seconds.** The serial Flutter suite passed 693
+   tests with 7 skips, analysis reported no issues, and the isolated headless
+   parcel check passed 1/1. The available APK is a debug build. These checks do
+   not establish a signed release, Azure deployment, cross-role production
+   behavior, or physical Android camera/lifecycle acceptance.
+
+### Likely questions
+
+- **What does the app add beyond the phone website?** The clearest user-facing
+  example is session-only Parcel Finder labels inside Stop Mode. Other
+  implementation additions include native camera lifecycle handling, protected
+  recovery of uncertain submissions, and private proof viewing in Trips. The
+  website also scans and uploads proof photos.
+- **Does delivery still work without internet?** No full offline delivery is
+  claimed. The journal retains the original uncertain request and proof so the
+  app can reconcile or retry that same operation when connectivity returns.
+- **Does the rider confirm that the buyer received the parcel?** The rider
+  records the handoff. The backend returns the applicable status; newer
+  flow-version orders may complete automatically. There is no separate
+  Rider-issued buyer-confirmation command.
+- **How do you know the app improves delivery performance?** The current
+  evidence verifies client behavior and selected isolated API flows. It does
+  not measure delivery speed, accuracy, or satisfaction; those gains require a
+  separate field study.
+- **Is it ready for a live Android defense demo?** PC review evidence is ready.
+  Release identity/signing, deployed cross-role acceptance, and physical Android
+  acceptance remain open; the debug APK is not a distributable release.
+
+Present device-dependent steps only after the approved account, isolated owned
+resources, deployment, and physical Android checks in the acceptance table are
+complete. Until then, describe them as implemented source behavior with PC
+evidence, not as an accepted live phone demonstration.
+
 ## Current PC evidence and open gates
 
 - The full serial Flutter suite passed **693 tests with 7 skips**; analysis
@@ -72,10 +147,10 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   SHA-256 `42ce7a5d1493fa60b9dee7b670094e5222b1ad67ed2d5771459053ffa0cbfae6`.
   It is a debug build, not a signed release, and was not installed or run on a
   phone.
-- Live GitHub refs were checked: Rider branch `9886648` is **17 ahead, 0 behind**
-  Rider `main` `4367331`. Bagoo web `main` is `f001d396`; the separate Wallet /
-  handover source branch `9e58312` is **2 ahead, 0 behind** and is not merged or
-  deployment evidence.
+- At the comparison snapshot, live GitHub refs showed Rider branch `5c2e2a8`
+  **18 ahead, 0 behind** Rider `main` `4367331`. Bagoo web `main` is `f001d396`;
+  the separate Wallet / handover source branch `9e58312` is **2 ahead, 0 behind**
+  and is not merged or deployment evidence.
 - Azure deployment/cross-role acceptance, approved release identity/signing,
   and physical Android lifecycle acceptance remain open. Keep the phone check
   deferred; PC evidence does not clear these gates.

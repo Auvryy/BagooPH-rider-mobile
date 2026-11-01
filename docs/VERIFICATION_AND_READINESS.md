@@ -88,11 +88,35 @@ widget checks do not replace Android TalkBack, physical permission/camera and
 device-layout review, or staging acceptance. This remains partial M16.07
 verification; the whole-app accessibility card remains open.
 
-After these test additions, `flutter analyze --no-pub` reported no issues.
+After the accessibility changes, `flutter analyze --no-pub` reported no issues.
+
+The follow-up contrast and status-cue check passed **94 targeted PC tests** in
+theme, Home, notifications, handover, cash, company, parcel, settings, Trips,
+and scanner suites. The source review found status text alongside color/icon
+cues for duty availability, notification read state, handover recovery,
+cash/company status, parcel feedback, and scanner errors. Theme tests enforce at
+least 4.5:1 for normal text on the checked light surfaces: the text-only
+crimson `#C20836` is 5.45:1 on the blended 8% brand tint; muted `#62626B` is
+5.78:1 on the app canvas; white on the unchanged brand fill `#E00D42` is
+4.88:1. PC color math does not establish actual grayscale or physical-display
+rendering, so that M16.07 gate remains open.
+
+The 94-test pass used this serial PC-only command:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact \
+  test/app_theme_test.dart test/home_dashboard_test.dart \
+  test/notifications_pages_test.dart test/handover_pages_test.dart \
+  test/cash_pages_test.dart test/company_pages_test.dart \
+  test/parcel_outcome_pages_test.dart test/parcel_finder_pages_test.dart \
+  test/settings_pages_test.dart test/trips_pages_test.dart \
+  test/waybill_scanner_android_test.dart
+```
 
 Live GitHub refs checked November 1 before this follow-up: Rider `main` is
-`4367331`; the published defense branch is `4f6a85d`, synced to that remote
-ref and 50 commits ahead, 0 behind `main`. At the original full-test checkout,
+`4367331`; the published defense branch is `2f8fc69`, synced to that remote
+ref and 51 commits ahead, 0 behind `main`. The current contrast follow-up is
+local and not yet published. At the original full-test checkout,
 `38e25cf` was one documentation-only commit ahead of the then-published
 `514e1cc` and 44 commits ahead, 0 behind Rider `main`. Bagoo `main` was
 `f001d39`; its Wallet/handover source branch `9e58312` was 2 commits ahead,

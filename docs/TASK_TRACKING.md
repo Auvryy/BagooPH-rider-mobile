@@ -20,6 +20,8 @@ The 696-test result belongs to checkout `38e25cf`; later documentation and
 accessibility-test commits do not change its tested runtime code. This follow-up
 adds PC-only scanner layout coverage, 145 extended page tests and 23 motion/
 high-contrast tests; see [verification evidence](VERIFICATION_AND_READINESS.md).
+The later contrast/status review adds an AA-readable brand text shade, readable
+muted text, and 94 targeted PC tests across the shared-theme consumer screens.
 Android TalkBack, grayscale, physical-device, Azure and staging acceptance
 remain separate.
 
@@ -32,12 +34,13 @@ integrity, package-metadata, APK v2 debug-signature and embedded-disclosure
 checks; it was not installed. See [Android release packaging](ANDROID_RELEASE.md)
 and the [rehearsal record](plans/rider-workflow-recovery/REHEARSAL.md).
 
-**Live refs checked November 1 before the current accessibility follow-up:**
-Rider `main` is `4367331`; the published defense branch is `4f6a85d`, synced to
-its GitHub ref and 50 commits ahead, 0 behind `main`. At the original test
-checkout, `38e25cf` was one documentation-only commit ahead of the then-published
-`514e1cc` and 44 commits ahead, 0 behind `main`. The current accessibility
-follow-up adds tests and evidence without changing runtime code. The proof
+**Live refs checked November 1 before the current local follow-up:** Rider
+`main` is `4367331`; the published defense branch is `2f8fc69`, synced to its
+GitHub ref and 51 commits ahead, 0 behind `main`. At the original test checkout,
+`38e25cf` was one documentation-only commit ahead of the then-published
+`514e1cc` and 44 commits ahead, 0 behind `main`. The current local accessibility
+follow-up adds an accessible theme text shade, tests and evidence; its new
+commit has not been published. The proof
 recovery and Trips viewer PC suites have since passed **20/20** at Rider
 revision `cbd6b21`;
 simulated picker and widget tests do not establish physical phone behavior.

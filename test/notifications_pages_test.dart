@@ -140,6 +140,7 @@ void main() {
           await tester.pumpWidget(app(h, scale: scale));
           await tester.pumpAndSettle();
           expect(find.text('3 unread notifications'), findsOneWidget);
+          expect(find.text('Unread'), findsWidgets);
           expect(h.api.calls.where((c) => c.method == 'POST'), isEmpty);
           await render(tester, 'inbox-${size.width.toInt()}-${scale}x');
           await tap(tester, 'notification-${noticeId(3)}');
@@ -175,6 +176,7 @@ void main() {
           await tester.tap(find.byTooltip('Back to notifications'));
           await tester.pumpAndSettle();
           expect(find.text('2 unread notifications'), findsOneWidget);
+          expect(find.text('Read'), findsOneWidget);
           expect(tester.takeException(), isNull);
           await tester.pumpWidget(const SizedBox.shrink());
         } finally {

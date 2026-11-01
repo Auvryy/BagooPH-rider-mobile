@@ -149,6 +149,7 @@ void main() {
     'off-duty riders retain their own task list and the sample is not a claim',
     (tester) async {
       final h = await openDashboard(tester, onDuty: false);
+      expect(find.text('Off duty'), findsOneWidget);
       await revealHome(
         tester,
         find.byKey(const ValueKey('task-queue-delivery')),

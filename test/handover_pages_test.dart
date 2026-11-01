@@ -110,6 +110,7 @@ void main() {
     (tester) async {
       final h = await openView(tester);
       await tap(tester, 'handover-issue-1');
+      expect(find.text('Recovery required'), findsOneWidget);
       expect(find.text('Reported observations'), findsOneWidget);
       expect(find.text('Recorded custody'), findsOneWidget);
       expect(find.text('Original: Custody not established'), findsOneWidget);

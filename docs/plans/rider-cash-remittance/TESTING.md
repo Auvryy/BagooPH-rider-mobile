@@ -32,11 +32,12 @@ cash reads/offers, original interrupted-request recovery/replay, independent
 owning hub HTTP receipts, a shortage, journal parity and denied foreign access.
 
 ```sh
-xvfb-run -a node tool/parcel_local_api/run.mjs ../bagoo cash
+xvfb-run -a node tool/parcel_local_api/run.mjs ../bagoo cash 9e58312d130809eb8cd878189b729f1f702291d8
 ```
 
 A virtual display keeps the native test off the active desktop. The runner
-requires the existing Composer development dependencies, PHP SQLite, Node and
+pins the current reviewed Wallet/handover source branch. It requires the
+existing Composer development dependencies, PHP SQLite, Node and
 Flutter/Linux toolchain with native secure storage. It restricts all state to
 SQLite `:memory:` and isolated files; the runtime is removed on exit. It cannot
 target Azure and does not read the ordinary rider's saved login or map key.

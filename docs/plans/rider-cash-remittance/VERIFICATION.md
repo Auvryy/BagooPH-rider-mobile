@@ -5,6 +5,23 @@ Selected October 22, 2026 from Rider main `a371e2e`; backend committed source
 read-only to this mobile task. Source compatibility, deployed acceptance and
 physical Android evidence are separate.
 
+## November 1 version-two compatibility follow-up
+
+- Rider commit `41f0fda` on `fix/rider-workflow-recovery` updates the cash
+  integration assertions for the current version-two contract and parses
+  backend rider-shift UUIDs instead of treating shift IDs as numeric. The
+  focused financial contract and summary tests passed (**8 tests**).
+- The reviewed Bagoo checkout's `main` and `origin/main` are at `f001d39`.
+  The pushed source branch `fix/rider-wallet-trip-evidence` is at `9e58312`,
+  two commits ahead of that main snapshot. Its default version-two delivery
+  records the order as `completed`/`paid`; COD remains held until a separate
+  hub receipt, and unreleased delivery earnings remain pending.
+- The isolated COD native scenario was pointed at immutable Bagoo revision
+  `9e58312` and stopped before a test result was produced after the user asked
+  not to interact with the desktop. The new assertions are committed, but
+  this run does **not** accept the native COD/hub-receipt scenario. No Azure
+  cash action or physical Android check was performed.
+
 ## Local implementation verified — October 22, 2026
 
 - `flutter analyze --no-pub`: no issues.

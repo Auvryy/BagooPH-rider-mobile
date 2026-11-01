@@ -158,8 +158,9 @@ evidence, not as an accepted live phone demonstration.
 ## Current PC evidence and open gates
 
 - The full serial Flutter suite passed **693 tests with 7 skips** at Rider
-  source revision `f9dd4cf`; analysis reported no issues. The separate headless
-  parcel check passed **1/1** against Bagoo `9e58312`.
+  source revision `e0aa20e` in 6 minutes 25 seconds; `flutter analyze --no-pub`
+  reported no issues at the same source revision. The separate headless parcel
+  check passed **1/1** against Bagoo `9e58312`.
 - The isolated company API check passed **1/1** against Bagoo `9e58312` in 50
   seconds. It used SQLite `:memory:` and a headless Dart client, verifying
   uncertain-request replay, stale-offer rejection, exact consent/placement,
@@ -172,20 +173,21 @@ evidence, not as an accepted live phone demonstration.
   keyboard activation, duplicate-save protection, and the owned Stop Mode flow.
   These are widget checks; physical Android layout and camera acceptance remain
   open.
-- A local arm64-targeted profile build produced
-  `build/app/outputs/flutter-apk/app-profile.apk` (**64,285,631 bytes**;
-  SHA-256
-  `625fa56617f1fd5ad3c41e9b5c822357dc6eafb4118bcb8df8c46511f5fb7da4`). APK
-  archive CRC and Android v2 debug signature verified. The package uses the
-  scaffold application ID; it was not installed or run on a phone.
-- The current debug APK is `build/app/outputs/flutter-apk/app-debug.apk`,
-  SHA-256 `42ce7a5d1493fa60b9dee7b670094e5222b1ad67ed2d5771459053ffa0cbfae6`.
-  It is a debug build, not a signed release, and was not installed or run on a
-  phone.
-- The latest fetched refs show Rider branch `4d4663d` **26 ahead, 0 behind** Rider
-  `main` `4367331`; local HEAD matches the published branch. Bagoo web `main` is
-  `f001d396`; the separate Wallet / handover source branch `9e58312` is **2 ahead,
-  0 behind** and is not merged or deployment evidence.
+- The arm64-targeted profile build at Rider revision `e0aa20e` produced
+  `build/app/outputs/flutter-apk/app-profile.apk` (**77,606,440 bytes**; SHA-256
+  `74b52c2bc2cdc3fcb965b829bcb9d3ffcbe51e9fef0b3229e5bbde950fafc84b`). The
+  archive integrity check passed. The artifact uses the scaffold application ID;
+  `apksigner verify` was unavailable because Java is missing from the PC shell's
+  PATH, so its signature is not independently verified. It was not installed or
+  run on a phone.
+- Live GitHub refs match Rider `main` `4367331` and published defense branch
+  `4d4663d`. Local Rider HEAD `e0aa20e` is **28 commits ahead of main** and **2
+  commits ahead of the published defense branch**; these commits are not pushed.
+  Bagoo web `main` is `f001d396`; the Wallet / handover source branch
+  `9e58312` is **2 commits ahead of main**, not merged or deployment evidence.
+- A PC `--release` build request at `e0aa20e` stopped before artifact generation
+  because the approved package ID and local signing settings are absent. This
+  confirms fail-closed packaging; it does not produce a distributable APK.
 - Azure deployment/cross-role acceptance, approved release identity/signing,
   and physical Android lifecycle acceptance remain open. Keep the phone check
   deferred; PC evidence does not clear these gates.

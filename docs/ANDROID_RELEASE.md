@@ -3,6 +3,9 @@
 Ordinary debug APK builds keep the existing scaffold application ID when no
 release ID is configured. Release APK/AAB packaging requires an approved package
 ID and a local signing key; the build never falls back to the Android debug key.
+At Rider revision `e0aa20e`, a PC release-build request stopped before artifact
+generation because the approved ID and all local signing settings were absent.
+This verifies the fail-closed guard; it is not release-build acceptance.
 
 ## Optional arm64-targeted defense preview
 
@@ -15,15 +18,18 @@ flutter build apk --profile --target-platform android-arm64 --dart-define-from-f
 ```
 
 The expected output is `build/app/outputs/flutter-apk/app-profile.apk`. The
-profile variant inherits debug signing, and this project uses the scaffold
-application ID unless an approved `RIDER_APPLICATION_ID` is supplied. A local
-build produced a 64,285,631-byte APK with SHA-256
-`625fa56617f1fd5ad3c41e9b5c822357dc6eafb4118bcb8df8c46511f5fb7da4`. The
-Flutter app and engine libraries target arm64, while some plugin libraries for
-other ABIs remain in the APK. The package ID is
-`com.example.bagoo_rider_mobile`, and its signature verifies with the Android
-debug certificate. This is a local preview, not a distributable release; no
-phone install or device acceptance is implied.
+profile variant uses debug signing, and this project uses the scaffold
+application ID unless an approved `RIDER_APPLICATION_ID` is supplied. The
+November 1, 2026 PC build at Rider revision `e0aa20e` produced a 77,606,440-byte
+APK with SHA-256
+`74b52c2bc2cdc3fcb965b829bcb9d3ffcbe51e9fef0b3229e5bbde950fafc84b`. Its
+merged manifest reports package `com.example.bagoo_rider_mobile`, min SDK 24,
+target SDK 36, version code 1 and version name `0.1.0`. Flutter's app library
+targets arm64; some plugin libraries for other ABIs remain in the APK. The APK
+archive integrity check passed. A fresh `apksigner verify` could not run because
+Java is not available on the PC shell's PATH, so this artifact's signature was
+not independently verified. This is a local preview, not a distributable
+release; it was not installed and does not establish Android device acceptance.
 
 ## Local configuration
 

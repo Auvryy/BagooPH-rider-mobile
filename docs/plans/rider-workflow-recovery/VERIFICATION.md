@@ -108,3 +108,37 @@ headless Dart client. It verified uncertain-request replay with the original
 key, stale-offer rejection, exact acceptance/placement, duty remaining off, and
 no delivery checkpoint or COD account. The Bagoo worktree remained read-only;
 this check did not contact Azure or use a phone.
+
+## November 1 current-head PC evidence refresh
+
+At Rider revision `e0aa20e` on `fix/rider-trips-completion-copy`, the full
+serial Flutter suite passed **693 tests with 7 skipped** in 6 minutes 25
+seconds. `flutter analyze --no-pub` also passed without issues at this source
+revision. These checks used no phone or emulator.
+
+The current arm64-targeted profile APK was rebuilt with the repository's
+single-worker Gradle settings:
+
+- Output: `build/app/outputs/flutter-apk/app-profile.apk`
+- Size: **77,606,440 bytes**
+- SHA-256: `74b52c2bc2cdc3fcb965b829bcb9d3ffcbe51e9fef0b3229e5bbde950fafc84b`
+- Merged manifest: `com.example.bagoo_rider_mobile`, min SDK 24, target SDK 36,
+  version code 1, version name `0.1.0`
+- `unzip -t` verified the APK archive. `apksigner verify` could not run because
+  Java is not available on the PC shell's PATH; this build's signature was not
+  independently verified.
+- This is a profile preview using the scaffold package ID and debug signing
+  configuration. It was not installed or launched.
+
+A separate PC `--release` build request was also attempted at `e0aa20e`. Gradle
+stopped before artifact generation and named the missing approved
+`RIDER_APPLICATION_ID` and local keystore settings. The fail-closed result is
+verified; no release APK was produced and no signing key was read or used.
+
+Live GitHub refs matched Rider `main` `4367331` and published defense branch
+`4d4663d` during this check. Local HEAD `e0aa20e` is 28 commits ahead of main
+and 2 commits ahead of the published branch. Bagoo `main` matched
+`f001d396b0e9ea6bfc2fdeb85ee24b66682b997e`; its read-only Wallet/handover branch
+`9e58312d130809eb8cd878189b729f1f702291d8` is 2 commits ahead and not merged or
+deployment evidence. Azure cross-role acceptance, approved release identity and
+signing, and physical Android acceptance remain open.

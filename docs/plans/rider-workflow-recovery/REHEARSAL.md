@@ -228,7 +228,7 @@ pending, so I am not presenting this as an accepted live-phone demo.”
 | Failure/return | One recorded failed attempt, truthful next hub/retry authority and actual hub receipt; preserve all prior evidence. |
 | Cash/shift | Offer leaves held cash unchanged; independent hub receipt updates the ledger and closure decision; cancellation remains separately authorized. |
 | Messages/notices | Actual phase-bound send, displayed read boundaries and later arrivals remaining unread; opening links alone is not write acceptance. |
-| Security/recovery | First-party website sign-in, session review/revocation and authorized restricted recovery. Returning requires fresh native permission; links do not clear restrictions. |
+| Security/recovery | First-party website sign-in, session review/revocation and authorized restricted recovery through `/custody-recovery/sign-in`. Returning requires fresh native permission; links do not clear restrictions. |
 | Phone lifecycle | Camera denied/cancel/retry, interrupted picker/process kill, app restore, logout/account change, keyboard and actual Android Back. Deferred. |
 | Evidence freeze | Exact APK, source and deployed revision, selected resources and results retained; final rehearsal before the November 20 freeze. |
 

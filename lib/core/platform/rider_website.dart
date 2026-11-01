@@ -11,7 +11,7 @@ enum RiderWebsitePage {
   settings('/account/settings'),
   security('/account/security'),
   cash('/cod'),
-  custodyRecovery('/custody-recovery'),
+  custodyRecovery('/custody-recovery/sign-in'),
   recovery('/forgot-password');
 
   const RiderWebsitePage(this.path);

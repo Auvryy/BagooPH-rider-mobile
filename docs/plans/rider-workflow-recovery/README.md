@@ -24,6 +24,13 @@ This delivery covers [M01, M07, M11, M14, M15 and M16](../../TASK_TRACKING.md):
   reachable through fixed first-party website destinations. Pending cash offers
   link to the existing cash website for authorized review/cancellation.
 
+The Login and Settings Help recovery links use the dedicated
+`/custody-recovery/sign-in` page. The protected `/custody-recovery` page is for
+an already authenticated and verified session; sending a restricted rider there
+can route them back through ordinary sign-in instead of the narrow recovery
+flow. Bagoo verifies the rider's current, owned recovery authorization after
+sign-in; opening the link does not clear account restrictions.
+
 These links use the website's own session. No app token, account identifier,
 password or private record is appended to the URL. The website rechecks its own
 permission. Opening it does not perform an operation inside the native app.

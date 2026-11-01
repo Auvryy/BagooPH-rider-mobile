@@ -85,7 +85,7 @@ void main() {
       await _tap(tester, 'login-custody-recovery');
       expect(launcher.opened.map((u) => u.path), [
         '/forgot-password',
-        '/custody-recovery',
+        '/custody-recovery/sign-in',
       ]);
       for (final uri in launcher.opened) {
         expect(uri.origin, 'https://courier.bagoo.example.test');
@@ -105,7 +105,7 @@ void main() {
       expect(launcher.opened.single.path, '/account/security');
       await _show(tester, launcher, _settings(ProfileSection.help));
       await _tap(tester, 'help-custody-recovery');
-      expect(launcher.opened.last.path, '/custody-recovery');
+      expect(launcher.opened.last.path, '/custody-recovery/sign-in');
       expect(tester.takeException(), isNull);
     },
   );

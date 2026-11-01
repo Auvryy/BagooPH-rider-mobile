@@ -33,7 +33,8 @@ class ParcelOutcomeFields extends StatefulWidget {
   State<ParcelOutcomeFields> createState() => ParcelOutcomeFieldsState();
 }
 
-class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields> {
+class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields>
+    with WidgetsBindingObserver {
   final recipient = TextEditingController(), received = TextEditingController();
   final change = TextEditingController(), location = TextEditingController();
   final proofField = GlobalKey<FormFieldState<ParcelProof>>();
@@ -68,7 +69,18 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     widget.photos?.addListener(_photoChanged);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) return;
+    final field = proofField.currentState;
+    if (field?.value == null) return;
+    field!.didChange(null);
+    widget.onChanged();
+    setState(() {});
   }
 
   void _photoChanged() {
@@ -132,6 +144,7 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     widget.photos?.removeListener(_photoChanged);
     recipient.dispose();
     received.dispose();

@@ -91,10 +91,16 @@ class RecoveredParcelPhoto {
   final ParcelProof proof;
 }
 
+typedef _PendingPhotoExpiry = ({
+  ParcelPhotoContext context,
+  ParcelProofReference reference,
+});
+
 /// A photo draft is separate from a dispatched command. Its protected original
 /// is offered for 24 hours only for the exact account/API/task/action/version.
-/// Expiry clears the draft while active or during restore; dispatched commands
-/// keep their own proof copy. Recovery never submits an outcome.
+/// Backgrounding clears the in-memory image and expiry callback. Resume reloads
+/// the encrypted draft only while fresh; dispatched commands keep their own
+/// proof copy. Recovery never submits an outcome.
 class ParcelPhotoService extends ChangeNotifier {
   ParcelPhotoService({
     required this.origin,
@@ -118,14 +124,25 @@ class ParcelPhotoService extends ChangeNotifier {
   final DateTime Function() now;
   static const _pickerKey = 'bagoo_rider_parcel_active_photo';
   bool busy = false, _restored = false, _disposed = false;
+  bool _foreground = true, _restorePending = false, _endingSession = false;
+  bool _lostDataRestoreAttempted = false;
+  int _foregroundGeneration = 0;
   RecoveredParcelPhoto? recovered;
   String? notice;
   Timer? _draftExpiryTimer;
   String? _scheduledExpiryKey;
   String? _expiringDraftKey;
-  RecoveredParcelPhoto? _queuedExpiredDraft;
+  _PendingPhotoExpiry? _queuedExpiredDraft;
 
   void _guard() {
+    if (_disposed || _endingSession || !isCurrent()) {
+      recovered = null;
+      notice = null;
+      throw const AccountFailure('Please sign in again.', status: 401);
+    }
+  }
+
+  void _guardSessionOwner() {
     if (_disposed || !isCurrent()) {
       recovered = null;
       notice = null;
@@ -152,6 +169,7 @@ class ParcelPhotoService extends ChangeNotifier {
   }) {
     final draft = recovered;
     if (_disposed ||
+        !_foreground ||
         !isCurrent() ||
         draft == null ||
         !identical(draft.proof, proof) ||
@@ -199,53 +217,112 @@ class ParcelPhotoService extends ChangeNotifier {
     _guard();
     final previous = await _saved();
     final reference = await proofs.save(context.key, proof);
-    _guard();
-    await _storage.write(
-      key: _draftKey,
-      value: jsonEncode({
-        'context': context.toJson(),
-        'proof': reference.toJson(),
-      }),
-    );
-    _guard();
-    recovered = RecoveredParcelPhoto(context, reference, proof);
-    _scheduleExpiry(recovered!);
+    try {
+      _guard();
+      await _storage.write(
+        key: _draftKey,
+        value: jsonEncode({
+          'context': context.toJson(),
+          'proof': reference.toJson(),
+        }),
+      );
+      _guard();
+    } catch (_) {
+      await _deleteDraftIfMatches(context, reference);
+      rethrow;
+    }
+    if (_foreground) {
+      recovered = RecoveredParcelPhoto(context, reference, proof);
+      _scheduleExpiry(recovered!);
+    } else {
+      recovered = null;
+      _restorePending = true;
+    }
     if (previous != null) {
       final old = ParcelProofReference.fromJson(Wire.object(previous['proof']));
       if (old.key != reference.key) await proofs.delete(old);
     }
   }
 
-  Future<void> restore() async {
-    if (_disposed || _restored || busy) return;
-    busy = true;
+  Future<void> _deleteDraftIfMatches(
+    ParcelPhotoContext context,
+    ParcelProofReference reference,
+  ) async {
     try {
-      _guard();
-      final draft = await _saved();
-      if (draft != null) {
-        final context = ParcelPhotoContext.fromJson(
-          Wire.object(draft['context']),
+      final value = await _storage.read(key: _draftKey);
+      if (value != null) {
+        final saved = Wire.object(jsonDecode(value));
+        final savedContext = ParcelPhotoContext.fromJson(
+          Wire.object(saved['context']),
         );
-        if (!_owns(context)) Wire.invalid();
-        final reference = ParcelProofReference.fromJson(
-          Wire.object(draft['proof']),
+        final savedReference = ParcelProofReference.fromJson(
+          Wire.object(saved['proof']),
         );
-        if (reference.key != context.key) Wire.invalid();
-        if (_fresh(context)) {
-          final proof = await proofs.read(reference);
-          _guard();
-          recovered = RecoveredParcelPhoto(context, reference, proof);
-          _scheduleExpiry(recovered!);
-        } else {
-          await proofs.delete(reference);
+        if (savedContext.key == context.key &&
+            savedReference.key == reference.key &&
+            savedReference.digest == reference.digest &&
+            savedReference.extension == reference.extension) {
           await _storage.delete(key: _draftKey);
         }
       }
-      if (picker.recoversLostData) {
+    } finally {
+      await proofs.delete(reference);
+    }
+  }
+
+  Future<void> restore() async {
+    if (_disposed || _endingSession) return;
+    if (!_foreground || busy) {
+      _restorePending = true;
+      return;
+    }
+    if (_restored && recovered != null) return;
+    busy = true;
+    _restorePending = false;
+    final generation = _foregroundGeneration;
+    try {
+      _guard();
+      if (recovered == null) {
+        final draft = await _saved();
+        if (!_foreground || generation != _foregroundGeneration) {
+          _restorePending = true;
+          return;
+        }
+        if (draft != null) {
+          final context = ParcelPhotoContext.fromJson(
+            Wire.object(draft['context']),
+          );
+          if (!_owns(context)) Wire.invalid();
+          final reference = ParcelProofReference.fromJson(
+            Wire.object(draft['proof']),
+          );
+          if (reference.key != context.key) Wire.invalid();
+          if (_fresh(context)) {
+            final proof = await proofs.read(reference);
+            _guard();
+            if (!_foreground || generation != _foregroundGeneration) {
+              _restorePending = true;
+              return;
+            }
+            recovered = RecoveredParcelPhoto(context, reference, proof);
+            _scheduleExpiry(recovered!);
+          } else {
+            await proofs.delete(reference);
+            _guard();
+            await _storage.delete(key: _draftKey);
+          }
+        }
+      }
+      if (picker.recoversLostData && !_lostDataRestoreAttempted) {
+        _lostDataRestoreAttempted = true;
         // Run once at native workspace startup, including when there is no draft.
         final saved = await _storage.read(key: _pickerKey);
         final files = await picker.recover();
         _guard();
+        if (!_foreground || generation != _foregroundGeneration) {
+          _restorePending = true;
+          return;
+        }
         if (saved != null) {
           final context = ParcelPhotoContext.fromJson(
             Wire.object(jsonDecode(saved)),
@@ -266,50 +343,67 @@ class ParcelPhotoService extends ChangeNotifier {
         busy = false;
         _changed();
         _drainQueuedExpiry();
+        _retryPendingRestore();
       }
     }
   }
 
   void _scheduleExpiry(RecoveredParcelPhoto draft) {
+    _scheduleSavedDraftExpiry(draft.context, draft.reference);
+  }
+
+  void _scheduleSavedDraftExpiry(
+    ParcelPhotoContext context,
+    ParcelProofReference reference,
+  ) {
+    if (_endingSession || _disposed) return;
     _draftExpiryTimer?.cancel();
-    _scheduledExpiryKey = draft.context.key;
-    final expiresAt = draft.context.createdAt.toUtc().add(
-      const Duration(hours: 24),
-    );
+    _scheduledExpiryKey = context.key;
+    final expiresAt = context.createdAt.toUtc().add(const Duration(hours: 24));
     final delay = expiresAt.difference(now().toUtc());
     _draftExpiryTimer = Timer(delay.isNegative ? Duration.zero : delay, () {
-      if (_scheduledExpiryKey == draft.context.key) {
+      if (_scheduledExpiryKey == context.key) {
         _draftExpiryTimer = null;
         _scheduledExpiryKey = null;
       }
-      _queueExpiry(draft);
+      _queueSavedDraftExpiry(context, reference);
     });
   }
 
   void _queueExpiry(RecoveredParcelPhoto draft) {
-    if (_disposed || _expiringDraftKey != null) return;
-    if (_fresh(draft.context)) {
-      _scheduleExpiry(draft);
+    _queueSavedDraftExpiry(draft.context, draft.reference);
+  }
+
+  void _queueSavedDraftExpiry(
+    ParcelPhotoContext context,
+    ParcelProofReference reference,
+  ) {
+    if (_disposed || _endingSession || _expiringDraftKey != null) return;
+    if (_fresh(context)) {
+      _scheduleSavedDraftExpiry(context, reference);
       return;
     }
-    if (_scheduledExpiryKey == draft.context.key) {
+    if (_scheduledExpiryKey == context.key) {
       _draftExpiryTimer?.cancel();
       _draftExpiryTimer = null;
       _scheduledExpiryKey = null;
     }
-    if (identical(recovered, draft)) recovered = null;
+    if (recovered?.context.key == context.key) recovered = null;
+    final pending = (context: context, reference: reference);
     if (busy) {
-      _queuedExpiredDraft = draft;
+      _queuedExpiredDraft = pending;
       return;
     }
-    _expiringDraftKey = draft.context.key;
+    _expiringDraftKey = context.key;
     // forTask() and isUsableDraft() may be called during widget builds.
     // Defer notifications and storage cleanup until after the current frame.
-    unawaited(Future<void>.microtask(() => _expireDraft(draft)));
+    unawaited(Future<void>.microtask(() => _expireDraft(pending)));
   }
 
-  Future<void> _expireDraft(RecoveredParcelPhoto draft) async {
-    final key = draft.context.key;
+  Future<void> _expireDraft(_PendingPhotoExpiry draft) async {
+    final context = draft.context;
+    final reference = draft.reference;
+    final key = context.key;
     try {
       if (_disposed) return;
       busy = true;
@@ -319,25 +413,25 @@ class ParcelPhotoService extends ChangeNotifier {
       _guard();
       if (value == null) {
         _guard();
-        await proofs.delete(draft.reference);
+        await proofs.delete(reference);
         return;
       }
       final saved = Wire.object(jsonDecode(value));
-      final context = ParcelPhotoContext.fromJson(
+      final savedContext = ParcelPhotoContext.fromJson(
         Wire.object(saved['context']),
       );
-      if (context.key != key) {
+      if (savedContext.key != key) {
         // A newer draft replaced this one while it was being selected.
         // Preserve its metadata and remove only the expired draft's file.
-        await proofs.delete(draft.reference);
+        await proofs.delete(reference);
         return;
       }
-      final reference = ParcelProofReference.fromJson(
+      final savedReference = ParcelProofReference.fromJson(
         Wire.object(saved['proof']),
       );
-      if (reference.key != draft.reference.key ||
-          reference.digest != draft.reference.digest ||
-          reference.extension != draft.reference.extension) {
+      if (savedReference.key != reference.key ||
+          savedReference.digest != reference.digest ||
+          savedReference.extension != reference.extension) {
         Wire.invalid();
       }
       // The submitted command owns a separate proof copy under its command key.
@@ -354,13 +448,44 @@ class ParcelPhotoService extends ChangeNotifier {
       if (_expiringDraftKey == key) _expiringDraftKey = null;
       _changed();
       _drainQueuedExpiry();
+      _retryPendingRestore();
     }
   }
 
   void _drainQueuedExpiry() {
     final draft = _queuedExpiredDraft;
     _queuedExpiredDraft = null;
-    if (draft != null) _queueExpiry(draft);
+    if (draft != null) {
+      _queueSavedDraftExpiry(draft.context, draft.reference);
+    }
+  }
+
+  void _retryPendingRestore() {
+    if (_restorePending &&
+        _foreground &&
+        !_disposed &&
+        !_endingSession &&
+        !busy) {
+      _restorePending = false;
+      unawaited(restore());
+    }
+  }
+
+  void setForeground(bool value) {
+    if (_disposed || _endingSession || _foreground == value) return;
+    _foreground = value;
+    _foregroundGeneration++;
+    if (!value) {
+      _draftExpiryTimer?.cancel();
+      _draftExpiryTimer = null;
+      _scheduledExpiryKey = null;
+      recovered = null;
+      notice = null;
+      _changed();
+      return;
+    }
+    _restorePending = true;
+    _retryPendingRestore();
   }
 
   Future<ParcelProof?> choose({
@@ -370,7 +495,8 @@ class ParcelPhotoService extends ChangeNotifier {
     required bool camera,
   }) async {
     _guard();
-    if (busy ||
+    if (!_foreground ||
+        busy ||
         _expiringDraftKey != null ||
         _queuedExpiredDraft != null ||
         (camera && !picker.supportsCamera)) {
@@ -401,9 +527,15 @@ class ParcelPhotoService extends ChangeNotifier {
       _guard();
       final file = await picker.choose(camera: camera);
       _guard();
+      if (!_foreground) {
+        throw const AccountFailure('Return to Rider before choosing a photo.');
+      }
       if (file == null) return null;
       final proof = await ParcelProof.fromFile(file);
       await _save(context, proof);
+      if (!_foreground) {
+        throw const AccountFailure('Return to Rider before choosing a photo.');
+      }
       return proof;
     } finally {
       if (!_disposed && isCurrent()) {
@@ -413,6 +545,7 @@ class ParcelPhotoService extends ChangeNotifier {
           busy = false;
           _changed();
           _drainQueuedExpiry();
+          _retryPendingRestore();
         }
       }
     }
@@ -452,6 +585,70 @@ class ParcelPhotoService extends ChangeNotifier {
     _queuedExpiredDraft = null;
     recovered = null;
     _changed();
+  }
+
+  /// Removes only an unsubmitted photo draft before the user signs out.
+  /// Unresolved command proof remains stored under its separate command key.
+  Future<void> clearForSignOut() async {
+    _guard();
+    _endingSession = true;
+    _foregroundGeneration++;
+    _restorePending = false;
+    _draftExpiryTimer?.cancel();
+    _draftExpiryTimer = null;
+    _scheduledExpiryKey = null;
+    recovered = null;
+    notice = null;
+    _changed();
+    try {
+      final pendingPicker = await _storage.read(key: _pickerKey);
+      _guardSessionOwner();
+      if (pendingPicker != null) {
+        final context = ParcelPhotoContext.fromJson(
+          Wire.object(jsonDecode(pendingPicker)),
+        );
+        if (_owns(context)) {
+          await _storage.delete(key: _pickerKey);
+          _guardSessionOwner();
+        }
+      }
+      final saved = await _storage.read(key: _draftKey);
+      _guardSessionOwner();
+      if (saved != null) {
+        final draft = Wire.object(jsonDecode(saved));
+        final context = ParcelPhotoContext.fromJson(
+          Wire.object(draft['context']),
+        );
+        if (!_owns(context)) Wire.invalid();
+        final reference = ParcelProofReference.fromJson(
+          Wire.object(draft['proof']),
+        );
+        if (reference.key != context.key) Wire.invalid();
+        await proofs.delete(reference);
+        _guardSessionOwner();
+        await _storage.delete(key: _draftKey);
+        _guardSessionOwner();
+      }
+      _queuedExpiredDraft = null;
+      _changed();
+    } catch (_) {
+      _endingSession = false;
+      _changed();
+      if (_foreground) {
+        _restorePending = true;
+        _retryPendingRestore();
+      }
+      rethrow;
+    }
+  }
+
+  void cancelSignOut() {
+    if (_disposed || !_endingSession) return;
+    _endingSession = false;
+    _foregroundGeneration++;
+    _restorePending = true;
+    _changed();
+    _retryPendingRestore();
   }
 
   @override

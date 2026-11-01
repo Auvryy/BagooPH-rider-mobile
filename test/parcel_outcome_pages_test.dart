@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:bagoo_rider_mobile/app/theme.dart';
+import 'package:bagoo_rider_mobile/core/commands/parcel_proof.dart';
 import 'package:bagoo_rider_mobile/core/commands/parcel_validation.dart';
 import 'package:bagoo_rider_mobile/core/network/api_failure.dart';
 import 'package:bagoo_rider_mobile/core/ui/private_image.dart';
@@ -212,6 +213,35 @@ void main() {
     )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
   });
   setUp(() => FlutterSecureStorage.setMockInitialValues({}));
+  testWidgets(
+    'background immediately clears the form image and resume offers encrypted recovery',
+    (tester) async {
+      final h = _Outcome(ParcelAction.deliver);
+      addTearDown(h.dispose);
+      await _mount(tester, h);
+      final proof = tester.state<FormFieldState<ParcelProof>>(
+        find.byType(FormField<ParcelProof>),
+      );
+      expect(proof.value, isNotNull);
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      expect(proof.value, isNull);
+      await tester.pumpAndSettle();
+      expect(find.text('Selected private parcel proof image'), findsNothing);
+
+      h.work.setForeground(false);
+      h.work.setForeground(true);
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('parcel-photo-restore')),
+        findsOneWidget,
+      );
+      expect(proof.value, isNull);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+      h.dispose();
+    },
+  );
   testWidgets(
     'changed payment clears reviewed proof and cash without a version change',
     (tester) async {

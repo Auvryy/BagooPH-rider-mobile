@@ -359,6 +359,7 @@ class WorkspaceController extends ChangeNotifier {
     cash.setForeground(value);
     messages.setForeground(value);
     notifications.setForeground(value);
+    operations?.photos?.setForeground(value);
     if (_foreground == value) return;
     _foreground = value;
     _poll?.cancel();
@@ -373,6 +374,12 @@ class WorkspaceController extends ChangeNotifier {
     }
     if (value) unawaited(refreshAll());
   }
+
+  Future<void> clearUnsubmittedPhotoDraftForSignOut() async {
+    await operations?.photos?.clearForSignOut();
+  }
+
+  void cancelPhotoDraftSignOut() => operations?.photos?.cancelSignOut();
 
   void _schedulePoll() {
     _poll?.cancel();
@@ -443,7 +450,15 @@ class WorkspaceController extends ChangeNotifier {
       _cooldownTimer?.cancel();
       // Deliver access loss before awaiting session cleanup or a widget rebuild.
       _changed();
-      if (!_disposed) await onSessionEnd?.call(failure.message);
+      if (!_disposed) {
+        var notice = failure.message;
+        try {
+          await operations?.photos?.clearForSignOut();
+        } catch (_) {
+          notice = '$notice Unsubmitted photo cleanup could not be confirmed.';
+        }
+        await onSessionEnd?.call(notice);
+      }
     }
     return failure;
   }

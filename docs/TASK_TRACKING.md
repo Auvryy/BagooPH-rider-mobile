@@ -16,9 +16,23 @@ and test harness at `87244ed`. The full Flutter suite passed **702 tests with
 fixture-dependent Wallet test is one skip in that ordinary suite; its
 windowless opt-in run passed **1/1** against Bagoo `9e58312` using an in-memory
 storage adapter.
-The focused photo-recovery and parcel-outcome suites passed **19/19**;
-`flutter analyze --no-pub` reported no issues in 6.4s. The suite used one worker
-and did not touch a phone, ADB, emulator, install, or app window. On November 2,
+Before the background-memory follow-up, the focused photo-recovery and
+parcel-outcome suites passed **19/19**. The November 2 follow-up passed
+**41/41** across photo recovery, parcel outcomes and parcel workflows;
+`flutter analyze --no-pub` reported no issues in 6.4s. It covers encrypted
+same-account photo recovery on resume, background memory clearing, stale
+in-flight restore protection, expiry cleanup and sign-out removal that
+preserves separately retained command proof, including a late picker result.
+It also removes a proof file from a save that finishes during sign-out.
+Approval-restriction cleanup of the unsubmitted encrypted photo remains open.
+These are simulated PC checks, not Android lifecycle acceptance. The serial
+command was:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact test/parcel_photo_recovery_test.dart test/parcel_outcome_pages_test.dart test/parcel_workflow_test.dart
+```
+
+It did not touch a phone, ADB, emulator, install, or app window. On November 2,
 arm64 debug and profile APKs were rebuilt from branch head `94d2aaf` (runtime
 `30412ed`) and passed PC archive, metadata, arm64-content and APK v2 signature
 checks. Neither was installed; both retain the scaffold ID and Android Debug

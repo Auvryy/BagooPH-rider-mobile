@@ -115,7 +115,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
       builder: (context) => AlertDialog(
         title: const Text('Sign out of Rider?'),
         content: const Text(
-          'Your local drafts will be cleared after sign-out is confirmed. Parcels and cash assigned to you remain your responsibility.',
+          'Unsubmitted form and photo drafts are cleared after sign-out. A submitted request without a confirmed result stays saved so you can check it later. Parcels and cash assigned to you remain your responsibility.',
         ),
         actions: [
           RiderPressFeedback(
@@ -135,8 +135,43 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
       ),
     );
     if (confirmed == true && mounted) {
-      await ref.read(navigationProvider).stop();
+      final work = ref.read(
+        workspaceControllerProvider(WorkspaceIdentity(widget.account.id)),
+      );
+      try {
+        await work.clearUnsubmittedPhotoDraftForSignOut();
+      } catch (_) {
+        work.cancelPhotoDraftSignOut();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Rider could not remove the unfinished photo. Sign out was cancelled; try again.',
+              ),
+            ),
+          );
+        }
+        return;
+      }
+      try {
+        await ref.read(navigationProvider).stop();
+      } catch (_) {
+        work.cancelPhotoDraftSignOut();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Rider could not stop navigation. Try signing out again.',
+              ),
+            ),
+          );
+        }
+        return;
+      }
       await ref.read(authControllerProvider.notifier).logout();
+      if (ref.read(authControllerProvider).user?.id == widget.account.id) {
+        work.cancelPhotoDraftSignOut();
+      }
     }
   }
 

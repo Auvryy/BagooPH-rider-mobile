@@ -30,7 +30,7 @@ November 1, 2026.
 | Messages and notifications | Assignment-bound messages and a Home notification inbox with bounded read behavior. | Courier Messages, a notification link/page, and the same courier role boundary. | Shared capabilities; source-level interaction safeguards differ. Live send/read acceptance remains open. |
 | Company and handover | Company requests/offers and native missed-scan reporting/evidence/recovery entry points. | Company requests/offers in Profile and handover issue list/detail pages. | These are not app-only business workflows. Assignment acceptance, parcel custody, and authorized recovery remain server-owned. |
 | Account and profile | Native Profile/Settings plus first-party website handoffs for selected account/security/recovery flows. | Responsive Profile pages for information, privacy/security/session review, assignment, and vehicle records. | Some account/security controls remain browser-owned. Do not describe a browser handoff as a native feature. |
-| Retry and device behavior | Android camera lifecycle handling and an encrypted, account/API-scoped journal for uncertain commands and original proof bytes. | Browser forms use request tokens and page state; the reviewed pages do not show an equivalent protected native journal. | This is a resilience implementation difference, not full offline delivery. Rider does not provide in-app route following, server-side live tracking, or notification push in the default build. |
+| Retry and device behavior | Android camera lifecycle handling, background clearing of unsubmitted proof bytes with encrypted same-account recovery, and an encrypted account/API-scoped journal for uncertain commands and original proof bytes. | Browser forms use request tokens and page state; the reviewed pages do not show an equivalent protected native journal. | This is a resilience implementation difference, not full offline delivery. Rider does not provide in-app route following, server-side live tracking, or notification push in the default build. |
 
 **Answer to “what does Rider Mobile have that the phone website does not?”**
 **Session-only Parcel Finder labels inside Stop Mode** are a clear additional
@@ -122,9 +122,13 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    directions, Google Maps receives the saved stop address or coordinates. The
    Android client also uses the native scanner lifecycle and preserves the
    exact pending command for same-key reconciliation; original proof bytes are
-   encrypted separately. It does not claim full offline delivery. The local
-   journal can retain private action-body fields, and its long-term cleanup
-   policy remains open.
+   encrypted separately. An unsubmitted photo draft is removed from memory on
+   background and restored only from its encrypted, account-scoped copy on
+   resume before the 24-hour cutoff. Explicit sign-out and invalid-session
+   paths remove that draft while preserving command proof; approval/restriction
+   transitions still need cleanup coverage. Rider does not claim full offline
+   delivery. The local journal can retain private action-body fields, and its
+   long-term cleanup policy remains open.
 4. **Relationship to web — 45 seconds.** Courier web already includes queues,
    maps, camera scanning, proof upload, Trips/Earnings, Messages, notifications,
    cash handovers, company requests, and handover issues. Both clients use
@@ -140,8 +144,11 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    storage adapter; it does not verify the deployed API or Android platform
    storage. The full suite used one worker. No
    phone, ADB, emulator, install, or app window was used.
-   Focused photo-recovery and parcel-outcome suites passed **19/19**;
-   `flutter analyze --no-pub` reported no issues in 6.4s. On November 2, fresh arm64 debug
+   Focused photo-recovery and parcel-outcome suites passed **19/19** before the
+   November 2 background-memory follow-up. Its final serial run passed **41/41**
+   across photo recovery, parcel outcomes and parcel workflows; `flutter analyze
+   --no-pub` reported no issues in 6.4s. These remain simulated PC checks, not
+   physical Android acceptance. On November 2, fresh arm64 debug
    and profile APKs were built from branch head `94d2aaf` (runtime `30412ed`)
    and passed PC archive, metadata, arm64-content and APK v2 signature checks;
    neither was installed. Both use the scaffold ID and Android Debug signing.
@@ -192,9 +199,11 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   native picker path records the exact API/account/task/action/version context.
   It can recover one matching photo for up to 24 hours into encrypted app-owned
   storage. The restored image stays a draft and never submits an outcome by
-  itself. The focused photo-service suite passed 8/8 using a simulated picker,
-  including active expiry cleanup and retention of an unresolved command's
-  separate proof copy; actual Android kill/resume acceptance remains open.
+  itself. Rider also drops the recovered image from memory while backgrounded
+  and reloads the encrypted copy on resume if it is still fresh. The focused
+  photo-service suite passed 15/15 using simulated picker/storage, including a
+  background/resume race, expired-draft cleanup and late picker rejection;
+  actual Android kill/resume acceptance remains open.
 - **What happens to an uncertain request after sign-out or an account change?**
   The complete `CommandIntent`, including its action body, is saved through
   Flutter Secure Storage under API-origin, account and feature-scope keys; it
@@ -207,16 +216,16 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   open in M01.06/M16.02.
 - **What private drafts clear when the app backgrounds?** Message history and
   inbox data clear, but unsent message text remains in the in-memory chat
-  controller. A recovered parcel photo can also remain in memory while its
-  encrypted recovery copy is scoped to the matching API/account/task/action
-  and is offered for less than 24 hours. While the workspace runs, expiry clears
-  the visible draft and its temporary encrypted file; after a process stop or
-  sign-out, the next same-account restore removes an expired persisted draft.
-  A separately retained proof copy for an unresolved command is preserved.
-  The Trips proof viewer clears on background. These behaviors are
-  recorded in the
-  [source audit](PRIVATE_DATA_LIFECYCLE.md); private-draft policy and real
-  Android lifecycle acceptance remain open.
+  controller. An unsubmitted parcel photo is cleared from memory and reloaded
+  from its encrypted account/API-scoped copy on resume only while under 24
+  hours. If it expires while backgrounded or stopped, cleanup occurs on resume
+  or the next same-account restore. Explicit sign-out and invalid-session paths
+  delete its encrypted draft and picker marker; an unresolved command's
+  separately retained proof survives for reconciliation. Approval/restriction
+  transitions still need cleanup coverage. The Trips proof
+  viewer clears on background. See the [source audit](PRIVATE_DATA_LIFECYCLE.md);
+  message-draft policy, restriction cleanup and real Android lifecycle acceptance
+  remain open.
 - **Does the rider confirm that the buyer received the parcel?** The rider
   records the handoff. The backend returns the applicable status; newer
   flow-version orders may complete automatically. There is no separate
@@ -248,6 +257,16 @@ evidence, not as an accepted live phone demonstration.
   scenario are PC-only checks; the latter does not test Android platform
   storage. Android picker process-death, Azure deployment, release
   signing, and production cross-role acceptance remain open.
+- **November 2 photo lifecycle follow-up:** the focused photo recovery, parcel
+  outcome and parcel workflow suites passed **41/41** serially. Coverage now
+  includes immediate form selection clearing on background, encrypted-draft
+  recovery on resume, stale in-flight restore protection, expiry cleanup and
+  sign-out deletion that preserves command proof, rejects a late picker result
+  and removes proof saved by an in-flight selection. `flutter analyze --no-pub`
+  found no issues in 6.4s. Simulated
+  storage/picker checks do not establish physical Android lifecycle or OS
+  storage behavior; cleanup on approval or
+  restriction transitions remains open.
 - Runtime code at Rider revision `9d7e8cf` and test revision `039d40d` passed
   six focused PC checks serially: saved/sample map disclosures, default
   route-provider status, Google Maps handoff disclosure, and both notices at

@@ -34,6 +34,21 @@ was not installed or exercised on a phone.
 This recheck did not run native integration, Azure, physical Android or deployed
 cross-role acceptance. Their separate evidence and gates below remain unchanged.
 
+A separate focused headless PC check passed **1/1** against Bagoo commit
+`9e58312`. It ran with the exact pinned source:
+
+```sh
+node tool/parcel_local_api/run.mjs ../bagoo parcel-headless 9e58312d130809eb8cd878189b729f1f702291d8
+```
+
+The test used the isolated SQLite fixture, normal request spacing and an in-memory
+secure-storage adapter. It verified final-mile departure, a recorded failed
+attempt, courier-to-hub custody receipt, removal from active delivery work, and
+hub-approved retry/reassignment with retained Trips attempt proof bytes and a
+404 denial to another rider. It created no cash account or public proof, opened
+no app window and used no phone. This supplements the current branch checks; it
+does not replace full native, Android or recovery/RTS acceptance.
+
 ## Passed local checks
 
 | Check | Result |

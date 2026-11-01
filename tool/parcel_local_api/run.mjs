@@ -10,10 +10,12 @@ import { once } from 'node:events';
 const project = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const backend = resolve(process.argv[2] ?? resolve(project, '../bagoo'));
 const suite = process.argv[3] ?? 'parcel';
-if (!['parcel', 'messages', 'notifications', 'prepaid', 'cash', 'company'].includes(suite)) throw new Error('Select parcel, messages, notifications, prepaid, cash or company verification.');
+const suites = ['parcel', 'parcel-headless', 'messages', 'notifications', 'prepaid', 'cash', 'company'];
+if (!suites.includes(suite)) throw new Error('Select parcel, parcel-headless, messages, notifications, prepaid, cash or company verification.');
 const requestedRevision = process.argv[4] ?? 'HEAD';
 if (requestedRevision !== 'HEAD' && !/^[a-f0-9]{7,40}$/.test(requestedRevision)) throw new Error('Select HEAD or a committed hexadecimal source revision.');
-const evidenceRoot = resolve(project, suite === 'parcel' ? 'build/operations-delivery-verification' : `build/${suite}-verification`);
+const parcelSuite = suite === 'parcel' || suite === 'parcel-headless';
+const evidenceRoot = resolve(project, parcelSuite ? 'build/operations-delivery-verification' : `build/${suite}-verification`);
 await mkdir(evidenceRoot, { recursive: true });
 const runtime = await mkdtemp(resolve(evidenceRoot, 'local-kernel-'));
 const diagnostic = await open(resolve(evidenceRoot, 'local-kernel.log'), 'w', 0o600);
@@ -137,12 +139,17 @@ try {
   await ready; clearTimeout(timeout);
   server.listen(0, '127.0.0.1'); await once(server, 'listening');
   const api = `http://127.0.0.1:${server.address().port}`;
-  console.log(`Isolated SQLite :memory: ${suite} kernel at ${revision} ready; running the native Flutter client.`);
-  const prefix = `LOCAL_${suite.toUpperCase()}`;
-  // The company contract exercises native Dart HTTP and the real Laravel kernel
-  // without opening a window. Secure storage is an explicit in-memory test adapter.
-  const testPath = suite === 'company' ? 'test/company_local_api_test.dart' : `integration_test/${suite}_local_api_test.dart`;
-  const target = suite === 'company' ? [] : ['-d', 'linux'];
+  const headlessParcel = suite === 'parcel-headless';
+  const clientMode = headlessParcel || suite === 'company' ? 'headless' : 'native';
+  console.log(`Isolated SQLite :memory: ${suite} kernel at ${revision} ready; running the ${clientMode} Flutter client.`);
+  const prefix = `LOCAL_${headlessParcel ? 'PARCEL' : suite.toUpperCase()}`;
+  // The company and focused parcel contracts exercise native Dart HTTP and the
+  // real Laravel kernel without opening a window. Their tests use in-memory
+  // secure-storage adapters rather than requiring a device plugin.
+  const testPath = headlessParcel
+    ? 'test/parcel_local_api_headless_test.dart'
+    : suite === 'company' ? 'test/company_local_api_test.dart' : `integration_test/${suite}_local_api_test.dart`;
+  const target = suite === 'company' || headlessParcel ? [] : ['-d', 'linux'];
   flutter = spawn('flutter', ['test', '--no-pub', testPath, ...target,
     `--dart-define=${prefix}_API_BASE=${api}`, `--dart-define=${prefix}_FIXTURE_TOKEN=${fixtureToken}`, '--reporter', 'expanded'],
   { cwd: project, stdio: 'inherit' });

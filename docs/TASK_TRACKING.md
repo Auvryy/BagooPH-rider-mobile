@@ -24,6 +24,13 @@ desktop screen or phone was used. Azure cash acceptance and physical Android
 acceptance remain open; see the
 [cash verification record](plans/rider-cash-remittance/VERIFICATION.md).
 
+**November 1 headless failure-return check:** the focused Rider client-to-kernel
+suite passed **1/1** against Bagoo `9e58312`. It verifies one recorded attempt,
+courier custody until destination-hub receipt, approved retry/reassignment,
+retained original Trips proof and denial to another rider, without opening a
+window or using a phone. Azure, physical Android and full recovery/RTS acceptance
+remain open; see the [parcel verification record](plans/rider-orders-delivery-trips/VERIFICATION.md).
+
 This is the feature map for building BagooPH Rider Mobile, reviewed October 5,
 2026. It answers **what we need to build, in what order, and what proves each
 area works**. The [detailed backlog](SUBTASK_BACKLOG.md) now turns these areas

@@ -39,6 +39,19 @@ it uses native Dart HTTP with an explicit in-memory secure-storage adapter.
 It checks current account/financial reads and exact company consent against
 the same isolated Laravel kernel. It needs no display or native secret service.
 
+For a PC-only failed-delivery return check, run the focused headless parcel suite:
+
+```sh
+node tool/parcel_local_api/run.mjs ../bagoo parcel-headless 9e58312d130809eb8cd878189b729f1f702291d8
+```
+
+It uses the synthetic parcel fixture and in-memory secure storage to check the
+Rider client's failed attempt, destination-hub receipt, hub-approved retry,
+reassignment, retained private Trips proof and denial to a different rider
+through the real Laravel kernel. It opens no app window and needs no connected
+phone, display server or native secret service. The full native parcel suite
+below still covers the wider workflow on a Linux target.
+
 The backend checkout is read-only. The runner archives a fixed committed revision
 and binds copied Composer metadata to that snapshot; installed dependency
 packages are read-only references. It does not switch the website's active branch.

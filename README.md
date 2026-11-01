@@ -14,7 +14,7 @@ starter. It includes:
 - Real Azure account access, email-verified registration, approval/restriction
   holding, secure session restoration and logout.
 - Home and task queues, assigned pickup/departure actions, Stop Mode and
-  phase-specific doorstep guidance.
+  buyer-provided stop instructions when the task supplies them.
 - Android waybill camera integration, recipient and private photo evidence,
   exact COD entry, failed-delivery reporting and protected recovery of
   uncertain submissions.
@@ -67,9 +67,11 @@ API handoffs and selected implementation plans. The
 batches. These remain the full project plan, not a claim that every card is
 implemented. Check each plan and the readiness record for its actual state.
 
-Stop Mode, Parcel Finder and Doorstep Guide were selected for the mobile
-experience and now have client implementations. Their behavior and remaining
-acceptance are recorded in the [feature direction](docs/FEATURE_DIRECTION.md),
+Stop Mode and session-only Parcel Finder have client implementations. The
+current Doorstep Guide shows buyer-provided stop instructions when present;
+richer authorized collection and entrance fields remain planned. Their behavior
+and remaining acceptance are recorded in the
+[feature direction](docs/FEATURE_DIRECTION.md),
 [Parcel Finder verification](docs/plans/rider-parcel-finder/VERIFICATION.md)
 and [workflow rehearsal](docs/plans/rider-workflow-recovery/REHEARSAL.md).
 Visual tokens and interaction guidance are in the

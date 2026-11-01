@@ -183,6 +183,28 @@ evidence, not as an accepted live phone demonstration.
   and physical Android lifecycle acceptance remain open. Keep the phone check
   deferred; PC evidence does not clear these gates.
 
+### PC-only presentation fallback
+
+If an Android device is unavailable during the defense, present the recorded
+evidence in this order without implying a live-device demonstration:
+
+1. Give the four-minute explanation above and show the source-backed
+   [app-versus-website comparison](#rider-app-versus-phone-sized-courier-website).
+   Make clear that the website already supports scanning and proof upload; the
+   clearest extra rider-facing feature is session-only Parcel Finder labels.
+2. Show the current PC evidence bullets above: full serial tests, clean analysis,
+   the arm64-targeted profile artifact, and its debug-signing limitation. These
+   establish source, widget and packaging checks, not Android hardware behavior.
+3. If asked to demonstrate an operational transaction, explain that Azure and
+   cross-role acceptance are separate open gates. Do not substitute sample data
+   or imply that a PC test changed a live assignment, order, proof or cash record.
+4. Close with the acceptance table below. State that physical Android camera,
+   lifecycle, permissions and layout checks remain deferred.
+
+Suggested wording: “Today I can show the implemented Rider workflow and its PC
+verification. Physical Android and deployed cross-role acceptance are still
+pending, so I am not presenting this as an accepted live-phone demo.”
+
 | Check | Evidence needed |
 |---|---|
 | Account access | Real approved native login and restored session; pending/restricted accounts retain their restrictions; no substitute production accounts. |

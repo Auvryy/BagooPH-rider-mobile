@@ -711,6 +711,13 @@ acceptance is a prerequisite even if cash layouts are developed earlier.
 
 **Outcome:** the demonstrated capabilities are real, repeatable and clearly bounded.
 
+**Current release baseline (November 1, 2026):** Android release packaging now
+rejects the scaffold application ID and missing local signing settings before
+Gradle tasks execute. A PC-only debug APK build passed with the existing package
+and debug signing; no release key/package ID was supplied, and no phone was used.
+See [Android release packaging](ANDROID_RELEASE.md) and the
+[verification record](VERIFICATION_AND_READINESS.md).
+
 1. Build failure handling into every slice: cancellation, single pending intent,
    same-key replay/reconciliation, safe memory/draft cleanup and bounded polling.
 2. Verify actual Android scanning, permissions, proof selection/lost-data recovery,

@@ -1,8 +1,37 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+val riderApplicationId = providers.gradleProperty("riderApplicationId").orNull
+    ?: providers.environmentVariable("RIDER_APPLICATION_ID").orNull
+val validRiderApplicationId = riderApplicationId
+    ?.takeIf { id ->
+        id.matches(Regex("^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)+$")) &&
+            !id.startsWith("com.example.") && id != "com.example"
+    }
+
+val riderReleaseKeyPropertiesFile = rootProject.file("key.properties")
+val riderReleaseKeyProperties = Properties()
+if (riderReleaseKeyPropertiesFile.isFile) {
+    riderReleaseKeyPropertiesFile.inputStream().use(riderReleaseKeyProperties::load)
+}
+
+val riderReleaseStoreFileValue = riderReleaseKeyProperties.getProperty("storeFile")?.trim()
+val riderReleaseStoreFile = riderReleaseStoreFileValue
+    ?.takeIf(String::isNotEmpty)
+    ?.let(rootProject::file)
+val riderReleaseStorePassword = riderReleaseKeyProperties.getProperty("storePassword")
+val riderReleaseKeyAlias = riderReleaseKeyProperties.getProperty("keyAlias")
+val riderReleaseKeyPassword = riderReleaseKeyProperties.getProperty("keyPassword")
+val riderReleaseSigningConfigured =
+    riderReleaseStoreFile?.isFile == true &&
+        !riderReleaseStorePassword.isNullOrBlank() &&
+        !riderReleaseKeyAlias.isNullOrBlank() &&
+        !riderReleaseKeyPassword.isNullOrBlank()
 
 android {
     namespace = "com.example.bagoo_rider_mobile"
@@ -15,8 +44,8 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.bagoo_rider_mobile"
+        // Keep the existing package ID for ordinary debug builds until a real ID is supplied.
+        applicationId = validRiderApplicationId ?: "com.example.bagoo_rider_mobile"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -29,11 +58,55 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (riderReleaseSigningConfigured) {
+            create("riderRelease") {
+                storeFile = checkNotNull(riderReleaseStoreFile)
+                storePassword = checkNotNull(riderReleaseStorePassword)
+                keyAlias = checkNotNull(riderReleaseKeyAlias)
+                keyPassword = checkNotNull(riderReleaseKeyPassword)
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // Without local release credentials, AGP leaves this variant unsigned.
+            if (riderReleaseSigningConfigured) {
+                signingConfig = signingConfigs.getByName("riderRelease")
+            }
+        }
+    }
+}
+
+val riderAppProject = project
+gradle.taskGraph.whenReady {
+    val releasePackagingRequested = allTasks.any { task ->
+        task.project == riderAppProject && task.name in setOf(
+            "assembleRelease",
+            "bundleRelease",
+            "packageRelease",
+            "packageReleaseBundle",
+            "packageReleaseUniversalApk",
+            "signReleaseApk",
+            "signReleaseBundle",
+        )
+    }
+    if (releasePackagingRequested) {
+        val missingSettings = buildList {
+            if (validRiderApplicationId == null) add("a valid, approved RIDER_APPLICATION_ID")
+            if (riderReleaseStoreFile == null || !riderReleaseStoreFile.isFile) {
+                add("an existing keystore file configured by storeFile in android/key.properties")
+            }
+            if (riderReleaseStorePassword.isNullOrBlank()) add("storePassword in android/key.properties")
+            if (riderReleaseKeyAlias.isNullOrBlank()) add("keyAlias in android/key.properties")
+            if (riderReleaseKeyPassword.isNullOrBlank()) add("keyPassword in android/key.properties")
+        }
+        if (missingSettings.isNotEmpty()) {
+            throw org.gradle.api.GradleException(
+                "Rider release packaging is disabled until these local settings are supplied: " +
+                    missingSettings.joinToString("; ") + ". No release artifact was built.",
+            )
         }
     }
 }

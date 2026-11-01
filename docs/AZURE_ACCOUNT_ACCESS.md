@@ -118,14 +118,19 @@ flutter test integration_test/azure_account_test.dart -d linux --dart-define=LIV
 
 ## Build a device APK
 
+See [Android release packaging](ANDROID_RELEASE.md) for the approved package ID
+and local signing requirements before using this command:
+
 ```sh
 flutter build apk --release --dart-define-from-file=config/azure.json
 ```
 
 The package is `build/app/outputs/flutter-apk/app-release.apk`. The current
-Android scaffold signs release builds with the development debug key and uses
-the scaffold application identifier. This is a test build, not a store release.
-The compiled release APK has not been installed or exercised on the phone.
+Android release variant refuses to package until the approved application ID
+and local signing files in [Android release packaging](ANDROID_RELEASE.md)
+are configured. It never signs with the debug key. Earlier compiled APK evidence
+used the scaffold ID and debug signing and is not a distributable release. No
+new release APK was built in this configuration task, and no phone was used.
 
 ## Repeat controlled native checks
 

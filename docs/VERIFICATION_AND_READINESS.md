@@ -35,6 +35,10 @@ databases; never reset development or production data for tests. Existing backen
 suite failures need a current baseline and an explicit disposition, not a “green”
 claim inferred from selected passing tests.
 
+Android release packaging is fail-closed until the approved application ID and
+local signing configuration are supplied. See
+[Android release packaging](ANDROID_RELEASE.md).
+
 ## Verification commands when relevant
 
 ```sh

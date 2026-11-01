@@ -33,3 +33,18 @@ The prior focused backend run at this revision had 295 passes and one old
 completion expectation failure, using isolated SQLite in the configured PHP
 container. That result is a dated source baseline, not a new passing backend
 suite or evidence about deployment.
+
+## November 1 source follow-up
+
+The five source items above were addressed on Bagoo branch
+`fix/rider-wallet-trip-evidence` through
+`9e58312d130809eb8cd878189b729f1f702291d8`. The focused backend suite then
+passed 452 tests and 16,115 assertions, including original receipt matching,
+proof integrity, foreign denial, reassignment and version-two handover status.
+The Rider's native prepaid integration test also passed against that pinned
+revision, verifying exact retained proof bytes and recipient after replay.
+
+This dated owner handoff is closed for source changes. It remains open for
+confirming merge/deployment and migrations, fresh Azure discovery, controlled
+owned-resource acceptance, independent buyer/hub/earnings outcomes and physical
+Android verification. Write gates remain unchanged.

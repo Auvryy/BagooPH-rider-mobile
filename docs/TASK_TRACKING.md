@@ -3,8 +3,11 @@
 **November 1 locally verified client work:** [Delivery guidance and recovery access](plans/rider-workflow-recovery/README.md)
 aligns order completion/earnings presentation with current web version two and
 adds specific password, session, cash and custody website handoffs. It covers
-M01/M07/M11/M14/M15/M16 without clearing operational gates or the backend Wallet
-evidence dependency. Analysis, 691 Flutter tests and Linux/Android debug builds
+M01/M07/M11/M14/M15/M16 without clearing operational gates. Bagoo's Wallet
+recipient/proof and version-two handover source fixes are on branch
+`fix/rider-wallet-trip-evidence`; its focused backend suite and the Rider's
+pinned native Wallet consumer test passed. Azure deployment and phone acceptance
+are still pending. Analysis, 691 Flutter tests and Linux/Android debug builds
 passed on PC; six expected tests remain skipped and phone acceptance is deferred.
 
 This is the feature map for building BagooPH Rider Mobile, reviewed October 5,
@@ -445,8 +448,10 @@ package. No non-COD success, buyer completion or cash remittance is added.
 **October 22 prepaid extension:** the [paid Wallet slice](plans/prepaid-delivery/README.md)
 adds source-authorized prepaid handoff, omits cash controls/fields and invalidates
 changed payment reviews. Original proof/UUID recovery remains shared with COD.
-Retained Wallet proof/recipient gaps are reproduced against the real local
-backend and remain owner dependencies; live prepaid writes stay disabled.
+The source-level retained Wallet proof/recipient gap was fixed on Bagoo branch
+`fix/rider-wallet-trip-evidence`; backend regressions and the native consumer
+acceptance now pass against that source. Merge/deployment and controlled live
+acceptance remain open; prepaid writes stay disabled.
 
 **Outcome:** the assigned rider records a genuine recipient handoff and exact
 cash when COD applies.
@@ -559,8 +564,10 @@ user directory or a new realtime/push service.
 ### M11 — Trips and recorded history
 
 The [October 22 prepaid extension](plans/prepaid-delivery/README.md) labels
-Wallet history without inventing cash or recipient facts. Correct original
-Wallet proof/recipient responses remain an explicit backend acceptance gap.
+Wallet history without inventing cash facts and now returns original recipient
+and proof from the matching immutable receipt. The backend source fix and native
+consumer test pass on the review branch; Azure deployment and controlled
+acceptance remain open.
 
 **October 18 selected implementation:** the [order-to-history slice](plans/rider-orders-delivery-trips/README.md)
 consumes the accepted retained-assignment resource for pickup and final mile,

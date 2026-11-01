@@ -27,18 +27,19 @@ Opt-in renders are synthetic and remain under ignored `build/` directories.
 The [isolated native runner](../../../tool/parcel_local_api/README.md) uses
 committed backend source, normal domain workflows, ephemeral accounts, SQLite
 `:memory:` and real native Dio/protected storage. A native secret service and
-Linux display are required; use a virtual display to keep windows off the active
-desktop:
+Linux display are required. Pin the accepted backend source revision:
 
 ```sh
-xvfb-run -a node tool/parcel_local_api/run.mjs ../bagoo prepaid
+node tool/parcel_local_api/run.mjs ../bagoo prepaid 9e58312d130809eb8cd878189b729f1f702291d8
 ```
 
-The current diagnostic checks paid handoff and original replay, then reproduces
-the reviewed backend's retained Wallet proof/recipient gaps. Its passing exit
-does **not** accept those gaps. After the owner fixes them, update its assertions
-to require authenticated original proof bytes and the original recipient, then
-rerun against that fixed revision. Never create a fake COD record to satisfy it.
+The native acceptance now requires a version-two completed order, paid Wallet
+status, the exact original recipient, authenticated retained proof bytes matching
+the original image hash, one original replay and zero COD accounts. It passed
+once against the pinned backend revision. Use `xvfb-run -a` before the command
+when available to keep the Linux test window off the active desktop; otherwise
+run it from an existing Linux desktop session. Never create a fake COD record
+to satisfy the check.
 
 ## Separate controlled acceptance
 

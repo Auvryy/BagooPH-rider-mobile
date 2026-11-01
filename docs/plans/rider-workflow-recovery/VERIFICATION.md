@@ -51,18 +51,34 @@ All independent operational write gates are unchanged. The user explicitly
 deferred phone testing while another mobile project uses the device. The
 [remaining backend needs](BACKEND_NEEDS.md) and [rehearsal](REHEARSAL.md) stay open.
 No physical camera/GPS, release signing, closed-app push, live routing, deployed
-Wallet proof repair or full cross-role live success is claimed.
+Wallet proof acceptance or full cross-role live success is claimed.
 
 ## Local handoff
 
 - `9b2d888` — show recorded delivery completion and earnings.
 - `aa76171` — open account and cash recovery workflows.
 - `ebb6992` — limit Gradle memory and parallel workers.
-- Final documentation commit is recorded in the branch's handoff. No commit was
-  pushed and the [PR description](PULL_REQUEST.md) is local.
+- At the time this record was first written, the branch had not been pushed; see
+  the later source follow-up below and the [PR draft](PULL_REQUEST.md).
 
 From the rider repository:
 
 ```sh
 flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.rider.json
 ```
+
+## November 1 source and mobile consumer follow-up
+
+The Wallet retained-proof/recipient and version-two backend findings recorded
+above are now fixed in Bagoo branch `fix/rider-wallet-trip-evidence` through
+`9e58312d130809eb8cd878189b729f1f702291d8`. Its focused backend run passed 452
+tests and 16,115 assertions. The Rider's pinned native prepaid integration test
+passed against that source: one replayed paid Wallet delivery, completed order,
+one immutable receipt, no COD, and the original recipient plus exact original
+private proof bytes in Trips. The PHP kernel was isolated with SQLite `:memory:`
+and no network.
+
+This resolves the local source/client gap only. The code is not merged or
+confirmed deployed, the write gates remain false, and the user deferred physical
+phone testing. The existing recovery and PC build evidence above does not claim
+live Azure, cross-role or Android hardware acceptance.

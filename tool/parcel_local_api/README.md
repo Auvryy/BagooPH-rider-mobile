@@ -73,18 +73,18 @@ required in the [selected plan](../../docs/plans/rider-orders-delivery-trips/REA
 ## Paid Wallet extension
 
 ```sh
-xvfb-run -a node tool/parcel_local_api/run.mjs ../bagoo prepaid
+xvfb-run -a node tool/parcel_local_api/run.mjs ../bagoo prepaid 9e58312d130809eb8cd878189b729f1f702291d8
 ```
 
 This uses the owning Wallet credit/payment and normal hub assignment workflows,
 then the real native departure/delivery endpoints without cash fields. It checks
-lost-result recovery, exact original proof/UUID replay, one handover receipt and
-zero COD accounts. At the reviewed backend revision it also reproduces a 404
-retained Wallet proof response and an absent original recipient. The diagnostic
-exit does not accept those gaps or enable live writes. After owner fixes,
-strengthen the retained-evidence assertions and rerun. See the
+lost-result recovery and exact original proof/UUID replay, then requires one
+completed paid order, one handover receipt, zero COD accounts, the original
+recipient and the exact original private proof bytes/hash from Trips. The check
+passed against the pinned Bagoo source revision. It remains isolated software
+acceptance; it does not enable live writes or prove an Azure deployment. See the
 [prepaid verification](../../docs/plans/prepaid-delivery/VERIFICATION.md) and
-[owner checklist](../../docs/api/PREPAID_DELIVERY_NEEDS.md).
+[source/deployment checklist](../../docs/api/PREPAID_DELIVERY_NEEDS.md).
 
 
 ## Cash & Remittance extension

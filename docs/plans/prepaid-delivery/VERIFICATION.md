@@ -54,15 +54,43 @@ provider request was involved.
 The native diagnostic above is additional to the Flutter unit/widget total.
 No physical Android test or deployed prepaid acceptance is claimed.
 
-## Outstanding acceptance
+## Outstanding acceptance at the October 22 baseline
 
-- Retained Wallet proof and recipient need owner fixes and regression tests,
-  followed by native compatibility against the fixed source.
+The following rows describe the state at the time of the original verification
+above; the November 1 follow-up below records the later source repair.
+
+- The original Wallet proof/recipient source defect needed an owner fix and
+  native compatibility against the fixed source.
 - Azure deployment/migrations, fresh discovery and designated sequential COD
   and paid Wallet acceptance remain open.
 - Physical Android camera, permissions, picker recovery and interruption checks
   remain open.
 
-Both parcel and prepaid write gates remain default-false. Existing local
-duty/claim acceptance and private map configuration are unchanged. The
-[API checklist](../../api/PREPAID_DELIVERY_NEEDS.md) owns the pending requests.
+At that point both parcel and prepaid write gates remained default-false.
+Existing local duty/claim acceptance and private map configuration were
+unchanged. The [API checklist](../../api/PREPAID_DELIVERY_NEEDS.md) now records
+the source follow-up and the remaining deployment/live gates.
+
+## November 1 source repair and native reacceptance
+
+The original section above preserves the October 22 baseline, where the native
+runner reproduced the Wallet recipient/proof defect. Bagoo later fixed that
+source behavior on `fix/rider-wallet-trip-evidence` through
+`9e58312d130809eb8cd878189b729f1f702291d8`; its focused backend suite passed
+452 tests and 16,115 assertions. The backend regressions include mismatched
+receipt identity, missing or changed proof, foreign access and a reassigned
+delivery.
+
+On November 1 the Rider Linux integration test passed against that pinned
+revision. The client simulated a lost delivery response, reconciled it, replayed
+the original UUID/body/image and received one completed paid Wallet result. Trips
+returned the original recipient and the exact original private image; its
+SHA-256 matched both the uploaded bytes and immutable receipt. The fixture
+recorded one delivery command, one Wallet receipt and zero COD accounts. The
+isolated PHP kernel used SQLite `:memory:` and no network. The native Linux test
+ran on the PC; Android hardware and Azure were not involved.
+
+This closes the local source/client compatibility gap. Both the native prepaid
+write gate and the general parcel write gate remain false. The source branch is
+not merged or confirmed deployed, and controlled Azure, cross-role and physical
+Android acceptance remain open.

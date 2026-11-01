@@ -25,7 +25,7 @@ void main() {
   const base = String.fromEnvironment('LOCAL_PREPAID_API_BASE');
   const fixtureToken = String.fromEnvironment('LOCAL_PREPAID_FIXTURE_TOKEN');
   testWidgets(
-    'native prepaid handoff/replay uses original proof and records the retained-proof backend gap',
+    'native Wallet handoff/replay retains the original recipient and private proof',
     (tester) async {
       final origin = Uri.parse(base);
       if (origin.scheme != 'http' ||
@@ -181,6 +181,7 @@ void main() {
           }),
         );
         expect(replay['data']['replayed'], isTrue);
+        expect(replay['data']['result']['commercial_status'], 'completed');
         final saved = await control('prepaid_snapshot');
         expect(saved['wallet_receipts'], 1);
         expect(saved['cod_accounts'], 0);
@@ -188,7 +189,8 @@ void main() {
         expect(saved['commands'], 1);
         expect(saved['recipient'], 'Software Test Prepaid Recipient');
         expect(saved['proof_hash'], proof.digest);
-        expect(saved['order_status'], 'delivered');
+        expect(saved['stage'], 'delivered');
+        expect(saved['order_status'], 'completed');
         expect(saved['payment_status'], 'paid');
         final trip = (await repo.tripPage(
           filters: TripFilters(payment: 'prepaid'),
@@ -199,21 +201,17 @@ void main() {
         final checkpoint = history.checkpoints.singleWhere(
           (c) => c.kind == 'delivered',
         );
+        expect(history.recipient, 'Software Test Prepaid Recipient');
         expect(checkpoint.proofPath, isNotNull);
-        // This is an observed external gate, not accepted proof functionality.
-        // Require the owner to fix this before prepaid live activation; do not
-        // fabricate a cash account or borrow another assignment's proof.
-        await expectLater(
-          repo.tripProof(history.id, checkpoint.proofPath!),
-          throwsA(
-            isA<AccountFailure>().having(
-              (e) => e.status,
-              'current backend retained wallet proof gap',
-              404,
-            ),
-          ),
+        final retainedProof = await repo.tripProof(
+          history.id,
+          checkpoint.proofPath!,
         );
-        expect(history.recipient, isNull);
+        expect(retainedProof.mimeType, proof.mime);
+        expect(base64Encode(retainedProof.bytes), base64Encode(proof.bytes));
+        final retainedDigest = sha256.convert(retainedProof.bytes).toString();
+        expect(retainedDigest, proof.digest);
+        expect(retainedDigest, saved['proof_hash']);
         final out = File('build/prepaid-verification/native-result.json');
         await out.parent.create(recursive: true);
         await out.writeAsString(
@@ -222,14 +220,15 @@ void main() {
             'original_replay': true,
             'wallet_receipts': 1,
             'cod_accounts': 0,
-            'buyer_completed': false,
-            'retained_proof_status': 404,
-            'retained_recipient_returned': false,
+            'order_status': 'completed',
+            'retained_proof_sha256': retainedDigest,
+            'retained_recipient_returned': true,
+            'retained_proof_verified': true,
             'prepaid_live_accepted': false,
           }),
         );
         debugPrint(
-          'Native paid-wallet handoff and original replay passed; retained wallet proof returned 404 and original recipient was absent. Live activation remains unavailable.',
+          'Native Wallet handoff/replay passed; Trips returned the original recipient and hash-matched private proof. Version-two completion is recorded with no COD. Live activation remains unavailable.',
         );
       } finally {
         if (journal != null) {

@@ -9,7 +9,7 @@ deferred by the user. Keep this list open until its corresponding evidence exist
 | Company | Fresh current directory/request/offer, exact terms and explicit consent; no accidental duty activation or duplicate acceptance. |
 | Pickup | Actual matching/wrong scan, one claim/collection, named origin-hub receipt; no client-created intake. |
 | Version-two COD | Authorized hub departure, correct recipient/proof and counted cash; committed `completed` order visible cross-role. |
-| Paid Wallet | Original paid handoff with no COD collection, original recipient/private proof after delivery and replay, foreign proof denied. Requires owner fixes first. |
+| Paid Wallet | Original paid handoff with no COD collection, original recipient/private proof after delivery and replay, foreign proof denied. Source fixes and backend regressions are on `fix/rider-wallet-trip-evidence`; merge/deploy and controlled owned-resource acceptance are still required. |
 | Failure/return | One recorded failed attempt, truthful next hub/retry authority and actual hub receipt; preserve all prior evidence. |
 | Cash/shift | Offer leaves held cash unchanged; independent hub receipt updates the ledger and closure decision; cancellation remains separately authorized. |
 | Messages/notices | Actual phase-bound send, displayed read boundaries and later arrivals remaining unread; opening links alone is not write acceptance. |

@@ -17,8 +17,10 @@ All browser handoffs use a separate website session without passing app tokens.
 
 Android builds use a 1 GB Gradle heap, one worker and no persistent build daemon.
 The UI keeps ordinary real-account entry and existing independent write gates.
-Backend Wallet retained-proof/recipient repair and live acceptance remain separate;
-the user has deferred phone testing.
+The Wallet retained-proof/recipient and version-two handover source fixes are on
+Bagoo branch `fix/rider-wallet-trip-evidence`; the native prepaid consumer check
+passed against its pinned revision. Merge/deploy and controlled live acceptance
+remain separate, and the user has deferred phone testing.
 
 ## Validation
 
@@ -26,4 +28,5 @@ Analysis is clean; 691 Flutter tests passed with six expected skips. Configured
 Linux and Android debug builds passed sequentially with limited compile workers.
 Full local results and remaining acceptance are recorded in
 [VERIFICATION.md](VERIFICATION.md).
-The handoff is a local draft; no pull request or commits have been published.
+The Rider branch and its commits are pushed. This file remains a PR draft; no
+pull request has been opened.

@@ -42,7 +42,20 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields> {
       choosing = false,
       validImage = true,
       resettingReview = false;
-  ParcelProof? get proof => proofField.currentState?.value;
+  ParcelProof? get proof {
+    final selected = proofField.currentState?.value;
+    if (selected == null) return null;
+    return widget.photos?.isUsableDraft(
+              selected,
+              taskId: widget.task.id,
+              version: widget.task.version,
+              action: widget.action,
+            ) ==
+            true
+        ? selected
+        : null;
+  }
+
   bool get ready =>
       proof != null &&
       validImage &&
@@ -59,7 +72,35 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields> {
   }
 
   void _photoChanged() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    final selected = proofField.currentState?.value;
+    if (selected != null &&
+        widget.photos?.isUsableDraft(
+              selected,
+              taskId: widget.task.id,
+              version: widget.task.version,
+              action: widget.action,
+            ) !=
+            true) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted ||
+            !identical(proofField.currentState?.value, selected) ||
+            widget.photos?.isUsableDraft(
+                  selected,
+                  taskId: widget.task.id,
+                  version: widget.task.version,
+                  action: widget.action,
+                ) ==
+                true) {
+          return;
+        }
+        proofField.currentState?.didChange(null);
+        widget.onChanged();
+        setState(() {});
+      });
+      return;
+    }
+    setState(() {});
   }
 
   @override
@@ -233,7 +274,16 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields> {
         const SizedBox(height: 12),
         FormField<ParcelProof>(
           key: proofField,
-          validator: (file) => file == null || !validImage
+          validator: (file) =>
+              file == null ||
+                  !validImage ||
+                  widget.photos?.isUsableDraft(
+                        file,
+                        taskId: widget.task.id,
+                        version: widget.task.version,
+                        action: widget.action,
+                      ) !=
+                      true
               ? 'Choose a valid original proof image.'
               : null,
           builder: (field) => WorkspacePanel(

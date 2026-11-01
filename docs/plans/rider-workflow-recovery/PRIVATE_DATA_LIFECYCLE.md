@@ -1,8 +1,7 @@
 # Rider private-data lifecycle audit
 
-Source audit: November 1, 2026, against Rider runtime revision `d04cb54`. This
-records the current implementation and remaining policy decisions. It does not
-constitute owner acceptance.
+Source audit: November 1, 2026. This records current implementation behavior
+and remaining policy decisions. It does not constitute owner acceptance.
 The related [command replay decision](../../backlog/M01.md#m01-06) and
 [private draft/interruption decision](../../backlog/M16.md#m16-02) remain
 planned.
@@ -14,8 +13,8 @@ planned.
 | Bearer token | `SecureTokenStore` uses Flutter Secure Storage with a key derived from the API origin. The token is not a field in `CommandIntent`. | `clear()` deletes the origin-specific and legacy token keys. This audit does not certify OS-level storage behavior on a physical device. |
 | Pending commands | `SecureCommandJournal` persists the complete JSON `CommandIntent` through Flutter Secure Storage. Its key is scoped by API origin, account and one of `work`, `messages`, `notifications` or `company`. | The body is persisted for exact replay. Depending on action it can contain recipient name/relationship, notes or location, cash terms, message text, notification IDs, or company request details. The journal also includes account, command key/action/resource/time and, for parcel proof, a small key/hash/extension reference. It contains no proof image bytes or bearer token. |
 | Unknown command result | One unresolved intent blocks a new command in that scope. Successful reconciliation and selected definitive rejections clear it. Logout/account change does not delete the unresolved journal. | The command adapters permit an unchanged retry for up to seven days. After that, an unknown result is not automatically deleted: retry is refused, but the intent remains available for status checking and continues to block a replacement command. The cutoff is a retry limit, not a retention or purge policy. |
-| Parcel proof for a command | Original image bytes are stored separately in application-support files, encrypted with AES-GCM. The key is in Flutter Secure Storage; the file and key/reference are scoped to API origin and account. | An unresolved proof can survive logout for same-account reconciliation. It is removed when the owning photo draft or resolved command is explicitly cleaned up. Account scoping prevents another account from adopting it; physical-device storage behavior remains unverified. |
-| Unsubmitted parcel photo draft | Secure Storage holds a context and proof reference bound to API, account, task, version, action and a random key. The encrypted original is separate. Android lost-picker recovery uses a context marker. | The image is offered only for the matching context and for less than 24 hours. `restore()` deletes an expired persisted draft. A lost-picker result is restored as a draft and never submits an outcome. The photo service is workspace-scoped and is not cleared by the workspace foreground callback; its in-memory recovered proof can therefore remain while the app is backgrounded. |
+| Parcel proof for a command | Original image bytes are stored separately in application-support files, encrypted with AES-GCM. The key is in Flutter Secure Storage; the file and key/reference are scoped to API origin and account. | Before dispatch, the work repository copies the selected image under the command's own key. That proof remains available for same-account reconciliation after logout and after the temporary photo draft expires. It is removed when the command is resolved and cleaned up. Physical-device storage behavior remains unverified. |
+| Unsubmitted parcel photo draft | Secure Storage holds a context and proof reference bound to API, account, task, version, action and a random key. The encrypted original is separate. Android lost-picker recovery uses a context marker. | The image is offered only for the matching context and for less than 24 hours. A timer clears the in-memory draft and removes its encrypted copy while the workspace is running; `restore()` removes an expired persisted draft when the workspace is initialized again. The form rejects an expired image and clears its local selection. If the app is stopped or signed out, physical deletion can wait until the next same-account restore. A lost-picker result is restored as a draft and never submits an outcome. The photo service is not cleared by the workspace foreground callback, so the image may remain in memory while backgrounded until expiry cleanup runs or the service is disposed. |
 | Messages | Conversation list, selected thread/history and pending UI intent are held in controller memory. Draft text is an in-memory map keyed by thread. | Backgrounding clears the cached inbox/history and pending UI intent, but leaves message draft text in memory. Losing authorization, stale-thread denial, capability removal or controller disposal clears drafts. Deactivating a surface cancels reads but retains cached state while the controller remains alive. |
 | Notifications | Inbox, selected item, pending UI intent and displayed-read tracking are held in controller memory. | Backgrounding clears private inbox/detail/pending state. Access loss, capability removal and disposal clear it too. |
 | Retained Trip proof view | Authorized proof bytes are held by the Trip detail controller in memory after an authenticated read. | Backgrounding clears the selected proof and its path; reopening requires a fresh read. Controller disposal also clears the view. |
@@ -35,8 +34,8 @@ this audit.
 3. Decide whether message draft text may remain in memory across backgrounding
    and whether inactive message surfaces should retain their cached private data.
 4. Decide whether a matching parcel image draft may remain available in memory
-   across backgrounding, while its encrypted persisted recovery copy expires
-   after 24 hours.
+   across backgrounding until its 24-hour eligibility cutoff, while its
+   persisted recovery copy is cleared at expiry or the next workspace restore.
 5. Confirm acceptable token, journal and proof protection on supported Android
    versions, including real process death and lost-picker behavior.
 

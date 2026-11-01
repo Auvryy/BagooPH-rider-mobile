@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -92,7 +93,8 @@ class RecoveredParcelPhoto {
 
 /// A photo draft is separate from a dispatched command. Its protected original
 /// is offered for 24 hours only for the exact account/API/task/action/version.
-/// Expired drafts are removed when checked. Recovery never submits an outcome.
+/// Expiry clears the draft while active or during restore; dispatched commands
+/// keep their own proof copy. Recovery never submits an outcome.
 class ParcelPhotoService extends ChangeNotifier {
   ParcelPhotoService({
     required this.origin,
@@ -118,6 +120,10 @@ class ParcelPhotoService extends ChangeNotifier {
   bool busy = false, _restored = false, _disposed = false;
   RecoveredParcelPhoto? recovered;
   String? notice;
+  Timer? _draftExpiryTimer;
+  String? _scheduledExpiryKey;
+  String? _expiringDraftKey;
+  RecoveredParcelPhoto? _queuedExpiredDraft;
 
   void _guard() {
     if (_disposed || !isCurrent()) {
@@ -138,16 +144,39 @@ class ParcelPhotoService extends ChangeNotifier {
     return !age.isNegative && age < const Duration(hours: 24);
   }
 
-  ParcelProof? forTask(String taskId, String version, ParcelAction action) {
-    final value = recovered;
+  bool isUsableDraft(
+    ParcelProof proof, {
+    required String taskId,
+    required String version,
+    required ParcelAction action,
+  }) {
+    final draft = recovered;
     if (_disposed ||
         !isCurrent() ||
-        value == null ||
-        !_owns(value.context) ||
-        !_fresh(value.context) ||
-        value.context.taskId != taskId ||
-        value.context.version != version ||
-        value.context.action != action) {
+        draft == null ||
+        !identical(draft.proof, proof) ||
+        !_owns(draft.context) ||
+        draft.context.taskId != taskId ||
+        draft.context.version != version ||
+        draft.context.action != action) {
+      return false;
+    }
+    if (!_fresh(draft.context)) {
+      _queueExpiry(draft);
+      return false;
+    }
+    return true;
+  }
+
+  ParcelProof? forTask(String taskId, String version, ParcelAction action) {
+    final value = recovered;
+    if (value == null ||
+        !isUsableDraft(
+          value.proof,
+          taskId: taskId,
+          version: version,
+          action: action,
+        )) {
       return null;
     }
     return value.proof;
@@ -180,6 +209,7 @@ class ParcelPhotoService extends ChangeNotifier {
     );
     _guard();
     recovered = RecoveredParcelPhoto(context, reference, proof);
+    _scheduleExpiry(recovered!);
     if (previous != null) {
       final old = ParcelProofReference.fromJson(Wire.object(previous['proof']));
       if (old.key != reference.key) await proofs.delete(old);
@@ -205,6 +235,7 @@ class ParcelPhotoService extends ChangeNotifier {
           final proof = await proofs.read(reference);
           _guard();
           recovered = RecoveredParcelPhoto(context, reference, proof);
+          _scheduleExpiry(recovered!);
         } else {
           await proofs.delete(reference);
           await _storage.delete(key: _draftKey);
@@ -234,8 +265,102 @@ class ParcelPhotoService extends ChangeNotifier {
       if (!_disposed) {
         busy = false;
         _changed();
+        _drainQueuedExpiry();
       }
     }
+  }
+
+  void _scheduleExpiry(RecoveredParcelPhoto draft) {
+    _draftExpiryTimer?.cancel();
+    _scheduledExpiryKey = draft.context.key;
+    final expiresAt = draft.context.createdAt.toUtc().add(
+      const Duration(hours: 24),
+    );
+    final delay = expiresAt.difference(now().toUtc());
+    _draftExpiryTimer = Timer(delay.isNegative ? Duration.zero : delay, () {
+      if (_scheduledExpiryKey == draft.context.key) {
+        _draftExpiryTimer = null;
+        _scheduledExpiryKey = null;
+      }
+      _queueExpiry(draft);
+    });
+  }
+
+  void _queueExpiry(RecoveredParcelPhoto draft) {
+    if (_disposed || _expiringDraftKey != null) return;
+    if (_fresh(draft.context)) {
+      _scheduleExpiry(draft);
+      return;
+    }
+    if (_scheduledExpiryKey == draft.context.key) {
+      _draftExpiryTimer?.cancel();
+      _draftExpiryTimer = null;
+      _scheduledExpiryKey = null;
+    }
+    if (identical(recovered, draft)) recovered = null;
+    if (busy) {
+      _queuedExpiredDraft = draft;
+      return;
+    }
+    _expiringDraftKey = draft.context.key;
+    // forTask() and isUsableDraft() may be called during widget builds.
+    // Defer notifications and storage cleanup until after the current frame.
+    unawaited(Future<void>.microtask(() => _expireDraft(draft)));
+  }
+
+  Future<void> _expireDraft(RecoveredParcelPhoto draft) async {
+    final key = draft.context.key;
+    try {
+      if (_disposed) return;
+      busy = true;
+      _changed();
+      _guard();
+      final value = await _storage.read(key: _draftKey);
+      _guard();
+      if (value == null) {
+        _guard();
+        await proofs.delete(draft.reference);
+        return;
+      }
+      final saved = Wire.object(jsonDecode(value));
+      final context = ParcelPhotoContext.fromJson(
+        Wire.object(saved['context']),
+      );
+      if (context.key != key) {
+        // A newer draft replaced this one while it was being selected.
+        // Preserve its metadata and remove only the expired draft's file.
+        await proofs.delete(draft.reference);
+        return;
+      }
+      final reference = ParcelProofReference.fromJson(
+        Wire.object(saved['proof']),
+      );
+      if (reference.key != draft.reference.key ||
+          reference.digest != draft.reference.digest ||
+          reference.extension != draft.reference.extension) {
+        Wire.invalid();
+      }
+      // The submitted command owns a separate proof copy under its command key.
+      // Expiring this picker draft cannot remove that unresolved command proof.
+      await proofs.delete(reference);
+      _guard();
+      await _storage.delete(key: _draftKey);
+    } catch (_) {
+      if (!_disposed && isCurrent()) {
+        notice = 'An expired photo could not be removed. Check saved work requests before continuing.';
+      }
+    } finally {
+      busy = false;
+      if (_expiringDraftKey == key) _expiringDraftKey = null;
+      _changed();
+      _drainQueuedExpiry();
+    }
+  }
+
+  void _drainQueuedExpiry() {
+    final draft = _queuedExpiredDraft;
+    _queuedExpiredDraft = null;
+    if (draft != null) _queueExpiry(draft);
   }
 
   Future<ParcelProof?> choose({
@@ -245,7 +370,10 @@ class ParcelPhotoService extends ChangeNotifier {
     required bool camera,
   }) async {
     _guard();
-    if (busy || (camera && !picker.supportsCamera)) {
+    if (busy ||
+        _expiringDraftKey != null ||
+        _queuedExpiredDraft != null ||
+        (camera && !picker.supportsCamera)) {
       throw const AccountFailure(
         'Photo capture is unavailable. Choose a supported original image.',
       );
@@ -284,6 +412,7 @@ class ParcelPhotoService extends ChangeNotifier {
         } finally {
           busy = false;
           _changed();
+          _drainQueuedExpiry();
         }
       }
     }
@@ -291,6 +420,20 @@ class ParcelPhotoService extends ChangeNotifier {
 
   Future<void> discard({String? expectedKey}) async {
     _guard();
+    if (_expiringDraftKey != null &&
+        (expectedKey == null || expectedKey == _expiringDraftKey)) {
+      return;
+    }
+    if (_queuedExpiredDraft != null &&
+        (expectedKey == null ||
+            expectedKey == _queuedExpiredDraft!.context.key)) {
+      return;
+    }
+    if (expectedKey == null || _scheduledExpiryKey == expectedKey) {
+      _draftExpiryTimer?.cancel();
+      _draftExpiryTimer = null;
+      _scheduledExpiryKey = null;
+    }
     final saved = await _saved();
     if (saved == null) return;
     final context = ParcelPhotoContext.fromJson(Wire.object(saved['context']));
@@ -303,6 +446,10 @@ class ParcelPhotoService extends ChangeNotifier {
     );
     _guard();
     await _storage.delete(key: _draftKey);
+    _draftExpiryTimer?.cancel();
+    _draftExpiryTimer = null;
+    _scheduledExpiryKey = null;
+    _queuedExpiredDraft = null;
     recovered = null;
     _changed();
   }
@@ -310,6 +457,8 @@ class ParcelPhotoService extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    _draftExpiryTimer?.cancel();
+    _draftExpiryTimer = null;
     recovered = null;
     notice = null;
     super.dispose();

@@ -2,15 +2,20 @@
 
 **Current status — November 1, 2026.** The scores and starter-screen statements
 below describe the October 5 planning snapshot, not current Rider behavior.
+After the 700-test checkpoint recorded below, a local runtime change added
+active expiry cleanup for parcel photo drafts and rejects expired proof in the
+outcome form. `flutter analyze --no-pub` passed after that change. The 700-test
+run predates it and does not cover it; no post-change test run is recorded here.
+Treat the new behavior as local and pending focused regression evidence.
 The most recent full serial PC regression ran at local Rider test head
 `d04cb54` on `fix/rider-route-privacy-disclosure`, exercising runtime change
 `a9b972d`. `flutter test --no-pub --concurrency=1 --reporter=compact test`
 passed **700 tests with 7 skips and zero failures** in 4m26s. One Flutter test
 worker was used. `flutter analyze --no-pub` reported no issues in 7.8s. No
 phone, ADB, emulator, install, or app window was used. This test head is not
-pushed. Changes since runtime `a9b972d` are documentation and tests; the
-previously verified APKs still contain the same runtime code but were not
-rebuilt or installed by this check.
+pushed. A later local photo-draft expiry change modifies runtime code after
+`a9b972d`; the previously verified APKs do not include it and were not rebuilt
+or installed by this follow-up.
 
 An earlier full serial PC regression ran at historical test checkout `38e25cf` on
 `fix/rider-route-privacy-disclosure`. Runtime code was `9d7e8cf`; the latest
@@ -160,13 +165,13 @@ command/workflow/outcome tests at `3839de6`,
 20 proof-recovery/Trips tests at `cbd6b21`, 20 Parcel Finder tests at `d42c948`,
 six map-disclosure checks at `9d7e8cf`/`039d40d`, and one headless Rider-to-kernel
 scenario at `6a0ab47` against Bagoo `9e58312`. The arm64 profile APK for runtime
-code `9d7e8cf` is historical. A current arm64-targeted profile preview was built
+code `9d7e8cf` is historical. The latest published-source arm64 profile preview was built
 from published branch head `82f3bc6` (runtime `a9b972d`): 77,606,440 bytes,
 SHA-256 `c6706a114cac8807265b49a67890e6ceb260896cbad222015e11c5f361e9e0c6`.
 Archive integrity, package/SDK/version metadata, debuggable state and the
 single-signer APK v2 debug signature passed PC checks. The profile build is
 debug-signed, uses the scaffold package ID, and was not installed. The separate
-current arm64 debug APK was built from published revision `8b50401` with the
+available arm64 debug APK was built from published revision `8b50401` with the
 same runtime code and also passed archive, metadata, signature and SHA-256
 checks. Neither artifact establishes a signed release or Android device
 acceptance. See [Android release packaging](ANDROID_RELEASE.md). The current PC

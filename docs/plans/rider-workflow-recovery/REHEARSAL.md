@@ -110,9 +110,11 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    provider. The default road-routing provider is unavailable, so there is no
    in-app GPS follow or rerouting. When the rider explicitly opens External
    directions, Google Maps receives the saved stop address or coordinates. The
-   Android client also uses the native scanner lifecycle and protects the
-   original request and proof when a command
-   outcome is uncertain. It does not claim full offline delivery.
+   Android client also uses the native scanner lifecycle and preserves the
+   exact pending command for same-key reconciliation; original proof bytes are
+   encrypted separately. It does not claim full offline delivery. The local
+   journal can retain private action-body fields, and its long-term cleanup
+   policy remains open.
 4. **Relationship to web — 45 seconds.** Courier web already includes queues,
    maps, camera scanning, proof upload, Trips/Earnings, Messages, notifications,
    cash handovers, company requests, and handover issues. Both clients use
@@ -123,17 +125,21 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
 5. **Evidence and limits — 60 seconds.** The latest full serial Flutter suite
    passed **700 tests, 7 skipped, zero failures** at local test checkout
    `d04cb54` (runtime `a9b972d`) in 4m26s; this commit is not pushed.
-   `flutter analyze --no-pub` reported no issues in 7.8s. The runtime code was
-   unchanged from `a9b972d`. A separate headless Rider client scenario passed
-   against the pinned Bagoo kernel, including lost-response recovery, paid COD
+   `flutter analyze --no-pub` reported no issues in 7.8s. At that test
+   checkpoint, runtime was unchanged from `a9b972d`. A later local photo-draft
+   expiry change passed analysis but has not been covered by a test run. The
+   available debug/profile APKs predate that runtime change. A separate
+   headless Rider client scenario passed against the pinned Bagoo kernel,
+   including lost-response recovery, paid COD
    completion, cash separation, retained private proof and failed-return /
    reassignment. Focused evidence also includes 42 command/workflow/outcome
    tests at `3839de6`, 20 proof-recovery/Trips tests at `cbd6b21`, 20 Parcel
    Finder tests at `d42c948`, and six map-disclosure checks at
-   `9d7e8cf`/`039d40d`. Flutter analysis is clean after the theme change. The
-   current arm64-targeted debug APK was built from published revision `8b50401`
-   with the same runtime code. An arm64-targeted profile preview was built from
-   published branch head `82f3bc6` (runtime `a9b972d`). Both passed PC archive,
+   `9d7e8cf`/`039d40d`. Follow-up analysis also passed after the photo-expiry
+   change; that change still needs a test run. The
+   available arm64-targeted debug APK was built from published revision
+   `8b50401` (runtime `a9b972d`). The arm64-targeted profile preview was built
+   from published branch head `82f3bc6` (runtime `a9b972d`). Both passed PC archive,
    metadata and v2 debug-signature checks, use the scaffold package ID, and were
    not installed. Neither establishes release signing, Azure deployment,
    cross-role production behavior, or physical Android camera/lifecycle
@@ -160,8 +166,10 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   official policy and the current provider follow-up are recorded in the
   [street-map plan](../rider-street-map/README.md).
 - **Does delivery still work without internet?** No full offline delivery is
-  claimed. The journal retains the original uncertain request and proof so the
-  app can reconcile or retry that same operation when connectivity returns.
+  claimed. One scoped journal retains an uncertain command's exact body and
+  proof reference so the app can check or retry the same operation when
+  connectivity returns. The original proof bytes are stored separately. This
+  is recovery for one unresolved command, not an offline work queue.
 - **What if Android stops the app while a proof photo is being selected?** The
   native picker path records the exact API/account/task/action/version context.
   It can recover one matching photo for up to 24 hours into encrypted app-owned
@@ -169,10 +177,25 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   itself. The focused PC suite passed 7/7 using a simulated picker; actual
   Android kill/resume acceptance remains open.
 - **What happens to an uncertain request after sign-out or an account change?**
-  Its encrypted journal is scoped to the original API and account, and the
-  original proof remains protected. The app checks that saved request before a
-  new one can replace it. A retry uses the same request key and unchanged
-  evidence; no other account inherits it.
+  The complete `CommandIntent`, including its action body, is saved through
+  Flutter Secure Storage under API-origin, account and feature-scope keys; it
+  does not contain a bearer token. The original proof bytes are in a separate
+  AES-GCM protected file. The unresolved record survives sign-out for that
+  account and is checked before a new command can replace it. An unchanged
+  retry is allowed for seven days; after that the retry stops, but the unknown
+  record is retained and still blocks new commands in that scope. This retention
+  behavior is implemented, while its owner-approved cleanup policy remains
+  open in M01.06/M16.02.
+- **What private drafts clear when the app backgrounds?** Message history and
+  inbox data clear, but unsent message text remains in the in-memory chat
+  controller. A recovered parcel photo can also remain in memory while its
+  encrypted recovery copy is scoped to the matching API/account/task/action
+  and is offered for less than 24 hours. It is removed by active expiry cleanup
+  or on the next same-account workspace restore if the process was stopped or
+  signed out. The Trips proof viewer clears on background. These behaviors are
+  recorded in the
+  [source audit](PRIVATE_DATA_LIFECYCLE.md); private-draft policy and real
+  Android lifecycle acceptance remain open.
 - **Does the rider confirm that the buyer received the parcel?** The rider
   records the handoff. The backend returns the applicable status; newer
   flow-version orders may complete automatically. There is no separate
@@ -181,9 +204,10 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   evidence verifies client behavior and selected isolated API flows. It does
   not measure delivery speed, accuracy, or satisfaction; those gains require a
   separate field study.
-- **Is it ready for a live Android defense demo?** Current arm64-targeted debug
-  and profile APKs are built and verified on the PC, but neither has been
-  installed. Both use the scaffold application ID and debug signing. Approved release
+- **Is it ready for a live Android defense demo?** The available
+  arm64-targeted debug and profile APKs are built and verified on the PC, but
+  neither has been installed; both predate the local photo-expiry change. Both
+  use the scaffold application ID and debug signing. Approved release
   identity/signing, deployed cross-role acceptance, and physical Android
   acceptance remain open, so a live-phone demo is not yet accepted.
 
@@ -197,8 +221,11 @@ evidence, not as an accepted live phone demonstration.
 - The latest full serial Flutter suite passed **700 tests, 7 skipped, zero
   failures** in 4m26s at local test checkout `d04cb54`, exercising runtime
   change `a9b972d`. This local test/documentation update is not pushed; runtime
-  code was unchanged. `flutter analyze --no-pub` reported no issues in 7.8s.
-  This is PC-only unit/widget evidence; physical Android gates remain open.
+  code was unchanged at that test checkpoint. A later local change adds active
+  expiry cleanup for parcel photo drafts and rejects expired proof in the
+  outcome form; `flutter analyze --no-pub` passed after that change. The 700-test
+  result predates the expiry change and does not cover it. This is PC-only
+  unit/widget evidence; physical Android gates remain open.
 - Runtime code at Rider revision `9d7e8cf` and test revision `039d40d` passed
   six focused PC checks serially: saved/sample map disclosures, default
   route-provider status, Google Maps handoff disclosure, and both notices at
@@ -235,7 +262,7 @@ evidence, not as an accepted live phone demonstration.
   widget tests. It covers account/assignment scoping, cleanup, fresh ownership,
   duplicate taps, accessible controls and 320 px at 200% text. These PC checks do
   not establish physical Android layout, camera or lifecycle acceptance.
-- The current arm64-targeted debug APK was built from published revision
+- The available arm64-targeted debug APK was built from published revision
   `8b50401` (runtime `a9b972d`). It is 176,214,087 bytes, with SHA-256
   `b82d9a66e19803e248e9f6004a6a7837d562743bf8d651549ed3aae5e84a8abe`.
   Archive integrity, package/version/SDK metadata, debuggable state, and the
@@ -247,7 +274,7 @@ evidence, not as an accepted live phone demonstration.
   present in the published branch. Bagoo web `main` remains `f001d396`; the
   Wallet/handover source branch `9e58312` is 2 commits ahead of main, not merged
   or deployment evidence.
-- The current arm64-targeted profile preview was built from published branch
+- The available arm64-targeted profile preview was built from published branch
   head `82f3bc6` (runtime `a9b972d`). It is 77,606,440 bytes, with SHA-256
   `c6706a114cac8807265b49a67890e6ceb260896cbad222015e11c5f361e9e0c6`.
   Archive, package/version/SDK metadata and v2 `Android Debug` signing passed
@@ -283,8 +310,8 @@ checks cover the bundled document separately.
    clearest extra rider-facing feature is session-only Parcel Finder labels.
 2. Show the PC evidence above with revisions attached: the latest full suite
    passed 700 tests with 7 skips at local test head `d04cb54` (runtime
-   `a9b972d`; not pushed); the current arm64 debug APK at `8b50401` has the
-   same runtime code and remains debug-signed and uninstalled. The current
+   `a9b972d`; not pushed); the available arm64 debug APK at `8b50401` uses that
+   earlier runtime and remains debug-signed and uninstalled. The available
    profile preview at `82f3bc6` is
    also debug-signed and uninstalled. None of these establishes hardware
    behavior.

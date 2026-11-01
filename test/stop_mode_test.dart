@@ -44,7 +44,7 @@ class _Actions implements StopActions {
 }
 
 class _Harness {
-  _Harness({bool preview = false, bool pickup = false}) {
+  _Harness({bool preview = false, bool pickup = false, bool manual = true}) {
     data = contract.fixture(
       preview || pickup ? 'pickup-task' : 'final-mile-task',
     )['data'];
@@ -93,7 +93,7 @@ class _Harness {
       routes: road,
       authorize: repository.detail,
       vehicleType: () async => 'motorcycle',
-      manual: true,
+      manual: manual,
     );
     binding = NavigationWorkspaceBinding(work, nav);
   }
@@ -163,6 +163,7 @@ Future<_Harness> _open(
   WidgetTester tester, {
   bool preview = false,
   bool pickup = false,
+  bool manual = true,
   Size size = const Size(390, 844),
   double scale = 1,
   double keyboard = 0,
@@ -173,7 +174,7 @@ Future<_Harness> _open(
   tester.view.physicalSize = size;
   addTearDown(tester.view.resetDevicePixelRatio);
   addTearDown(tester.view.resetPhysicalSize);
-  final h = _Harness(preview: preview, pickup: pickup);
+  final h = _Harness(preview: preview, pickup: pickup, manual: manual);
   configure?.call(h);
   addTearDown(() async {
     await tester.pumpWidget(const SizedBox.shrink());
@@ -729,6 +730,33 @@ void main() {
   );
 
   testWidgets(
+    'Android route disclosure explains the coordinates sent to Geoapify before navigation',
+    (tester) async {
+      final h = await _open(
+        tester,
+        manual: false,
+        configure: (h) {
+          h.data['stop']['latitude'] = 14.003;
+          h.data['stop']['longitude'] = 121.0;
+        },
+      );
+      await _reveal(
+        tester,
+        find.byKey(const ValueKey('stop-route-location-disclosure')),
+      );
+      final disclosure = tester.widget<Text>(
+        find.byKey(const ValueKey('stop-route-location-disclosure')),
+      );
+
+      expect(disclosure.data, contains('current location'));
+      expect(disclosure.data, contains('saved coordinates to Geoapify'));
+      expect(disclosure.data, contains('route history to Bagoo'));
+      expect(h.nav.active, isFalse);
+      expect(h.road.calls, isEmpty);
+    },
+  );
+
+  testWidgets(
     'manual Navigate starts only on tap, Stop ends it, and a changed destination cancels its route',
     (tester) async {
       final h = await _open(
@@ -740,6 +768,16 @@ void main() {
       );
       expect(h.nav.active, isFalse);
       expect(h.road.calls, isEmpty);
+      await _reveal(
+        tester,
+        find.byKey(const ValueKey('stop-route-location-disclosure')),
+      );
+      final disclosure = tester.widget<Text>(
+        find.byKey(const ValueKey('stop-route-location-disclosure')),
+      );
+      expect(disclosure.data, contains('entered preview origin'));
+      expect(disclosure.data, contains('Linux preview does not use GPS'));
+      expect(disclosure.data, contains('route history to Bagoo'));
       await _reveal(tester, find.widgetWithText(TextField, 'Origin latitude'));
       await tester.enterText(
         find.widgetWithText(TextField, 'Origin latitude'),

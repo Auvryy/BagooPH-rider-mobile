@@ -14,8 +14,10 @@ import 'provider_scheduler.dart';
 
 export 'provider_scheduler.dart';
 
-/// This client has no dependency on RiderSessionApi or token storage. It sends
-/// only Geoapify's client key to its fixed map/API hosts and follows no redirects.
+/// This client has no dependency on RiderSessionApi or token storage. Tile
+/// requests identify the requested map tiles; route requests also send the
+/// origin and stop coordinates to Geoapify with the public client key. Requests
+/// use fixed map/API hosts and follow no redirects.
 class GeoapifyClient extends ChangeNotifier implements RoadRoutingClient {
   GeoapifyClient(
     this.apiKey, {

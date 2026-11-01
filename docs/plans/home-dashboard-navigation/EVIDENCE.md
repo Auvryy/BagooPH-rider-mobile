@@ -146,3 +146,14 @@ text and wide-to-phone resizing work, and Home ends above bottom navigation.
 Configured ARM64 Android debug and ordinary Linux builds pass. The connected
 phone was no longer detected during this correction, so installation of this
 updated APK and physical touch review remain pending.
+
+## Route-coordinate disclosure — November 1, 2026
+
+The Directions controls explain before Navigate that Android route requests send
+the current origin and saved stop coordinates to Geoapify. Linux preview names
+its manually entered origin and states that it does not use GPS. Both notices
+state that Rider does not send a live-location feed or route history to Bagoo.
+The `GeoapifyClient` documentation now distinguishes route coordinates from
+session credentials. Two focused Stop Mode widget checks pass on the PC; Android
+permission and background-service acceptance remain open. No phone interaction
+was performed for this update.

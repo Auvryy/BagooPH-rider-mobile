@@ -39,6 +39,16 @@ All three credits (Geoapify, OpenStreetMap and OpenMapTiles) stay directly below
 the map, clear of task content and bottom navigation. On phones they scroll with
 the map; the task section uses the same normal page scroll.
 
+### Route data and privacy
+
+Before the rider taps **Navigate**, Directions explains that Android route
+requests send the current location and saved stop coordinates to Geoapify. The
+Linux preview sends its manually entered origin and the saved stop coordinates;
+it does not use GPS. Geoapify receives those points to calculate and refresh the
+road route. This client has no Rider session or bearer-token dependency, and it
+does not send a live-location feed or route history to Bagoo. Physical Android
+permission, notification and background-service acceptance remain separate.
+
 Dependencies reviewed October 9: flutter_map 8.3.2 (BSD-3-Clause, native Linux/
 Android), geolocator 14.1.1 (MIT, Android foreground-service configuration) and
 latlong2 0.10.1 (Apache-2.0). The repository SDK resolves them through pubspec.lock.

@@ -157,12 +157,18 @@ command/workflow/outcome tests at `3839de6`,
 20 proof-recovery/Trips tests at `cbd6b21`, 20 Parcel Finder tests at `d42c948`,
 six map-disclosure checks at `9d7e8cf`/`039d40d`, and one headless Rider-to-kernel
 scenario at `6a0ab47` against Bagoo `9e58312`. The arm64 profile APK for runtime
-code `9d7e8cf` is historical. A current arm64-targeted debug APK was built from
-published revision `8b50401` (runtime `a9b972d`); archive integrity, package/
-SDK/version metadata, debuggable state, v2 signature and SHA-256 were verified.
-It was not installed. Details and the artifact hash are in
-[Android release packaging](ANDROID_RELEASE.md). The current PC environment has no
-`RIDER_APPLICATION_ID`, `android/key.properties`, or default release keystore.
+code `9d7e8cf` is historical. A current arm64-targeted profile preview was built
+from published branch head `82f3bc6` (runtime `a9b972d`): 77,606,440 bytes,
+SHA-256 `c6706a114cac8807265b49a67890e6ceb260896cbad222015e11c5f361e9e0c6`.
+Archive integrity, package/SDK/version metadata, debuggable state and the
+single-signer APK v2 debug signature passed PC checks. The profile build is
+debug-signed, uses the scaffold package ID, and was not installed. The separate
+current arm64 debug APK was built from published revision `8b50401` with the
+same runtime code and also passed archive, metadata, signature and SHA-256
+checks. Neither artifact establishes a signed release or Android device
+acceptance. See [Android release packaging](ANDROID_RELEASE.md). The current PC
+environment has no `RIDER_APPLICATION_ID`, `android/key.properties`, or default
+release keystore.
 See the [current rehearsal and acceptance record](plans/rider-workflow-recovery/REHEARSAL.md),
 [selected workflow verification](plans/rider-workflow-recovery/VERIFICATION.md),
 and [Android packaging record](ANDROID_RELEASE.md). Azure, cross-role,

@@ -131,10 +131,12 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    Finder tests at `d42c948`, and six map-disclosure checks at
    `9d7e8cf`/`039d40d`. Flutter analysis is clean after the theme change. The
    current arm64-targeted debug APK was built from published revision `8b50401`
-   with the same runtime code; its archive, metadata and v2 debug signature
-   passed PC checks, but it was not installed. None of this evidence establishes
-   release signing, Azure deployment, cross-role production behavior, or
-   physical Android camera/lifecycle acceptance. See
+   with the same runtime code. An arm64-targeted profile preview was built from
+   published branch head `82f3bc6` (runtime `a9b972d`). Both passed PC archive,
+   metadata and v2 debug-signature checks, use the scaffold package ID, and were
+   not installed. Neither establishes release signing, Azure deployment,
+   cross-role production behavior, or physical Android camera/lifecycle
+   acceptance. See
    [current APK evidence](../../ANDROID_RELEASE.md).
 
 ### Likely questions
@@ -178,9 +180,9 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   evidence verifies client behavior and selected isolated API flows. It does
   not measure delivery speed, accuracy, or satisfaction; those gains require a
   separate field study.
-- **Is it ready for a live Android defense demo?** A current arm64-targeted debug
-  APK is built and verified on the PC, but it has not been installed. It uses
-  the scaffold application ID and debug signing. Approved release
+- **Is it ready for a live Android defense demo?** Current arm64-targeted debug
+  and profile APKs are built and verified on the PC, but neither has been
+  installed. Both use the scaffold application ID and debug signing. Approved release
   identity/signing, deployed cross-role acceptance, and physical Android
   acceptance remain open, so a live-phone demo is not yet accepted.
 
@@ -237,14 +239,21 @@ evidence, not as an accepted live phone demonstration.
   `b82d9a66e19803e248e9f6004a6a7837d562743bf8d651549ed3aae5e84a8abe`.
   Archive integrity, package/version/SDK metadata, debuggable state, and the
   single-signer APK v2 signature passed PC checks. It was not installed; see
-  [packaging evidence](../../ANDROID_RELEASE.md). The profile APK at `9d7e8cf`
-  is historical.
-- At the GitHub ref fetch immediately before this rehearsal refresh on
-  November 1, Rider `main` was `4367331`; the published defense branch was
-  `3e6131c`, **57 commits ahead and 0 behind**.
-  The 699-test run was at `fc99a02`; its runtime is present in the published
-  branch. Bagoo web `main` remains `f001d396`; the Wallet/handover source branch
-  `9e58312` is **2 commits ahead of main**, not merged or deployment evidence.
+  [packaging evidence](../../ANDROID_RELEASE.md).
+- At the GitHub ref fetch immediately before the November 1 rehearsal refresh,
+  Rider `main` was `4367331`; the published defense branch was `3e6131c`, 57
+  commits ahead and 0 behind. The 699-test run was at `fc99a02`; its runtime is
+  present in the published branch. Bagoo web `main` remains `f001d396`; the
+  Wallet/handover source branch `9e58312` is 2 commits ahead of main, not merged
+  or deployment evidence.
+- The current arm64-targeted profile preview was built from published branch
+  head `82f3bc6` (runtime `a9b972d`). It is 77,606,440 bytes, with SHA-256
+  `c6706a114cac8807265b49a67890e6ceb260896cbad222015e11c5f361e9e0c6`.
+  Archive, package/version/SDK metadata and v2 `Android Debug` signing passed
+  PC checks. It is debuggable, uses the scaffold package ID, and was not
+  installed. Flutter targeted arm64, while plugins retain libraries for three
+  Android ABIs. The published defense branch was 58 commits ahead and 0 behind
+  Rider `main` `4367331` at build time.
 - At an earlier build-verification checkpoint, the branch was recorded at
   `e9fb7e3`, 34 commits ahead and 0 behind main. That is historical ref evidence.
 - A PC `--release` build request at `e0aa20e` stopped before artifact generation
@@ -274,8 +283,9 @@ checks cover the bundled document separately.
 2. Show the PC evidence above with revisions attached: the latest full suite
    passed 699 tests with 7 skips at `fc99a02` (runtime `a9b972d`); the current
    arm64 debug APK at `8b50401` has the same runtime code and remains
-   debug-signed and uninstalled. Older focused map checks and the profile APK
-   are historical PC evidence. None of these establishes hardware behavior.
+   debug-signed and uninstalled. The current profile preview at `82f3bc6` is
+   also debug-signed and uninstalled. None of these establishes hardware
+   behavior.
 3. If asked to demonstrate an operational transaction, explain that Azure and
    cross-role acceptance are separate open gates. Do not substitute sample data
    or imply that a PC test changed a live assignment, order, proof or cash record.

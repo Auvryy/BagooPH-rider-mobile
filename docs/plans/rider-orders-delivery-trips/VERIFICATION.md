@@ -298,3 +298,21 @@ waybill returned from the scanner and stopped it. This exercises the app's
 Android callback handling on the PC without opening the camera, phone, or
 emulator. It does not replace physical camera, permission, low-light, or device
 lifecycle acceptance.
+
+## Current headless Rider-to-kernel recheck — November 2, 2026
+
+At Rider branch head `82555713a2a06b979bcfdf278bfc7a5a2196d5fe`, the isolated
+headless client-to-kernel scenario passed **1/1** in 76 seconds against Bagoo
+commit `9e58312d130809eb8cd878189b729f1f702291d8`:
+
+```sh
+node tool/parcel_local_api/run.mjs ../bagoo parcel-headless \
+  9e58312d130809eb8cd878189b729f1f702291d8
+```
+
+This PC-only rerun covers synthetic COD delivery and failed final-mile return,
+including replay and private proof behavior. It ran the native Dart HTTP client
+against an isolated in-memory SQLite/Laravel kernel; it did not access Android,
+the connected phone, or open an app window. It does not exercise the prepaid
+Wallet client path, the deployed API, or physical Android behavior. The Bagoo
+worktree remained unchanged.

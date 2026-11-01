@@ -8,7 +8,8 @@ commits add docs and phone-size regression tests; runtime code remains at
 `9d7e8cf`. The latest documented full serial suite was at code revision
 `e0aa20e` (693 tests, 7 skips). The current code and test revision `039d40d`
 passed six focused PC checks, including 320 px Home/Stop Mode at 200% text, and
-clean analysis. The arm64 profile APK for runtime code `9d7e8cf` passed archive,
+clean analysis. Parcel Finder also passed its current 20-test focused suite,
+including the 320 px/200% Stop Mode case. The arm64 profile APK for runtime code `9d7e8cf` passed archive,
 package-metadata, v2 debug-signature and embedded-disclosure checks. It was not
 installed. See the [current rehearsal
 and acceptance record](plans/rider-workflow-recovery/REHEARSAL.md), [selected

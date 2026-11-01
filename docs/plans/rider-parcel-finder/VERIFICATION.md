@@ -75,6 +75,23 @@ The Android build retained the existing SDK XML-version warning and completed
 successfully. No dependency or Android permission changed. Public documentation
 links, scoped Git whitespace/privacy checks and private handoff retention passed.
 
+## Thesis-preparation recheck — November 1, 2026
+
+At Rider branch head `d42c948` (runtime disclosure code `9d7e8cf`), the focused
+Parcel Finder suite passed **20/20** serially with `--concurrency=1`:
+
+```sh
+flutter test --no-pub --concurrency=1 test/parcel_finder_test.dart test/parcel_finder_session_test.dart test/parcel_finder_pages_test.dart
+```
+
+This recheck includes 13 state/controller/provider tests and 7 picker/Stop Mode
+widget tests. It covers API/account scoping, fresh ownership checks, assignment
+and terminal cleanup, failure retention, duplicate taps, accessible controls,
+and the owned Stop Mode flow. The widget layouts include 320 px at 200% text.
+No phone, emulator, Azure account or live parcel was used. This is a focused
+recheck, not a new full-suite run; the recorded full regression remains the
+October 19 run above.
+
 ## Scope limits and handoff
 
 Labels intentionally clear on app restart. Persistence, cross-device labels,

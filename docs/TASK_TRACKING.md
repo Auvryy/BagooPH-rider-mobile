@@ -11,7 +11,9 @@ Azure deployment and phone acceptance are still pending. The latest documented
 full serial Flutter run was at code revision `e0aa20e` (693 tests, 7 skips; clean
 analysis). The map/privacy runtime code at `9d7e8cf` and test-only revision
 `039d40d` passed six focused PC checks, including 320 px Home/Stop Mode layouts
-at 200% text, plus clean analysis. An arm64 profile APK was rebuilt from runtime
+at 200% text, plus clean analysis. The app-only Parcel Finder feature also passed
+its current focused suite (**20/20**), including 320 px/200% Stop Mode layout. An
+arm64 profile APK was rebuilt from runtime
 code `9d7e8cf` and passed archive-integrity, package-metadata, APK v2
 debug-signature and embedded-disclosure checks; it was not installed. See
 [Android release packaging](ANDROID_RELEASE.md) and the

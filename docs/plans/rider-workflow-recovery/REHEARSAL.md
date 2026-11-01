@@ -199,11 +199,11 @@ evidence, not as an accepted live phone demonstration.
 - The focused photo-recovery suite passed **7/7** at Rider head `f17309c`. It
   covers scoped restart and lost-picker handling with a simulated picker, not
   physical Android lifecycle behavior.
-- The Parcel Finder/Stop Mode widget suite passed **7/7** at Rider head
-  `5836658`: five viewport/text-scale setups, accessible 48px slot controls,
-  keyboard activation, duplicate-save protection, and the owned Stop Mode flow.
-  These are widget checks; physical Android layout and camera acceptance remain
-  open.
+- At Rider branch head `d42c948`, the focused Parcel Finder suite passed
+  **20/20** serially: 13 state/controller/provider tests and 7 picker/Stop Mode
+  widget tests. It covers account/assignment scoping, cleanup, fresh ownership,
+  duplicate taps, accessible controls and 320 px at 200% text. These PC checks do
+  not establish physical Android layout, camera or lifecycle acceptance.
 - The arm64-targeted profile APK built from Rider code revision `9d7e8cf` is
   `build/app/outputs/flutter-apk/app-profile.apk` (**77,606,440 bytes**; SHA-256
   `28be6a6645ce7549ee0ad94b4c36491c75cd3fdecc601d7cfabeae689c622d84`). Its

@@ -9,13 +9,16 @@ recipient/proof and version-two handover source fixes are on branch
 focused backend suite and the Rider's pinned native Wallet consumer test passed.
 Azure deployment and phone acceptance are still pending.
 
-**Latest full serial PC regression (November 1):** local Rider test head
-`d04cb54`, exercising runtime change `a9b972d`. The full Flutter suite passed
-**700 tests with 7 skips and zero failures** in 4m26s with
+**Latest full serial PC regression (November 1):** Rider runtime at `30412ed`
+with two additional parcel photo-expiry regression tests in this verification
+update. The full Flutter suite passed **702 tests with 7 skips and zero
+failures** in 4m20s with
 `flutter test --no-pub --concurrency=1 --reporter=compact test`.
-`flutter analyze --no-pub` reported no issues in 7.8s. The run used one worker
-and did not touch a phone, ADB, emulator, install, or app window. This test head
-is not pushed. The earlier full run at historical checkout `38e25cf` passed
+The focused photo-recovery and parcel-outcome suites passed **19/19**;
+`flutter analyze --no-pub` reported no issues in 6.3s. The run used one worker
+and did not touch a phone, ADB, emulator, install, or app window. Available
+debug/profile APKs predate runtime `30412ed` and were not rebuilt or installed.
+The earlier full run at historical checkout `38e25cf` passed
 696 tests in 8m10s; the 695-test run at `54d56f2` is superseded. Focused PC
 checks also include scanner layout coverage, 145 extended page tests and 23
 motion/high-contrast tests; see
@@ -43,9 +46,9 @@ See [Android release packaging](ANDROID_RELEASE.md) and the
 `4367331`; the defense branch `fix/rider-route-privacy-disclosure` was
 `e099156`, 54 commits ahead and 0 behind `main`. This included the three
 reviewed commits since the previous published ref `2f8fc69`. The 699-test
-result at `fc99a02` records the published-branch checkpoint; the later local
-full run at `d04cb54` includes one additional repository regression test and
-remains unpublished. At the original test checkout,
+result at `fc99a02` records the published-branch checkpoint; the full run at
+`d04cb54` was a historical local checkpoint, superseded by the 702-test result
+above. At the original test checkout,
 `38e25cf` was one documentation-only commit ahead of the then-published
 `514e1cc` and 44 commits ahead, 0 behind `main`. The published accessibility
 follow-up adds an AA-readable theme text shade, regression tests and expanded

@@ -123,20 +123,20 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    accuracy, or user satisfaction; claim gains only if a separate field study
    supports them.
 5. **Evidence and limits — 60 seconds.** The latest full serial Flutter suite
-   passed **700 tests, 7 skipped, zero failures** at local test checkout
-   `d04cb54` (runtime `a9b972d`) in 4m26s; this commit is not pushed.
-   `flutter analyze --no-pub` reported no issues in 7.8s. At that test
-   checkpoint, runtime was unchanged from `a9b972d`. A later local photo-draft
-   expiry change passed analysis but has not been covered by a test run. The
-   available debug/profile APKs predate that runtime change. A separate
+   passed **702 tests, 7 skipped, zero failures** on the
+   `fix/rider-route-privacy-disclosure` worktree with runtime `30412ed` and the
+   two expiry regression tests from this verification update, in 4m20s.
+   Focused photo-recovery and parcel-outcome suites passed **19/19**;
+   `flutter analyze --no-pub` reported no issues in 6.3s. No phone, ADB,
+   emulator, install, or app window was used. Available debug/profile APKs
+   predate runtime `30412ed` and were not rebuilt or installed. A separate
    headless Rider client scenario passed against the pinned Bagoo kernel,
    including lost-response recovery, paid COD
    completion, cash separation, retained private proof and failed-return /
    reassignment. Focused evidence also includes 42 command/workflow/outcome
    tests at `3839de6`, 20 proof-recovery/Trips tests at `cbd6b21`, 20 Parcel
    Finder tests at `d42c948`, and six map-disclosure checks at
-   `9d7e8cf`/`039d40d`. Follow-up analysis also passed after the photo-expiry
-   change; that change still needs a test run. The
+   `9d7e8cf`/`039d40d`. The
    available arm64-targeted debug APK was built from published revision
    `8b50401` (runtime `a9b972d`). The arm64-targeted profile preview was built
    from published branch head `82f3bc6` (runtime `a9b972d`). Both passed PC archive,
@@ -174,8 +174,9 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   native picker path records the exact API/account/task/action/version context.
   It can recover one matching photo for up to 24 hours into encrypted app-owned
   storage. The restored image stays a draft and never submits an outcome by
-  itself. The focused PC suite passed 7/7 using a simulated picker; actual
-  Android kill/resume acceptance remains open.
+  itself. The focused photo-service suite passed 8/8 using a simulated picker,
+  including active expiry cleanup and retention of an unresolved command's
+  separate proof copy; actual Android kill/resume acceptance remains open.
 - **What happens to an uncertain request after sign-out or an account change?**
   The complete `CommandIntent`, including its action body, is saved through
   Flutter Secure Storage under API-origin, account and feature-scope keys; it
@@ -190,9 +191,11 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   inbox data clear, but unsent message text remains in the in-memory chat
   controller. A recovered parcel photo can also remain in memory while its
   encrypted recovery copy is scoped to the matching API/account/task/action
-  and is offered for less than 24 hours. It is removed by active expiry cleanup
-  or on the next same-account workspace restore if the process was stopped or
-  signed out. The Trips proof viewer clears on background. These behaviors are
+  and is offered for less than 24 hours. While the workspace runs, expiry clears
+  the visible draft and its temporary encrypted file; after a process stop or
+  sign-out, the next same-account restore removes an expired persisted draft.
+  A separately retained proof copy for an unresolved command is preserved.
+  The Trips proof viewer clears on background. These behaviors are
   recorded in the
   [source audit](PRIVATE_DATA_LIFECYCLE.md); private-draft policy and real
   Android lifecycle acceptance remain open.
@@ -206,7 +209,7 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   separate field study.
 - **Is it ready for a live Android defense demo?** The available
   arm64-targeted debug and profile APKs are built and verified on the PC, but
-  neither has been installed; both predate the local photo-expiry change. Both
+  neither has been installed; both predate runtime `30412ed`. Both
   use the scaffold application ID and debug signing. Approved release
   identity/signing, deployed cross-role acceptance, and physical Android
   acceptance remain open, so a live-phone demo is not yet accepted.
@@ -218,14 +221,13 @@ evidence, not as an accepted live phone demonstration.
 
 ## Current PC evidence and open gates
 
-- The latest full serial Flutter suite passed **700 tests, 7 skipped, zero
-  failures** in 4m26s at local test checkout `d04cb54`, exercising runtime
-  change `a9b972d`. This local test/documentation update is not pushed; runtime
-  code was unchanged at that test checkpoint. A later local change adds active
-  expiry cleanup for parcel photo drafts and rejects expired proof in the
-  outcome form; `flutter analyze --no-pub` passed after that change. The 700-test
-  result predates the expiry change and does not cover it. This is PC-only
-  unit/widget evidence; physical Android gates remain open.
+- The latest full serial Flutter suite passed **702 tests, 7 skipped, zero
+  failures** in 4m20s on `fix/rider-route-privacy-disclosure`, exercising
+  runtime `30412ed` plus the two expiry regressions in this verification update.
+  Focused photo-recovery and parcel-outcome suites passed **19/19**;
+  `flutter analyze --no-pub` found no issues in 6.3s. These are PC-only
+  unit/widget checks. Android picker process-death, Azure deployment, release
+  signing, and production cross-role acceptance remain open.
 - Runtime code at Rider revision `9d7e8cf` and test revision `039d40d` passed
   six focused PC checks serially: saved/sample map disclosures, default
   route-provider status, Google Maps handoff disclosure, and both notices at
@@ -236,9 +238,10 @@ evidence, not as an accepted live phone demonstration.
   seconds. It used SQLite `:memory:` and a headless Dart client, verifying
   uncertain-request replay, stale-offer rejection, exact consent/placement,
   duty still off, and no delivery checkpoint or COD account.
-- The focused photo-recovery suite passed **7/7** at Rider head `f17309c`. It
-  covers scoped restart and lost-picker handling with a simulated picker, not
-  physical Android lifecycle behavior.
+- The focused photo-recovery suite now passes **8/8**, including active expiry
+  cleanup with a simulated clock and preservation of unresolved command proof.
+  Its picker and storage are simulated; it does not establish physical Android
+  lifecycle behavior. The earlier 7/7 run at `f17309c` is historical.
 - At Rider revision `cbd6b21`, the combined proof-recovery and Trips PC suites
   passed **20/20** serially: 7 photo-service, 4 protected-proof-store and 9
   Trips widget cases. Coverage includes scoped simulated lost-picker recovery,
@@ -309,9 +312,9 @@ checks cover the bundled document separately.
    Make clear that the website already supports scanning and proof upload; the
    clearest extra rider-facing feature is session-only Parcel Finder labels.
 2. Show the PC evidence above with revisions attached: the latest full suite
-   passed 700 tests with 7 skips at local test head `d04cb54` (runtime
-   `a9b972d`; not pushed); the available arm64 debug APK at `8b50401` uses that
-   earlier runtime and remains debug-signed and uninstalled. The available
+   passed 702 tests with 7 skips on the feature branch (runtime `30412ed`);
+   the available arm64 debug APK at `8b50401` uses earlier runtime `a9b972d`
+   and remains debug-signed and uninstalled. The available
    profile preview at `82f3bc6` is
    also debug-signed and uninstalled. None of these establishes hardware
    behavior.

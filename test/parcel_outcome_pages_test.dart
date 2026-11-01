@@ -49,8 +49,11 @@ Future<void> _render(
 }
 
 class _Outcome {
-  _Outcome(ParcelAction action, {bool prepaid = false})
-    : domain = ParcelHarness(action: action) {
+  _Outcome(
+    ParcelAction action, {
+    bool prepaid = false,
+    DateTime Function()? now,
+  }) : domain = ParcelHarness(action: action) {
     if (prepaid) {
       domain.taskJson['payment'] = {
         'method': 'wallet',
@@ -65,6 +68,7 @@ class _Outcome {
       proofs: domain.proofs,
       isCurrent: () => domain.current,
       picker: TestParcelPhotoPicker(),
+      now: now,
     );
     work = WorkspaceController(
       domain.restart(photos: photos, prepaidEnabled: prepaid),
@@ -229,6 +233,35 @@ void main() {
       expect(fields.received.text, isEmpty);
       expect(fields.change.text, isEmpty);
       expect(fields.ready, isFalse);
+      expect(h.sent, isEmpty);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+      h.dispose();
+    },
+  );
+  testWidgets(
+    'expired proof clears the visible draft and cannot be submitted',
+    (tester) async {
+      var photoNow = DateTime.utc(2026, 10, 18, 2);
+      final h = _Outcome(ParcelAction.deliver, now: () => photoNow);
+      addTearDown(h.dispose);
+      await _mount(tester, h);
+
+      final fields = tester.state<ParcelOutcomeFieldsState>(
+        find.byType(ParcelOutcomeFields),
+      );
+      expect(fields.ready, isTrue);
+      expect(find.textContaining('Original PNG'), findsOneWidget);
+
+      photoNow = photoNow.add(const Duration(hours: 24));
+      await tester.pump(const Duration(hours: 24));
+      await tester.pumpAndSettle();
+
+      expect(fields.proof, isNull);
+      expect(fields.ready, isFalse);
+      expect(find.textContaining('Original PNG'), findsNothing);
+      expect(find.byKey(const ValueKey('parcel-photo-choose')), findsOneWidget);
+      expect(h.domain.proofs.files, isEmpty);
       expect(h.sent, isEmpty);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());

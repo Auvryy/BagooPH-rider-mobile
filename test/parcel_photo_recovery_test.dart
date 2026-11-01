@@ -18,6 +18,7 @@ void main() {
   late ParcelTestProofStore proofs;
   late TestParcelPhotoPicker picker;
   var current = true;
+  var photoNow = DateTime.utc(2026, 10, 18, 2);
   ParcelPhotoService service({
     String account = '5',
     String origin = 'https://example.test/api/v1',
@@ -28,7 +29,7 @@ void main() {
     proofs: proofs,
     picker: picker,
     isCurrent: () => current,
-    now: now ?? () => DateTime.utc(2026, 10, 18, 2),
+    now: now ?? () => photoNow,
   );
   Future<ParcelProof?> choose(ParcelPhotoService photos) => photos.choose(
     taskId: 'final_mile-1',
@@ -41,6 +42,7 @@ void main() {
     proofs = ParcelTestProofStore();
     picker = TestParcelPhotoPicker();
     current = true;
+    photoNow = DateTime.utc(2026, 10, 18, 2);
   });
 
   test('original photo draft survives restart only for the exact account API task version and action', () async {
@@ -173,6 +175,40 @@ void main() {
       restored.dispose();
     },
   );
+
+  test('active expiry clears the temporary draft but preserves the command proof copy', () async {
+    final photos = service();
+    final original = await choose(photos);
+    final commandCopy = await proofs.save(commandUuid(), original!);
+    expect(proofs.files, hasLength(2));
+
+    final cleaned = Completer<void>();
+    photos.addListener(() {
+      if (!photos.busy && photos.recovered == null && !cleaned.isCompleted) {
+        cleaned.complete();
+      }
+    });
+    photoNow = photoNow.add(const Duration(hours: 24));
+
+    expect(
+      photos.forTask('final_mile-1', version, ParcelAction.deliver),
+      isNull,
+    );
+    expect(
+      photos.isUsableDraft(
+        original,
+        taskId: 'final_mile-1',
+        version: version,
+        action: ParcelAction.deliver,
+      ),
+      isFalse,
+    );
+    await cleaned.future.timeout(const Duration(seconds: 2));
+
+    expect(photos.recovered, isNull);
+    expect(proofs.files.keys, [commandCopy.key]);
+    photos.dispose();
+  });
 
   test(
     'cancel and invalid replacement retain the previous safe original',

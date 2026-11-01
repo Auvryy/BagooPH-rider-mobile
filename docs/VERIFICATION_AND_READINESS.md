@@ -2,20 +2,17 @@
 
 **Current status — November 1, 2026.** The scores and starter-screen statements
 below describe the October 5 planning snapshot, not current Rider behavior.
-After the 700-test checkpoint recorded below, a local runtime change added
-active expiry cleanup for parcel photo drafts and rejects expired proof in the
-outcome form. `flutter analyze --no-pub` passed after that change. The 700-test
-run predates it and does not cover it; no post-change test run is recorded here.
-Treat the new behavior as local and pending focused regression evidence.
-The most recent full serial PC regression ran at local Rider test head
-`d04cb54` on `fix/rider-route-privacy-disclosure`, exercising runtime change
-`a9b972d`. `flutter test --no-pub --concurrency=1 --reporter=compact test`
-passed **700 tests with 7 skips and zero failures** in 4m26s. One Flutter test
-worker was used. `flutter analyze --no-pub` reported no issues in 7.8s. No
-phone, ADB, emulator, install, or app window was used. This test head is not
-pushed. A later local photo-draft expiry change modifies runtime code after
-`a9b972d`; the previously verified APKs do not include it and were not rebuilt
-or installed by this follow-up.
+The latest full serial PC regression ran on
+`fix/rider-route-privacy-disclosure` with runtime code at `30412ed` and the two
+expiry regressions included in this verification update.
+`flutter test --no-pub --concurrency=1 --reporter=compact test` passed
+**702 tests with 7 skips and zero failures** in 4m20s using one Flutter test
+worker. The focused photo-recovery and parcel-outcome suites passed **19/19**;
+`flutter analyze --no-pub` reported no issues in 6.3s. No phone, ADB, emulator,
+install, or app window was used. This is PC-only evidence: Android picker
+process-death behavior, Azure deployment, production cross-role acceptance,
+and release signing remain open. Available APKs predate runtime `30412ed` and
+were not rebuilt or installed during this follow-up.
 
 An earlier full serial PC regression ran at historical test checkout `38e25cf` on
 `fix/rider-route-privacy-disclosure`. Runtime code was `9d7e8cf`; the latest
@@ -154,9 +151,9 @@ At the first post-publication GitHub fetch on November 1, Rider `main` was
 54 commits ahead and 0 behind `main`. It included three commits since the
 previous published ref `2f8fc69`:
 the contrast fix and two evidence updates. The 699-test run at `fc99a02` records
-the published-branch result from that checkpoint. A later local test-only
-change and verification refresh passed 700 tests at `d04cb54`; it is not
-pushed. At the original full-test checkout,
+the published-branch result from that checkpoint. The 700-test run at `d04cb54`
+was a later local checkpoint and is superseded by the current 702-test result
+above. At the original full-test checkout,
 `38e25cf` was one documentation-only commit ahead of the then-published
 `514e1cc` and 44 commits ahead, 0 behind Rider `main`. Bagoo `main` was
 `f001d39`; its Wallet/handover source branch `9e58312` was 2 commits ahead,

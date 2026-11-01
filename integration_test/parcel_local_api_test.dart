@@ -280,17 +280,20 @@ void main() {
         expect(replay['data']['replayed'], isTrue);
         final deliveredState = await control('counts');
         expect(deliveredState['parcels']['delivery']['delivered'], 1);
-        expect(deliveredState['parcels']['delivery']['order'], 'delivered');
-        expect(deliveredState['parcels']['delivery']['payment'], 'pending');
+        expect(deliveredState['parcels']['delivery']['order'], 'completed');
+        expect(deliveredState['parcels']['delivery']['payment'], 'paid');
         expect(deliveredState['cash'], hasLength(1));
         expect(deliveredState['cash'][0]['expected_cents'], due.toString());
         expect(deliveredState['cash'][0]['balance_cents'], due.toString());
         expect(deliveredState['cash'][0]['events'], 1);
         expect(deliveredState['cash'][0]['reconciled'], isFalse);
         expect(deliveredState['public_proofs'], isEmpty);
-        expect((await control('buyer_receive'))['order'], 'completed');
+        final completedState = await control('counts');
+        expect(completedState['parcels']['delivery']['order'], 'completed');
+        expect(completedState['cash'][0]['events'], 1);
+        expect(completedState['cash'][0]['reconciled'], isFalse);
         debugPrint(
-          'Local parcel check: one COD delivery, original proof recovery and separate buyer receipt verified.',
+          'Local parcel check: COD handoff auto-completion, original proof recovery and unreconciled rider cash verified.',
         );
 
         parcels['failure'] = (await control('prepare_failure'))['parcel'];

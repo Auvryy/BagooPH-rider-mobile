@@ -49,6 +49,35 @@ hub-approved retry/reassignment with retained Trips attempt proof bytes and a
 no app window and used no phone. This supplements the current branch checks; it
 does not replace full native, Android or recovery/RTS acceptance.
 
+## November 1 headless COD acceptance
+
+The expanded windowless check passed **1/1** from Rider branch
+`test/rider-headless-cod-delivery`, against the read-only Bagoo source pinned to
+`9e58312d130809eb8cd878189b729f1f702291d8`:
+
+```sh
+node tool/parcel_local_api/run.mjs ../bagoo parcel-headless 9e58312d130809eb8cd878189b729f1f702291d8
+```
+
+Using the real Rider repository over loopback HTTP, the synthetic run drove
+assigned destination-hub departure and exact recipient/COD evidence. A simulated
+lost committed response recovered from the original journal and private proof;
+replaying the original idempotency key, body and image returned a replay and left
+one delivery and one cash event. The private cash evidence retained the recipient,
+relationship, exact tender/change and proof hash. Trips returned the same private
+proof bytes, and public proof storage stayed empty. On this pinned backend,
+verified recipient handoff marks the COD payment paid and the order completed
+automatically; the rider still holds one unreconciled cash balance. A separate
+buyer confirmation call is not required for this revision. The failed-attempt,
+destination-hub return, retry/reassignment, retained attempt proof and foreign
+rider denial checks also passed in the same run.
+
+This is local client-to-kernel evidence only. It opened no app window and used no
+connected phone, Azure endpoint, live account or live write gate. It does not
+establish that the pinned Bagoo branch is deployed. The Rider native integration
+expectations were aligned with this source behavior and statically analyzed; the
+native windowed suite was not run in this PC-only slice.
+
 ## Passed local checks
 
 | Check | Result |
@@ -98,9 +127,9 @@ Runtime files were removed after the run. No Azure domain command was sent.
 - Hub-assigned departure led to the buyer stop. COD delivery preserved the original
   encrypted image across repository recreation and recovered a lost committed
   response. Replaying its multipart intent left one outcome and one collection.
-- Exact received/change and the cash balance agreed. Native delivery left buyer
-  receipt and reconciliation separate; the buyer's own workflow then completed
-  the order without reconciling cash.
+- Exact received/change and the cash balance agreed. In this earlier native run,
+  buyer receipt and COD reconciliation remained separate; the buyer's own
+  workflow completed the order without reconciling rider cash.
 - Failure used the returned reason policy, required proof/notes/place and one
   attempt. Custody stayed with the courier until the destination hub received it.
 - Retained Trips decoded both phases, original recipient/cash, server search,

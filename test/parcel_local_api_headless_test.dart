@@ -1,5 +1,5 @@
-// Windowless client-to-kernel check for failed final-mile delivery and return.
-// Run through tool/parcel_local_api/run.mjs; all accounts and proof are synthetic.
+// Windowless client-to-kernel checks for final-mile COD delivery and failed
+// delivery return. All accounts and proof are synthetic.
 import 'dart:convert';
 import 'dart:io';
 
@@ -24,7 +24,7 @@ void main() {
   const fixtureToken = String.fromEnvironment('LOCAL_PARCEL_FIXTURE_TOKEN');
 
   test(
-    'failed final-mile attempt returns to destination hub and retains private Trips proof',
+    'COD delivery and failed final-mile return retain private Trips proof',
     () async {
       final originalOverrides = HttpOverrides.current;
       HttpOverrides.global = null;
@@ -66,6 +66,7 @@ void main() {
       final info = await control('info');
       expect(info['database'], ':memory:');
       var nextRequest = DateTime.now();
+      String? loseAfter;
       final dio = Dio();
       dio.interceptors.add(
         InterceptorsWrapper(
@@ -76,6 +77,21 @@ void main() {
               const Duration(milliseconds: 2300),
             );
             handler.next(request);
+          },
+          onResponse: (response, handler) {
+            if (loseAfter != null &&
+                response.requestOptions.uri.path.endsWith(loseAfter!) &&
+                response.requestOptions.method == 'POST') {
+              loseAfter = null;
+              handler.reject(
+                DioException(
+                  requestOptions: response.requestOptions,
+                  type: DioExceptionType.receiveTimeout,
+                ),
+              );
+            } else {
+              handler.next(response);
+            }
           },
         ),
       );
@@ -123,6 +139,150 @@ void main() {
         expect(home.capabilities['parcel_actions'], isTrue);
         expect(home.capabilities['trips'], isTrue);
         await repo.duty(true);
+
+        final preparedDelivery = await control('prepare_delivery');
+        final delivery = preparedDelivery['parcel'] as Map<String, dynamic>;
+        var deliveryTask = await repo.detail('final_mile-${delivery['id']}');
+        expect(deliveryTask.stop.kind, 'destination_hub');
+        await repo.parcel(
+          ParcelAction.depart,
+          deliveryTask,
+          barcode: deliveryTask.tracking,
+        );
+        deliveryTask = await repo.detail(deliveryTask.id);
+        expect(deliveryTask.stop.kind, 'buyer');
+        final originalDeliveryProof = ParcelProof(
+          base64Decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGP4DwQACfsD/fteaysAAAAASUVORK5CYII=',
+          ),
+          'png',
+        );
+        final codDue = deliveryTask.codDueCents!;
+        final cashWhole = codDue ~/ BigInt.from(100);
+        final cashFraction = (codDue % BigInt.from(100)).toString().padLeft(
+          2,
+          '0',
+        );
+        final deliveryFields = <String, dynamic>{
+          'recipient_name': 'Isolated Software Test Recipient',
+          'recipient_relationship': 'buyer',
+          'cash_received': '$cashWhole.$cashFraction',
+          'change_given': '0.00',
+          'cash_confirmed': true,
+        };
+        loseAfter = '/deliver';
+        await expectLater(
+          repo.parcel(
+            ParcelAction.deliver,
+            deliveryTask,
+            barcode: deliveryTask.tracking,
+            fields: deliveryFields,
+            proof: originalDeliveryProof,
+          ),
+          throwsA(
+            isA<AccountFailure>().having(
+              (failure) => failure.unconfirmed,
+              'lost committed response',
+              true,
+            ),
+          ),
+        );
+        final deliveredIntent = (await journal.read())!;
+        expect(
+          deliveredIntent.body['recipient_name'],
+          deliveryFields['recipient_name'],
+        );
+        expect(
+          deliveredIntent.body['recipient_relationship'],
+          deliveryFields['recipient_relationship'],
+        );
+        expect(
+          deliveredIntent.body['cash_received'],
+          deliveryFields['cash_received'],
+        );
+        expect(
+          deliveredIntent.body['change_given'],
+          deliveryFields['change_given'],
+        );
+        expect(deliveredIntent.body['cash_confirmed'], isTrue);
+        expect(deliveredIntent.proof, isNotNull);
+        expect(
+          (await proofStore.read(deliveredIntent.proof!)).bytes,
+          originalDeliveryProof.bytes,
+        );
+
+        repo = repository();
+        expect((await repo.reconcile())!['operational_stage'], 'delivered');
+        expect(await journal.read(), isNull);
+        final replay = await auth.authenticatedRequest(
+          'rider/tasks/${deliveryTask.id}/deliver',
+          method: 'POST',
+          headers: {'Idempotency-Key': deliveredIntent.key},
+          data: FormData.fromMap({
+            ...deliveredIntent.body,
+            'cash_confirmed': '1',
+            'proof_image_file': MultipartFile.fromBytes(
+              originalDeliveryProof.bytes,
+              filename: 'proof.png',
+              contentType: DioMediaType.parse(originalDeliveryProof.mime),
+            ),
+          }),
+        );
+        expect(replay['data']['replayed'], isTrue);
+
+        final deliveredState = await control('counts');
+        expect(deliveredState['parcels']['delivery']['departed'], 1);
+        expect(deliveredState['parcels']['delivery']['delivered'], 1);
+        expect(deliveredState['parcels']['delivery']['stage'], 'delivered');
+        expect(deliveredState['parcels']['delivery']['order'], 'completed');
+        expect(deliveredState['parcels']['delivery']['payment'], 'paid');
+        expect(
+          deliveredState['parcels']['delivery']['custody']['kind'],
+          'buyer',
+        );
+        expect(deliveredState['cash'], hasLength(1));
+        final cash = deliveredState['cash'][0] as Map<String, dynamic>;
+        expect(cash['expected_cents'], codDue.toString());
+        expect(cash['balance_cents'], codDue.toString());
+        expect(cash['events'], 1);
+        expect(cash['reconciled'], isFalse);
+        final privateEvidence =
+            cash['private_evidence'] as Map<String, dynamic>;
+        expect(
+          privateEvidence['recipient_name'],
+          deliveryFields['recipient_name'],
+        );
+        expect(
+          privateEvidence['recipient_relationship'],
+          deliveryFields['recipient_relationship'],
+        );
+        expect(privateEvidence['tender_cents'].toString(), codDue.toString());
+        expect(privateEvidence['change_cents'].toString(), '0');
+        expect(
+          privateEvidence['proof_hash'],
+          sha256.convert(originalDeliveryProof.bytes).toString(),
+        );
+        expect(deliveredState['public_proofs'], isEmpty);
+
+        final deliveryTrips = await repo.tripPage();
+        final deliveredTrip = deliveryTrips.items.singleWhere(
+          (trip) =>
+              trip.deliveryId == delivery['id'] && trip.phase == 'final_mile',
+        );
+        expect(deliveredTrip.outcome, 'delivered');
+        expect(deliveredTrip.recipient, deliveryFields['recipient_name']);
+        expect(deliveredTrip.collectedCents, codDue);
+        final deliveryProofPath = deliveredTrip.proofPaths.single;
+        expect(
+          (await repo.tripProof(deliveredTrip.id, deliveryProofPath)).bytes,
+          originalDeliveryProof.bytes,
+        );
+
+        final afterCompletion = await control('counts');
+        expect(afterCompletion['parcels']['delivery']['order'], 'completed');
+        expect(afterCompletion['parcels']['delivery']['payment'], 'paid');
+        expect(afterCompletion['cash'][0]['events'], 1);
+        expect(afterCompletion['cash'][0]['reconciled'], isFalse);
 
         final prepared = await control('prepare_failure');
         final parcel = prepared['parcel'] as Map<String, dynamic>;
@@ -182,7 +342,10 @@ void main() {
         );
 
         expect(afterReceipt['parcels']['failure']['stage'], 'delivery_failed');
-        expect(afterReceipt['cash'], isEmpty);
+        expect(afterReceipt['cash'], hasLength(1));
+        expect(afterReceipt['cash'][0]['delivery_id'], delivery['id']);
+        expect(afterReceipt['cash'][0]['events'], 1);
+        expect(afterReceipt['cash'][0]['reconciled'], isFalse);
         expect(afterReceipt['public_proofs'], isEmpty);
 
         await control('reassign_retry');

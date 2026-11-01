@@ -16,6 +16,26 @@ The 696-test result therefore remains evidence for the current code/test tree,
 not for Android hardware, Azure deployment, or a release build. These local
 documentation commits have not been pushed.
 
+A focused PC accessibility/layout run then passed **71 tests** serially on the
+documentation-only branch head `ac1d55d`:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact \
+  test/home_overview_test.dart \
+  test/stop_mode_test.dart \
+  test/parcel_finder_pages_test.dart \
+  test/trips_pages_test.dart
+```
+
+The widget checks cover narrow/mobile and wider layouts, 200% text, scrolling,
+keyboard-safe Stop Mode content, and 48-pixel targets in the checked controls.
+Parcel Finder checks the selected slot's accessible name, enabled/selected
+state, focus, and tap action, including keyboard selection. A source scan found
+no Rider `IconButton` without an explicit tooltip. This is a focused PC widget
+subset, not a complete accessibility audit: Android TalkBack/focus behavior,
+physical-device review, and staging acceptance remain open. No phone, ADB,
+emulator, install, or app window was used.
+
 Live GitHub refs queried November 1: Rider `main` is `4367331`, and the published
 defense branch is `514e1cc`. At the test checkout, local `38e25cf` was one
 documentation-only commit ahead of that published branch and 44 commits ahead,

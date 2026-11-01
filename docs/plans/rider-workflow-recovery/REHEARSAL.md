@@ -121,10 +121,11 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    accuracy, or user satisfaction; claim gains only if a separate field study
    supports them.
 5. **Evidence and limits — 60 seconds.** The latest full serial Flutter suite
-   passed **699 tests, 7 skipped, zero failures** at test checkout `fc99a02`
-   (runtime `a9b972d`) in 5m57s. Later commits on the published branch are
-   documentation-only. A separate headless Rider client scenario passed against
-   the pinned Bagoo kernel, including lost-response recovery, paid COD
+   passed **700 tests, 7 skipped, zero failures** at local test checkout
+   `d04cb54` (runtime `a9b972d`) in 4m26s; this commit is not pushed.
+   `flutter analyze --no-pub` reported no issues in 7.8s. The runtime code was
+   unchanged from `a9b972d`. A separate headless Rider client scenario passed
+   against the pinned Bagoo kernel, including lost-response recovery, paid COD
    completion, cash separation, retained private proof and failed-return /
    reassignment. Focused evidence also includes 42 command/workflow/outcome
    tests at `3839de6`, 20 proof-recovery/Trips tests at `cbd6b21`, 20 Parcel
@@ -193,11 +194,11 @@ evidence, not as an accepted live phone demonstration.
 
 ## Current PC evidence and open gates
 
-- The latest full serial Flutter suite passed **699 tests, 7 skipped, zero
-  failures** in 5m57s at test checkout `fc99a02`, exercising runtime change
-  `a9b972d`. All later commits on the published branch are documentation-only.
-  `flutter analyze --no-pub` is clean after the theme change. This is PC-only
-  unit/widget evidence; physical Android gates remain open.
+- The latest full serial Flutter suite passed **700 tests, 7 skipped, zero
+  failures** in 4m26s at local test checkout `d04cb54`, exercising runtime
+  change `a9b972d`. This local test/documentation update is not pushed; runtime
+  code was unchanged. `flutter analyze --no-pub` reported no issues in 7.8s.
+  This is PC-only unit/widget evidence; physical Android gates remain open.
 - Runtime code at Rider revision `9d7e8cf` and test revision `039d40d` passed
   six focused PC checks serially: saved/sample map disclosures, default
   route-provider status, Google Maps handoff disclosure, and both notices at
@@ -281,9 +282,10 @@ checks cover the bundled document separately.
    Make clear that the website already supports scanning and proof upload; the
    clearest extra rider-facing feature is session-only Parcel Finder labels.
 2. Show the PC evidence above with revisions attached: the latest full suite
-   passed 699 tests with 7 skips at `fc99a02` (runtime `a9b972d`); the current
-   arm64 debug APK at `8b50401` has the same runtime code and remains
-   debug-signed and uninstalled. The current profile preview at `82f3bc6` is
+   passed 700 tests with 7 skips at local test head `d04cb54` (runtime
+   `a9b972d`; not pushed); the current arm64 debug APK at `8b50401` has the
+   same runtime code and remains debug-signed and uninstalled. The current
+   profile preview at `82f3bc6` is
    also debug-signed and uninstalled. None of these establishes hardware
    behavior.
 3. If asked to demonstrate an operational transaction, explain that Azure and

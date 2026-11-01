@@ -2,13 +2,15 @@
 
 **Current status — November 1, 2026.** The scores and starter-screen statements
 below describe the October 5 planning snapshot, not current Rider behavior.
-The most recent full serial PC regression ran on local branch head `fc99a02`
-(`fix/rider-route-privacy-disclosure`), exercising runtime change `a9b972d`.
-`flutter test --no-pub --concurrency=1 --reporter=compact test` passed
-**699 tests with 7 skips and zero failures** in 5m57s. It used one Flutter test
-worker and no phone, ADB, emulator, install, or app window. This is the current
-full-suite result for the theme revision; the historical checkout below records
-an earlier baseline.
+The most recent full serial PC regression ran at local Rider test head
+`d04cb54` on `fix/rider-route-privacy-disclosure`, exercising runtime change
+`a9b972d`. `flutter test --no-pub --concurrency=1 --reporter=compact test`
+passed **700 tests with 7 skips and zero failures** in 4m26s. One Flutter test
+worker was used. `flutter analyze --no-pub` reported no issues in 7.8s. No
+phone, ADB, emulator, install, or app window was used. This test head is not
+pushed. Changes since runtime `a9b972d` are documentation and tests; the
+previously verified APKs still contain the same runtime code but were not
+rebuilt or installed by this check.
 
 An earlier full serial PC regression ran at historical test checkout `38e25cf` on
 `fix/rider-route-privacy-disclosure`. Runtime code was `9d7e8cf`; the latest
@@ -146,9 +148,10 @@ At the first post-publication GitHub fetch on November 1, Rider `main` was
 `4367331` and defense branch `fix/rider-route-privacy-disclosure` was `e099156`,
 54 commits ahead and 0 behind `main`. It included three commits since the
 previous published ref `2f8fc69`:
-the contrast fix and two evidence updates. The 699-test run above executed at
-`fc99a02`; all commits after that run are documentation-only. At the original
-full-test checkout,
+the contrast fix and two evidence updates. The 699-test run at `fc99a02` records
+the published-branch result from that checkpoint. A later local test-only
+change and verification refresh passed 700 tests at `d04cb54`; it is not
+pushed. At the original full-test checkout,
 `38e25cf` was one documentation-only commit ahead of the then-published
 `514e1cc` and 44 commits ahead, 0 behind Rider `main`. Bagoo `main` was
 `f001d39`; its Wallet/handover source branch `9e58312` was 2 commits ahead,

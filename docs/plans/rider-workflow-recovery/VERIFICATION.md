@@ -92,11 +92,12 @@ At Rider source revision `f9dd4cf` on `fix/rider-trips-completion-copy`,
 `flutter test --no-pub --concurrency=1 --reporter=compact` exited 0 with **693
 passed and 7 skipped** in 5 minutes 19 seconds. `flutter analyze --no-pub`
 exited 0 with no issues. Both commands ran on the PC; no phone or emulator was
-used. At that time this recheck superseded the older full-suite total; it is
-now superseded by the 699-test result below. It does not replace the separate
-Azure, cross-role, release-signing, or physical Android acceptance gates.
+used. That recheck superseded the older full-suite total at the time; it was
+later superseded by the published 699-test checkpoint and the local 700-test
+regression below. It does not replace the separate Azure, cross-role,
+release-signing, or physical Android acceptance gates.
 
-## Latest full PC regression and defense APK — November 1, 2026
+## Published-branch full PC regression and defense APK — November 1, 2026
 
 At Rider test checkout `fc99a02` (runtime change `a9b972d`), the full serial
 Flutter suite passed **699 tests with 7 skips and zero failures** in 5m57s:
@@ -235,5 +236,21 @@ original command key once without resending the claim, clears the shared intent,
 and then permits a distinct cash offer. This is a host-side repository test
 using mock secure storage and a fixture API. It does not establish deployed
 backend behavior, live account acceptance, or Android-device storage behavior.
-The latest full-suite total above predates this focused test; the full suite was
-not rerun.
+At this earlier focused-test checkpoint, the latest full-suite total was the
+699-test result above; the full suite was rerun later at `d04cb54` below.
+
+## Current full PC regression — November 1, 2026
+
+At local Rider test head `d04cb54` on `fix/rider-route-privacy-disclosure`, the
+full serial Flutter suite passed **700 tests with 7 skips and zero failures** in
+4m26s:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact test
+```
+
+`flutter analyze --no-pub` reported no issues in 7.8s. The run used one worker
+and no phone, ADB, emulator, install, or app window. Runtime code remains
+`a9b972d`; changes since then are documentation and tests. The test head is not
+pushed. These results do not establish Azure deployment, release signing,
+cross-role live acceptance, or physical Android behavior.

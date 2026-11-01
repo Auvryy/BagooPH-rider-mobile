@@ -123,12 +123,14 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    accuracy, or user satisfaction; claim gains only if a separate field study
    supports them.
 5. **Evidence and limits — 60 seconds.** The latest full serial Flutter suite
-   passed **702 tests, 7 skipped, zero failures** on the
-   `fix/rider-route-privacy-disclosure` worktree with runtime `30412ed` and the
-   two expiry regression tests from this verification update, in 4m20s.
+   passed **702 tests, 8 skipped, zero failures** in 4m18s on the
+   `fix/rider-route-privacy-disclosure` worktree at test harness `87244ed` and
+   runtime `30412ed`. The separate headless Wallet client scenario passed
+   **1/1** against Bagoo `9e58312` with an in-memory storage adapter; it does
+   not verify Android platform storage. The full suite used one worker. No
+   phone, ADB, emulator, install, or app window was used.
    Focused photo-recovery and parcel-outcome suites passed **19/19**;
-   `flutter analyze --no-pub` reported no issues in 6.3s. No phone, ADB,
-   emulator, install, or app window was used. On November 2, fresh arm64 debug
+   `flutter analyze --no-pub` reported no issues in 6.4s. On November 2, fresh arm64 debug
    and profile APKs were built from branch head `94d2aaf` (runtime `30412ed`)
    and passed PC archive, metadata, arm64-content and APK v2 signature checks;
    neither was installed. Both use the scaffold ID and Android Debug signing.
@@ -225,12 +227,14 @@ evidence, not as an accepted live phone demonstration.
 
 ## Current PC evidence and open gates
 
-- The latest full serial Flutter suite passed **702 tests, 7 skipped, zero
-  failures** in 4m20s on `fix/rider-route-privacy-disclosure`, exercising
-  runtime `30412ed` plus the two expiry regressions in this verification update.
+- The latest full serial Flutter suite passed **702 tests, 8 skipped, zero
+  failures** in 4m18s on `fix/rider-route-privacy-disclosure`, at test harness
+  `87244ed` and runtime `30412ed`. The headless Wallet client scenario passed
+  **1/1** against Bagoo `9e58312` with an in-memory storage adapter.
   Focused photo-recovery and parcel-outcome suites passed **19/19**;
-  `flutter analyze --no-pub` found no issues in 6.3s. These are PC-only
-  unit/widget checks. Android picker process-death, Azure deployment, release
+  `flutter analyze --no-pub` found no issues in 6.4s. The suite and Wallet
+  scenario are PC-only checks; the latter does not test Android platform
+  storage. Android picker process-death, Azure deployment, release
   signing, and production cross-role acceptance remain open.
 - Runtime code at Rider revision `9d7e8cf` and test revision `039d40d` passed
   six focused PC checks serially: saved/sample map disclosures, default
@@ -317,7 +321,9 @@ checks cover the bundled document separately.
    Make clear that the website already supports scanning and proof upload; the
    clearest extra rider-facing feature is session-only Parcel Finder labels.
 2. Show the PC evidence above with revisions attached: the latest full suite
-   passed 702 tests with 7 skips on the feature branch (runtime `30412ed`);
+   passed 702 tests with 8 skips at harness `87244ed` and runtime `30412ed`;
+   the headless Wallet client scenario passed 1/1 against Bagoo `9e58312` with
+   an in-memory storage adapter;
    the current debug and profile APKs at `94d2aaf` are PC-verified, debug-signed
    and uninstalled. They do not establish hardware behavior.
 3. If asked to demonstrate an operational transaction, explain that Azure and

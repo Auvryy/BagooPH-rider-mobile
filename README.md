@@ -118,20 +118,17 @@ APK alone does not establish device, deployment or cross-role acceptance.
 
 ## Verification
 
-The latest full serial PC regression passed **699 tests with 7 skips and zero
-failures** in 5m57s at local branch head `fc99a02` (runtime change `a9b972d`),
-using one Flutter test worker and no phone, ADB, emulator or visible app. An
-earlier full run passed 696 tests at historical checkout `38e25cf`. Focused PC
-accessibility suites also passed **71 core-flow**, **145 extended-page** and
-**23 motion/high-contrast** tests; the updated scanner widget file passed
-**3/3**, including two responsive cases. `flutter analyze --no-pub` is clean
-after the theme change. Three serial PC batches passed 303 selected theme,
-status, responsive, and map/navigation tests. The red text token now meets
-4.5:1 on the brand tint. Grayscale and physical display checks remain open; no
-device was used. A current arm64-targeted debug APK was built at published
-revision `8b50401`, verified locally, and not installed. Exact commands,
-revisions, skip reasons, APK evidence and remaining gates are in
-[verification and readiness](docs/VERIFICATION_AND_READINESS.md).
+The latest full serial PC regression passed **702 tests with 8 skips and zero
+failures** in 4m18s at Rider branch commit `87244ed` (runtime code `30412ed`),
+using one Flutter test worker. The opt-in headless Wallet client scenario also
+passed **1/1** against Bagoo `9e58312`; its journal uses an in-memory test
+storage adapter, so it does not verify the Android storage plugin. Focused
+photo-recovery and parcel-outcome suites passed **19/19**, and the analyzer
+reported no issues. The arm64 debug and profile APKs were built from branch
+head `94d2aaf`, PC-verified and not installed. The fake-server activation test
+using the same config passed **2/2**. No phone, ADB, emulator or
+app window was used. Exact commands, revisions, skip reasons, APK evidence and
+remaining gates are in [verification and readiness](docs/VERIFICATION_AND_READINESS.md).
 
 Run the serial checks individually to keep resource use bounded:
 

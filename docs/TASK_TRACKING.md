@@ -9,13 +9,15 @@ recipient/proof and version-two handover source fixes are on branch
 focused backend suite and the Rider's pinned native Wallet consumer test passed.
 Azure deployment and phone acceptance are still pending.
 
-**Latest full serial PC regression (November 1):** Rider runtime at `30412ed`
-with two additional parcel photo-expiry regression tests in this verification
-update. The full Flutter suite passed **702 tests with 7 skips and zero
-failures** in 4m20s with
-`flutter test --no-pub --concurrency=1 --reporter=compact test`.
+**Latest full serial PC regression (November 2):** Rider runtime at `30412ed`
+and test harness at `87244ed`. The full Flutter suite passed **702 tests with
+8 skips and zero failures** in 4m18s with
+`flutter test --no-pub --concurrency=1 --reporter=compact test`. The new
+fixture-dependent Wallet test is one skip in that ordinary suite; its
+windowless opt-in run passed **1/1** against Bagoo `9e58312` using an in-memory
+storage adapter.
 The focused photo-recovery and parcel-outcome suites passed **19/19**;
-`flutter analyze --no-pub` reported no issues in 6.3s. The run used one worker
+`flutter analyze --no-pub` reported no issues in 6.4s. The suite used one worker
 and did not touch a phone, ADB, emulator, install, or app window. On November 2,
 arm64 debug and profile APKs were rebuilt from branch head `94d2aaf` (runtime
 `30412ed`) and passed PC archive, metadata, arm64-content and APK v2 signature

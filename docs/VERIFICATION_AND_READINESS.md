@@ -3,17 +3,26 @@
 **Current status — November 2, 2026.** The scores and starter-screen statements
 below describe the October 5 planning snapshot, not current Rider behavior.
 The latest full serial PC regression ran on
-`fix/rider-route-privacy-disclosure` with runtime code at `30412ed` and the two
-expiry regressions included in this verification update.
+`fix/rider-route-privacy-disclosure` at Rider commit `87244ed` with runtime
+code `30412ed`, the photo-expiry regressions and the opt-in Wallet test path.
 `flutter test --no-pub --concurrency=1 --reporter=compact test` passed
-**702 tests with 7 skips and zero failures** in 4m20s using one Flutter test
-worker. The focused photo-recovery and parcel-outcome suites passed **19/19**;
-`flutter analyze --no-pub` reported no issues in 6.3s. On November 2, fresh
-arm64 debug and profile APKs were built from branch head `94d2aaf` (runtime
-`30412ed`) and passed PC archive, metadata, arm64-content and APK v2 signature
-checks; neither was installed. The same-config fake-server activation test
-passed **2/2**, verifying duty and pickup-claim UI/flow gating without live
-writes. No phone, ADB, emulator, or app window was used.
+**702 tests with 8 skips and zero failures** in 4m18s using one Flutter test
+worker. The new fixture-dependent Wallet test is one of the skips in the
+ordinary suite; its isolated headless run passed separately. The focused
+photo-recovery and parcel-outcome suites passed **19/19**. `flutter analyze
+--no-pub` reported no issues in 6.4s. On November 2, fresh arm64 debug and
+profile APKs were built from branch head `94d2aaf` (runtime `30412ed`) and
+passed PC archive, metadata, arm64-content and APK v2 signature checks; neither
+was installed. The same-config fake-server activation test passed **2/2**,
+verifying duty and pickup-claim UI/flow gating without live writes. No phone,
+ADB, emulator, or app window was used.
+
+The new windowless Rider Wallet client scenario passed **1/1** in 35 seconds
+against Bagoo `9e58312d130809eb8cd878189b729f1f702291d8`. It verified lost-result
+reconciliation, exact replay, one completed paid order and Wallet receipt, zero
+COD accounts, and hash-matched retained private Trips proof with the original
+recipient. It uses an in-memory secure-storage test adapter, so it does not
+establish the Android or operating-system storage plugin.
 An unauthenticated, read-only request to the deployed Rider Home endpoint
 returned HTTP 401 JSON with `no-store, private` and `no-cache` headers and no
 redirect. It confirms endpoint response/auth behavior only, not sign-in or a

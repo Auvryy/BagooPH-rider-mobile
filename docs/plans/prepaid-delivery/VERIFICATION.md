@@ -94,3 +94,25 @@ This closes the local source/client compatibility gap. Both the native prepaid
 write gate and the general parcel write gate remain false. The source branch is
 not merged or confirmed deployed, and controlled Azure, cross-role and physical
 Android acceptance remain open.
+
+## November 2 windowless Rider client recheck
+
+Rider commit `87244ed5a66d347792bc37b412bd28b3d3a23159` adds a headless runner
+for the same shared Wallet client scenario. It passed **1/1** in 35 seconds
+against Bagoo commit `9e58312d130809eb8cd878189b729f1f702291d8`:
+
+```sh
+node tool/parcel_local_api/run.mjs ../bagoo prepaid-headless \
+  9e58312d130809eb8cd878189b729f1f702291d8
+```
+
+The isolated SQLite `:memory:` Laravel kernel exercised the real Rider
+repository and Dio API client without a desktop window or connected phone. A
+mock secure-storage adapter held the command journal; the scenario verified
+lost-response reconciliation, exact UUID/body/proof replay, one completed paid
+order, one Wallet receipt, zero COD accounts, and the original recipient plus
+hash-matched private proof from Trips. The result records
+`prepaid_live_accepted=false`. This check does not exercise the platform
+storage plugin, Azure, live writes, or physical Android behavior; the separate
+Linux integration path still uses the platform secure-storage plugin. The
+Bagoo worktree was read-only.

@@ -14,10 +14,12 @@ passed on PC; six expected tests remain skipped and phone acceptance is deferred
 UUID parsing for backend rider shifts and updates the version-two COD native
 assertions. The focused financial model tests passed (**8/8**), and the
 headless cash-page widget file passed (**7/7**), including the pending-offer
-first-party website handoff. The isolated native COD/hub-receipt run against
-Bagoo `9e58312` was stopped before a result after the user asked not to interact
-with the desktop, so that scenario remains unverified. This follow-up does not
-establish Azure cash acceptance or physical Android acceptance; see the
+first-party website handoff. The isolated native COD/hub-receipt scenario then
+passed (**1/1**) against Bagoo `9e58312` under a virtual display. A full hub
+receipt released **₱25.00** of that parcel's delivery earnings; a **₱1.00**
+shortage left the other parcel's **₱25.00** delivery earnings pending. No
+desktop screen or phone was used. Azure cash acceptance and physical Android
+acceptance remain open; see the
 [cash verification record](plans/rider-cash-remittance/VERIFICATION.md).
 
 This is the feature map for building BagooPH Rider Mobile, reviewed October 5,
@@ -668,11 +670,13 @@ not automatic extra scope, and debug/API configuration stays out of rider flows.
 
 ### M15 — COD remittance and earnings visibility
 
-**October 22 selected implementation:** the
+**October 22 selected implementation, November 1 version-two check:** the
 [Cash & Remittance package](plans/rider-cash-remittance/README.md) activates
 OPS-05 with an authoritative read-only dashboard/detail first, then original
 protected remittance offers. An offer leaves balances unchanged until the
-independent owning hub receipt; earnings remains unavailable. Local financial,
+independent owning hub receipt. The isolated native version-two check passed:
+a full owning-hub receipt released that parcel's delivery earnings, while a
+shortage left the other parcel's delivery earnings pending. Local financial,
 lifecycle and native cross-role checks passed with 638 full-suite tests and
 ordinary Linux/Android builds; see [verification](plans/rider-cash-remittance/VERIFICATION.md).
 Azure/phone acceptance remains separate.

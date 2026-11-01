@@ -237,13 +237,35 @@ void main() {
         expect(receivedSecond.status, 'difference');
         expect(receivedSecond.discrepancies.single.cents, BigInt.from(-100));
         expect(receivedSecond.history.last.discrepancy, BigInt.from(-100));
+        expect(receivedFirst.earnings.confirmed, greaterThan(BigInt.zero));
+        expect(receivedFirst.earnings.pending, BigInt.zero);
+        expect(
+          receivedFirst.earnings.confirmed! - reviewedFirst.earnings.confirmed!,
+          greaterThan(BigInt.zero),
+        );
+        expect(
+          receivedSecond.earnings.confirmed,
+          reviewedSecond.earnings.confirmed,
+        );
+        expect(receivedSecond.earnings.pending, greaterThan(BigInt.zero));
+        expect(
+          receivedSecond.earnings.pending,
+          reviewedSecond.earnings.pending,
+        );
         final summary = await repo.cashPage(query: first['tracking'] as String);
         expect(summary.items.single.id, firstId);
         expect(summary.held, BigInt.from(100));
         expect(summary.unresolved, 1);
         expect(summary.earnings.available, isTrue);
-        expect(summary.earnings.confirmed, BigInt.zero);
-        expect(summary.earnings.pending, greaterThan(BigInt.zero));
+        expect(
+          summary.earnings.confirmed,
+          receivedFirst.earnings.confirmed! +
+              receivedSecond.earnings.confirmed!,
+        );
+        expect(
+          summary.earnings.pending,
+          receivedFirst.earnings.pending! + receivedSecond.earnings.pending!,
+        );
 
         for (final original in [originalFirst, originalSecond]) {
           final replay = await auth.authenticatedRequest(
@@ -341,10 +363,14 @@ void main() {
         final other = await auth.authenticatedRequest('rider/cash');
         expect(other['data']['items'], isEmpty);
         expect(other['data']['summary']['own_held_cents'], '0');
-        expect(other['data']['earnings'], {
-          'available': false,
-          'confirmed_cents': null,
-        });
+        final otherEarnings = other['data']['earnings'] as Map;
+        expect(otherEarnings['available'], isTrue);
+        expect(
+          BigInt.parse(otherEarnings['confirmed_cents'] as String),
+          greaterThan(BigInt.zero),
+        );
+        expect(otherEarnings['pending_cents'], '0');
+        expect(otherEarnings['basis'], 'original_delivery_earnings_ledger');
         expect((await control('cash_snapshot'))['commands'], 2);
         final out = File('build/cash-verification/native-result.json');
         await out.parent.create(recursive: true);
@@ -364,15 +390,25 @@ void main() {
             'flow_version': 2,
             'order_status': 'completed',
             'payment_status': 'paid',
-            'released_earnings_cents': '0',
-            'pending_earnings_positive': true,
+            'cod_delivery_released_earnings_cents':
+                (receivedFirst.earnings.confirmed! -
+                        reviewedFirst.earnings.confirmed!)
+                    .toString(),
+            'shortage_cod_delivery_released_earnings_cents':
+                (receivedSecond.earnings.confirmed! -
+                        reviewedSecond.earnings.confirmed!)
+                    .toString(),
+            'shortage_delivery_pending_earnings_cents': receivedSecond
+                .earnings
+                .pending
+                .toString(),
             'cash_reconciled': false,
             'azure_accepted': false,
             'physical_android_accepted': false,
           }),
         );
         debugPrint(
-          'Native version-two COD recovery passed: orders completed and paid while cash stayed under rider/hub custody; the shortage and pending earnings are recorded. No live activation.',
+          'Native version-two COD recovery passed: full hub receipt released only its delivery earnings; the short-paid parcel retained cash responsibility and pending delivery earnings. No live activation.',
         );
       } finally {
         if (journal != null) {

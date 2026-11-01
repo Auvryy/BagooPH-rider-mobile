@@ -48,6 +48,7 @@ existing Composer development dependencies, PHP SQLite, Node and
 Flutter/Linux toolchain with native secure storage. It restricts all state to
 SQLite `:memory:` and isolated files; the runtime is removed on exit. It cannot
 target Azure and does not read the ordinary rider's saved login or map key.
+The November 1 PC run passed **1/1** on Bagoo source `9e58312d130809eb8cd878189b729f1f702291d8`; its native Linux client ran under Xvfb, with the fixture container capped at 768 MB and the build limited to one worker. The rider's fully receipted COD parcel released **₱25.00** in delivery earnings; the short-paid parcel retained **₱25.00** pending. `dart analyze integration_test/cash_local_api_test.dart` reported no issues.
 
 ## Separate operating acceptance
 

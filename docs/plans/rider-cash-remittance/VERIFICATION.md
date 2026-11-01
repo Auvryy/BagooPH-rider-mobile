@@ -20,11 +20,21 @@ physical Android evidence are separate.
   two commits ahead of that main snapshot. Its default version-two delivery
   records the order as `completed`/`paid`; COD remains held until a separate
   hub receipt, and unreleased delivery earnings remain pending.
-- The isolated COD native scenario was pointed at immutable Bagoo revision
-  `9e58312` and stopped before a test result was produced after the user asked
-  not to interact with the desktop. The new assertions are committed, but
-  this run does **not** accept the native COD/hub-receipt scenario. No Azure
-  cash action or physical Android check was performed.
+- The isolated native Linux COD scenario passed (**1/1**) against immutable
+  Bagoo source revision `9e58312d130809eb8cd878189b729f1f702291d8`. It used an
+  Xvfb virtual display, an in-memory SQLite Laravel kernel and a one-worker
+  Flutter build; no physical display, phone, Azure service or real cash was
+  used. Both original offer commands recovered after simulated request loss
+  and replayed after receipt. Two real owning-hub test actions received the
+  offers, including a signed **−₱1.00** shortage with **₱1.00** still held.
+  Order/payment state was `completed`/`paid`; the full receipt released
+  **₱25.00** for that parcel's delivery role, while the short-paid parcel kept
+  **₱25.00** pending. Pickup earnings were preserved, and foreign cash stayed
+  inaccessible. The report is in ignored `build/cash-verification/` output.
+- `dart analyze integration_test/cash_local_api_test.dart`: no issues. The
+  headless test verifies each parcel's earnings against its pre-receipt
+  baseline, so legitimate pickup earnings are not mistaken for COD delivery
+  earnings.
 
 ## Local implementation verified — October 22, 2026
 

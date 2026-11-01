@@ -15,7 +15,21 @@ unit/widget/transport suite passed **692 tests**, with six skips, and exited 0.
 flutter test --no-pub --concurrency=1 --reporter=compact test
 flutter analyze --no-pub
 dart analyze integration_test/parcel_local_api_test.dart
+flutter build apk --debug --no-pub --dart-define-from-file=.env.rider.json
+rider_android_sdk="$(sed -n 's/^sdk.dir=//p' android/local.properties)"
+"$rider_android_sdk/build-tools/36.0.0/aapt" dump badging build/app/outputs/flutter-apk/app-debug.apk
+sha256sum build/app/outputs/flutter-apk/app-debug.apk
 ```
+
+The debug APK built at local HEAD `55535b7` is
+`build/app/outputs/flutter-apk/app-debug.apk`, SHA-256
+`926228ca059761db60c5a528e594d7f982eddd1f1452219e1e273d12d740fefc`. Its
+manifest reports `com.example.bagoo_rider_mobile`, version `0.1.0+1`, minimum
+SDK 24 and target SDK 36. The existing local profile uses the deployed API and
+website defaults with local authentication disabled; duty/claim remains enabled,
+while parcel, Wallet, cash, messages, notifications and handover write gates
+remain disabled. This is a debug artifact, not a signed production release; it
+was not installed or exercised on a phone.
 
 This recheck did not run native integration, Azure, physical Android or deployed
 cross-role acceptance. Their separate evidence and gates below remain unchanged.

@@ -171,3 +171,26 @@ revision `e0aa20e`; the map-disclosure code received the six focused checks
 above, not a full-suite rerun. At the same checkpoint the published
 branch was `e9fb7e3` and Rider `main` remained at `4367331` (34 commits ahead,
 0 behind). No phone or emulator was used.
+
+## Proof recovery and private Trips viewing — November 1, 2026
+
+At Rider source revision `cbd6b21` on `fix/rider-route-privacy-disclosure`,
+the following focused PC command passed serially: **20 tests, zero failures**.
+
+```sh
+flutter test --no-pub --concurrency=1 \
+  test/parcel_photo_recovery_test.dart \
+  test/protected_parcel_proof_test.dart \
+  test/trips_pages_test.dart
+```
+
+The seven photo-service cases cover account/API/task scoping, restart and
+simulated lost-picker recovery, expired drafts, cancellation and session
+changes. Four proof-store cases cover encrypted, hash-bound retention, account
+and API isolation, tamper rejection, and invalid image rejection. Nine Trips
+widget cases include doubled-text small-screen layouts, private proof clearing
+on background, deliberate reopening after resume, and removing the proof route
+on logout. Android lost-file behavior used a simulated picker in PC tests; this
+does not verify a physical Android picker, process lifecycle, or secure storage
+on a device. No phone or emulator was accessed, and this was not a full-suite
+rerun.

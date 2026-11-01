@@ -199,6 +199,12 @@ evidence, not as an accepted live phone demonstration.
 - The focused photo-recovery suite passed **7/7** at Rider head `f17309c`. It
   covers scoped restart and lost-picker handling with a simulated picker, not
   physical Android lifecycle behavior.
+- At Rider revision `cbd6b21`, the combined proof-recovery and Trips PC suites
+  passed **20/20** serially: 7 photo-service, 4 protected-proof-store and 9
+  Trips widget cases. Coverage includes scoped simulated lost-picker recovery,
+  encrypted/hash-bound proof retention, private viewer clearing on background,
+  reopening after resume and logout cleanup. This is PC-only evidence, not
+  physical Android acceptance; see [verification](VERIFICATION.md).
 - At Rider branch head `d42c948`, the focused Parcel Finder suite passed
   **20/20** serially: 13 state/controller/provider tests and 7 picker/Stop Mode
   widget tests. It covers account/assignment scoping, cleanup, fresh ownership,

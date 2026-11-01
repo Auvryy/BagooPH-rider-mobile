@@ -20,7 +20,9 @@ debug-signature and embedded-disclosure checks; it was not installed. See
 [rehearsal record](plans/rider-workflow-recovery/REHEARSAL.md). At the last
 remote check, Rider defense branch `e9fb7e3` was 34 commits ahead and 0 behind
 Rider `main` `4367331`; subsequent commits are docs/test-only and do not change
-runtime code. Physical phone acceptance remains deferred.
+runtime code. The proof recovery and Trips viewer PC suites have since passed
+**20/20** at Rider revision `cbd6b21`; simulated picker and widget tests do not
+establish physical phone behavior. Physical phone acceptance remains deferred.
 
 **November 1 COD compatibility follow-up:** Rider commit `41f0fda` also fixes
 UUID parsing for backend rider shifts and updates the version-two COD native

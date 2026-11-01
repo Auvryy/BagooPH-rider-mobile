@@ -47,7 +47,9 @@ Follow the [owner checklist](../../api/PREPAID_DELIVERY_NEEDS.md). Confirm the
 deployment, migrations and fresh operations-v1 session, then use designated
 isolated COD and paid Wallet assignments through their owning workflows.
 Verify one intended outcome/receipt, original replay, retained private proof and
-foreign/reassigned access. Buyer completion and cash remittance remain separate.
+foreign/reassigned access. Verify the order status returned for its flow version;
+newer orders may auto-complete after verified Wallet handoff. Wallet delivery
+still creates no COD account, and rider earnings/payout remain separate.
 
 Physical Android scanning, permissions, camera/picker recovery and interrupted
 upload are deferred until a phone is available. PC layouts and native Linux

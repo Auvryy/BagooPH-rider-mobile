@@ -210,7 +210,9 @@ account roles. Operational pickup and final-mile work use one `courier` role.
 Preserve the shared route: seller → pickup rider → Origin Bayan Hub → at least
 one Mother Hub → Destination Bayan Hub → final-mile rider or self-pickup counter
 → buyer. Hub manifests, intake and counter release remain authorized web/hub
-actions; the Rider app cannot shortcut this chain or confirm buyer receipt.
+actions; the Rider app has no buyer-confirmation command. The server may complete
+a newer flow-version order automatically after verified recipient handoff;
+collected COD still follows separate hub remittance.
 
 The execution milestones R00–R11, proposed dates and capacity assumptions stay
 in [DELIVERY_PLAN.md](DELIVERY_PLAN.md). The areas below partition that same
@@ -757,7 +759,8 @@ opens the next operational gate.
    intake from the owning web roles. Physical logistics remains web/hub-owned.
 6. **Complete delivery and exception paths.** Implement M07, then M08 as their
    backend gates pass. Prove destination-hub assignment/departure, genuine proof,
-   exact COD evidence, buyer-only completion, failed return and restricted recovery.
+   exact COD evidence, server-owned flow-version-specific order completion,
+   failed return and restricted recovery.
    Include wrong actor, stale input, duplicate and uncertain-result cases.
 7. **Complete everyday support.** Implement M10, M11, M13 and remaining M14.
    Chat must keep phase recipients; history/profile must stay truthful. Basic

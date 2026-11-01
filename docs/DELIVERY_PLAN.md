@@ -170,8 +170,10 @@ Use approved synthetic test accounts and genuine role actions:
 3. Logistics moves it through the mandatory Mother-Hub route to destination.
    The destination handler assigns the final-mile rider.
 4. Assigned rider scans out, records genuine test proof and exact test COD.
-   Buyer confirms receipt separately; hub/platform show separate remittance
-   and reconciliation before seller settlement eligibility.
+   Verify the server-returned status: newer flow-version orders can complete
+   automatically after verified recipient handoff; older orders keep their
+   own completion path. Hub/platform show separate cash remittance and
+   reconciliation before seller settlement eligibility.
 5. On a second test parcel, show a failed attempt, hub return and approved retry
    or RTS. Show duplicate/stale request rejection with no invented state.
 6. Show correct task/message/notification/history visibility and a holding or

@@ -31,8 +31,11 @@ text, plus clean analysis. The app-only Parcel Finder feature also passed its
 current focused suite (**20/20**), including 320 px/200% Stop Mode layout. An
 arm64 profile APK was rebuilt from runtime code `9d7e8cf` and passed archive-
 integrity, package-metadata, APK v2 debug-signature and embedded-disclosure
-checks; it was not installed. See [Android release packaging](ANDROID_RELEASE.md)
-and the [rehearsal record](plans/rider-workflow-recovery/REHEARSAL.md).
+checks; it was not installed. After the contrast update, a current arm64-targeted
+debug APK was built from published revision `8b50401` and passed archive,
+package/SDK/version, debug-signature and SHA-256 checks; it was not installed.
+See [Android release packaging](ANDROID_RELEASE.md) and the
+[rehearsal record](plans/rider-workflow-recovery/REHEARSAL.md).
 
 **Initial post-publication GitHub fetch (November 1):** Rider `main` was
 `4367331`; the defense branch `fix/rider-route-privacy-disclosure` was

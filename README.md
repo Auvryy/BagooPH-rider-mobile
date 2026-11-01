@@ -128,8 +128,9 @@ accessibility suites also passed **71 core-flow**, **145 extended-page** and
 after the theme change. Three serial PC batches passed 303 selected theme,
 status, responsive, and map/navigation tests. The red text token now meets
 4.5:1 on the brand tint. Grayscale and physical display checks remain open; no
-device was used. Exact commands, revisions, skip reasons, APK evidence and
-remaining gates are in
+device was used. A current arm64-targeted debug APK was built at published
+revision `8b50401`, verified locally, and not installed. Exact commands,
+revisions, skip reasons, APK evidence and remaining gates are in
 [verification and readiness](docs/VERIFICATION_AND_READINESS.md).
 
 Run the serial checks individually to keep resource use bounded:

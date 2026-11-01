@@ -7,10 +7,31 @@ At Rider revision `e0aa20e`, a PC release-build request stopped before artifact
 generation because the approved ID and all local signing settings were absent.
 This verifies the fail-closed guard; it is not release-build acceptance.
 
+## Current arm64 debug review APK
+
+At published Rider revision `8b50401` (runtime change `a9b972d`), this PC-only
+build produced the current arm64-targeted debug APK:
+
+```sh
+flutter build apk --no-pub --debug --target-platform android-arm64 \
+  --dart-define-from-file=.env.rider.json
+```
+
+The output is `build/app/outputs/flutter-apk/app-debug.apk`, 176,214,087 bytes,
+with SHA-256
+`b82d9a66e19803e248e9f6004a6a7837d562743bf8d651549ed3aae5e84a8abe`.
+`unzip -tq` reported no archive errors. The merged manifest reports package
+`com.example.bagoo_rider_mobile`, version `0.1.0` (code 1), min SDK 24 and
+target SDK 36. `apksigner verify --verbose` confirmed one signer and APK v2
+signature; the manifest marks the app debuggable. Flutter targeted arm64;
+some plugin libraries for other ABIs remain in the APK. This debug-signed APK
+uses the scaffold ID, is not a distributable release, and was not installed or
+checked on a phone.
+
 ## Optional arm64-targeted defense preview
 
-The universal debug APK is 249 MB and contains the debug VM snapshot and
-Flutter libraries for three Android ABIs. For a smaller profile-mode preview
+The previous universal debug APK was 249 MB and contained the debug VM snapshot
+and Flutter libraries for three Android ABIs. For a smaller profile-mode preview
 for a 64-bit ARM device, target the Flutter app to `arm64`:
 
 ```sh

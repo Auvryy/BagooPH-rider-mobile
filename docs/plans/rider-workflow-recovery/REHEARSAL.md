@@ -120,17 +120,20 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    operations remain shared. These checks do not measure delivery speed,
    accuracy, or user satisfaction; claim gains only if a separate field study
    supports them.
-5. **Evidence and limits — 60 seconds.** At Rider branch revision `3839de6`,
-   the current delivery command/workflow/outcome PC selection passed 42 tests;
-   the proof-recovery and private-Trips selection passed 20 tests at the
-   immediately preceding docs-only revision `cbd6b21`. The app-only Parcel
-   Finder selection passed 20 tests at `d42c948`, and map-disclosure checks
-   passed six at runtime/test revisions `9d7e8cf`/`039d40d`. The most recent
-   full serial Flutter suite remains historical at `e0aa20e` (693 passed,
-   7 skipped). A profile APK built from `9d7e8cf` passed PC archive, package,
-   signing and embedded-disclosure checks but was not installed. None of these
-   checks establishes release signing, Azure deployment, cross-role production
-   behavior, or physical Android camera/lifecycle acceptance.
+5. **Evidence and limits — 60 seconds.** At Rider branch revision `6a0ab47`,
+   one headless native-client scenario passed against the pinned Bagoo kernel,
+   including lost-response recovery, paid COD completion, cash separation,
+   retained private proof and a failed-return/reassignment path. At the
+   preceding Rider revision `3839de6`, the current delivery command/workflow/
+   outcome PC selection passed 42 tests; the proof-recovery and private-Trips
+   selection passed 20 tests at docs-only revision `cbd6b21`. The app-only
+   Parcel Finder selection passed 20 tests at `d42c948`, and map-disclosure
+   checks passed six at runtime/test revisions `9d7e8cf`/`039d40d`. The most
+   recent full serial Flutter suite remains historical at `e0aa20e` (693
+   passed, 7 skipped). A profile APK built from `9d7e8cf` passed PC archive,
+   package, signing and embedded-disclosure checks but was not installed. None
+   of these checks establishes release signing, Azure deployment, cross-role
+   production behavior, or physical Android camera/lifecycle acceptance.
 
 ### Likely questions
 
@@ -213,6 +216,11 @@ evidence, not as an accepted live phone demonstration.
   correction after server field errors, and 320/840 px outcome forms at 200%
   text. This does not replace the older full-suite result or the open Android
   and deployment gates; see [parcel verification](../rider-orders-delivery-trips/VERIFICATION.md).
+- At Rider revision `6a0ab47`, the headless native Rider-to-kernel scenario
+  passed **1/1** against Bagoo `9e58312`. It uses synthetic data and SQLite
+  `:memory:`; it does not establish Azure or physical Android acceptance. The
+  Bagoo worktree stayed unchanged during the check; see
+  [parcel verification](../rider-orders-delivery-trips/VERIFICATION.md).
 - At Rider branch head `d42c948`, the focused Parcel Finder suite passed
   **20/20** serially: 13 state/controller/provider tests and 7 picker/Stop Mode
   widget tests. It covers account/assignment scoping, cleanup, fresh ownership,

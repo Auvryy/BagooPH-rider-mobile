@@ -3,13 +3,14 @@
 **Current status — November 1, 2026.** The scores and starter-screen statements
 below describe the October 5 planning snapshot, not current Rider behavior.
 At the latest remote check, defense branch `fix/rider-route-privacy-disclosure`
-was at `3839de6`, 39 commits ahead and 0 behind Rider `main` `4367331`. Later
+was at `6a0ab47`, 40 commits ahead and 0 behind Rider `main` `4367331`. Later
 commits add documentation and PC regression evidence; runtime code remains at
 `9d7e8cf`. The latest documented full serial suite was at code revision
 `e0aa20e` (693 tests, 7 skips). Current focused evidence includes 42
 command/workflow/outcome tests at `3839de6`, 20 proof-recovery/Trips tests at
-`cbd6b21`, 20 Parcel Finder tests at `d42c948`, and six map-disclosure checks at
-`9d7e8cf`/`039d40d`. The arm64 profile APK for runtime code `9d7e8cf` passed
+`cbd6b21`, 20 Parcel Finder tests at `d42c948`, six map-disclosure checks at
+`9d7e8cf`/`039d40d`, and one headless Rider-to-kernel scenario at `6a0ab47`
+against Bagoo `9e58312`. The arm64 profile APK for runtime code `9d7e8cf` passed
 archive, package-metadata, v2 debug-signature and embedded-disclosure checks. It
 was not installed. See the [current rehearsal
 and acceptance record](plans/rider-workflow-recovery/REHEARSAL.md), [selected

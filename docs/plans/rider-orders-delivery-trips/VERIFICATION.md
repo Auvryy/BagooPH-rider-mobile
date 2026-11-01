@@ -233,3 +233,25 @@ text. These are local PC tests; they do not establish camera hardware, deployed
 API behavior, physical lifecycle handling, or the full-suite result at this
 revision. The latest documented full-suite run remains 693 passed and 7 skipped
 at the older revision `e0aa20e`.
+
+## Headless Rider-to-kernel recheck — November 1, 2026
+
+At Rider revision `6a0ab47`, the focused native HTTP client scenario passed
+**1/1** against the pinned Bagoo source revision
+`9e58312d130809eb8cd878189b729f1f702291d8` in 76 seconds:
+
+```sh
+node tool/parcel_local_api/run.mjs ../bagoo parcel-headless \
+  9e58312d130809eb8cd878189b729f1f702291d8
+```
+
+The runner used synthetic accounts/parcels, SQLite `:memory:`, an isolated
+archive of committed Bagoo source, native Dart HTTP, and the real Laravel
+kernel. It verified destination-hub departure, COD delivery after a simulated
+lost response, exact-key/body/proof replay, one completed and paid order, one
+unreconciled cash event, and private Trips proof with no public proof. The
+failed-delivery scenario verified retained attempt evidence, actual owning-hub
+return, authorized retry assignment, and denial of the original proof to a
+different rider. The Bagoo worktree was read-only and remained unchanged. This
+is local compatibility evidence only; it does not verify the deployed PHP
+upload stack, Azure, or physical Android behavior.

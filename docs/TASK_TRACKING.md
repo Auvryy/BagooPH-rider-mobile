@@ -18,13 +18,15 @@ code `9d7e8cf` and passed archive-integrity, package-metadata, APK v2
 debug-signature and embedded-disclosure checks; it was not installed. See
 [Android release packaging](ANDROID_RELEASE.md) and the
 [rehearsal record](plans/rider-workflow-recovery/REHEARSAL.md). At the last
-remote check, Rider defense branch `3839de6` was 39 commits ahead and 0 behind
+remote check, Rider defense branch `6a0ab47` was 40 commits ahead and 0 behind
 Rider `main` `4367331`; subsequent commits are docs/test-only and do not change
 runtime code. The proof recovery and Trips viewer PC suites have since passed
 **20/20** at Rider revision `cbd6b21`; simulated picker and widget tests do not
 establish physical phone behavior. The parcel command/workflow/outcome suites
 also passed **42/42** at `3839de6`, including simulated exact replay and
-large-text phone-width forms. Physical phone acceptance remains deferred.
+large-text phone-width forms. A headless Rider-to-kernel scenario passed **1/1**
+against Bagoo `9e58312`, covering COD replay and proof retention plus failed
+return and foreign denial. Physical phone acceptance remains deferred.
 
 **November 1 COD compatibility follow-up:** Rider commit `41f0fda` also fixes
 UUID parsing for backend rider shifts and updates the version-two COD native

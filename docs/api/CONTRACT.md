@@ -223,12 +223,23 @@ assignment/cash/command records in a documented order. Claim race/capacity
 constraints require isolated PostgreSQL concurrency tests; SQLite cannot prove
 row-lock behavior. Account/placement changes must be rechecked in transactions.
 
-The client keeps a minimal pending-intent record when cross-restart recovery is
-implemented: command key, own scoped task reference, action and expiry, stored
-privately without proof/contact bodies. Its storage/cleanup is a separate tested
-implementation item. With memory-only first slice, process loss requires a fresh
-task/event read and explicit review before any new submission; do not claim
-automatic crash recovery until the minimal pending-intent store exists.
+The current Rider client implements cross-restart recovery with a scoped
+`SecureCommandJournal`. It stores the complete serialized `CommandIntent`,
+including its exact action body, in Flutter Secure Storage under an API-origin,
+account and feature-scope key. Bodies can contain recipient/contact details,
+cash terms, message text, notification IDs or company request details. Parcel
+proof image bytes are stored separately in an encrypted application-support
+file; only its key, digest and extension reference enter the command record.
+Bearer tokens are not serialized in the command record.
+
+The client keeps unresolved intents through logout and does not purge them when
+the seven-day unchanged-retry window closes. A still-unknown intent blocks a
+replacement command in that feature scope. The retry cutoff is not a data
+retention policy. This observed implementation differs from the earlier
+reference-only proposal; privacy acceptance, deletion and recovery after the
+retry window remain open in [M01.06](../backlog/M01.md#m01-06),
+[M16.02](../backlog/M16.md#m16-02), and the
+[source audit](../plans/rider-workflow-recovery/PRIVATE_DATA_LIFECYCLE.md).
 
 ## Proof upload lifecycle
 

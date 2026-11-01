@@ -41,6 +41,9 @@ Local verification and final commit evidence are recorded in
 [VERIFICATION.md](VERIFICATION.md). The [rehearsal checklist](REHEARSAL.md) keeps
 remaining operational checks explicit. The user selected PC verification now
 and deferred phone testing; no phone session is used by this delivery.
+The [private-data lifecycle audit](PRIVATE_DATA_LIFECYCLE.md) records current
+source behavior and the still-open owner policy decisions for pending commands,
+message drafts and parcel photo recovery.
 
 Existing independent parcel, prepaid, cash, message, notification and handover
 write gates are unchanged. Live-account signup/login is not replaced by fixtures.

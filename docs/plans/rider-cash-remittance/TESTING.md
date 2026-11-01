@@ -25,6 +25,13 @@ flutter analyze --no-pub
 flutter test --no-pub
 ```
 
+The pending-offer website handoff has a focused headless regression in the cash
+page suite:
+
+```sh
+flutter test --no-pub --concurrency=1 test/cash_pages_test.dart --reporter=expanded
+```
+
 The selected [native runner](../../../tool/parcel_local_api/README.md) exercises
 the actual Laravel kernel from an immutable committed snapshot. It creates two
 synthetic COD deliveries through their owning workflows and tests real native

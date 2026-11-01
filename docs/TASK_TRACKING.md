@@ -12,11 +12,13 @@ passed on PC; six expected tests remain skipped and phone acceptance is deferred
 
 **November 1 COD compatibility follow-up:** Rider commit `41f0fda` also fixes
 UUID parsing for backend rider shifts and updates the version-two COD native
-assertions. The focused financial model tests passed (**8/8**). The isolated
-native COD/hub-receipt run against Bagoo `9e58312` was stopped before a result
-after the user asked not to interact with the desktop, so that scenario remains
-unverified. This follow-up does not establish Azure cash acceptance or physical
-Android acceptance; see the [cash verification record](plans/rider-cash-remittance/VERIFICATION.md).
+assertions. The focused financial model tests passed (**8/8**), and the
+headless cash-page widget file passed (**7/7**), including the pending-offer
+first-party website handoff. The isolated native COD/hub-receipt run against
+Bagoo `9e58312` was stopped before a result after the user asked not to interact
+with the desktop, so that scenario remains unverified. This follow-up does not
+establish Azure cash acceptance or physical Android acceptance; see the
+[cash verification record](plans/rider-cash-remittance/VERIFICATION.md).
 
 This is the feature map for building BagooPH Rider Mobile, reviewed October 5,
 2026. It answers **what we need to build, in what order, and what proves each

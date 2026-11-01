@@ -11,6 +11,10 @@ physical Android evidence are separate.
   integration assertions for the current version-two contract and parses
   backend rider-shift UUIDs instead of treating shift IDs as numeric. The
   focused financial contract and summary tests passed (**8 tests**).
+- The headless cash-page widget file passed (**7 tests**), including the
+  pending-offer website handoff: it opens the fixed first-party `/cod` page
+  without account query parameters or a native POST. This verifies the Rider
+  handoff only; the website cancellation action still needs deployed acceptance.
 - The reviewed Bagoo checkout's `main` and `origin/main` are at `f001d39`.
   The pushed source branch `fix/rider-wallet-trip-evidence` is at `9e58312`,
   two commits ahead of that main snapshot. Its default version-two delivery

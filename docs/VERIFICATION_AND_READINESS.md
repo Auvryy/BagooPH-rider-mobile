@@ -13,8 +13,7 @@ used.
 Documentation-only commits followed that test checkout, including `cf99ac6`;
 the branch-head evidence refresh did not change Dart, runtime, or test sources.
 The 696-test result therefore remains evidence for the current code/test tree,
-not for Android hardware, Azure deployment, or a release build. These local
-documentation commits have not been pushed.
+not for Android hardware, Azure deployment, or a release build.
 
 A focused PC accessibility/layout run then passed **71 tests** serially on the
 documentation-only branch head `ac1d55d`:

@@ -1,5 +1,11 @@
 # Faster map loading with the existing design
 
+> **Historical provider design (superseded October 25, 2026).** The
+> Geoapify tile scheduler, credit policy and cache below do not govern the
+> current map. Rider now requests standard OpenStreetMap tiles; default in-app
+> road routing is unavailable. See the
+> [current street-map plan](../rider-street-map/README.md).
+
 Selected October 22, 2026, on `feat/home-rider-map-style` at `dcb4252`.
 Estimate: **6 client hours**, October 22–24, Asia/Manila. State: **implemented
 and locally verified**; results belong in [verification](VERIFICATION.md).

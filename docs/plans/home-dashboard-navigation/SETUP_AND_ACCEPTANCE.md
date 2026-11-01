@@ -1,5 +1,12 @@
 # Configuration and remaining acceptance
 
+> **Historical provider instructions (superseded October 25, 2026).** Do not
+> use the Geoapify key, route setup or in-app GPS steps below for the current
+> app. Default Rider routing is unavailable, and active maps use OpenStreetMap
+> tiles. See the [current street-map plan](../rider-street-map/README.md).
+> Separate account and operations acceptance gates below remain relevant
+> where applicable.
+
 Ordinary launches and APKs continue to use the deployed Azure account service.
 There is no fixture account, automatic login or production sample dashboard.
 

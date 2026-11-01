@@ -42,12 +42,24 @@ Existing account, duty, claim, proof, payment and recovery gates remain authorit
 Source review: web branch through `9d8cff2`, mobile through `e3a5818`, October 25,
 2026. No Azure deployment or live parcel/account/cash command was performed.
 
-Renderer follow-up: rechecked Rider commit `4d4663d` and Bagoo `main` at
+Renderer follow-up: rechecked Rider source at `9d7e8cf` and Bagoo `main` at
 `f001d396` on November 1, 2026. Android selects the embedded Leaflet WebView;
 Linux Device Preview selects the FlutterMap fallback in
 `native_delivery_map.dart`. The Courier page uses browser Leaflet. See the
 [defense rehearsal](../rider-workflow-recovery/REHEARSAL.md) for the PC-preview
 limit and source mapping.
+
+## Map data disclosure
+
+OpenStreetMap receives tile requests for the map area displayed in Rider or
+Courier web. The requested tile coordinates and source IP address can reveal the
+approximate area to the tile provider. The map displays a saved stop or a
+labelled sample path. It does not request live rider GPS. When a rider explicitly
+opens current-stop External directions, Google Maps receives the saved stop
+address or
+coordinates. The default Rider road-routing provider is unavailable, so the
+app does not send current GPS coordinates to a road-routing service or provide
+in-app GPS-follow/rerouting navigation.
 
 ## Mobile visual direction
 

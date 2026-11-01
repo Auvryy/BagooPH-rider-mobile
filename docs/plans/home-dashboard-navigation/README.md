@@ -1,5 +1,13 @@
 # Home dashboard and live route navigation
 
+> **Historical plan (superseded October 25, 2026).** The provider-backed
+> Geoapify map and in-app routing below are not current Rider behavior. Android
+> uses Leaflet/OpenStreetMap; Linux Device Preview uses
+> FlutterMap/OpenStreetMap. `roadRoutingProvider` defaults to
+> `UnavailableRoadRouting`, and current-stop directions open Google Maps after
+> an explicit action. See the
+> [current street-map plan](../rider-street-map/README.md).
+
 Selected October 9, 2026. This package owns the chosen map/location extension,
 linked to [OPS-01](../native-operations/01-home-duty-pickups.md) and
 [M09.07](../../backlog/M09.md#m09-07). It supplements the

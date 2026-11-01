@@ -1,5 +1,12 @@
 # Home and map refinement
 
+> **Historical map interaction notes (superseded October 25, 2026).** The
+> Geoapify renderer, GPS-centering and route-follow descriptions below are not
+> current behavior. Current maps use OpenStreetMap tiles without live rider GPS;
+> default road routing is unavailable. Home layout and Azure-read results remain
+> historical evidence. See the
+> [current street-map plan](../rider-street-map/README.md).
+
 Selected after the user reported updating Azure on October 9, 2026. This is a
 presentation and map-interaction refinement within the existing selected plan,
 linked to [M04/M05/M09](../../TASK_TRACKING.md) and [OPS-01](../native-operations/01-home-duty-pickups.md).

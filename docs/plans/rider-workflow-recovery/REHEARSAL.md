@@ -48,6 +48,9 @@ Sources: Rider [workspace navigation](../../../lib/features/workspace/presentati
 [Parcel Finder](../../../lib/features/parcel_finder/presentation/parcel_finder_card.dart),
 [scanner](../../../lib/features/parcels/presentation/waybill_scanner_page.dart),
 [command journal](../../../lib/features/home/data/command_journal.dart),
+[photo draft recovery](../../../lib/features/parcels/data/parcel_photo_service.dart),
+[encrypted proof storage](../../../lib/core/commands/protected_proof_store.dart),
+[session lifecycle](../../../lib/features/auth/data/auth_repository.dart),
 [proof viewer](../../../lib/features/trips/presentation/trip_detail_page.dart),
 [cash](../../../lib/features/cash/presentation/cash_page.dart),
 [company](../../../lib/features/company/presentation/company_page.dart),
@@ -121,6 +124,17 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
 - **Does delivery still work without internet?** No full offline delivery is
   claimed. The journal retains the original uncertain request and proof so the
   app can reconcile or retry that same operation when connectivity returns.
+- **What if Android stops the app while a proof photo is being selected?** The
+  native picker path records the exact API/account/task/action/version context.
+  It can recover one matching photo for up to 24 hours into encrypted app-owned
+  storage. The restored image stays a draft and never submits an outcome by
+  itself. The focused PC suite passed 7/7 using a simulated picker; actual
+  Android kill/resume acceptance remains open.
+- **What happens to an uncertain request after sign-out or an account change?**
+  Its encrypted journal is scoped to the original API and account, and the
+  original proof remains protected. The app checks that saved request before a
+  new one can replace it. A retry uses the same request key and unchanged
+  evidence; no other account inherits it.
 - **Does the rider confirm that the buyer received the parcel?** The rider
   records the handoff. The backend returns the applicable status; newer
   flow-version orders may complete automatically. There is no separate
@@ -143,6 +157,9 @@ evidence, not as an accepted live phone demonstration.
 - The full serial Flutter suite passed **693 tests with 7 skips**; analysis
   reported no issues. The separate headless parcel check passed **1/1** against
   Bagoo `9e58312`.
+- The focused photo-recovery suite passed **7/7** at Rider head `f17309c`. It
+  covers scoped restart and lost-picker handling with a simulated picker, not
+  physical Android lifecycle behavior.
 - The current debug APK is `build/app/outputs/flutter-apk/app-debug.apk`,
   SHA-256 `42ce7a5d1493fa60b9dee7b670094e5222b1ad67ed2d5771459053ffa0cbfae6`.
   It is a debug build, not a signed release, and was not installed or run on a

@@ -9,17 +9,16 @@ recipient/proof and version-two handover source fixes are on branch
 focused backend suite and the Rider's pinned native Wallet consumer test passed.
 Azure deployment and phone acceptance are still pending.
 
-**Full serial PC regression (November 1, historical test checkout):** Rider
-revision `38e25cf`; runtime code `9d7e8cf`; latest test-source change at that
-checkout `514e1cc` (Android scanner callback simulation). The full serial
-Flutter suite passed **696 tests with 7 skips and zero failures** in 8m10s using
-`flutter test --no-pub --concurrency=1 --reporter=compact test`.
-`flutter analyze --no-pub` reported no issues in 11.1s. This PC run did not
-touch a phone or emulator. The earlier 695-test run at `54d56f2` is superseded.
-The 696-test result belongs to checkout `38e25cf`; later documentation and
-accessibility-test commits do not change its tested runtime code. This follow-up
-adds PC-only scanner layout coverage, 145 extended page tests and 23 motion/
-high-contrast tests; see [verification evidence](VERIFICATION_AND_READINESS.md).
+**Latest full serial PC regression (November 1):** local Rider branch head
+`fc99a02`, exercising runtime change `a9b972d`. The full Flutter suite passed
+**699 tests with 7 skips and zero failures** in 5m57s with
+`flutter test --no-pub --concurrency=1 --reporter=compact test`. It used one
+worker and did not touch a phone, ADB, emulator, or app window. The earlier full
+run at historical checkout `38e25cf` passed 696 tests in 8m10s; the 695-test run
+at `54d56f2` is superseded. Focused PC checks also include scanner layout
+coverage, 145 extended page tests and 23 motion/high-contrast tests; see
+[verification evidence](VERIFICATION_AND_READINESS.md) for commands, revisions,
+older baseline details and outstanding gates.
 The later contrast/status review adds an AA-readable brand text shade and
 readable muted text. Three current-theme serial PC batches passed 303 selected
 contrast, status, responsive, and map/navigation tests across the app.

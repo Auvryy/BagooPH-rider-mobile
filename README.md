@@ -118,18 +118,18 @@ APK alone does not establish device, deployment or cross-role acceptance.
 
 ## Verification
 
-The full PC regression passed **696 tests with 7 expected skips and zero
-failures** at historical checkout `38e25cf`, with one Flutter test worker and
-no phone, ADB, emulator or visible app. Since then, focused PC accessibility
-suites passed **71 core-flow**, **145 extended-page** and **23 motion/high-
-contrast** tests; the updated scanner widget file passed **3/3**, including two
-new responsive cases. `flutter analyze --no-pub` is also clean after those test
-changes. Three serial PC batches passed 303 selected theme, status, responsive,
-and map/navigation tests on the current theme. The red text token now meets
+The latest full serial PC regression passed **699 tests with 7 skips and zero
+failures** in 5m57s at local branch head `fc99a02` (runtime change `a9b972d`),
+using one Flutter test worker and no phone, ADB, emulator or visible app. An
+earlier full run passed 696 tests at historical checkout `38e25cf`. Focused PC
+accessibility suites also passed **71 core-flow**, **145 extended-page** and
+**23 motion/high-contrast** tests; the updated scanner widget file passed
+**3/3**, including two responsive cases. `flutter analyze --no-pub` is clean
+after the theme change. Three serial PC batches passed 303 selected theme,
+status, responsive, and map/navigation tests. The red text token now meets
 4.5:1 on the brand tint. Grayscale and physical display checks remain open; no
-device was used. Runtime changes are limited to theme text tokens. Exact
-commands, revisions, skip reasons,
-APK evidence and remaining gates are in
+device was used. Exact commands, revisions, skip reasons, APK evidence and
+remaining gates are in
 [verification and readiness](docs/VERIFICATION_AND_READINESS.md).
 
 Run the serial checks individually to keep resource use bounded:

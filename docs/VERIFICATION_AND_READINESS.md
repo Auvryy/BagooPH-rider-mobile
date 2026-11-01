@@ -2,7 +2,15 @@
 
 **Current status — November 1, 2026.** The scores and starter-screen statements
 below describe the October 5 planning snapshot, not current Rider behavior.
-The full serial PC regression ran at historical test checkout `38e25cf` on
+The most recent full serial PC regression ran on local branch head `fc99a02`
+(`fix/rider-route-privacy-disclosure`), exercising runtime change `a9b972d`.
+`flutter test --no-pub --concurrency=1 --reporter=compact test` passed
+**699 tests with 7 skips and zero failures** in 5m57s. It used one Flutter test
+worker and no phone, ADB, emulator, install, or app window. This is the current
+full-suite result for the theme revision; the historical checkout below records
+an earlier baseline.
+
+An earlier full serial PC regression ran at historical test checkout `38e25cf` on
 `fix/rider-route-privacy-disclosure`. Runtime code was `9d7e8cf`; the latest
 test-source change at that checkout was `514e1cc` (Android scanner callback
 simulation). `flutter test --no-pub --concurrency=1 --reporter=compact test`
@@ -11,10 +19,10 @@ passed **696 tests with 7 skips and zero failures** in 8m10s.
 emulator, install, or app window was used.
 
 Later commits added PC widget-test coverage and, in local commit `a9b972d`, an
-accessible theme text adjustment. The 696-test result remains evidence for
-runtime code `9d7e8cf`; it predates the scanner layout and theme changes recorded
-below and does not establish Android hardware, Azure deployment, or a release
-build.
+accessible theme text adjustment. The historical 696-test result remains
+evidence for runtime code `9d7e8cf`; unlike the latest full run above, it
+predates the scanner layout and theme changes. Neither PC run establishes
+Android hardware, Azure deployment, or a release build.
 
 A focused PC accessibility/layout run then passed **71 tests** serially on the
 documentation-only branch head `ac1d55d`:

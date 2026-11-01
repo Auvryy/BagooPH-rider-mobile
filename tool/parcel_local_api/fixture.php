@@ -192,7 +192,8 @@ class NativeParcelFixture extends Tests\Feature\Courier\RiderParcelApiTest
                     'offers' => $cash->events()->where('event_type', 'handover_offered')->count(),
                     'receipts' => $cash->events()->where('event_type', 'handover_received')->count(),
                     'reconciled_cents' => (string) $cash->state['reconciled_cents'],
-                    'web_parity' => true, 'order_status' => $p->order->status, 'payment_status' => $p->order->payment_status,
+                    'web_parity' => true, 'flow_version' => (int) $p->order->logistics_flow_version,
+                    'order_status' => $p->order->status, 'payment_status' => $p->order->payment_status,
                     'delivered' => $p->checkpoints()->where('checkpoint_type', 'delivered')->count()];
             }
             return ['accounts' => $accounts, 'commands' => App\Models\RiderCommand::where('action', 'cash.offer')->count()];

@@ -216,9 +216,12 @@ void main() {
         final beforeReceipts = await control('cash_snapshot');
         expect(beforeReceipts['commands'], 2);
         for (final row in beforeReceipts['accounts'] as List) {
+          expect(row['flow_version'], 2);
           expect(row['offers'], 1);
           expect(row['receipts'], 0);
           expect(row['remitted_cents'], '0');
+          expect(row['order_status'], 'completed');
+          expect(row['payment_status'], 'paid');
           expect(row['web_parity'], isTrue);
         }
         await control('cash_receive', {'which': 'cash_one'});
@@ -238,6 +241,9 @@ void main() {
         expect(summary.items.single.id, firstId);
         expect(summary.held, BigInt.from(100));
         expect(summary.unresolved, 1);
+        expect(summary.earnings.available, isTrue);
+        expect(summary.earnings.confirmed, BigInt.zero);
+        expect(summary.earnings.pending, greaterThan(BigInt.zero));
 
         for (final original in [originalFirst, originalSecond]) {
           final replay = await auth.authenticatedRequest(
@@ -305,8 +311,9 @@ void main() {
           expect(row['offers'], 1);
           expect(row['receipts'], 1);
           expect(row['reconciled_cents'], '0');
-          expect(row['order_status'], 'delivered');
-          expect(row['payment_status'], 'pending');
+          expect(row['flow_version'], 2);
+          expect(row['order_status'], 'completed');
+          expect(row['payment_status'], 'paid');
           expect(row['delivered'], 1);
           expect(row['web_parity'], isTrue);
         }
@@ -354,14 +361,18 @@ void main() {
             'filtered_all_owned_summary': true,
             'foreign_denied': true,
             'web_parity': true,
-            'buyer_completed': false,
+            'flow_version': 2,
+            'order_status': 'completed',
+            'payment_status': 'paid',
+            'released_earnings_cents': '0',
+            'pending_earnings_positive': true,
             'cash_reconciled': false,
             'azure_accepted': false,
             'physical_android_accepted': false,
           }),
         );
         debugPrint(
-          'Native cash recovery, original replay, independent hub receipts, signed shortage and web journal parity passed. No live activation.',
+          'Native version-two COD recovery passed: orders completed and paid while cash stayed under rider/hub custody; the shortage and pending earnings are recorded. No live activation.',
         );
       } finally {
         if (journal != null) {

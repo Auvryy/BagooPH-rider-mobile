@@ -218,3 +218,22 @@ on logout. Android lost-file behavior used a simulated picker in PC tests; this
 does not verify a physical Android picker, process lifecycle, or secure storage
 on a device. No phone or emulator was accessed, and this was not a full-suite
 rerun.
+
+## Shared pickup and cash recovery journal — November 1, 2026
+
+The focused cash repository suite passed **14 tests, zero failures** on the PC:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact test/cash_repository_test.dart
+```
+
+The added synthetic API case commits a pickup claim and loses its response, then
+recreates the repository with a separate secure-journal instance for the same
+API origin and rider account. Cash sees the unresolved claim and blocks a new
+offer; another account cannot read that intent. Reconciliation checks the
+original command key once without resending the claim, clears the shared intent,
+and then permits a distinct cash offer. This is a host-side repository test
+using mock secure storage and a fixture API. It does not establish deployed
+backend behavior, live account acceptance, or Android-device storage behavior.
+The latest full-suite total above predates this focused test; the full suite was
+not rerun.

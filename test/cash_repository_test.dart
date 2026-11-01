@@ -4,11 +4,14 @@ import 'dart:convert';
 import 'package:bagoo_rider_mobile/app/config.dart';
 import 'package:bagoo_rider_mobile/core/network/api_failure.dart';
 import 'package:bagoo_rider_mobile/features/cash/data/cash_models.dart';
+import 'package:bagoo_rider_mobile/features/home/data/operations_models.dart';
+import 'package:bagoo_rider_mobile/features/home/data/operations_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:bagoo_rider_mobile/features/home/data/command_journal.dart';
 
 import 'support/cash_support.dart';
+import 'support/parcel_support.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -298,6 +301,127 @@ void main() {
     wait.complete();
     await offer;
   });
+  test(
+    'recreated repository recovers a timed-out pickup claim before cash',
+    () async {
+      FlutterSecureStorage.setMockInitialValues({});
+      final h = CashHarness();
+      final origin = Uri.parse('https://example.test/api/v1');
+      final pickupJournal = SecureCommandJournal(
+        origin: origin,
+        accountId: '5',
+      );
+      final cashJournal = SecureCommandJournal(origin: origin, accountId: '5');
+      final otherAccountJournal = SecureCommandJournal(
+        origin: origin,
+        accountId: '6',
+      );
+      final taskJson =
+          operationFixture('pickup-task')['data'] as Map<String, dynamic>;
+      taskJson['preview'] = true;
+      (taskJson['actions'] as Map<String, dynamic>)['claim'] = true;
+      final task = OperationTask.fromJson(taskJson);
+      Map<String, dynamic>? committedClaim;
+      String? claimKey, cashKey;
+      var claimPosts = 0, commandReads = 0, cashPosts = 0;
+
+      h.api.respond = (path, method, body, headers) async {
+        if (path == 'rider/pickup-jobs/1/claim' && method == 'POST') {
+          claimPosts++;
+          final saved = await pickupJournal.read();
+          expect(saved, isNotNull);
+          claimKey = saved!.key;
+          expect(headers['Idempotency-Key'], claimKey);
+          final response = Map<String, dynamic>.from(
+            operationFixture('claim')['data'] as Map,
+          );
+          response['idempotency_key'] = saved.key;
+          response['action'] = saved.action;
+          response['resource'] = saved.resource;
+          final result = Map<String, dynamic>.from(response['result'] as Map);
+          result['task_id'] = saved.resource;
+          result['delivery_id'] = saved.deliveryId;
+          response['result'] = result;
+          committedClaim = response;
+          throw const AccountFailure('Response lost', unconfirmed: true);
+        }
+        if (path.startsWith('rider/commands/')) {
+          commandReads++;
+          expect(path, 'rider/commands/$claimKey');
+          return {'data': committedClaim!};
+        }
+        if (path.endsWith('/offer') && method == 'POST') {
+          cashPosts++;
+          final saved = await cashJournal.read();
+          expect(saved?.isCash, isTrue);
+          cashKey = headers['Idempotency-Key'];
+          return {'data': h.result(saved!)};
+        }
+        return h.respond(path, method, body, headers);
+      };
+
+      OperationsRepository repositoryFor(CommandJournal journal) =>
+          OperationsRepository(
+            h.api,
+            accountId: '5',
+            journal: journal,
+            writesVerified: true,
+            cashWritesVerified: true,
+            isCurrent: () => true,
+          );
+
+      final pickupRepository = repositoryFor(pickupJournal);
+      await expectLater(
+        pickupRepository.claim(task),
+        throwsA(
+          isA<AccountFailure>().having(
+            (error) => error.unconfirmed,
+            'uncertain result',
+            isTrue,
+          ),
+        ),
+      );
+      final original = await pickupJournal.read();
+      expect(original?.action, 'claim');
+      expect(original?.key, claimKey);
+      expect((await cashJournal.read())?.key, claimKey);
+      expect(await otherAccountJournal.read(), isNull);
+
+      final cashRepository = repositoryFor(cashJournal);
+      await expectLater(
+        cashRepository.offerCash(
+          h.account,
+          recipientId: '12',
+          amount: '125.00',
+          evidenceReference: 'TEST-HANDOVER-01',
+          mayDispatch: () => true,
+        ),
+        throwsA(isA<AccountFailure>()),
+      );
+      expect(cashPosts, 0);
+      expect((await cashJournal.read())?.key, claimKey);
+
+      final recovered = await cashRepository.reconcile();
+      expect(recovered?['task_id'], 'pickup-1');
+      expect(recovered?['delivery_id'], '1');
+      expect(commandReads, 1);
+      expect(claimPosts, 1);
+      expect(await pickupJournal.read(), isNull);
+      expect(await cashJournal.read(), isNull);
+
+      await cashRepository.offerCash(
+        h.account,
+        recipientId: '12',
+        amount: '125.00',
+        evidenceReference: 'TEST-HANDOVER-01',
+        mayDispatch: () => true,
+      );
+      expect(cashPosts, 1);
+      expect(cashKey, isNot(claimKey));
+      expect(claimPosts, 1);
+      expect(await cashJournal.read(), isNull);
+    },
+  );
   test(
     'malformed or mismatched committed results retain original recovery intent',
     () async {

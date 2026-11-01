@@ -69,7 +69,9 @@ controlled test profile must still complete the following acceptance checks.
 4. For a hub-assigned final-mile COD parcel, scan departure, follow the current
    buyer stop and record the authorized test recipient, original image, exact
    received cash/change and explicit cash acknowledgement. Verify one delivered
-   checkpoint and collection. Buyer receipt and remittance stay separate.
+   checkpoint and collection. Verify the server-returned order status for its
+   flow version: newer orders may complete automatically after verified handoff.
+   COD remittance remains a separate owning-hub action.
 5. Prepare a separate failed-attempt scenario. Use the returned reason policy,
    notes, place and original image. Confirm one attempt and retained rider return
    responsibility until the destination hub independently receives the parcel.

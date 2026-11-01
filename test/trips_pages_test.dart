@@ -151,6 +151,36 @@ void main() {
     );
   }
   testWidgets(
+    'Trips guidance defers completion to server status and separates COD remittance',
+    (tester) async {
+      final h = TripHarness();
+      addTearDown(h.dispose);
+      await tester.runAsync(h.boot);
+      await tester.pumpWidget(
+        _app(
+          ListenableBuilder(
+            listenable: h.work,
+            builder: (_, _) =>
+                Scaffold(body: TripsPage(controller: h.work, preview: false)),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      const guidance =
+          'Order completion follows its recorded status. COD remittance and rider earnings remain separate from the delivery record.';
+      await tester.scrollUntilVisible(
+        find.text(guidance),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text(guidance), findsOneWidget);
+      expect(find.textContaining('buyer receipt'), findsNothing);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+      h.dispose();
+    },
+  );
+  testWidgets(
     'private proof is cleared on background and requires fresh deliberate opening after resume',
     (tester) async {
       final h = TripHarness();

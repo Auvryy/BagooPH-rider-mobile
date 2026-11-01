@@ -32,6 +32,10 @@ void main() {
           'Record recipient handoff. The buyer confirms receipt separately.';
       expect(taskInstruction(h.task), startsWith('Record recipient handoff.'));
       expect(taskInstruction(h.task), isNot(contains('buyer confirms')));
+      expect(
+        taskInstruction(h.task),
+        contains('COD remittance to the hub remains separate.'),
+      );
       h.taskJson['operational_stage'] = 'delivered';
       h.taskJson['commercial_status'] = 'completed';
       expect(taskInstruction(h.task), contains('order completed'));

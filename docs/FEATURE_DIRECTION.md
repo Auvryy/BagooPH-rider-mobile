@@ -37,7 +37,9 @@ or assignment mechanism.
 - Assigned final-mile work shows destination-hub collection, then the saved
   buyer destination, required evidence and exact cash after departure.
 - Failure shows the authorized return/recovery instruction. Recorded delivery
-  shows a receipt and keeps buyer confirmation separate.
+  shows a receipt and the server-returned order status. Newer flow-version orders
+  may complete automatically after verified recipient handoff; historical orders
+  retain their own completion path. COD remittance remains separate.
 - Returning from navigation, scanning or the camera refreshes the selected
   parcel and permissions. Stale assignment, missing destination and uncertain
   submission have different useful messages.
@@ -169,10 +171,11 @@ another rider's parcel or reassign work through a frontend-only choice.
    assigns a specific eligible final-mile rider.
 7. The assigned rider collects/departs from that hub, then records recipient
    handoff, required proof and exact COD where applicable.
-8. Delivery is recorded. The buyer confirms receipt separately; collected cash
-   requires remittance and platform reconciliation before eligible settlement.
-   Buyer confirmation and cash remittance can happen in either order; both
-   required gates must finish before settlement.
+8. Delivery is recorded and the server returns the applicable order status.
+   Newer flow-version orders can complete automatically after verified recipient
+   handoff; historical orders keep their own completion path. Collected cash
+   still requires owning-hub remittance and platform reconciliation before
+   eligible settlement.
 
 A failed delivery keeps the parcel with its rider until the destination hub
 receives the return. Hub-approved retry or reverse logistics follows the

@@ -20,7 +20,7 @@ String taskInstruction(OperationTask task) {
   // server instruction while correcting this older unconditional completion copy.
   return task.nextInstruction.replaceAll(
     'The buyer confirms receipt separately.',
-    'Check the recorded order status after delivery. Any COD handover remains separate.',
+    'Check the recorded order status after delivery. COD remittance to the hub remains separate.',
   );
 }
 

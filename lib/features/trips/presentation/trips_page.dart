@@ -342,7 +342,7 @@ class _TripsPageState extends State<TripsPage> {
               ),
               sliver: const SliverToBoxAdapter(
                 child: Text(
-                  'A delivery record is separate from buyer receipt, cash remittance and rider earnings.',
+                  'Order completion follows its recorded status. COD remittance and rider earnings remain separate from the delivery record.',
                 ),
               ),
             ),
@@ -607,7 +607,7 @@ class _TripDetails extends StatelessWidget {
           Text(
             preview
                 ? 'Sample history only. No proof, buyer receipt, remittance or payout is confirmed by this preview.'
-                : 'This journey records delivery events. Buyer receipt and cash reconciliation are separate records.',
+                : 'This journey records delivery events. Order status is shown above; COD remittance and rider earnings are tracked separately.',
           ),
           const SizedBox(height: 20),
           RiderPressFeedback(

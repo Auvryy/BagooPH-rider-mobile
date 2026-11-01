@@ -60,7 +60,10 @@ from outstanding deployed and physical acceptance.
 - Available orders are pickup previews. A claim establishes assignment only.
   Refreshed owned detail supplies the actions available to the rider.
 - Final-mile work is assigned by the destination hub. The rider never self-assigns
-  delivery, receives parcels on behalf of a hub or completes the buyer's order.
+  delivery or receives parcels on behalf of a hub. The rider records recipient
+  handoff; the client displays the server's order status. Verified handoff may
+  complete newer flow-version orders automatically, while historical orders
+  retain their own completion path.
 - Actual captured waybill values are reviewed and submitted. Stored tracking
   numbers and typed test values never stand in for physical scan evidence.
   Linux retains browsing, proof selection and route preview; camera acceptance
@@ -87,7 +90,7 @@ from outstanding deployed and physical acceptance.
 | Existing acceptance remains usable | Duty/claim regression, refreshed owned detail, original command replay | HDB-05 baseline preserved; local regression and native kernel scenario passed; new live scope pending |
 | Protected parcel intent | Persist-before-dispatch, original-byte hash, interrupted upload, restart/logout/account isolation, unknown/expired/conflicting replay | Local tests and native Linux protected-storage/original-proof recovery passed; live/Android extension pending |
 | Pickup/departure | Correct/wrong scan, stale/reassigned task, action denials, duplicate taps, refreshed custody/stop and cancelled old route | Client connected; selected controller/layout regressions passed; actual camera/live checks pending |
-| COD delivery | Real image validation, recipient evidence, exact received-minus-change, one outcome/collection and separate buyer completion | Client connected; selected local form/command tests passed; live/physical verification pending |
+| COD delivery | Real image validation, recipient evidence, exact received-minus-change, one outcome/collection and server-owned completion status | Client connected; headless PC test passed against pinned Bagoo source; live/physical verification pending |
 | Failed delivery | Server reasons/attempt count, proof and notes, retained rider return responsibility until hub receipt | Client connected; selected local tests passed; live hub return verification pending |
 | Trips | Original retained attribution, pickup/final-mile distinction, exact money, Manila assignment dates, server filters/pagination and late-result cancellation | Client connected; local contract/controller/layout checks passed; live acceptance pending |
 | Private proof | Same-origin approved path, no redirects/public URL, size/type/privacy checks, denied/changed bytes and visible-state cleanup | Local transport/privacy/cache checks and native kernel ownership/hash checks passed; live acceptance pending |
@@ -163,8 +166,10 @@ The selected outcome forms collect actual recipient evidence, original image
 selection/capture and exact cash received/change with an explicit cash acknowledgement.
 Failure uses the returned policy's reasons, recorded attempts and limit, required
 notes/location/proof, then displays the refreshed destination-hub return instruction.
-Missing policy and unsupported payment outcomes remain unavailable. No rider
-button completes the buyer order, receives a hub return or records remittance.
+Missing policy and unsupported payment outcomes remain unavailable. The rider
+records recipient handoff; the server owns the resulting order status and may
+complete a newer flow-version order automatically. The rider cannot record a hub
+return or COD remittance.
 
 Original photo drafts use the protected proof store and an encrypted picker
 context. Android workspace startup checks lost picker data. A draft is offered

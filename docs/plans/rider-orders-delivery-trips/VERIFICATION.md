@@ -78,6 +78,35 @@ establish that the pinned Bagoo branch is deployed. The Rider native integration
 expectations were aligned with this source behavior and statically analyzed; the
 native windowed suite was not run in this PC-only slice.
 
+## November 1 defense APK refresh
+
+The current Rider source built as a debug APK on the PC with the repository's
+1 GB Gradle heap and single worker:
+
+```sh
+flutter build apk --debug --no-pub --dart-define-from-file=.env.rider.json
+```
+
+Artifact: `build/app/outputs/flutter-apk/app-debug.apk`, SHA-256
+`42ce7a5d1493fa60b9dee7b670094e5222b1ad67ed2d5771459053ffa0cbfae6`,
+249,457,282 bytes. Its manifest reports
+`com.example.bagoo_rider_mobile`, version `0.1.0+1`, minimum SDK 24 and target
+SDK 36. This is a debug artifact with the scaffold application ID, not a signed
+release. It was not installed or exercised on a phone. The Android SDK emitted
+an XML schema-version warning, but the build completed with exit code 0.
+
+The Trips summary now directs riders to the returned order status and keeps COD
+remittance/earnings distinct without claiming buyer confirmation is always a
+separate step. This follows the pinned source's automatic completion for newer
+flow-version orders while preserving historical `delivered` status handling.
+Focused guidance and responsive Trips tests passed **12/12**, and targeted Dart
+analysis reported no issues:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact test/delivery_guidance_test.dart test/trips_pages_test.dart
+dart analyze lib/features/trips/presentation/trips_page.dart lib/features/home/presentation/stop_guidance.dart test/delivery_guidance_test.dart test/trips_pages_test.dart
+```
+
 ## Passed local checks
 
 | Check | Result |

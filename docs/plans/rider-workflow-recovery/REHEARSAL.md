@@ -160,6 +160,11 @@ evidence, not as an accepted live phone demonstration.
 - The focused photo-recovery suite passed **7/7** at Rider head `f17309c`. It
   covers scoped restart and lost-picker handling with a simulated picker, not
   physical Android lifecycle behavior.
+- The Parcel Finder/Stop Mode widget suite passed **7/7** at Rider head
+  `5836658`: five viewport/text-scale setups, accessible 48px slot controls,
+  keyboard activation, duplicate-save protection, and the owned Stop Mode flow.
+  These are widget checks; physical Android layout and camera acceptance remain
+  open.
 - The current debug APK is `build/app/outputs/flutter-apk/app-debug.apk`,
   SHA-256 `42ce7a5d1493fa60b9dee7b670094e5222b1ad67ed2d5771459053ffa0cbfae6`.
   It is a debug build, not a signed release, and was not installed or run on a

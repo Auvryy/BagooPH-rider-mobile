@@ -5,18 +5,18 @@ deferred by the user. Keep this list open until its corresponding evidence exist
 
 ## Rider app versus phone-sized Courier website
 
-This source review compares Rider app source at `9886648` with the
-phone-responsive Courier portal on the live Bagoo `main` revision
+This source review compares Rider app source through `ddaf245` with the
+phone-responsive Courier portal on Bagoo `main` at
 `f001d396b0e9ea6bfc2fdeb85ee24b66682b997e`. It covers the Courier website, not
 the Buyer app. It does not claim that either client was exercised in a real
-browser or on Android. The Rider comparison snapshot was branch head `5c2e2a8`;
-it contains documentation updates after the reviewed app source and does not
-change that source. At that snapshot, the published Rider branch was 18 commits
-ahead and 0 behind Rider `main` at `4367331`.
+browser or on Android. A November 1 fetch confirmed published Rider branch
+`4d4663d` matches local HEAD and is 26 commits ahead, 0 behind Rider `main`
+`4367331`; the later branch commits are documentation-only.
 
 | Area | Rider app | Courier website on a phone | Defense-safe conclusion |
 |---|---|---|---|
 | Work and stops | Tasks/Home, task map, dedicated Stop Mode, pickup claim, hub departure, delivery or failed-attempt actions. | Deliveries dashboard, current-job panel, map, pickup claim, scan and outcome actions. Its source implements a mobile sidebar. | The courier work is shared. Stop Mode is a native presentation of the same authorized stop; actual phone rendering of either client remains unverified. |
+| Map renderer | Android uses the bundled Leaflet document in System WebView with public OSM tiles. Linux Device Preview substitutes FlutterMap so the map stays inside its simulated phone frame. | Courier pages use browser Leaflet with public OSM tiles. | Android and Courier web use the same map framework/tile source. The Linux preview is a layout fallback, not Android WebView evidence. No live tracking or in-app turn-by-turn guidance is claimed. |
 | Waybill scanning | Android `mobile_scanner` accepts a real camera result and requires one matching parcel code. There is no typed or gallery substitute in the native scan action. | `WaybillCamera` uses browser `BarcodeDetector` and `getUserMedia`; when unavailable it offers typed entry or an external scanner. The form checks the entered code against the selected waybill. | Scanning is not app-exclusive. The native camera pipeline and stricter scan-only entry are implementation differences; neither proves physical camera acceptance. |
 | Delivery proof | Camera/gallery selection, protected original proof for uncertain commands, and private proof viewing in the rider's retained Trips detail. | Delivery and failed-attempt forms accept an image file. The Trips page shows recorded trip details and earnings, not the private proof viewer found in the app. A phone browser may offer camera or gallery through its file picker. | Both support proof submission. The app adds protected recovery and an in-app view of retained private evidence; do not claim that the website cannot take a photo. |
 | Stop Mode and Parcel Finder | Dedicated Stop Mode includes session-only personal slot labels for an owned parcel. Labels clear on restart/sign-out and do not change server custody. | The reviewed Courier pages have a current-job/map panel; no matching personal parcel-slot labels were found. | Parcel Finder is the clearest extra rider-facing feature in the app. It is a personal organization aid, not dispatch, scanning, or custody evidence. |
@@ -44,6 +44,8 @@ final-mile work, or mark hub cash receipt/platform reconciliation. The rider
 can submit a cash handover; the owning hub and ledger remain authoritative.
 
 Sources: Rider [workspace navigation](../../../lib/features/workspace/presentation/workspace_shell.dart),
+[Android/PC map renderer selection](../../../lib/features/navigation/presentation/leaflet_delivery_map.dart),
+[Linux Device Preview map fallback](../../../lib/features/navigation/presentation/native_delivery_map.dart),
 [Stop Mode](../../../lib/features/home/presentation/stop_mode_page.dart),
 [Parcel Finder](../../../lib/features/parcel_finder/presentation/parcel_finder_card.dart),
 [scanner](../../../lib/features/parcels/presentation/waybill_scanner_page.dart),
@@ -58,6 +60,7 @@ Sources: Rider [workspace navigation](../../../lib/features/workspace/presentati
 [notifications](../../../lib/features/notifications/presentation/notifications_page.dart),
 and [handover](../../../lib/features/handover/presentation/handover_issues_page.dart).
 Bagoo sources are pinned to [Courier Deliveries](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Pages/Courier/Deliveries.tsx),
+[Courier map](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Components/CourierJobMap.tsx),
 [browser scanner](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Components/WaybillCamera.tsx),
 [responsive portal layout](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Layouts/CourierLayout.tsx),
 [responsive navigation](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Components/CourierSidebar.tsx),
@@ -179,10 +182,10 @@ evidence, not as an accepted live phone demonstration.
   SHA-256 `42ce7a5d1493fa60b9dee7b670094e5222b1ad67ed2d5771459053ffa0cbfae6`.
   It is a debug build, not a signed release, and was not installed or run on a
   phone.
-- At the comparison snapshot, live GitHub refs showed Rider branch `5c2e2a8`
-  **18 ahead, 0 behind** Rider `main` `4367331`. Bagoo web `main` is `f001d396`;
-  the separate Wallet / handover source branch `9e58312` is **2 ahead, 0 behind**
-  and is not merged or deployment evidence.
+- The latest fetched refs show Rider branch `4d4663d` **26 ahead, 0 behind** Rider
+  `main` `4367331`; local HEAD matches the published branch. Bagoo web `main` is
+  `f001d396`; the separate Wallet / handover source branch `9e58312` is **2 ahead,
+  0 behind** and is not merged or deployment evidence.
 - Azure deployment/cross-role acceptance, approved release identity/signing,
   and physical Android lifecycle acceptance remain open. Keep the phone check
   deferred; PC evidence does not clear these gates.
@@ -191,6 +194,12 @@ evidence, not as an accepted live phone demonstration.
 
 If an Android device is unavailable during the defense, present the recorded
 evidence in this order without implying a live-device demonstration:
+
+**Map preview limit:** Linux Device Preview uses the FlutterMap fallback so the
+map stays inside the simulated phone frame. Android uses the bundled Leaflet
+document in System WebView. The Linux preview supports layout/workflow review,
+but it does not verify Android's map renderer or lifecycle. Local Leaflet runtime
+checks cover the bundled document separately.
 
 1. Give the four-minute explanation above and show the source-backed
    [app-versus-website comparison](#rider-app-versus-phone-sized-courier-website).

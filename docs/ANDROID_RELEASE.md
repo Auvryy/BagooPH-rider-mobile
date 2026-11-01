@@ -4,22 +4,26 @@ Ordinary debug APK builds keep the existing scaffold application ID when no
 release ID is configured. Release APK/AAB packaging requires an approved package
 ID and a local signing key; the build never falls back to the Android debug key.
 
-## Optional single-architecture defense preview
+## Optional arm64-targeted defense preview
 
-The current universal debug APK is 249 MB and contains the debug VM snapshot
-plus three Android ABIs. To prepare a smaller local preview for a 64-bit ARM
-device, build only the `arm64` profile variant:
+The universal debug APK is 249 MB and contains the debug VM snapshot and
+Flutter libraries for three Android ABIs. For a smaller profile-mode preview
+for a 64-bit ARM device, target the Flutter app to `arm64`:
 
 ```sh
 flutter build apk --profile --target-platform android-arm64 --dart-define-from-file=config/azure.json
 ```
 
-The expected output is `build/app/outputs/flutter-apk/app-profile.apk`. Flutter's
+The expected output is `build/app/outputs/flutter-apk/app-profile.apk`. The
 profile variant inherits debug signing, and this project uses the scaffold
-application ID unless an approved `RIDER_APPLICATION_ID` is supplied. This is a
-local preview build, not a distributable release. Confirm the target device ABI
-before installation; a successful PC build would not establish Android device
-acceptance.
+application ID unless an approved `RIDER_APPLICATION_ID` is supplied. A local
+build produced a 64,285,631-byte APK with SHA-256
+`625fa56617f1fd5ad3c41e9b5c822357dc6eafb4118bcb8df8c46511f5fb7da4`. The
+Flutter app and engine libraries target arm64, while some plugin libraries for
+other ABIs remain in the APK. The package ID is
+`com.example.bagoo_rider_mobile`, and its signature verifies with the Android
+debug certificate. This is a local preview, not a distributable release; no
+phone install or device acceptance is implied.
 
 ## Local configuration
 

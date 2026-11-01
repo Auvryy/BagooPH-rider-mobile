@@ -165,6 +165,12 @@ evidence, not as an accepted live phone demonstration.
   keyboard activation, duplicate-save protection, and the owned Stop Mode flow.
   These are widget checks; physical Android layout and camera acceptance remain
   open.
+- A local arm64-targeted profile build produced
+  `build/app/outputs/flutter-apk/app-profile.apk` (**64,285,631 bytes**;
+  SHA-256
+  `625fa56617f1fd5ad3c41e9b5c822357dc6eafb4118bcb8df8c46511f5fb7da4`). APK
+  archive CRC and Android v2 debug signature verified. The package uses the
+  scaffold application ID; it was not installed or run on a phone.
 - The current debug APK is `build/app/outputs/flutter-apk/app-debug.apk`,
   SHA-256 `42ce7a5d1493fa60b9dee7b670094e5222b1ad67ed2d5771459053ffa0cbfae6`.
   It is a debug build, not a signed release, and was not installed or run on a

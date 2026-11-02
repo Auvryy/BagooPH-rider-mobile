@@ -5,9 +5,9 @@ deferred by the user. Keep this list open until its corresponding evidence exist
 
 ## Rider app versus phone-sized Courier website
 
-This source review compares Rider runtime and Android manifest code at
-`daacf85` on `fix/rider-route-privacy-disclosure`; later branch commits only
-update documentation. It compares that code with the
+This source review compares the Rider runtime and Android manifest on
+`fix/rider-route-privacy-disclosure`, including the app-level inactive-state
+cover reviewed November 2, 2026. It compares that code with the
 phone-responsive Courier portal on Bagoo `main` at
 `f001d396b0e9ea6bfc2fdeb85ee24b66682b997e`. The remote Bagoo main and review
 branch refs were rechecked November 2, 2026. This covers the Courier website,
@@ -444,7 +444,7 @@ Use this status view with the broader [acceptance matrix](../../VERIFICATION_AND
 | Failure/return | The isolated PC kernel scenario records one failed attempt, hub return, authorized retry and foreign-proof denial ([parcel verification](../rider-orders-delivery-trips/VERIFICATION.md)). | Deployed hub receipt/retry/RTS readbacks and physical Android proof/return handling. |
 | Cash/shift | The in-memory native cash scenario verifies original-command replay, two owning-hub receipts, shortage handling and earnings separation ([cash verification](../rider-cash-remittance/VERIFICATION.md)). | Current Azure migrations/capability, authorized live rider/hub receipts and physical financial-input/lifecycle checks. |
 | Messages/notices | Controller/widget and isolated-kernel behavior is recorded in [Messages verification](../rider-assignment-messages/VERIFICATION.md); the latest broad PC regression is summarized above. | Deployed send/read acceptance, live phase boundaries and later-arrival-unread behavior. |
-| Security/recovery | Fixed first-party recovery links and simulated private-draft cleanup are recorded in [workflow verification](VERIFICATION.md) and the [private-data audit](PRIVATE_DATA_LIFECYCLE.md). | Owner decisions for retained private data; deployed restricted-custody recovery; Android picker/process-death behavior. Task/stop details also remain visible while inactive, and Android recent-app snapshot behavior is unverified. |
+| Security/recovery | Fixed first-party recovery links and simulated private-draft cleanup are recorded in [workflow verification](VERIFICATION.md) and the [private-data audit](PRIVATE_DATA_LIFECYCLE.md). | Owner decisions for retained private data; deployed restricted-custody recovery; Android picker/process-death behavior. Rider now covers the whole Navigator, including pushed pages and dialogs, while inactive and blocks underlying semantics/input. Android recent-app snapshot behavior remains unverified. |
 | Phone lifecycle | PC simulations cover picker recovery, background clearing and expiry; the [private-data audit](PRIVATE_DATA_LIFECYCLE.md) lists what remains source-only. | Actual camera permission/cancel/retry, process kill/resume, account switch, keyboard/Back, task-detail redaction and app-switcher snapshot review. No current phone test was performed. |
 | Release identity | The arm64 debug APK and profile preview have PC archive/signature checks in [Android release evidence](../../ANDROID_RELEASE.md). | Approved application ID, protected release key, reproducible signed artifact, install/launch and artifact/source identity check. Debug APKs are not distributable releases. |
 | Deployment/cross-role | HDB-05 duty/claim is the only recorded controlled operational deployment acceptance; current Bagoo `main` and Wallet source refs are pinned above. | Confirm the deployed source/migrations for each operation and complete authorized rider, buyer, hub and cash readbacks. Source tests and `401` checks do not satisfy this gate. |

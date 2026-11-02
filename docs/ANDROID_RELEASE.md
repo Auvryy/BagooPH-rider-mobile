@@ -56,6 +56,18 @@ build configuration, not current service availability or live transaction
 acceptance. Use only an approved rider and isolated owned resources for any
 future live rehearsal.
 
+The defense-profile configuration check passed **1/1** with the same local
+build file. It asserts the deployed origins, disabled local authentication,
+enabled duty/claim gate, and disabled parcel, Wallet, cash, message,
+notification and handover write gates. It does not contact the deployed API.
+The ordinary suite skips this profile-specific check unless explicitly enabled:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact \
+  --dart-define-from-file=.env.rider.json \
+  --dart-define=VERIFY_DEFENSE_PROFILE=true test/defense_build_profile_test.dart
+```
+
 The build-profile activation test passed **2/2** serially with the same local
 configuration. Its fake server confirms the duty control and pickup-claim
 follow-up behavior; it does not send requests to the deployed API:

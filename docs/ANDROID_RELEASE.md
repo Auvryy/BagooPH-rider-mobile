@@ -68,6 +68,13 @@ A separate one-worker `:app:processDebugMainManifest` check with an invalid
 `RIDER_DEBUG_CLEARTEXT` value failed during configuration with the expected
 validation error; the restricted APK hash remained unchanged.
 
+At branch commit `c7aa1bb`, a one-worker `:app:processReleaseMainManifest`
+check succeeded with a 512 MiB heap. The generated release application
+manifest sets `allowBackup=false` and `usesCleartextTraffic=false`, so the
+debug override is absent from that merged manifest. This check did not package
+or sign an APK and does not verify device network behavior. The final signed
+artifact's manifest remains a separate release check.
+
 The current merged manifest contains Internet, camera, AndroidX network-state,
 and the standard non-exported receiver permission. It does not contain
 location, notification, or foreground-service permissions, and the geolocator

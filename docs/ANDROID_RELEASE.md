@@ -11,9 +11,11 @@ The November 2 configuration check found `RIDER_APPLICATION_ID` unset and
 
 ## Latest PC build artifacts — November 2, 2026
 
-The current arm64-targeted debug APK was built on the PC from Rider commit
+The latest recorded arm64-targeted debug APK was built on the PC from Rider commit
 `18759ce` on `fix/rider-route-privacy-disclosure`. It includes the app-level
 inactive-state Flutter cover and pause-scoped Android `FLAG_SECURE` handling.
+It predates the onboarding button typeface correction and needs rebuilding to
+include that runtime change.
 The focused cover test passed 1/1, and `:app:compileDebugKotlin` succeeded with
 one worker and a 768 MiB heap cap. The APK build completed in 80.2 seconds with
 one Gradle worker and a 1 GiB heap cap. It emitted nonfatal SDK XML and Gradle
@@ -22,12 +24,12 @@ build profile; no API override or local-auth define was added.
 
 | Variant | Source | Size | SHA-256 | Verification |
 |---|---|---:|---|---|
-| Current debug | `18759ce` | 176,230,447 bytes | `7ead0ffb97ff7785ff2c8dfe61afadf3a978336d9441acb59b0322df5c20e9bc` | ZIP integrity; package/SDK metadata; ARM64 Flutter engine; APK v2 signature; no location, notification or foreground-service permissions |
+| Latest recorded debug | `18759ce` | 176,230,447 bytes | `7ead0ffb97ff7785ff2c8dfe61afadf3a978336d9441acb59b0322df5c20e9bc` | ZIP integrity; package/SDK metadata; ARM64 Flutter engine; APK v2 signature; no location, notification or foreground-service permissions; predates onboarding typography correction |
 | Earlier debug | `daacf85` | 176,228,861 bytes | `215a1275cc6e4b83a7dce8a39e3d5a493cdecfd9391f91d1114e61af139e6d61` | Superseded; predates inactive-state privacy changes |
 | Profile | `ba7823a` | 77,671,976 bytes | `f6334ab298f784444a5ae905372a274eb79e0df7f8d2a1280d7852bd90ac68a5` | Earlier ZIP integrity; package/SDK metadata; ARM64 engine; APK v2 signature; location-service permissions absent |
 
 All artifacts use package ID `com.example.bagoo_rider_mobile`, version `0.1.0`
-(code 1), minimum SDK 24, and target SDK 36. The current debug APK has one
+(code 1), minimum SDK 24, and target SDK 36. The latest recorded debug APK has one
 standard Android Debug signer and verifies with APK Signature Scheme v2. It is
 debuggable and is not a distributable release artifact. It was not installed or
 launched; no phone, ADB, or emulator was used. The archive and signature checks

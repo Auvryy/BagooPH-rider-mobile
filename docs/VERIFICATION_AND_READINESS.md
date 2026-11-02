@@ -1,5 +1,9 @@
 # Verification and documentation assessment
 
+The onboarding Skip, Next and Sign in controls now explicitly use the bundled
+Rider font. The onboarding widget suite passed **10/10**, and a headless visual
+capture showed readable labels. The recorded debug APK predates this correction.
+
 At Rider commit `5ab6b36`, the full PC suite passed **716 tests with 8 skips**
 in 6m17s using `flutter test --no-pub --concurrency=1 --reporter=json test`.
 This includes the current privacy-cover test and lifecycle fixture. It does

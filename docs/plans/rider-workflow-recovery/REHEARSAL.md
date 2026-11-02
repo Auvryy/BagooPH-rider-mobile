@@ -178,7 +178,7 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    --no-pub` reported no issues in 6.4s. The expanded serial **45/45** check
    includes approval-loss cleanup. These remain simulated PC checks, not
    physical Android acceptance. At Rider code commit `daacf85`, the focused
-   Home and Stop Mode tests passed **46/46** and analysis was clean. The current
+   Home and Stop Mode tests passed **46/46** and analysis was clean. The latest recorded
    arm64 debug APK was built from `18759ce`, including the inactive-state cover
    and paused-window flag; it passed PC archive, package/SDK, ARM64-engine,
    manifest and APK v2 signature checks. The focused privacy widget check passed
@@ -202,7 +202,7 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    `9d7e8cf`/`039d40d`. The APKs do not establish release signing, Azure
    deployment, cross-role production behavior, or physical Android
    camera/lifecycle acceptance. See
-   [current APK evidence](../../ANDROID_RELEASE.md). The current APK contains
+   [APK evidence](../../ANDROID_RELEASE.md). The latest recorded APK contains
    the Android pause flag but has not been installed; physical recent-app
    snapshot behavior and live-phone acceptance still need device checks.
 
@@ -275,7 +275,7 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    cover blocks interaction and hides all Navigator pages/dialogs; Android also
    sets `FLAG_SECURE` during `onPause` and clears it on `onResume`, preserving
    screenshot/casting access while active. The native code compiled into the
-   current debug APK; recent-app snapshot behavior still needs physical-device
+   latest recorded debug APK; recent-app snapshot behavior still needs physical-device
    verification.
 - **Does the rider confirm that the buyer received the parcel?** The rider
   records the handoff. The backend returns the applicable status; newer
@@ -459,7 +459,7 @@ Use this status view with the broader [acceptance matrix](../../VERIFICATION_AND
 | Cash/shift | The in-memory native cash scenario verifies original-command replay, two owning-hub receipts, shortage handling and earnings separation ([cash verification](../rider-cash-remittance/VERIFICATION.md)). | Current Azure migrations/capability, authorized live rider/hub receipts and physical financial-input/lifecycle checks. |
 | Messages/notices | Controller/widget and isolated-kernel behavior is recorded in [Messages verification](../rider-assignment-messages/VERIFICATION.md); the latest broad PC regression is summarized above. | Deployed send/read acceptance, live phase boundaries and later-arrival-unread behavior. |
 | Security/recovery | Fixed first-party recovery links and simulated private-draft cleanup are recorded in [workflow verification](VERIFICATION.md) and the [private-data audit](PRIVATE_DATA_LIFECYCLE.md). | Owner decisions for retained private data; deployed restricted-custody recovery; Android picker/process-death behavior. Rider covers the whole Navigator while inactive, blocks underlying semantics/input, and sets `FLAG_SECURE` while its Android activity is paused. Recent-app snapshot behavior still needs physical-device verification. |
-| Phone lifecycle | PC simulations cover picker recovery, background clearing and expiry. A focused widget check covers the app-level overlay, pushed-route semantics/input blocking and resume restoration ([test](../../../test/auth_preview_test.dart)); the native activity also compiled into the current debug APK. The [private-data audit](PRIVATE_DATA_LIFECYCLE.md) lists remaining source-level behavior. | Verify camera permission/cancel/retry, process kill/resume, account switch, keyboard/Back, task-detail redaction and app-switcher snapshot on an authorized physical device. The new pause flag has not been exercised on a phone. |
+| Phone lifecycle | PC simulations cover picker recovery, background clearing and expiry. A focused widget check covers the app-level overlay, pushed-route semantics/input blocking and resume restoration ([test](../../../test/auth_preview_test.dart)); the native activity also compiled into the latest recorded debug APK. The [private-data audit](PRIVATE_DATA_LIFECYCLE.md) lists remaining source-level behavior. | Verify camera permission/cancel/retry, process kill/resume, account switch, keyboard/Back, task-detail redaction and app-switcher snapshot on an authorized physical device. The new pause flag has not been exercised on a phone. |
 | Release identity | The arm64 debug APK and profile preview have PC archive/signature checks in [Android release evidence](../../ANDROID_RELEASE.md). | Approved application ID, protected release key, reproducible signed artifact, install/launch and artifact/source identity check. Debug APKs are not distributable releases. |
 | Deployment/cross-role | HDB-05 duty/claim is the only recorded controlled operational deployment acceptance; current Bagoo `main` and Wallet source refs are pinned above. | Confirm the deployed source/migrations for each operation and complete authorized rider, buyer, hub and cash readbacks. Source tests and `401` checks do not satisfy this gate. |
 | Evidence freeze | The Rider source/test basis, pre-refresh branch ancestry snapshot, Bagoo `main` and unmerged Wallet source refs are recorded above; APK hashes and build limits are in [Android release evidence](../../ANDROID_RELEASE.md). | Freeze the exact signed artifact, tested source and deployed revision, preserve selected test-resource results, then rehearse before November 20. |

@@ -149,6 +149,7 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage> {
                                 style: TextButton.styleFrom(
                                   foregroundColor: RiderColors.muted,
                                   textStyle: const TextStyle(
+                                    fontFamily: RiderTypography.family,
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -266,6 +267,7 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               textStyle: const TextStyle(
+                                fontFamily: RiderTypography.family,
                                 fontSize: 16,
                                 height: 22 / 16,
                                 fontWeight: FontWeight.w600,
@@ -311,6 +313,7 @@ class _RiderOnboardingPageState extends ConsumerState<RiderOnboardingPage> {
                                     horizontal: 4,
                                   ),
                                   textStyle: const TextStyle(
+                                    fontFamily: RiderTypography.family,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
                                     decoration: TextDecoration.underline,

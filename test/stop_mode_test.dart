@@ -348,6 +348,20 @@ void main() {
   );
 
   testWidgets(
+    'owned buyer stop explains when no saved doorstep instructions exist',
+    (tester) async {
+      final h = await _open(
+        tester,
+        configure: (h) => h.data['stop']['instructions'] = '   ',
+      );
+      await _reveal(tester, find.byKey(const ValueKey('stop-notes-empty')));
+      expect(find.text('Doorstep Guide'), findsOneWidget);
+      expect(find.text('No extra instructions provided.'), findsOneWidget);
+      expect(h.api.calls.every((call) => call.method == 'GET'), isTrue);
+    },
+  );
+
+  testWidgets(
     'available pickup remains a public preview without private stop actions',
     (tester) async {
       final h = await _open(tester, preview: true);

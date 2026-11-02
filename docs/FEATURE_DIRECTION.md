@@ -96,17 +96,30 @@ For pickup, use the seller's collection instructions; for final-mile, use
 instructions for the order's saved buyer destination. Hub stops use the hub's
 own authorized receiving instructions.
 
+**Current contract and implementation:** the existing Rider task response has
+a nullable `stop.instructions` value for an owned final-mile buyer stop,
+populated from the order's saved notes. Home's selected-stop panel and Stop Mode
+show that exact text; when it is absent, they say **No extra instructions
+provided.** This is a text-only note, not a structured landmark, entrance,
+floor/unit or hub/seller instruction contract. The mobile client does not guess
+or derive a missing note.
+
+The current field and source behavior are documented in Bagoo main's
+[Rider operations API](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/docs/api/RIDER_OPERATIONS_API.md)
+and [task response builder](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/app/Services/Courier/RiderTaskService.php).
+This is source evidence, not deployment or physical-device acceptance.
+
 The immutable destination remains visible. Clarifications do not change the
 recipient, destination area, assigned hub or COD amount. Entrance photos and
 reporting wrong pins are later additions unless separately selected.
 
 **Acceptance:**
 
-- Show supplied instructions with their purpose; missing data means “No extra
+- Show the supplied buyer note with its purpose; missing data means “No extra
   instructions provided,” not a guessed landmark.
-- The API owner agrees instruction fields, their author/update authority and
-  visibility per parcel phase before integration. Field names in a design are
-  not existing backend capabilities.
+- Before adding structured landmark, entrance, floor/unit or seller/hub notes,
+  the API owner agrees their fields, author/update authority and visibility per
+  parcel phase. Design field names alone do not establish backend support.
 - Render notes as plain text with accessible wrapping. Explain which address
   directions will use and retain copying/contact fallback.
 - A clarification cannot silently reroute the order. Changes that affect the
@@ -115,8 +128,8 @@ reporting wrong pins are later additions unless separately selected.
   on account change or when assignment access ends.
 
 Reuse M09 stop/address/contact presentation and M01 task-detail agreement.
-Instruction data is a new dependency; the existing address-only contract does
-not establish that these fields are already supplied.
+The existing nullable buyer-note field is supported; expanded structured
+instruction data remains a new dependency requiring owner agreement.
 
 ## How work reaches a rider
 

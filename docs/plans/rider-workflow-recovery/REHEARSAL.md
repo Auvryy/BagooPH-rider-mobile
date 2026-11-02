@@ -26,6 +26,7 @@ November 2, 2026.
 | Map rendering | Android uses the bundled Leaflet document in System WebView with public OSM tiles. Linux Device Preview substitutes FlutterMap so the map stays inside its simulated phone frame. | Courier pages use browser Leaflet with public OSM tiles. | The Android map and Courier web share Leaflet and the tile source. Linux preview is a layout fallback, not Android WebView evidence. |
 | Map and directions | The map displays the saved stop or a labelled sample path using OpenStreetMap tiles. The current Android build does not declare location permissions, and the Home location-controller code is not wired to the Home surface. The default `roadRoutingProvider` is `UnavailableRoadRouting`, so Rider has no active in-app route, GPS follow or rerouting session. **External directions** opens Google Maps with the saved stop destination. | Courier maps also use OpenStreetMap tiles; the current-job directions action opens external Google Maps directions. | Both map surfaces expose tile coordinates and source IP metadata to OpenStreetMap, which can reveal the displayed area. Google Maps receives the saved destination only when the rider explicitly opens external directions. The default Rider build does not read device location or send a live GPS feed or route history to Bagoo. |
 | Waybill scanning | Android `mobile_scanner` accepts a real camera result and requires one matching parcel code. There is no typed or gallery substitute in the native scan action. | `WaybillCamera` uses browser `BarcodeDetector` and `getUserMedia`; when unavailable it offers typed entry or an external scanner. The form checks the entered code against the selected waybill. | Scanning is not app-exclusive. The native camera pipeline and stricter scan-only entry are implementation differences; neither proves physical camera acceptance. |
+| Saved buyer instructions | The authorized final-mile task can supply the saved buyer note. Home and Stop Mode show the exact text or **No extra instructions provided.** | The reviewed Courier task/map surfaces show next-action guidance and the saved address; no display of the buyer's stored order note was found in their page/controller path. | Rider exposes this saved text for its owned buyer stop. It does not add structured entrance fields or change the destination, and the app never invents missing instructions. |
 | Delivery proof | Camera/gallery selection, protected original proof for uncertain commands, and private proof viewing in retained Trips. The paid Wallet recipient/proof response was fixed on Bagoo review branch `9e58312`; its Rider client scenario passes locally. | Delivery and failed-attempt forms accept an image file. The Trips page shows recorded trip details and earnings, not the private proof viewer found in the app. A phone browser may offer camera or gallery through its file picker. | Both support proof submission. The app adds protected recovery and an in-app private-evidence view; do not claim that the website cannot take a photo. Wallet-specific retained evidence is only verified against the unmerged source branch, not current main or Azure. |
 | Stop Mode and Parcel Finder | Dedicated Stop Mode includes session-only personal slot labels for an owned parcel. Labels clear on restart/sign-out and do not change server custody. | The reviewed Courier pages have a current-job/map panel; no matching personal parcel-slot labels were found. | Parcel Finder is the clearest extra rider-facing feature in the app. It is a personal organization aid, not dispatch, scanning, or custody evidence. |
 | Trips and money | Trips separates recorded order status and retained evidence from Cash & remittance. The native cash screen sends pending-offer review/cancellation to the website. | Trips/Earnings combines trip history, released/pending earnings, shift cash status, earning entries, and a COD handover link; the cash page owns pending-offer review/cancellation. | Both cover trips and money, with different information grouped on screen. Some cash controls are browser-owned and reached by a handoff from the app. Show the actual returned status and ledger state; a delivery record alone is not a payout or hub receipt. |
@@ -36,7 +37,9 @@ November 2, 2026.
 
 **Answer to “what does Rider Mobile have that the phone website does not?”**
 **Session-only Parcel Finder labels inside Stop Mode** are a clear additional
-rider-facing feature. Other implementation differences include Android camera
+rider-facing feature. Rider also displays the saved buyer delivery note on an
+owned final-mile stop; the reviewed phone website shows its action guidance but
+not that stored note. Other implementation differences include Android camera
 lifecycle integration, protected recovery of uncertain writes and proof, and
 the private proof viewer in retained Trips. Wallet-specific retained proof has
 only passed against the unmerged Bagoo source branch; current main/deployed
@@ -57,6 +60,8 @@ can submit a cash handover; the owning hub and ledger remain authoritative.
 
 Sources: Rider [workspace navigation](../../../lib/features/workspace/presentation/workspace_shell.dart),
 [Home notifications and handover entry](../../../lib/features/home/presentation/home_dashboard.dart),
+[Home selected-stop panel](../../../lib/features/home/presentation/home_task_panel.dart),
+[Doorstep Guide](../../../lib/features/home/presentation/doorstep_guide.dart),
 [Profile cash entry](../../../lib/features/settings/presentation/settings_page.dart),
 [native onboarding](../../../lib/features/onboarding/presentation/onboarding_page.dart),
 [native registration](../../../lib/features/auth/presentation/register_page.dart),
@@ -85,6 +90,8 @@ Bagoo sources are pinned to [Courier Deliveries](https://github.com/Auvryy/Bagoo
 [Messages](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Pages/Courier/Messages.tsx),
 [Profile](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Pages/Courier/Profile.tsx),
 [company requests](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Components/CourierCompanyRequests.tsx),
+[Rider task API](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/docs/api/RIDER_OPERATIONS_API.md),
+[Rider task response source](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/app/Services/Courier/RiderTaskService.php),
 [COD cash UI](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Components/CodCashUI.tsx),
 [notifications layout](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Layouts/NotificationLayout.tsx),
 and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Pages/Handover/Index.tsx).

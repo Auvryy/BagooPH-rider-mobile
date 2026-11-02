@@ -131,6 +131,16 @@ void main() {
     },
   );
   managedDashboardTest(
+    'selected buyer stop states that no extra doorstep instructions were supplied',
+    (tester) async {
+      final h = await openDashboard(tester, instructions: false);
+      await tapHome(tester, find.byKey(ValueKey('home-task-${h.task.id}')));
+      expect(find.text('Doorstep Guide'), findsOneWidget);
+      expect(find.text('No extra instructions provided.'), findsOneWidget);
+      expect(h.api.calls.every((call) => call.method == 'GET'), isTrue);
+    },
+  );
+  managedDashboardTest(
     'missing coordinates retain task addresses while the illustration remains labelled',
     (tester) async {
       final h = await openDashboard(tester, coordinates: false);
@@ -236,6 +246,7 @@ openDashboard(
   double textScale = 1,
   bool onDuty = true,
   bool coordinates = true,
+  bool instructions = true,
   bool hidden = false,
   GeoapifyClient? geoClient,
   ValueListenable<bool>? visibility,
@@ -258,6 +269,7 @@ openDashboard(
   json['operational_stage'] = 'out_for_delivery';
   json['stop']['latitude'] = coordinates ? stopPoint.latitude : null;
   json['stop']['longitude'] = coordinates ? stopPoint.longitude : null;
+  if (!instructions) json['stop']['instructions'] = null;
   final task = OperationTask.fromJson(json);
   api.respond = (path, method, data, headers) async {
     if (path == 'rider/home') return home;

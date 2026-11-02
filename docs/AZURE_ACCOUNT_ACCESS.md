@@ -21,8 +21,10 @@ flutter run -d linux --dart-define-from-file=config/azure.json
 For an authorized Android phone, select its device in Flutter and use the same
 profile. Native sessions use platform secure storage. Android has Internet
 permission, disables application backup and requires encrypted network traffic
-in release/profile. Debug builds permit local HTTP only when the existing
-loopback-only app configuration is explicitly selected.
+in release/profile. The Rider API origin validator accepts debug HTTP only when
+the loopback-only local-auth configuration is explicitly selected. The Android
+debug manifest permits cleartext traffic at the platform level; that broader
+setting is not itself a localhost-only restriction.
 
 Ordinary Android/Linux builds have no sample login or workspace route. Historical
 Home/workspace flags never disable the account API; the old workspace profile

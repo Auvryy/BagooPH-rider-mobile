@@ -36,6 +36,16 @@ launched; no phone, ADB, or emulator was used. The archive and signature checks
 do not establish actual Android app-switcher behavior, Azure, or production
 cross-role acceptance.
 
+The merged manifest in this debug APK disables application backup but sets
+`usesCleartextTraffic=true` through the debug manifest. This platform setting
+permits cleartext traffic; it is not a localhost-only Android restriction.
+Separately, the Rider API origin validator accepts HTTP only for an explicitly
+enabled debug local-auth configuration on an allowed loopback host. The build
+profile recorded here does not enable local authentication and uses HTTPS for
+the Rider API. This does not prove that every plugin or other network path is
+restricted to HTTPS. Review the release manifest and network behavior when a
+signed release is built.
+
 The current merged manifest contains Internet, camera, AndroidX network-state,
 and the standard non-exported receiver permission. It does not contain
 location, notification, or foreground-service permissions, and the geolocator

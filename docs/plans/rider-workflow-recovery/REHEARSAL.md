@@ -404,6 +404,12 @@ this verification; it uses the FlutterMap fallback and is not Android renderer
 or lifecycle evidence. Present the PC walkthrough and recorded evidence without
 implying a live Android demonstration:
 
+The command below opens the normal Rider sign-in flow inside Device Preview.
+It does not expose the synthetic workspace used by widget tests. Showing the
+authenticated workspace requires an approved Rider account and a reachable
+compatible API; use the recorded synthetic screenshots and test evidence if
+those are unavailable. Do not describe sample screenshots as a live session.
+
 **Map preview limit:** Linux Device Preview uses the FlutterMap fallback so the
 map stays inside the simulated phone frame. Android uses the bundled Leaflet
 document in System WebView. The Linux preview supports layout/workflow review,

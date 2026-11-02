@@ -18,8 +18,10 @@ package/SDK metadata, ARM64 Flutter engine, APK v2 signature, and manifest
 permissions were checked; the scaffold package ID and Android Debug signer
 remain, and the APK was not installed. The profile APK remains the earlier build
 from `ba7823a`. The same-config fake-server activation test passed **2/2**,
-verifying duty and pickup-claim UI/flow gating without live writes. No phone,
-ADB, emulator, install, or app window was used.
+verifying duty and pickup-claim UI/flow gating without live writes. A fresh
+Linux Device Preview debug build also passed from the same runtime source with
+one Ninja job; it was not launched and does not verify Android's native renderer
+or lifecycle. No phone, ADB, emulator, install, or app window was used.
 
 The new windowless Rider Wallet client scenario passed **1/1** in 35 seconds
 against Bagoo `9e58312d130809eb8cd878189b729f1f702291d8`. It verified lost-result

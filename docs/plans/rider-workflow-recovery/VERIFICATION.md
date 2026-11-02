@@ -273,7 +273,18 @@ from that same runtime source. It is 176,228,861 bytes, SHA-256
 package/SDK metadata, ARM64 Flutter engine, manifest permissions and
 single-signer APK v2 signature passed PC checks. It was not installed or
 launched. The APK uses the scaffold application ID and Android Debug signing,
-so it is not a distributable release build. No phone, ADB, emulator or app
-window was used. Azure deployment, cross-role live acceptance, approved release
-signing and physical Android acceptance remain open. See the
+so it is not a distributable release build. A fresh Linux Device Preview debug
+build from the same source also passed with one Ninja job; it was not launched.
+It supports a PC layout walkthrough only and uses a different map renderer from
+Android. The PC build command was:
+
+```sh
+CMAKE_BUILD_PARALLEL_LEVEL=1 flutter build linux --no-pub --debug \
+  --dart-define=DEVICE_PREVIEW=true \
+  --dart-define-from-file=.env.rider.json
+```
+
+No phone, ADB, emulator or app window was used. Azure deployment,
+cross-role live acceptance, approved release signing and physical Android
+acceptance remain open. See the
 [current rehearsal](REHEARSAL.md) and [Android artifact record](../../ANDROID_RELEASE.md).

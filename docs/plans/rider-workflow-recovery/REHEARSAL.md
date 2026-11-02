@@ -384,8 +384,11 @@ evidence, not as an accepted live phone demonstration.
 
 ### PC-only presentation fallback
 
-If an Android device is unavailable during the defense, present the recorded
-evidence in this order without implying a live-device demonstration:
+If an Android device is unavailable during the defense, Linux Device Preview
+can show the PC layout. Its debug build passed, but it has not been launched in
+this verification; it uses the FlutterMap fallback and is not Android renderer
+or lifecycle evidence. Present the PC walkthrough and recorded evidence without
+implying a live Android demonstration:
 
 **Map preview limit:** Linux Device Preview uses the FlutterMap fallback so the
 map stays inside the simulated phone frame. Android uses the bundled Leaflet
@@ -393,11 +396,19 @@ document in System WebView. The Linux preview supports layout/workflow review,
 but it does not verify Android's map renderer or lifecycle. Local Leaflet runtime
 checks cover the bundled document separately.
 
+From the Rider repository root, launch the PC walkthrough only when you are
+ready to open its window:
+
+```sh
+flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.rider.json
+```
+
 1. Give the four-minute explanation above and show the source-backed
    [app-versus-website comparison](#rider-app-versus-phone-sized-courier-website).
    Make clear that the website already supports scanning and proof upload;
    Rider adds session-only Parcel Finder labels and the saved-note Doorstep
-   Guide for an authorized final-mile stop.
+   Guide for an authorized final-mile stop. Identify any running Linux frame as
+   a desktop preview, not Android hardware behavior.
 2. Show the PC evidence above with revisions attached: the latest full suite
    passed 715 tests with 8 skips at Rider commit `f0de3a2`, with runtime code
    `daacf85`;

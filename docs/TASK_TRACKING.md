@@ -55,9 +55,11 @@ The current arm64 debug APK was built from Rider code commit `daacf85`, includin
 the saved-note/missing-note Doorstep Guide. The focused Home and Stop Mode tests
 passed **46/46**, analysis found no issues, and the APK passed archive,
 package/SDK, ARM64-engine, manifest and APK v2-signature checks. The profile
-APK remains the earlier build from `ba7823a`. Neither APK was installed; both
-use the scaffold ID and Android Debug signing. The local build config supplied
-only `OPERATIONS_WRITES_VERIFIED=true`; see the hashes and limits in
+APK remains the earlier build from `ba7823a`. A fresh Linux Device Preview debug
+build from the same Rider runtime passed with one Ninja job; it was not launched.
+Neither Android APK was installed; both use the scaffold ID and Android Debug
+signing. The local build config supplied only `OPERATIONS_WRITES_VERIFIED=true`;
+see the hashes and limits in
 [Android release evidence](ANDROID_RELEASE.md) and
 [HDB-05 acceptance](plans/home-dashboard-branch-plan/HDB-05-EVIDENCE.md).
 The same-config fake-server activation test passed **2/2** without network

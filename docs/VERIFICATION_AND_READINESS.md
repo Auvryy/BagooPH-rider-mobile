@@ -10,11 +10,11 @@ source is now published as commit `961d8b8`. The new
 fixture-dependent Wallet test is one of the skips in the ordinary suite; its
 isolated headless run passed separately. The expanded photo-recovery, parcel
 outcome, parcel workflow, workspace account-lifecycle, and Parcel Finder suites
-passed **45/45**; `flutter analyze --no-pub` reported no issues in 6.4s. After
-the fix was pushed, arm64 debug and profile APKs were built from commit
-`961d8b8` and passed archive, metadata, ARM64 engine and APK v2 signature
-checks. They use the scaffold package ID and Android Debug signing and were
-not installed. The same-config fake-server activation test
+passed **45/45**; `flutter analyze --no-pub` reported no issues in 6.4s. The
+latest arm64 debug and profile APKs were built from manifest-only commit
+`ba7823a`, after the Dart suite run at `961d8b8`; they passed archive,
+metadata, ARM64 engine, manifest and APK v2 signature checks. They use the
+scaffold package ID and Android Debug signing and were not installed. The same-config fake-server activation test
 passed **2/2**, verifying duty and pickup-claim UI/flow gating without live
 writes. No phone, ADB, emulator, install, or app window was used.
 
@@ -181,7 +181,8 @@ command/workflow/outcome tests at `3839de6`,
 six map-disclosure checks at `9d7e8cf`/`039d40d`, and one headless Rider-to-kernel
 scenario at `6a0ab47` against Bagoo `9e58312`. Earlier APKs described in this
 historical November 1 checkpoint have been superseded by the latest November 2
-builds from pushed Rider commit `961d8b8`; see
+builds from Rider commit `ba7823a`, whose Dart source is unchanged from
+`961d8b8`; see
 [Android release packaging](ANDROID_RELEASE.md) for sizes, hashes, metadata
 and signature checks. The current PC
 check found no `RIDER_APPLICATION_ID` and no `android/key.properties`, so these

@@ -11,23 +11,34 @@ The November 2 configuration check found `RIDER_APPLICATION_ID` unset and
 
 ## Latest PC build artifacts — November 2, 2026
 
-Arm64-targeted debug and profile APKs were built sequentially from pushed Rider
-commit `961d8b8` (`fix/rider-route-privacy-disclosure`) after the parcel photo
-access-loss cleanup change. The ignored `.env.rider.json` supplied only
+Arm64-targeted debug and profile APKs were built sequentially from Rider commit
+`ba7823a` (`fix/rider-route-privacy-disclosure`), which removes unused location,
+notification, and foreground-service permissions from the default Android
+manifest. Its Dart source is unchanged from commit `961d8b8`, where the current
+Flutter suite and analysis were run. The ignored `.env.rider.json` supplied only
 `OPERATIONS_WRITES_VERIFIED=true`; no API override or local-auth define was
 present. Gradle used one worker and a 1 GiB heap cap. Both builds completed
 with a nonfatal SDK XML version warning.
 
 | Variant | Size | SHA-256 | Verification |
 |---|---:|---|---|
-| Debug | 176,229,927 bytes | `5050251401b82e6d2e4f2d8e829ed23326be9138e699c983167b1c6bb71b3ce0` | ZIP integrity; package/SDK metadata; ARM64 engine; APK v2 signature |
-| Profile | 77,671,976 bytes | `9d7e1041c013f67e9bafd438b5075668a4489f0fdc6721d6bad1ad9ff731ea64` | ZIP integrity; package/SDK metadata; ARM64 engine; APK v2 signature |
+| Debug | 176,229,927 bytes | `bb80d4e553edcc2faa0e755ecb2568c600518d27512142c35e44a807f198928f` | ZIP integrity; package/SDK metadata; ARM64 engine; APK v2 signature; location-service permissions absent |
+| Profile | 77,671,976 bytes | `f6334ab298f784444a5ae905372a274eb79e0df7f8d2a1280d7852bd90ac68a5` | ZIP integrity; package/SDK metadata; ARM64 engine; APK v2 signature; location-service permissions absent |
 
 Both have package ID `com.example.bagoo_rider_mobile`, version `0.1.0` (code
 1), minimum SDK 24, target SDK 36, and one standard Android Debug signer. Both
 are debuggable and are not distributable release artifacts. They were not
 installed or launched; no phone, ADB, or emulator was used. These PC artifacts
 do not establish Android hardware, Azure, or production cross-role acceptance.
+
+The merged manifest declares Internet, camera, and AndroidX network-state
+permissions; it does not declare location, notification, or foreground-service
+permissions, and the geolocator service is excluded. The Home location
+controller is not connected to the default Home surface. `roadRoutingProvider`
+is `UnavailableRoadRouting`, so the Navigate control and foreground route
+session cannot start through the default UI. The dormant navigation
+implementation needs an explicit manifest/permission review and physical
+acceptance before a future build can enable it.
 
 The local build file set only `OPERATIONS_WRITES_VERIFIED=true`; it supplied no
 API override or local-auth flag. `AppConfig` therefore uses the default deployed

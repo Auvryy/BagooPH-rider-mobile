@@ -22,7 +22,7 @@ November 1, 2026.
 |---|---|---|---|
 | Work and stops | Tasks/Home, task map, dedicated Stop Mode, pickup claim, hub departure, delivery or failed-attempt actions. | Deliveries dashboard, current-job panel, map, pickup claim, scan and outcome actions. Its source implements a mobile sidebar. | The courier work is shared. Stop Mode is a native presentation of the same authorized stop; actual phone rendering of either client remains unverified. |
 | Map rendering | Android uses the bundled Leaflet document in System WebView with public OSM tiles. Linux Device Preview substitutes FlutterMap so the map stays inside its simulated phone frame. | Courier pages use browser Leaflet with public OSM tiles. | The Android map and Courier web share Leaflet and the tile source. Linux preview is a layout fallback, not Android WebView evidence. |
-| Map and directions | The active map displays the saved stop or a labelled sample path using OpenStreetMap tiles. Tile coordinates and source IP address can reveal the approximate area being viewed. The default `roadRoutingProvider` is `UnavailableRoadRouting`, so Rider has no in-app road route, GPS follow or rerouting session. Explicit **External directions** opens Google Maps with the saved stop destination. | Courier maps also use OpenStreetMap tiles; the current-job directions action opens external Google Maps directions. | Both map surfaces expose tile coordinates and source IP metadata to OpenStreetMap, which can reveal the displayed area. Google Maps receives the saved destination only when the rider explicitly opens external directions. Rider does not send live GPS or a traveled-route history to Bagoo. The optional Geoapify client and route notice are not active in the default app. |
+| Map and directions | The map displays the saved stop or a labelled sample path using OpenStreetMap tiles. The current Android build does not declare location permissions, and the Home location-controller code is not wired to the Home surface. The default `roadRoutingProvider` is `UnavailableRoadRouting`, so Rider has no active in-app route, GPS follow or rerouting session. **External directions** opens Google Maps with the saved stop destination. | Courier maps also use OpenStreetMap tiles; the current-job directions action opens external Google Maps directions. | Both map surfaces expose tile coordinates and source IP metadata to OpenStreetMap, which can reveal the displayed area. Google Maps receives the saved destination only when the rider explicitly opens external directions. The default Rider build does not read device location or send a live GPS feed or route history to Bagoo. |
 | Waybill scanning | Android `mobile_scanner` accepts a real camera result and requires one matching parcel code. There is no typed or gallery substitute in the native scan action. | `WaybillCamera` uses browser `BarcodeDetector` and `getUserMedia`; when unavailable it offers typed entry or an external scanner. The form checks the entered code against the selected waybill. | Scanning is not app-exclusive. The native camera pipeline and stricter scan-only entry are implementation differences; neither proves physical camera acceptance. |
 | Delivery proof | Camera/gallery selection, protected original proof for uncertain commands, and private proof viewing in retained Trips. The paid Wallet recipient/proof response was fixed on Bagoo review branch `9e58312`; its Rider client scenario passes locally. | Delivery and failed-attempt forms accept an image file. The Trips page shows recorded trip details and earnings, not the private proof viewer found in the app. A phone browser may offer camera or gallery through its file picker. | Both support proof submission. The app adds protected recovery and an in-app private-evidence view; do not claim that the website cannot take a photo. Wallet-specific retained evidence is only verified against the unmerged source branch, not current main or Azure. |
 | Stop Mode and Parcel Finder | Dedicated Stop Mode includes session-only personal slot labels for an owned parcel. Labels clear on restart/sign-out and do not change server custody. | The reviewed Courier pages have a current-job/map panel; no matching personal parcel-slot labels were found. | Parcel Finder is the clearest extra rider-facing feature in the app. It is a personal organization aid, not dispatch, scanning, or custody evidence. |
@@ -155,9 +155,10 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    --no-pub` reported no issues in 6.4s. The expanded serial **45/45** check
    includes approval-loss cleanup. These remain simulated PC checks, not
    physical Android acceptance. The latest arm64 debug and profile APKs were
-   built from pushed commit `961d8b8` after the account-access photo cleanup.
-   Both passed PC archive, metadata, ARM64-engine and APK v2 signature checks;
-   exact hashes are in [Android release evidence](../../ANDROID_RELEASE.md).
+   built from manifest-only Android commit `ba7823a`; the Flutter suite and
+   analysis above ran against the unchanged Dart source at `961d8b8`. Both APKs
+   passed PC archive, metadata, ARM64-engine, manifest and APK v2 signature
+   checks; exact hashes are in [Android release evidence](../../ANDROID_RELEASE.md).
    Neither was installed. Both use the scaffold ID and Android Debug signing.
    Their build config uses the default deployed HTTPS API and enables only the
    HDB-05 accepted duty/pickup-claim writes; parcel, cash and other write gates
@@ -187,13 +188,19 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
 - **Does Rider provide in-app navigation?** Not in the default build. The active
   map shows a saved stop or sample path, but `roadRoutingProvider` is
   `UnavailableRoadRouting`; there is no GPS follow or rerouting session.
-- **What location or destination data leaves the app?** OpenStreetMap tile
-  requests include the displayed area’s tile coordinates and source IP address,
-  which can reveal its approximate location to the tile provider. If the rider
-  explicitly opens External directions, Google Maps receives the saved stop
-  address or coordinates. Rider sends no live GPS feed or traveled-route history
-  to Bagoo. The optional Geoapify route client is not wired into the default
-  provider path. The public OSM tile service is best-effort without an SLA, so
+- **What location or destination data leaves the app?** The default Android APK
+  does not declare location or foreground-service permissions, and its Home
+  location controller is not connected to the Home surface. The default app
+  therefore does not read device location. OpenStreetMap tile requests still
+  include the displayed area’s tile coordinates and source IP, which can reveal
+  its approximate location to the tile provider. If the rider explicitly opens
+  External directions, Google Maps receives the saved stop address or
+  coordinates. Rider sends no live GPS feed or traveled-route history to Bagoo.
+  The default `roadRoutingProvider` is `UnavailableRoadRouting`, so the
+  background-capable navigation code cannot be started through the current
+  interface. A future route provider would require an explicit manifest and
+  permission review plus physical Android acceptance. The public OSM tile
+  service is best-effort without an SLA, so
   this is a bounded demo provider, not a production availability promise; its
   official policy and the current provider follow-up are recorded in the
   [street-map plan](../rider-street-map/README.md).
@@ -243,8 +250,8 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   separate field study.
 - **Is it ready for a live Android defense demo?** The available
   arm64-targeted debug and profile APKs were built and verified on the PC from
-  pushed commit `961d8b8` after the account-access photo cleanup; neither has
-  been installed.
+  Rider commit `ba7823a`, which changes only the Android manifest after the
+  tested Dart source at `961d8b8`; neither has been installed.
   Both use the scaffold application ID and debug signing. Approved release
   identity/signing, deployed cross-role acceptance, and physical Android
   acceptance remain open, so a live-phone demo is not yet accepted.
@@ -319,9 +326,10 @@ evidence, not as an accepted live phone demonstration.
   widget tests. It covers account/assignment scoping, cleanup, fresh ownership,
   duplicate taps, accessible controls and 320 px at 200% text. These PC checks do
   not establish physical Android layout, camera or lifecycle acceptance.
-- The latest arm64 debug APK was built from pushed Rider commit `961d8b8`. It
-  is 176,229,927 bytes, with SHA-256
-  `5050251401b82e6d2e4f2d8e829ed23326be9138e699c983167b1c6bb71b3ce0`.
+- The latest arm64 debug APK was built from Rider commit `ba7823a`, which
+  changes only the Android manifest after the Dart source tested at `961d8b8`.
+  It is 176,229,927 bytes, with SHA-256
+  `bb80d4e553edcc2faa0e755ecb2568c600518d27512142c35e44a807f198928f`.
   Archive integrity, package/version/SDK metadata, debuggable state, arm64
   engine and the single-signer APK v2 signature passed PC checks. It was not
   installed; see [packaging evidence](../../ANDROID_RELEASE.md).
@@ -331,9 +339,10 @@ evidence, not as an accepted live phone demonstration.
   present in the published branch. Bagoo web `main` remains `f001d396`; the
   Wallet/handover source branch `9e58312` is 2 commits ahead of main, not merged
   or deployment evidence.
-- The latest arm64 profile preview was built from pushed Rider commit
-  `961d8b8`. It is 77,671,976 bytes, with SHA-256
-  `9d7e1041c013f67e9bafd438b5075668a4489f0fdc6721d6bad1ad9ff731ea64`.
+- The latest arm64 profile preview was built from Rider commit `ba7823a`, which
+  changes only the Android manifest after the Dart source tested at `961d8b8`.
+  It is 77,671,976 bytes, with SHA-256
+  `f6334ab298f784444a5ae905372a274eb79e0df7f8d2a1280d7852bd90ac68a5`.
   Archive integrity, package/version/SDK metadata, arm64 engine contents and
   v2 Android Debug signing passed PC checks. It uses the scaffold package ID
   and was not installed. See [packaging evidence](../../ANDROID_RELEASE.md).

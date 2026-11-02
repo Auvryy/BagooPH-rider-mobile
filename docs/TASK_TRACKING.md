@@ -50,11 +50,13 @@ lifecycle acceptance remain open. The serial command was:
 flutter test --no-pub --concurrency=1 --reporter=compact test/parcel_photo_recovery_test.dart test/parcel_outcome_pages_test.dart test/parcel_workflow_test.dart test/workspace_photo_access_lifecycle_test.dart test/parcel_finder_session_test.dart
 ```
 
-After the account-access cleanup was pushed as `961d8b8`, arm64 debug and
-profile APKs were built sequentially with Gradle limited to one worker and a
-1 GiB heap. Both passed ZIP integrity, package/SDK metadata, ARM64 engine and
-APK v2 signature checks. Neither was installed; both use the scaffold ID and
-Android Debug signing. The local build config supplied only
+After manifest-only Rider commit `ba7823a` removed unused location-related
+permissions and the geolocator service, arm64 debug and profile APKs were built
+sequentially with Gradle limited to one worker and a 1 GiB heap. Both passed
+ZIP integrity, package/SDK metadata, ARM64 engine, merged-manifest and APK v2
+signature checks. Flutter tests and analysis remain attributed to unchanged
+Dart source at `961d8b8`. Neither APK was installed; both use the scaffold ID
+and Android Debug signing. The local build config supplied only
 `OPERATIONS_WRITES_VERIFIED=true`; see the artifact hashes and limits in
 [Android release evidence](ANDROID_RELEASE.md) and
 [HDB-05 acceptance](plans/home-dashboard-branch-plan/HDB-05-EVIDENCE.md).

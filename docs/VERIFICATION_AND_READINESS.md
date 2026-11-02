@@ -23,6 +23,14 @@ Linux Device Preview debug build also passed from the same runtime source with
 one Ninja job; it was not launched and does not verify Android's native renderer
 or lifecycle. No phone, ADB, emulator, install, or app window was used.
 
+The current branch has advanced beyond those test and APK revisions. Commit
+`4109b54` added the app-level inactive-state cover; `dart analyze lib/main.dart`
+reported no issues there. Commit `f02fd25` adds Android `FLAG_SECURE` while the
+activity is paused. Its one-worker Kotlin compile could not start because this
+environment has no Java executable or `JAVA_HOME`. Neither change is included
+in the archived APK; the new native lifecycle handling remains uncompiled and
+device-unverified. See [current source and APK limits](ANDROID_RELEASE.md).
+
 The new windowless Rider Wallet client scenario passed **1/1** in 35 seconds
 against Bagoo `9e58312d130809eb8cd878189b729f1f702291d8`. It verified lost-result
 reconciliation, exact replay, one completed paid order and Wallet receipt, zero

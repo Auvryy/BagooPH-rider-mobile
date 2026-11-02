@@ -31,6 +31,16 @@ are debuggable and are not distributable release artifacts. They were not
 installed or launched; no phone, ADB, or emulator was used. These PC artifacts
 do not establish Android hardware, Azure, or production cross-role acceptance.
 
+## Current source after the archived APKs — November 2, 2026
+
+Branch `fix/rider-route-privacy-disclosure` has since added the app-level
+inactive-state cover in `4109b54` and paused-window `FLAG_SECURE` handling in
+`f02fd25`. The archived APK above predates both changes and must not be used as
+evidence for them. A one-worker `:app:compileDebugKotlin` attempt stopped before
+Gradle because this environment has no `java` executable or `JAVA_HOME`; no
+replacement APK was built. Compile the current source in an Android-capable
+environment, then verify recent-app behavior on a physical Android device.
+
 The merged manifest declares Internet, camera, and AndroidX network-state
 permissions; it does not declare location, notification, or foreground-service
 permissions, and the geolocator service is excluded. The Home location

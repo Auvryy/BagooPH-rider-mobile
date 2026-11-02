@@ -201,6 +201,10 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    deployment, cross-role production behavior, or physical Android
    camera/lifecycle acceptance. See
    [current APK evidence](../../ANDROID_RELEASE.md).
+   The later source-only privacy changes (`4109b54` and `f02fd25`) are not in
+   those APKs. The Flutter cover was analyzed; the native pause-flag compile
+   could not start because Java is unavailable, and recent-app behavior still
+   needs a physical device check.
 
 ### Likely questions
 

@@ -64,6 +64,10 @@ RIDER_DEBUG_CLEARTEXT=false flutter build apk --no-pub --debug \
   --target-platform android-arm64 --dart-define-from-file=.env.rider.json
 ```
 
+A separate one-worker `:app:processDebugMainManifest` check with an invalid
+`RIDER_DEBUG_CLEARTEXT` value failed during configuration with the expected
+validation error; the restricted APK hash remained unchanged.
+
 The current merged manifest contains Internet, camera, AndroidX network-state,
 and the standard non-exported receiver permission. It does not contain
 location, notification, or foreground-service permissions, and the geolocator

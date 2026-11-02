@@ -25,14 +25,13 @@ unless implementation or verification exposes a specific gap.
 
 ## November 1 source revision follow-up
 
-The Bagoo branch `fix/rider-wallet-trip-evidence` at
-`9e58312d130809eb8cd878189b729f1f702291d8` includes version-two automatic order
-completion after verified recipient handoff. As of this review, GitHub `main`
-was `f001d396b0e9ea6bfc2fdeb85ee24b66682b997e`; the feature branch was two
-commits ahead and had not been merged or confirmed deployed. The Rider client
-displays the returned commercial status and does not issue a buyer-confirmation
-command. COD remittance remains independent. This is source evidence, not Azure
-acceptance.
+At the November 1 source review, Bagoo branch `fix/rider-wallet-trip-evidence`
+at `9e58312d130809eb8cd878189b729f1f702291d8` included version-two automatic
+order completion after verified recipient handoff; `main` was then
+`f001d396b0e9ea6bfc2fdeb85ee24b66682b997e`, before the merge. PR #144 later
+merged the source into `main` at `9ca5db5`. The Rider client displays the
+returned commercial status and does not issue a buyer-confirmation command. COD
+remittance remains independent. Merge is source evidence, not Azure acceptance.
 
 ## Required before Azure parcel writes
 

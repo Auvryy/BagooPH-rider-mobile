@@ -104,9 +104,9 @@ provided.** This is a text-only note, not a structured landmark, entrance,
 floor/unit or hub/seller instruction contract. The mobile client does not guess
 or derive a missing note.
 
-The current field and source behavior are documented in Bagoo main's
-[Rider operations API](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/docs/api/RIDER_OPERATIONS_API.md)
-and [task response builder](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/app/Services/Courier/RiderTaskService.php).
+The current field and source behavior are documented in Bagoo main at `9ca5db5`:
+[Rider operations API](https://github.com/Auvryy/BagooPH/blob/9ca5db5/docs/api/RIDER_OPERATIONS_API.md)
+and [task response builder](https://github.com/Auvryy/BagooPH/blob/9ca5db5/app/Services/Courier/RiderTaskService.php).
 This is source evidence, not deployment or physical-device acceptance.
 
 The immutable destination remains visible. Clarifications do not change the

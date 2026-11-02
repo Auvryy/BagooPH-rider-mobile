@@ -31,8 +31,8 @@ independent operational write gates remain in place.
   package/SDK, architecture, manifest and debug-signature checks. It was not
   installed and uses a scaffold application ID and Android Debug signer.
 - The local Wallet client scenario passed against Bagoo source `9e58312` with
-  an in-memory secure-storage adapter. The corresponding web fixes remain on
-  `fix/rider-wallet-trip-evidence`; deployment and live acceptance are separate.
+  an in-memory secure-storage adapter. The corresponding web fixes were merged
+  through PR #144 at `9ca5db5`; deployment and live acceptance are separate.
 
 The exact APK hash and build settings are in [Android packaging](../../ANDROID_RELEASE.md);
 the [rehearsal](REHEARSAL.md) records the evidence and remaining gates. Physical
@@ -42,5 +42,7 @@ automatic sample workspace.
 
 ## Branch status
 
-The Rider feature branch is published and includes GitHub `main` at `4367331`.
-This document is a draft PR description; GitHub PR status has not been verified.
+Rider PR #35 merged this work into `main` at `5c73ebb`. This file preserves the
+merged change summary; it is no longer an unsubmitted PR draft. The associated
+Bagoo Wallet fix is merged in PR #144 at `9ca5db5`; neither merge establishes
+deployment or live acceptance.

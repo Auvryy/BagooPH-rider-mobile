@@ -3,21 +3,25 @@
 The November 1 selection completes PC work first. Physical Android testing is
 deferred by the user. Keep this list open until its corresponding evidence exists.
 
+**Post-merge source status — November 2, 2026:** Rider `main` is at `5c73ebb`
+(PR #35), and Bagoo `main` is at `9ca5db5` (PR #144). Bagoo's Wallet evidence
+fix (`15d7fc3`) and documentation follow-ups (`9e58312`, `a54c76a`) are
+included in current `main`. This confirms source merge only; deployed revision,
+migrations, live cross-role acceptance, and physical Android checks remain
+separate.
+
 ## Rider app versus phone-sized Courier website
 
-This source review compares the Rider runtime and Android manifest on
-`fix/rider-route-privacy-disclosure`, including the app-level inactive-state
-cover and paused-window security flag reviewed November 2, 2026. It compares
-that code with the phone-responsive Courier portal on Bagoo `main` at
-`f001d396b0e9ea6bfc2fdeb85ee24b66682b997e`. The remote Bagoo main and review
-branch refs were rechecked November 2, 2026. This covers the Courier website,
-not the Buyer app. It does not claim that either client was exercised in a real
-browser or on Android. The separate Bagoo review branch
-`fix/rider-wallet-trip-evidence` at `9e58312` fixes the native Wallet
-recipient/private-proof response, but remains unmerged and is used only for
-isolated PC compatibility checks; no deployed Wallet acceptance is claimed.
-The map and route-provider status was rechecked against current Rider source on
-November 2, 2026.
+This source review compares the Rider runtime and Android manifest on Rider
+`main` at `5c73ebb`, including the app-level inactive-state cover and
+paused-window security flag reviewed November 2, 2026. It compares that code
+with the phone-responsive Courier portal on Bagoo `main` at
+`9ca5db5`. This covers the Courier website, not the Buyer app. It does not
+claim that either client was exercised in a real browser or on Android. The
+Wallet recipient/private-proof fix is now included in Bagoo `main`; its source
+scenario passed locally before merge, but deployed Wallet acceptance remains
+open. The map and route-provider status was rechecked against current Rider
+source on November 2, 2026.
 
 | Area | Rider app | Courier website on a phone | Defense-safe conclusion |
 |---|---|---|---|
@@ -27,7 +31,7 @@ November 2, 2026.
 | Map and directions | The map displays the saved stop or a labelled sample path using OpenStreetMap tiles. The current Android build does not declare location permissions, and the Home location-controller code is not wired to the Home surface. The default `roadRoutingProvider` is `UnavailableRoadRouting`, so Rider has no active in-app route, GPS follow or rerouting session. **External directions** opens Google Maps with the saved stop destination. | Courier maps also use OpenStreetMap tiles; the current-job directions action opens external Google Maps directions. | Both map surfaces expose tile coordinates and source IP metadata to OpenStreetMap, which can reveal the displayed area. Google Maps receives the saved destination only when the rider explicitly opens external directions. The default Rider build does not read device location or send a live GPS feed or route history to Bagoo. |
 | Waybill scanning | Android `mobile_scanner` accepts a real camera result and requires one matching parcel code. There is no typed or gallery substitute in the native scan action. | `WaybillCamera` uses browser `BarcodeDetector` and `getUserMedia`; when unavailable it offers typed entry or an external scanner. The form checks the entered code against the selected waybill. | Scanning is not app-exclusive. The native camera pipeline and stricter scan-only entry are implementation differences; neither proves physical camera acceptance. |
 | Saved buyer instructions | The API maps the saved checkout note to `stop.instructions` only for a non-preview final-mile task whose current stop is the buyer. Home and Stop Mode show the exact supplied text or **No extra instructions provided.** | The reviewed Courier task/map surfaces show next-action guidance and the saved address; no display of the buyer's stored order note was found in their page/controller path. | Rider exposes the saved order note for its authorized buyer stop. It does not add structured entrance fields or change the destination, and the app never invents missing instructions. |
-| Delivery proof | Camera/gallery selection, protected original proof for uncertain commands, and private proof viewing in retained Trips. The paid Wallet recipient/proof response was fixed on Bagoo review branch `9e58312`; its Rider client scenario passes locally. | Delivery and failed-attempt forms accept an image file. The Trips page shows recorded trip details and earnings, not the private proof viewer found in the app. A phone browser may offer camera or gallery through its file picker. | Both support proof submission. The app adds protected recovery and an in-app private-evidence view; do not claim that the website cannot take a photo. Wallet-specific retained evidence is only verified against the unmerged source branch, not current main or Azure. |
+| Delivery proof | Camera/gallery selection, protected original proof for uncertain commands, and private proof viewing in retained Trips. The paid Wallet recipient/proof fix is included in Bagoo `main` through PR #144; its Rider client scenario passed locally against the merged Bagoo snapshot `9e58312`. | Delivery and failed-attempt forms accept an image file. The Trips page shows recorded trip details and earnings, not the private proof viewer found in the app. A phone browser may offer camera or gallery through its file picker. | Both support proof submission. The app adds protected recovery and an in-app private-evidence view; do not claim that the website cannot take a photo. The Wallet source fix is merged, but Azure deployment and live acceptance remain open. |
 | Stop Mode and Parcel Finder | Dedicated Stop Mode includes session-only personal slot labels for an owned parcel. Labels clear on restart/sign-out and do not change server custody. | The reviewed Courier pages have a current-job/map panel; no matching personal parcel-slot labels were found. | Parcel Finder is the clearest extra rider-facing feature in the app. It is a personal organization aid, not dispatch, scanning, or custody evidence. |
 | Trips and money | Trips separates recorded order status and retained evidence from Cash & remittance. The native cash screen sends pending-offer review/cancellation to the website. | Trips/Earnings combines trip history, released/pending earnings, shift cash status, earning entries, and a COD handover link; the cash page owns pending-offer review/cancellation. | Both cover trips and money, with different information grouped on screen. Some cash controls are browser-owned and reached by a handoff from the app. Show the actual returned status and ledger state; a delivery record alone is not a payout or hub receipt. |
 | Messages and notifications | Assignment-bound messages and a Home notification inbox with bounded read behavior. | Courier Messages, a notification link/page, and the same courier role boundary. | Shared capabilities; source-level interaction safeguards differ. Live send/read acceptance remains open. |
@@ -41,9 +45,9 @@ rider-facing feature. Rider also displays the saved buyer delivery note on an
 owned final-mile stop; the reviewed phone website shows its action guidance but
 not that stored note. Other implementation differences include Android camera
 lifecycle integration, protected recovery of uncertain writes and proof, and
-the private proof viewer in retained Trips. Wallet-specific retained proof has
-only passed against the unmerged Bagoo source branch; current main/deployed
-compatibility remains open. Both clients use OpenStreetMap for map tiles and
+the private proof viewer in retained Trips. The Wallet source fix is now in
+Bagoo `main`; deployed compatibility and live acceptance remain open. Both
+clients use OpenStreetMap for map tiles and
 open Google Maps for external directions; Rider's default build does not include
 in-app road routing or GPS-follow navigation. The website also scans waybills
 and accepts proof photos, and owns pending cash-offer cancellation and session
@@ -82,22 +86,22 @@ Sources: Rider [workspace navigation](../../../lib/features/workspace/presentati
 [messages](../../../lib/features/messages/presentation/messages_page.dart),
 [notifications](../../../lib/features/notifications/presentation/notifications_page.dart),
 and [handover](../../../lib/features/handover/presentation/handover_issues_page.dart).
-Bagoo sources are pinned to [Courier Deliveries](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Pages/Courier/Deliveries.tsx),
-[Courier map](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Components/CourierJobMap.tsx),
-[browser scanner](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Components/WaybillCamera.tsx),
-[responsive portal layout](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Layouts/CourierLayout.tsx),
-[responsive navigation](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Components/CourierSidebar.tsx),
-[Courier account routes](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/routes/web.php),
-[Trips/Earnings](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Pages/Courier/Earnings.tsx),
-[Messages](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Pages/Courier/Messages.tsx),
-[Profile](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Pages/Courier/Profile.tsx),
-[company requests](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Components/CourierCompanyRequests.tsx),
-[Rider task API](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/docs/api/RIDER_OPERATIONS_API.md),
-[Rider task response source](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/app/Services/Courier/RiderTaskService.php),
-[buyer checkout note composition](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/app/Services/Orders/CheckoutOrderService.php),
-[COD cash UI](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Components/CodCashUI.tsx),
-[notifications layout](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Layouts/NotificationLayout.tsx),
-and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2fdeb85ee24b66682b997e/resources/js/Pages/Handover/Index.tsx).
+Bagoo sources are pinned to [Courier Deliveries](https://github.com/Auvryy/BagooPH/blob/9ca5db5/resources/js/Pages/Courier/Deliveries.tsx),
+[Courier map](https://github.com/Auvryy/BagooPH/blob/9ca5db5/resources/js/Components/CourierJobMap.tsx),
+[browser scanner](https://github.com/Auvryy/BagooPH/blob/9ca5db5/resources/js/Components/WaybillCamera.tsx),
+[responsive portal layout](https://github.com/Auvryy/BagooPH/blob/9ca5db5/resources/js/Layouts/CourierLayout.tsx),
+[responsive navigation](https://github.com/Auvryy/BagooPH/blob/9ca5db5/resources/js/Components/CourierSidebar.tsx),
+[Courier account routes](https://github.com/Auvryy/BagooPH/blob/9ca5db5/routes/web.php),
+[Trips/Earnings](https://github.com/Auvryy/BagooPH/blob/9ca5db5/resources/js/Pages/Courier/Earnings.tsx),
+[Messages](https://github.com/Auvryy/BagooPH/blob/9ca5db5/resources/js/Pages/Courier/Messages.tsx),
+[Profile](https://github.com/Auvryy/BagooPH/blob/9ca5db5/resources/js/Pages/Courier/Profile.tsx),
+[company requests](https://github.com/Auvryy/BagooPH/blob/9ca5db5/resources/js/Components/CourierCompanyRequests.tsx),
+[Rider task API](https://github.com/Auvryy/BagooPH/blob/9ca5db5/docs/api/RIDER_OPERATIONS_API.md),
+[Rider task response source](https://github.com/Auvryy/BagooPH/blob/9ca5db5/app/Services/Courier/RiderTaskService.php),
+[buyer checkout note composition](https://github.com/Auvryy/BagooPH/blob/9ca5db5/app/Services/Orders/CheckoutOrderService.php),
+[COD cash UI](https://github.com/Auvryy/BagooPH/blob/9ca5db5/resources/js/Components/CodCashUI.tsx),
+[notifications layout](https://github.com/Auvryy/BagooPH/blob/9ca5db5/resources/js/Layouts/NotificationLayout.tsx),
+and [handover issues](https://github.com/Auvryy/BagooPH/blob/9ca5db5/resources/js/Pages/Handover/Index.tsx).
 
 ## Thesis defense talk track
 
@@ -112,8 +116,8 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
 > the authorized final-mile stop's exact saved buyer note, or clearly says
 > when none was provided. It also adds Android camera and lifecycle integration,
 > protected recovery of uncertain submissions, and private proof viewing in
-> Trips. Wallet-specific retained proof has only passed against an unmerged
-> Bagoo review branch, so deployed Wallet compatibility remains open.
+> Trips. The Wallet source fix is merged in Bagoo PR #144; deployed Wallet
+> compatibility and live acceptance remain open.
 > Both clients use OpenStreetMap tiles and send the saved stop to Google Maps
 > only when external directions are opened. Rider's default build has no in-app
 > road routing or GPS-follow navigation. PC checks are recorded. Release
@@ -169,9 +173,9 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    The earlier 713-test full run includes the account-access
    photo cleanup now published as `961d8b8`. The
    separate headless Wallet client scenario passed
-   **1/1** against the unmerged Bagoo review branch `9e58312` with an in-memory
-   storage adapter; it does not verify the deployed API or Android platform
-   storage. The full suite used one worker. No
+   **1/1** against Bagoo source commit `9e58312`, now included in `main`, with
+   an in-memory storage adapter; it does not verify the deployed API or Android
+   platform storage. The full suite used one worker. No
    phone, ADB, emulator, install, or app window was used.
    Focused photo-recovery and parcel-outcome suites passed **19/19** before the
    November 2 background-memory follow-up. Its final serial run passed **41/41**
@@ -215,8 +219,8 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   reviewed Courier pages did not show that stored note. Other implementation
   differences include native camera lifecycle handling, protected recovery for
   uncertain submissions, and private proof viewing in Trips. Both clients
-  support waybill scanning and proof upload. Wallet-specific retained proof
-  still needs the unmerged Bagoo fix deployed and accepted.
+  support waybill scanning and proof upload. The merged Bagoo Wallet fix still
+  needs deployment and controlled acceptance.
 - **Does Rider provide in-app navigation?** Not in the default build. The active
   map shows a saved stop or sample path, but `roadRoutingProvider` is
   `UnavailableRoadRouting`; there is no GPS follow or rerouting session.
@@ -371,14 +375,15 @@ evidence, not as an accepted live phone demonstration.
   widget tests. It covers account/assignment scoping, cleanup, fresh ownership,
   duplicate taps, accessible controls and 320 px at 200% text. These PC checks do
   not establish physical Android layout, camera or lifecycle acceptance.
-- At the November 2 GitHub ref check before this documentation refresh, Rider
+- At the earlier November 2 pre-merge GitHub ref check, Rider
   `main` was `4367331c51ea1dc98b7b512669242a1d3283d523`; the defense branch
   was `d83ffe56c1935c6553462896a8ebca340cf21902`, 85 commits ahead and 0 behind.
   Its tested runtime remains `daacf85`; the commits through that snapshot after
   the runtime change update documentation only. Bagoo `main` is
   `f001d396b0e9ea6bfc2fdeb85ee24b66682b997e`, and its Wallet/handover source
-  branch is `9e58312d130809eb8cd878189b729f1f702291d8`, 2 commits ahead. Those
-  fixes remain unmerged and do not establish deployment or live acceptance.
+  branch was `9e58312d130809eb8cd878189b729f1f702291d8`, 2 commits ahead at
+  that snapshot. PR #144 later merged it at `9ca5db5`; neither the earlier
+  source run nor the merge establishes deployment or live acceptance.
 - The latest arm64 profile preview was built from Rider commit `ba7823a`, which
   changes only the Android manifest after the Dart source tested at `961d8b8`.
   It is 77,671,976 bytes, with SHA-256
@@ -455,15 +460,15 @@ Use this status view with the broader [acceptance matrix](../../VERIFICATION_AND
 | Company | The headless Rider consumer scenario passed **1/1** against Bagoo `9e58312`, covering original-key replay, stale-offer rejection, exact placement consent and duty remaining off ([verification](VERIFICATION.md)). | Azure capability and live company/offer acceptance with owning-site readback. |
 | Pickup | Controlled Azure duty/claim acceptance and the owning website's **20/20** post-check are recorded in [HDB-05 evidence](../home-dashboard-branch-plan/HDB-05-EVIDENCE.md). | Physical camera/scanner, origin-hub receipt, two-rider contention and later parcel operations. |
 | Version-two COD | The isolated `parcel-headless` Rider-to-kernel scenario covers synthetic COD delivery, exact replay and private proof; the latest PC recheck also covers failed return ([parcel verification](../rider-orders-delivery-trips/VERIFICATION.md)). | Current deployed contract, authorized buyer/hub readbacks, real counted cash and physical scan/proof handling. |
-| Paid Wallet | The native Wallet client scenario passed **1/1** against Bagoo source `9e58312`, including replay, original recipient and retained private proof ([workflow verification](VERIFICATION.md)). | Merge/deploy of the Bagoo fixes, fresh deployed capabilities and controlled owned-resource cross-role acceptance. |
+| Paid Wallet | The native Wallet client scenario passed **1/1** against Bagoo source `9e58312`, including replay, original recipient and retained private proof ([workflow verification](VERIFICATION.md)); PR #144 merged that source into `main`. | Confirm deployed revision/migrations, fresh deployed capabilities and controlled owned-resource cross-role acceptance. |
 | Failure/return | The isolated PC kernel scenario records one failed attempt, hub return, authorized retry and foreign-proof denial ([parcel verification](../rider-orders-delivery-trips/VERIFICATION.md)). | Deployed hub receipt/retry/RTS readbacks and physical Android proof/return handling. |
 | Cash/shift | The in-memory native cash scenario verifies original-command replay, two owning-hub receipts, shortage handling and earnings separation ([cash verification](../rider-cash-remittance/VERIFICATION.md)). | Current Azure migrations/capability, authorized live rider/hub receipts and physical financial-input/lifecycle checks. |
 | Messages/notices | Controller/widget and isolated-kernel behavior is recorded in [Messages verification](../rider-assignment-messages/VERIFICATION.md); the latest broad PC regression is summarized above. | Deployed send/read acceptance, live phase boundaries and later-arrival-unread behavior. |
 | Security/recovery | Fixed first-party recovery links and simulated private-draft cleanup are recorded in [workflow verification](VERIFICATION.md) and the [private-data audit](PRIVATE_DATA_LIFECYCLE.md). | Owner decisions for retained private data; deployed restricted-custody recovery; Android picker/process-death behavior. Rider covers the whole Navigator while inactive, blocks underlying semantics/input, and sets `FLAG_SECURE` while its Android activity is paused. Recent-app snapshot behavior still needs physical-device verification. |
 | Phone lifecycle | PC simulations cover picker recovery, background clearing and expiry. A focused widget check covers the app-level overlay, pushed-route semantics/input blocking and resume restoration ([test](../../../test/auth_preview_test.dart)); the native activity also compiled into the latest recorded debug APK. The [private-data audit](PRIVATE_DATA_LIFECYCLE.md) lists remaining source-level behavior. | Verify camera permission/cancel/retry, process kill/resume, account switch, keyboard/Back, task-detail redaction and app-switcher snapshot on an authorized physical device. The new pause flag has not been exercised on a phone. |
 | Release identity | The arm64 debug APK and profile preview have PC archive/signature checks in [Android release evidence](../../ANDROID_RELEASE.md). | Approved application ID, protected release key, reproducible signed artifact, install/launch and artifact/source identity check. Debug APKs are not distributable releases. |
-| Deployment/cross-role | HDB-05 duty/claim is the only recorded controlled operational deployment acceptance; current Bagoo `main` and Wallet source refs are pinned above. | Confirm the deployed source/migrations for each operation and complete authorized rider, buyer, hub and cash readbacks. Source tests and `401` checks do not satisfy this gate. |
-| Evidence freeze | The Rider source/test basis, pre-refresh branch ancestry snapshot, Bagoo `main` and unmerged Wallet source refs are recorded above; APK hashes and build limits are in [Android release evidence](../../ANDROID_RELEASE.md). | Freeze the exact signed artifact, tested source and deployed revision, preserve selected test-resource results, then rehearse before November 20. |
+| Deployment/cross-role | HDB-05 duty/claim is the only recorded controlled operational deployment acceptance; current Bagoo `main` is `9ca5db5`, including PR #144. | Confirm the deployed source/migrations for each operation and complete authorized rider, buyer, hub and cash readbacks. Source tests and `401` checks do not satisfy this gate. |
+| Evidence freeze | Current Rider and Bagoo `main` refs are recorded above; APK hashes and build limits are in [Android release evidence](../../ANDROID_RELEASE.md). | Freeze the exact signed artifact, tested source and deployed revision, preserve selected test-resource results, then rehearse before November 20. |
 
 Use the existing narrow acceptance procedures for each action family. No build
 flag is evidence that these checks passed. No notification push, live tracking,

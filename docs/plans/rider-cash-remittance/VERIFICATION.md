@@ -17,9 +17,11 @@ physical Android evidence are separate.
   handoff only; the website cancellation action still needs deployed acceptance.
 - The reviewed Bagoo checkout's `main` and `origin/main` are at `f001d39`.
   The pushed source branch `fix/rider-wallet-trip-evidence` is at `9e58312`,
-  two commits ahead of that main snapshot. Its default version-two delivery
-  records the order as `completed`/`paid`; COD remains held until a separate
-  hub receipt, and unreleased delivery earnings remain pending.
+  two commits ahead of that main snapshot. PR #144 later merged it into Bagoo
+  `main` at `9ca5db5`. Its default version-two delivery records the order as
+  `completed`/`paid`; COD remains held until a separate hub receipt, and
+  unreleased delivery earnings remain pending. This source merge does not
+  establish deployment or live acceptance.
 - The isolated native Linux COD scenario passed (**1/1**) against immutable
   Bagoo source revision `9e58312d130809eb8cd878189b729f1f702291d8`. It used an
   Xvfb virtual display, an in-memory SQLite Laravel kernel and a one-worker

@@ -60,19 +60,18 @@ access and the existing private map configuration.
 
 ## Source acceptance and remaining gates
 
-Bagoo's source repair is on branch `fix/rider-wallet-trip-evidence` through
-`9e58312d130809eb8cd878189b729f1f702291d8`. The focused backend suite passed
+Bagoo's source repair was developed on branch `fix/rider-wallet-trip-evidence`
+through `9e58312d130809eb8cd878189b729f1f702291d8` and later merged by PR #144
+at `9ca5db5`. The focused backend suite passed
 452 tests and 16,115 assertions. The native Linux client then passed the pinned
 handoff/replay flow: one completed paid delivery, one Wallet receipt, one
 delivery command, zero COD accounts, the original recipient and exact
 hash-matched private proof bytes in Trips.
 
-This accepts the source contract only. The backend change is not merged to main
-or confirmed deployed; fresh Azure discovery and controlled owned-resource
-acceptance remain open. The [API checklist](../../api/PREPAID_DELIVERY_NEEDS.md)
-tracks those deployment and live gates. See [testing](TESTING.md) and the
-[verification record](VERIFICATION.md) for local evidence and its limits.
-
-Publication remains user-controlled. Confirm the repaired source is merged and
-deployed, then complete the separately authorized live acceptance before any
-prepaid write activation.
+This accepts the source contract only. Bagoo PR #144 later merged the backend
+fix into `main` at `9ca5db5`; Azure deployment, fresh capability discovery and
+controlled owned-resource acceptance remain open. The
+[API checklist](../../api/PREPAID_DELIVERY_NEEDS.md) tracks those deployment and
+live gates. See [testing](TESTING.md) and the [verification record](VERIFICATION.md)
+for local evidence and its limits. Prepaid writes remain disabled until the
+separately authorized live acceptance passes.

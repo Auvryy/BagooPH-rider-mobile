@@ -18,6 +18,11 @@ copy of the test redirected captures to a temporary directory, preserving the
 existing captures. Tasks and Messages captures were inspected; these are PC
 renders, not Android device acceptance.
 
+The headless Device Preview lifecycle widget check passed **1/1**: the Rider
+sign-in surface is reachable while resumed, covered while inactive, and
+reachable again after resume. This exercises the Flutter preview wrapper; it
+does not launch a desktop window or verify Android lifecycle behavior.
+
 **Current status — November 2, 2026.** The scores and starter-screen statements
 below describe the October 5 planning snapshot, not current Rider behavior.
 An earlier full serial PC regression passed **715 tests with 8 skips and zero

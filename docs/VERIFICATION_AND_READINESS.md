@@ -6,6 +6,12 @@ This includes the current privacy-cover test and lifecycle fixture. It does
 not establish physical Android behavior, deployed transactions, or release
 signing; those acceptance checks remain open.
 
+The alternate API-configuration test skipped by that default run also passed
+separately with a synthetic `https://example.invalid/api/v1` override and with
+an explicitly empty override (one passing case and one expected skip in each
+run). It checks configuration isolation and empty-origin rejection without a
+network request; it does not verify a deployed server.
+
 **Current status — November 2, 2026.** The scores and starter-screen statements
 below describe the October 5 planning snapshot, not current Rider behavior.
 An earlier full serial PC regression passed **715 tests with 8 skips and zero

@@ -11,11 +11,13 @@ import 'package:webview_all/webview_all.dart';
 
 import '../../../app/theme.dart';
 import '../data/saved_delivery_stop.dart';
+import '../data/route_geometry.dart';
 import 'native_delivery_map.dart';
 
 abstract interface class DeliveryMapSession {
   Widget get view;
   Future<void> load(String document, void Function(String) onEvent);
+  Future<void> updateRoute(RoadRoute? road);
   Future<void> close();
 }
 
@@ -64,6 +66,17 @@ class _NativeDeliveryMap implements DeliveryMapSession {
   }
 
   @override
+  Future<void> updateRoute(RoadRoute? road) async {
+    if (_closed) return;
+    final lines = road?.lines
+        .map((line) => line.map((p) => [p.latitude, p.longitude]).toList())
+        .toList();
+    await controller.runJavaScript(
+      'window.setRiderRoadRoute(${jsonEncode(lines)});',
+    );
+  }
+
+  @override
   Future<void> close() async {
     if (_closed) return;
     _closed = true;
@@ -107,19 +120,21 @@ html,body,#map{width:100%;height:100%;margin:0;background:#F2F1ED;font-family:'P
 }
 
 class LeafletDeliveryMap extends StatelessWidget {
-  const LeafletDeliveryMap({super.key, this.stop});
+  const LeafletDeliveryMap({super.key, this.stop, this.road});
   final SavedDeliveryStop? stop;
+  final RoadRoute? road;
 
   @override
   Widget build(BuildContext context) =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.linux
-      ? NativeDeliveryMap(key: ValueKey(stop), stop: stop)
-      : _EmbeddedLeafletDeliveryMap(stop: stop);
+      ? NativeDeliveryMap(key: ValueKey(stop), stop: stop, road: road)
+      : _EmbeddedLeafletDeliveryMap(stop: stop, road: road);
 }
 
 class _EmbeddedLeafletDeliveryMap extends ConsumerStatefulWidget {
-  const _EmbeddedLeafletDeliveryMap({this.stop});
+  const _EmbeddedLeafletDeliveryMap({this.stop, this.road});
   final SavedDeliveryStop? stop;
+  final RoadRoute? road;
   @override
   ConsumerState<_EmbeddedLeafletDeliveryMap> createState() =>
       _LeafletDeliveryMapState();
@@ -143,7 +158,28 @@ class _LeafletDeliveryMapState
   @override
   void didUpdateWidget(covariant _EmbeddedLeafletDeliveryMap oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.stop != widget.stop) unawaited(_open());
+    if (oldWidget.stop != widget.stop) {
+      unawaited(_open());
+    } else if (oldWidget.road != widget.road && _ready) {
+      unawaited(_syncRoute());
+    }
+  }
+
+  Future<void> _syncRoute() async {
+    final session = _session;
+    final epoch = _epoch;
+    try {
+      await session?.updateRoute(widget.road);
+    } catch (_) {
+      await session?.close();
+      if (mounted && epoch == _epoch && identical(_session, session)) {
+        setState(() {
+          _session = null;
+          _ready = false;
+          _error = 'The road line could not be displayed. Retry the map.';
+        });
+      }
+    }
   }
 
   @override
@@ -203,6 +239,7 @@ class _LeafletDeliveryMapState
           } else if (value['type'] == 'ready') {
             _timeout?.cancel();
             setState(() => _ready = true);
+            unawaited(_syncRoute());
           } else if (value['type'] == 'attribution') {
             unawaited(
               launchUrl(

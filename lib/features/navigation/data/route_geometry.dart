@@ -54,8 +54,9 @@ bool _hasFerry(Object? value, [int depth = 0]) {
   if (value is Map) {
     if (value['ferry'] == true ||
         value['kind'] == 'ferry' ||
-        value['road_class'] == 'ferry')
+        value['road_class'] == 'ferry') {
       return true;
+    }
     return value.values.any((item) => _hasFerry(item, depth + 1));
   }
   return value is List && value.any((item) => _hasFerry(item, depth + 1));

@@ -8,6 +8,8 @@ import '../../../core/ui/rider_surfaces.dart';
 import '../../home/data/operations_models.dart';
 import '../../home/presentation/stop_guidance.dart';
 import '../data/route_geometry.dart';
+import '../data/saved_delivery_stop.dart';
+import 'leaflet_delivery_map.dart';
 import 'navigation_controller.dart';
 import 'navigation_providers.dart';
 
@@ -185,6 +187,26 @@ class _NavigationControlsState extends State<NavigationControls> {
             ],
             if (_error != null) Text(_error!),
             if (nav.message != null) Text(nav.message!),
+            if (nav.active &&
+                nav.road != null &&
+                nav.task != null &&
+                SavedDeliveryStop.fromTask(nav.task) ==
+                    SavedDeliveryStop.fromTask(widget.task) &&
+                SavedDeliveryStop.fromTask(nav.task) != null) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 280,
+                child: LeafletDeliveryMap(
+                  stop: SavedDeliveryStop.fromTask(nav.task),
+                  road: nav.road,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Road route to this assigned stop.',
+                style: TextStyle(fontSize: 12),
+              ),
+            ],
             if (nav.active || nav.starting || nav.paused)
               OutlinedButton(
                 key: const ValueKey('stop-navigation-stop'),

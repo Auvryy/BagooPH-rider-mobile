@@ -110,6 +110,17 @@ void main() {
     },
   );
 
+  test('a configured routing key enables the road provider', () {
+    final container = ProviderContainer(
+      overrides: [
+        roadRoutingKeyProvider.overrideWithValue('synthetic-provider-key'),
+      ],
+    );
+    addTearDown(container.dispose);
+    expect(container.read(roadRoutingProvider), isA<GeoapifyClient>());
+    expect(container.read(roadRoutingProvider).configured, isTrue);
+  });
+
   test(
     'route geometry rejects ferry legs rather than drawing them as a road',
     () {

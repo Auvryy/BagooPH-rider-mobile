@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/leaflet_delivery_map.dart';
+import 'package:bagoo_rider_mobile/features/navigation/data/route_geometry.dart';
 
 class FakeDeliveryMapSession implements DeliveryMapSession {
   String? document;
@@ -9,6 +10,14 @@ class FakeDeliveryMapSession implements DeliveryMapSession {
   Completer<void>? pending;
   Object? error;
   int closes = 0;
+  RoadRoute? road;
+  bool routeFailure = false;
+  @override
+  Future<void> updateRoute(RoadRoute? value) async {
+    if (routeFailure) throw StateError('Synthetic route display failure');
+    road = value;
+  }
+
   @override
   Widget get view => const ColoredBox(
     color: Color(0xFFF2F1ED),

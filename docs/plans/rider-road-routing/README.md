@@ -22,7 +22,30 @@ unavailable; no remote task or timer is claimed.
 
 Route-integrity milestone: 18 focused Geoapify and navigation tests passed on
 the PC, including rejection of mismatched endpoints and disconnected sections.
-Provider activation and map rendering are still in progress.
+The route provider now activates only when the build-time public client key
+`GEOAPIFY_API_KEY` is supplied; use a provider-restricted key and never treat a
+mobile build setting as a secret. With no key, external directions remain
+available. Navigation requires an explicit rider action and discloses the
+coordinates sent to the provider. Android declares the location foreground
+service and its required permissions; GPS and notification access are requested
+when navigation starts, not when opening the map.
+
+The authorized Stop Mode map can now draw, update and clear the current road
+line. Its Leaflet renderer receives validated geometry through a local bridge;
+the Linux map uses the same route data. The route is removed when its task no
+longer matches or navigation stops. Focused PC tests cover both renderers,
+provider configuration, route lifecycle, assignment changes and failures.
+These checks do not establish that Android permissions, service lifecycle,
+real provider access or deployed stop coordinates work on a device.
+
+PC evidence: 63 provider/navigation/Stop Mode/map tests, 41 additional
+navigation and Home lifecycle tests, 6 embedded-map tests after the display
+failure safeguard, and 5 bundled renderer runtime checks passed. Flutter
+analysis passed. A single-worker Android debug manifest merge passed and the
+merged manifest contains the foreground location service and its required
+location, notification and service permissions; it does not request background
+location permission. No application window, device, real provider request or
+live parcel action was used.
 
 See the [task map](../../TASK_TRACKING.md), [backlog](../../SUBTASK_BACKLOG.md)
 and [source rules](../../SOURCES.md) for existing dependencies and evidence.

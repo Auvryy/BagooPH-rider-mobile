@@ -282,9 +282,11 @@ class _CashPageViewState extends State<CashPageView>
               key: const ValueKey('cash-search'),
               controller: _search,
               enabled: c.canRefresh,
+              maxLength: 100,
               decoration: const InputDecoration(
                 labelText: 'Search parcel reference',
                 prefixIcon: Icon(Icons.search_rounded),
+                counterText: '',
               ),
               textInputAction: TextInputAction.search,
               onSubmitted: (value) {
@@ -763,6 +765,7 @@ class _CashOfferFormState extends State<_CashOfferForm> {
                   key: const ValueKey('cash-offer-amount'),
                   controller: _amount,
                   enabled: c.canOffer,
+                  maxLength: 12,
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
@@ -772,6 +775,7 @@ class _CashOfferFormState extends State<_CashOfferForm> {
                     helperText: 'Still held by you: ${cashPeso(a.held)}',
                     helperMaxLines: 3,
                     errorText: error?.fields['amount'],
+                    counterText: '',
                   ),
                   validator: (value) {
                     try {

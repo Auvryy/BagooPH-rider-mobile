@@ -171,6 +171,25 @@ void main() {
         handoverText('First line\nSecond line', 'notes', 10, 1000),
         'First line\nSecond line',
       );
+      expect(
+        handoverText('First line\r\nSecond line', 'notes', 10, 1000),
+        'First line\r\nSecond line',
+      );
+      for (final value in [
+        'Observed hidden\u200b marker in report',
+        'Observed hidden\u034f marker in report',
+        'Observed hidden\ufe0f marker in report',
+        'Observed\u0085control in report',
+        '<script>unsafe report</script>',
+        'onerror=unsafe report',
+        'javascript:unsafe report',
+      ]) {
+        expect(
+          () => handoverText(value, 'notes', 10, 1000),
+          throwsA(isA<AccountFailure>()),
+          reason: 'Unsafe handover note accepted: $value',
+        );
+      }
     },
   );
   test('multipart report persists one intent before dispatch and sends exact original bytes', () async {

@@ -56,7 +56,7 @@ Finish evidence:
 - [x] New passwords at the accepted minimum/bounds and each character rule are
   tested; valid existing sign-in credentials are not rejected by new-password rules.
 - [x] Registration and Settings validation regressions pass with isolated PC
-  fixtures; the broader 179-test set is recorded in the audit report.
+  fixtures; the broader 178-test set is recorded in the audit report.
 - [ ] Any real signup/password write uses authorized private test resources and
   source/deployment/mailbox/device evidence; no automatic production signup is implied.
 - [x] Runtime change and evidence are reviewed in this separate branch with a

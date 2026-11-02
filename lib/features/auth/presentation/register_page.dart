@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/network/api_failure.dart';
 import '../../../core/platform/rider_website.dart';
 import '../../../core/security/account_input_validation.dart';
 import '../../../core/security/password_policy.dart';
 import '../data/registration_options.dart';
+import '../data/registration_document.dart';
 import 'widgets/auth_field.dart';
 import 'widgets/auth_shell.dart';
 import 'auth_controller.dart';
@@ -446,6 +448,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             _FieldPair(
               first: AuthField(
                 label: 'Full name',
+                maxLength: 100,
                 validator: riderNameInputError,
                 serverError: ref.watch(authControllerProvider).fields['name'],
                 controller: _name,
@@ -485,6 +488,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         child: _FieldPair(
           first: AuthField(
             label: 'Email address',
+            maxLength: 255,
             validator: (value) => riderEmailInputError(
               value,
               normalizeCompatibilityCharacters: true,
@@ -497,6 +501,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           ),
           second: AuthField(
             label: 'Mobile number',
+            maxLength: 24,
             validator: (value) =>
                 riderPhilippineMobileError(value, maxCharacters: 24),
             serverError: ref.watch(authControllerProvider).fields['phone'],
@@ -515,6 +520,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           children: [
             AuthField(
               label: 'Street address',
+              maxLength: 500,
               validator: riderAddressInputError,
               serverError: ref.watch(authControllerProvider).fields['address'],
               controller: _address,
@@ -524,6 +530,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             const SizedBox(height: 16),
             AuthField(
               label: 'Province',
+              maxLength: 255,
               validator: (value) =>
                   riderLocationInputError(value, label: 'province'),
               controller: _province,
@@ -534,6 +541,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             _FieldPair(
               first: AuthField(
                 label: 'City / municipality',
+                maxLength: 255,
                 validator: (value) => riderLocationInputError(
                   value,
                   label: 'city or municipality',
@@ -546,6 +554,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
               ),
               second: AuthField(
                 label: 'Barangay',
+                maxLength: 255,
                 validator: (value) =>
                     riderLocationInputError(value, label: 'barangay'),
                 serverError: ref
@@ -734,6 +743,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           minimumWidth: 480,
           first: AuthField(
             label: 'Plate or registration number',
+            maxLength: 8,
             validator: (value) =>
                 riderPhilippinePlateError(value, vehicleType: _vehicle),
             serverError: ref
@@ -746,6 +756,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           ),
           second: AuthField(
             label: 'Driver’s license number',
+            maxLength: 13,
             validator: riderPhilippineLicenseError,
             serverError: ref
                 .watch(authControllerProvider)
@@ -812,6 +823,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           minimumWidth: 480,
           first: AuthField(
             label: 'Create password',
+            maxLength: 128,
             serverError: ref.watch(authControllerProvider).fields['password'],
             controller: _password,
             hint: 'Choose a strong password',
@@ -822,6 +834,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           ),
           second: AuthField(
             label: 'Confirm password',
+            maxLength: 128,
             serverError: ref
                 .watch(authControllerProvider)
                 .fields['password_confirmation'],
@@ -1157,15 +1170,14 @@ class _DocumentCardState extends State<_DocumentCard> {
       );
       final file = await openFile(acceptedTypeGroups: [group]);
       if (file == null || !mounted) return;
-      final size = await file.length();
+      await readRegistrationDocument(file);
       if (!mounted) return;
-      if (size > 5 * 1024 * 1024) {
+      widget.onChanged(file);
+    } on AccountFailure catch (error) {
+      if (mounted) {
         setState(
-          () =>
-              _error = 'Choose a file up to 5 MB. The previous choice is kept.',
+          () => _error = '${error.message} The previous choice is kept.',
         );
-      } else {
-        widget.onChanged(file);
       }
     } catch (_) {
       if (mounted) {

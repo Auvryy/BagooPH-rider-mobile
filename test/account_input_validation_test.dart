@@ -5,8 +5,21 @@ void main() {
   group('Rider account input validation', () {
     test('email limits, whitespace, controls, and endpoint normalization', () {
       expect(riderEmailInputError('rider@example.com'), isNull);
+      expect(riderEmailInputError('rider+orders@delivery-team.ph'), isNull);
+      expect(riderEmailInputError('"rider@ops"@example.com'), isNull);
+      expect(riderEmailInputError('rider@example.рф'), isNull);
       expect(riderEmailInputError('rider@example.com\u200b'), isNotNull);
       expect(riderEmailInputError('not-an-email'), isNotNull);
+      for (final malformed in [
+        'x..y@example.com',
+        'x@example..com',
+        'x@-example.com',
+        'x@example-.com',
+        'x@example.com-',
+        'x@@example.com',
+      ]) {
+        expect(riderEmailInputError(malformed), isNotNull, reason: malformed);
+      }
       expect(
         riderEmailInputError('a@${List.filled(250, 'b').join()}.com'),
         contains('255'),
@@ -29,6 +42,22 @@ void main() {
         isNotNull,
       );
       expect(riderCurrentPasswordError(''), isNotNull);
+    });
+
+    test('verification codes are exactly six ASCII digits', () {
+      expect(riderVerificationCodeError('123456'), isNull);
+      for (final value in [
+        null,
+        '',
+        '12345',
+        '1234567',
+        '12 456',
+        '12a456',
+        '１２３４５６',
+        '123456 ',
+      ]) {
+        expect(riderVerificationCodeError(value), isNotNull, reason: '$value');
+      }
     });
 
     test('sign-in password is only required, matching the login API', () {

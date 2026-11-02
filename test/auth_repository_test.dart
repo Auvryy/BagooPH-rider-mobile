@@ -6,6 +6,7 @@ import 'package:bagoo_rider_mobile/core/security/token_store.dart';
 import 'package:bagoo_rider_mobile/features/auth/data/account.dart';
 import 'package:bagoo_rider_mobile/features/auth/data/auth_repository.dart';
 import 'package:dio/dio.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const profile = {
@@ -48,6 +49,44 @@ ResponseBody response(Object data, [int status = 200]) =>
     );
 
 void main() {
+  test(
+    'registration rejects a mislabeled document before network dispatch',
+    () async {
+      final adapter = Adapter((_) => response({'success': true}));
+      final repo = ApiAuthRepository(
+        const AppConfig('https://bagoo.example.test/api/v1'),
+        MemoryTokenStore(),
+        client: Dio()..httpClientAdapter = adapter,
+      );
+      await expectLater(
+        repo.register(const {}, {
+          'identity_document': XFile.fromData(
+            Uint8List.fromList([1, 2, 3]),
+            path: 'identity.pdf',
+          ),
+        }),
+        throwsA(isA<AccountFailure>()),
+      );
+      expect(adapter.requests, isEmpty);
+    },
+  );
+
+  test('invalid registration OTP never reaches the API', () async {
+    final adapter = Adapter((_) => response({'success': true}));
+    final repo = ApiAuthRepository(
+      const AppConfig('https://bagoo.example.test/api/v1'),
+      MemoryTokenStore(),
+      client: Dio()..httpClientAdapter = adapter,
+    );
+    for (final code in ['12345', '1234567', '12a456', '１２３４５６']) {
+      await expectLater(
+        repo.verifyCode('rider@example.test', code),
+        throwsA(isA<AccountFailure>()),
+      );
+    }
+    expect(adapter.requests, isEmpty);
+  });
+
   test(
     'only an explicit supported integer settings version enables the API',
     () {

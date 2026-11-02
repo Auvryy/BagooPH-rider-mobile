@@ -91,6 +91,17 @@ setup() async {
 }
 
 void main() {
+  test('invalid additional-email codes are blocked before dispatch', () async {
+    final h = await setup();
+    for (final code in ['12345', '1234567', '12a456', '１２３４５６']) {
+      await expectLater(
+        h.settings.confirmEmail('contact@example.test', 'current-secret', code),
+        throwsA(isA<AccountFailure>()),
+      );
+    }
+    expect(h.adapter.requests, isEmpty);
+  });
+
   test(
     'backend v1 example decodes and contact saves use the canonical snapshot',
     () async {

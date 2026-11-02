@@ -308,6 +308,42 @@ void main() {
     }
   });
 
+  test(
+    'parcel notes follow API line-break rules and recipient names stay strict',
+    () {
+      expect(
+        parcelText('Actual first line\r\nActual second line', 'notes'),
+        'Actual first line\r\nActual second line',
+      );
+      expect(
+        parcelText('O’Connor Smith', 'recipient_name', min: 2),
+        'O’Connor Smith',
+      );
+      for (final value in [
+        'Actual hidden\u200b marker',
+        'Actual hidden\u034f marker',
+        'Actual hidden\ufe0f marker',
+        'Actual\u0085control marker',
+        '<script>actual note</script>',
+        'onerror=actual note',
+        'javascript:actual note',
+      ]) {
+        expect(
+          () => parcelText(value, 'notes'),
+          throwsA(isA<AccountFailure>()),
+          reason: 'Unsafe note accepted: $value',
+        );
+      }
+      for (final value in ['Rider 2', 'Rider 🙂', 'Rider / Name']) {
+        expect(
+          () => parcelText(value, 'recipient_name', min: 2),
+          throwsA(isA<AccountFailure>()),
+          reason: 'Invalid recipient name accepted: $value',
+        );
+      }
+    },
+  );
+
   test('existing duty/claim JSON and unsupported future records preserve their identity', () {
     final old = CommandIntent(
       accountId: '5',

@@ -74,6 +74,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               const SizedBox(height: 24),
               AuthField(
                 label: 'Email address',
+                maxLength: 255,
                 controller: _email,
                 hint: 'you@example.com',
                 icon: Icons.mail_outline_rounded,

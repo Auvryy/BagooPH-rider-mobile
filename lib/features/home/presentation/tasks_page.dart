@@ -136,10 +136,12 @@ class TasksPage extends StatelessWidget {
         key: const ValueKey('task-search'),
         enabled: controller.taskData.data != null,
         onChanged: controller.searchTasks,
+        maxLength: 500,
         decoration: const InputDecoration(
           labelText: 'Find a parcel',
           hintText: 'Parcel reference or stop',
           prefixIcon: Icon(Icons.search_rounded),
+          counterText: '',
         ),
       ),
       const SizedBox(height: 24),

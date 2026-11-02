@@ -473,6 +473,7 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields>
                     key: const ValueKey('parcel-cash-received'),
                     controller: received,
                     enabled: enabled,
+                    maxLength: 12,
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
@@ -481,6 +482,7 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields>
                       labelText: 'Cash received',
                       prefixText: '₱ ',
                       hintText: 'Amount actually received',
+                      counterText: '',
                     ),
                     validator: (value) {
                       final error = _money(value, 'cash_received');
@@ -506,6 +508,7 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields>
                     key: const ValueKey('parcel-change-given'),
                     controller: change,
                     enabled: enabled,
+                    maxLength: 12,
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
@@ -514,6 +517,7 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields>
                       labelText: 'Change given',
                       prefixText: '₱ ',
                       hintText: 'Enter 0 if no change was given',
+                      counterText: '',
                     ),
                     validator: (value) => _money(value, 'change_given'),
                     onChanged: (_) {

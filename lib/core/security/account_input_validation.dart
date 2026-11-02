@@ -12,11 +12,66 @@ String? riderEmailInputError(
   if (text.runes.length > 255) {
     return 'Use an email address up to 255 characters.';
   }
+  final parts = _emailParts(text);
   if (RegExp(r'[\p{C}\s]', unicode: true).hasMatch(text) ||
-      !RegExp(r'^\S+@\S+\.\S+$', unicode: true).hasMatch(text)) {
+      parts == null ||
+      parts.$1.isEmpty ||
+      parts.$2.isEmpty ||
+      (!_isQuotedLocalPart(parts.$1) &&
+          (parts.$1.startsWith('.') ||
+              parts.$1.endsWith('.') ||
+              parts.$1.contains('..') ||
+              parts.$1.contains('"'))) ||
+      !_validEmailDomain(parts.$2)) {
     return 'Enter a valid $label.';
   }
   return null;
+}
+
+(String, String)? _emailParts(String value) {
+  var quoted = false;
+  var escaped = false;
+  var separator = -1;
+  for (var i = 0; i < value.length; i++) {
+    final character = value[i];
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (quoted && character == r'\') {
+      escaped = true;
+      continue;
+    }
+    if (character == '"') {
+      quoted = !quoted;
+      continue;
+    }
+    if (character == '@' && !quoted) {
+      if (separator != -1) return null;
+      separator = i;
+    }
+  }
+  if (quoted || escaped || separator <= 0 || separator >= value.length - 1) {
+    return null;
+  }
+  return (value.substring(0, separator), value.substring(separator + 1));
+}
+
+bool _isQuotedLocalPart(String local) =>
+    local.length >= 2 && local.startsWith('"') && local.endsWith('"');
+
+bool _validEmailDomain(String domain) {
+  final labels = domain.split('.');
+  if (labels.length < 2) return false;
+  return labels.every((label) {
+    if (label.isEmpty || label.startsWith('-') || label.endsWith('-')) {
+      return false;
+    }
+    return RegExp(
+      r'^[\p{L}\p{N}][\p{L}\p{N}\p{M}-]*$',
+      unicode: true,
+    ).hasMatch(label);
+  });
 }
 
 String? riderCurrentPasswordError(String? value, {String label = 'password'}) {
@@ -26,6 +81,11 @@ String? riderCurrentPasswordError(String? value, {String label = 'password'}) {
   }
   return null;
 }
+
+String? riderVerificationCodeError(String? value) =>
+    value != null && RegExp(r'^[0-9]{6}$').hasMatch(value)
+    ? null
+    : 'Enter the six-digit code.';
 
 String? riderSignInPasswordError(String? value) =>
     value == null || value.isEmpty ? 'Enter your password.' : null;
@@ -38,6 +98,47 @@ String? riderNameInputError(String? value) => _applicationTextError(
   kind: _ApplicationTextKind.name,
   isRequired: true,
 );
+
+/// The API's `name` profile for operational recipient-name fields.
+///
+/// Keep this separate from general notes/location text: recipient names are
+/// restricted to Latin letters and the punctuation accepted by the server.
+bool riderApplicationNameIsValid(String value, {int min = 2, int max = 255}) {
+  final text = value.trim();
+  if (text.runes.length < min || text.runes.length > max) return false;
+  return RegExp(
+        r"^[\p{Script=Latin}\p{M} .’'\-]+$",
+        unicode: true,
+      ).hasMatch(text) &&
+      RegExp(r'\p{Script=Latin}', unicode: true).hasMatch(text) &&
+      !_hasHiddenApplicationMarker(text);
+}
+
+/// The API's `notes` profile, including its permitted LF/CRLF line breaks.
+bool riderApplicationNotesAreValid(
+  String value, {
+  required int min,
+  required int max,
+}) {
+  final text = value.trim();
+  if (text.runes.length < min || text.runes.length > max) return false;
+  final withoutLineBreaks = text.replaceAll(RegExp(r'\r?\n'), '');
+  if (RegExp(r'[\p{C}<>`{}]', unicode: true).hasMatch(withoutLineBreaks) ||
+      _hasHiddenApplicationMarker(text) ||
+      RegExp(
+        r'(?:javascript|vbscript|data)\s*:|\bon[a-z]+\s*=',
+        caseSensitive: false,
+        unicode: true,
+      ).hasMatch(text) ||
+      !RegExp(r'[\p{L}\p{N}]', unicode: true).hasMatch(text)) {
+    return false;
+  }
+  return true;
+}
+
+bool _hasHiddenApplicationMarker(String text) =>
+    RegExp(r'[\u034f\ufe00-\ufe0f]', unicode: true).hasMatch(text) ||
+    text.runes.any((rune) => rune >= 0xe0100 && rune <= 0xe01ef);
 
 String? riderAddressInputError(String? value) => _applicationTextError(
   value,

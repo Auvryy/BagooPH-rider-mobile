@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/security/account_input_validation.dart';
 import '../data/account.dart';
 import 'auth_controller.dart';
 
@@ -66,7 +67,7 @@ class _EmailVerificationDialogState
   }
 
   Future<void> _verify() async {
-    if (_code.text.length != 6) {
+    if (riderVerificationCodeError(_code.text) != null) {
       setState(() => _error = 'Enter the six-digit code from your email.');
       return;
     }

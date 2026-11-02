@@ -1,4 +1,5 @@
 import '../network/api_failure.dart';
+import '../security/account_input_validation.dart';
 
 /// Matches the backend's ASCII-only normalization. Never use a saved reference
 /// as capture evidence, or translate a tracking-page URL into an API scan.
@@ -21,10 +22,10 @@ String parcelWaybill(String value) {
 
 String parcelText(String value, String field, {int min = 1, int max = 500}) {
   final text = value.trim();
-  if (text.runes.length < min ||
-      text.runes.length > max ||
-      RegExp(r'[\x00-\x09\x0b\x0c\x0e-\x1f\x7f<>`{}]').hasMatch(text) ||
-      !RegExp(r'[\p{L}\p{N}]', unicode: true).hasMatch(text)) {
+  final valid = field == 'recipient_name'
+      ? riderApplicationNameIsValid(text, min: min, max: max)
+      : riderApplicationNotesAreValid(text, min: min, max: max);
+  if (!valid) {
     throw AccountFailure(
       'Check the highlighted fields.',
       fields: {field: 'Use plain text between $min and $max characters.'},

@@ -279,12 +279,14 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                   key: const ValueKey('task-search'),
                   enabled: controller.taskData.data != null,
                   onChanged: controller.searchTasks,
+                  maxLength: 500,
                   decoration: const InputDecoration(
                     hintText: 'Find a parcel or stop',
                     labelText: 'Search tasks',
                     prefixIcon: Icon(Icons.search_rounded),
                     helperText: 'Searches loaded tasks in this queue',
                     helperMaxLines: 2,
+                    counterText: '',
                   ),
                 ),
               if (controller.selectingTask)

@@ -222,7 +222,10 @@ void main() {
         of: find.byKey(const ValueKey('identity-document')),
         matching: find.widgetWithText(OutlinedButton, label),
       );
-      picker.nextFile = XFile.fromData(Uint8List(8), path: 'preview-id.pdf');
+      picker.nextFile = XFile.fromData(
+        Uint8List.fromList('%PDF-1.7\n'.codeUnits),
+        path: 'preview-id.pdf',
+      );
       await tapVisible(tester, documentButton('Choose document'));
       expect(find.text('preview-id.pdf'), findsOneWidget);
       await tapVisible(
@@ -242,7 +245,20 @@ void main() {
         path: 'too-large.pdf',
       );
       await tapVisible(tester, documentButton('Replace document'));
-      expect(find.textContaining('Choose a file up to 5 MB'), findsOneWidget);
+      expect(
+        find.textContaining('Choose a non-empty document up to 5 MB'),
+        findsOneWidget,
+      );
+      expect(find.text('preview-id.pdf'), findsOneWidget);
+      picker.nextFile = XFile.fromData(
+        Uint8List.fromList([1, 2, 3]),
+        path: 'renamed-image.pdf',
+      );
+      await tapVisible(tester, documentButton('Replace document'));
+      expect(
+        find.textContaining('contents match its file type'),
+        findsOneWidget,
+      );
       expect(find.text('preview-id.pdf'), findsOneWidget);
       await tapVisible(tester, find.text('Remove'));
       expect(find.text('preview-id.pdf'), findsNothing);
@@ -310,7 +326,10 @@ void main() {
         'license-document',
         'vehicle-document',
       ]) {
-        picker.nextFile = XFile.fromData(Uint8List(10), path: 'synthetic.pdf');
+        picker.nextFile = XFile.fromData(
+          Uint8List.fromList('%PDF-1.7\n'.codeUnits),
+          path: 'synthetic.pdf',
+        );
         await tapVisible(
           tester,
           find.descendant(

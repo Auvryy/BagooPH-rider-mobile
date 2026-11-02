@@ -3,8 +3,10 @@ import 'package:file_selector/file_selector.dart';
 
 import '../../../app/config.dart';
 import '../../../core/network/rider_api_client.dart';
+import '../../../core/security/account_input_validation.dart';
 import '../../../core/security/token_store.dart';
 import 'account.dart';
+import 'registration_document.dart';
 
 abstract interface class AuthRepository {
   Future<RiderAccount?> restore();
@@ -158,16 +160,11 @@ class ApiAuthRepository
     final data = FormData.fromMap({...fields, 'device_name': 'BagooPH Rider'});
     for (final entry in files.entries) {
       final file = entry.value;
-      if (await file.length() > 5 * 1024 * 1024) {
-        throw const AccountFailure('Choose documents up to 5 MB each.');
-      }
+      final bytes = await readRegistrationDocument(file);
       data.files.add(
         MapEntry(
           entry.key,
-          MultipartFile.fromBytes(
-            await file.readAsBytes(),
-            filename: file.name,
-          ),
+          MultipartFile.fromBytes(bytes, filename: file.name),
         ),
       );
     }
@@ -234,10 +231,13 @@ class ApiAuthRepository
 
   @override
   Future<String> verifyCode(String email, String code) async {
+    if (riderVerificationCodeError(code) != null) {
+      throw const AccountFailure('Enter the six-digit verification code.');
+    }
     final result = await _request(
       'rider/registration/email/verify',
       method: 'POST',
-      data: {'email': email.trim(), 'code': code.trim()},
+      data: {'email': email.trim(), 'code': code},
     );
     if (result['success'] != true || result['token'] is! String) {
       throw const AccountFailure(

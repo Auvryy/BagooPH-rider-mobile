@@ -96,24 +96,28 @@ class _NavigationControlsState extends State<NavigationControls> {
                 TextField(
                   controller: _latitude,
                   enabled: enabled,
+                  maxLength: 32,
                   keyboardType: const TextInputType.numberWithOptions(
                     signed: true,
                     decimal: true,
                   ),
                   decoration: const InputDecoration(
                     labelText: 'Origin latitude',
+                    counterText: '',
                   ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: _longitude,
                   enabled: enabled,
+                  maxLength: 32,
                   keyboardType: const TextInputType.numberWithOptions(
                     signed: true,
                     decimal: true,
                   ),
                   decoration: const InputDecoration(
                     labelText: 'Origin longitude',
+                    counterText: '',
                   ),
                 ),
               ],

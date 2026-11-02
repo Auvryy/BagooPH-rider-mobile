@@ -3,7 +3,7 @@
 **Rider input-validation audit (November 2):** the focused
 [audit record](INPUT_VALIDATION_AUDIT.md) documents the reviewed page/input
 inventory, source revisions, confirmed form-validation fixes, and remaining
-deployment/device limits. The serial PC run passed **179 tests** across
+deployment/device limits. The serial PC run passed **178 tests** across
 registration/settings and the audited operational pages; `flutter analyze
 --no-pub`, formatting and diff checks were clean. Work is isolated on
 `fix/rider-input-validation-audit`; it fixes account input validation without

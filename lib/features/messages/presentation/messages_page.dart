@@ -190,10 +190,12 @@ class _ConversationList extends StatelessWidget {
                         key: const ValueKey('conversation-search'),
                         controller: search,
                         onChanged: c.searchConversations,
+                        maxLength: 255,
                         decoration: const InputDecoration(
                           labelText: 'Search loaded conversations',
                           hintText: 'Name or parcel reference',
                           prefixIcon: Icon(Icons.search_rounded),
+                          counterText: '',
                         ),
                       ),
                       if (c.inboxPagination != null) ...[
@@ -823,6 +825,7 @@ class _ThreadPaneState extends State<_ThreadPane> {
                                     c.pendingIntent == null,
                                 minLines: 1,
                                 maxLines: compact ? 1 : 3,
+                                maxLength: 1000,
                                 textCapitalization:
                                     TextCapitalization.sentences,
                                 textInputAction: TextInputAction.newline,
@@ -833,6 +836,7 @@ class _ThreadPaneState extends State<_ThreadPane> {
                                   hintText: 'Write a parcel update',
                                   errorText: c.sendError,
                                   errorMaxLines: 4,
+                                  counterText: '',
                                   contentPadding: const EdgeInsets.symmetric(
                                     horizontal: 12,
                                     vertical: 12,

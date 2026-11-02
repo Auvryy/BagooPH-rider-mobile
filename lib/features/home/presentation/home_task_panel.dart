@@ -10,6 +10,8 @@ import '../data/operations_models.dart';
 import '../data/operations_repository.dart';
 import 'task_stage_label.dart';
 import 'task_payment_instruction.dart';
+import 'stop_guidance.dart';
+import 'doorstep_guide.dart';
 
 export 'task_stage_label.dart' show taskStageLabel;
 
@@ -531,10 +533,11 @@ class _SelectedStop extends StatelessWidget {
         Text(task.stop.address ?? 'Address unavailable'),
         const SizedBox(height: 10),
         Text(
-          task.nextInstruction,
+          taskInstruction(task),
           style: Theme.of(context).textTheme.bodySmall,
         ),
         TaskPaymentInstruction(task: task),
+        DoorstepGuide(task: task),
         if (task.stop.latitude == null || task.stop.longitude == null)
           const Padding(
             padding: EdgeInsets.only(top: 8),

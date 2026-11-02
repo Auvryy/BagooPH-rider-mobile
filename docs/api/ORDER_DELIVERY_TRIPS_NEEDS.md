@@ -13,7 +13,8 @@ unless implementation or verification exposes a specific gap.
 - [x] Owned task detail and pickup/depart writes with actual submitted waybill,
   opaque expected version and optional notes.
 - [x] Multipart COD delivery with recipient, original private image, exact cash
-  strings and explicit cash confirmation; separate buyer completion.
+  strings and explicit cash confirmation; server-owned, flow-version-specific
+  order completion with COD remittance handled separately.
 - [x] Failed delivery with allowed reasons, notes, location, original image,
   recorded attempts and return-hub guidance.
 - [x] Retained original-assignment Trips with server search/phase/payment/date
@@ -21,6 +22,17 @@ unless implementation or verification exposes a specific gap.
 - [x] Original checkpoint/attempt proof through authenticated same-origin reads,
   hash verification and private/no-store response headers.
 - [x] Explicit stale, denied, expired, unknown, changed-proof and quota responses.
+
+## November 1 source revision follow-up
+
+The Bagoo branch `fix/rider-wallet-trip-evidence` at
+`9e58312d130809eb8cd878189b729f1f702291d8` includes version-two automatic order
+completion after verified recipient handoff. As of this review, GitHub `main`
+was `f001d396b0e9ea6bfc2fdeb85ee24b66682b997e`; the feature branch was two
+commits ahead and had not been merged or confirmed deployed. The Rider client
+displays the returned commercial status and does not issue a buyer-confirmation
+command. COD remittance remains independent. This is source evidence, not Azure
+acceptance.
 
 ## Required before Azure parcel writes
 
@@ -37,8 +49,10 @@ unless implementation or verification exposes a specific gap.
   Trips and private-proof response behavior on that deployment.
 - [ ] Controlled pickup/departure/COD/failure and original-key replay agree with
   the owning hub/buyer/cash records, with exactly one intended state transition.
-- [ ] Actual hub receipt and buyer completion are independently observed through
-  their owning workflows where required; a mobile button cannot manufacture them.
+- [ ] Actual hub receipt is observed through its owning workflow. Verify order
+  completion against the deployed flow version: newer orders may auto-complete
+  from verified recipient evidence; older orders retain buyer-owned completion
+  where required. A mobile button cannot manufacture either result.
 - [ ] Existing publicly exposed historical proof has the operator's separate
   release/retention review; this mobile task authorizes no deletion or migration.
 

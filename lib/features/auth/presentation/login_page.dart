@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/platform/rider_website.dart';
+import '../../workspace/presentation/workspace_widgets.dart' show WebsiteButton;
 import 'widgets/auth_field.dart';
 import 'widgets/auth_shell.dart';
 import 'auth_controller.dart';
@@ -128,23 +130,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       ),
                     ),
                   );
-                  final recovery = RiderPressFeedback(
-                    child: TextButton(
-                      onPressed: () => showAuthPreviewMessage(
-                        context,
-                        title: 'Password recovery',
-                        message:
-                            'Password recovery is handled by the Bagoo website. '
-                            'Use its Forgot password page to request a reset. This page does not send recovery emails.',
-                      ),
-                      child: const Text(
-                        'Forgot password?',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
+                  const recovery = WebsiteButton(
+                    key: ValueKey('login-password-recovery'),
+                    page: RiderWebsitePage.recovery,
+                    label: 'Forgot password?',
                   );
                   if (constraints.maxWidth < 300 ||
                       MediaQuery.textScalerOf(context).scale(13) > 18) {
@@ -161,6 +150,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     children: [remember, recovery],
                   );
                 },
+              ),
+              const SizedBox(height: 20),
+              const WebsiteButton(
+                key: ValueKey('login-custody-recovery'),
+                page: RiderWebsitePage.custodyRecovery,
+                label: 'Recover parcels or cash',
               ),
               const SizedBox(height: 20),
               if (session.notice != null) ...[

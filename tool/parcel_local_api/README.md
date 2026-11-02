@@ -26,9 +26,9 @@ durable source uniqueness, exact displayed reads, retained command recovery,
 foreign denial and unchanged parcel/cash state.
 
 Requires Composer development dependencies in that backend, PHP with `pdo_sqlite`,
-Node 22 or newer and the Flutter/Linux toolchain. A Linux display and native
-secret service are needed for the native runner. A virtual display keeps the
-test window away from the active desktop; where `xvfb-run` is available:
+Node 22 or newer and the Flutter toolchain. Linux integration suites that target
+`-d linux` need a Linux display and native secret service. A virtual display
+keeps the test window away from the active desktop; where `xvfb-run` is available:
 
 ```sh
 xvfb-run -a node tool/parcel_local_api/run.mjs ../bagoo
@@ -38,6 +38,37 @@ The [company suite](../company_local_api/README.md) is a windowless exception:
 it uses native Dart HTTP with an explicit in-memory secure-storage adapter.
 It checks current account/financial reads and exact company consent against
 the same isolated Laravel kernel. It needs no display or native secret service.
+
+For PC-only final-mile parcel checks, run the focused headless suite:
+
+```sh
+node tool/parcel_local_api/run.mjs ../bagoo parcel-headless 9e58312d130809eb8cd878189b729f1f702291d8
+```
+
+It uses synthetic parcels and in-memory secure storage to check destination-hub
+departure, exact COD recipient/tender/change/proof evidence, lost-response
+reconciliation and same-key/body/proof replay. On the pinned backend revision,
+verified recipient handoff completes the COD order and marks it paid while rider
+cash remains unreconciled. The test checks one delivery and cash event, retained
+private Trips proof bytes and hash, and no public proof. It then checks a failed
+attempt, owning-hub return, approved retry, retained attempt proof and denial to
+a different rider through the real Laravel kernel. The run opens no app window
+and needs no connected phone, display server or native secret service. The full
+native parcel suite below still covers the wider workflow on a Linux target.
+
+For windowless paid Wallet client acceptance, use the shared Wallet scenario
+with the in-memory secure-storage test adapter:
+
+```sh
+node tool/parcel_local_api/run.mjs ../bagoo prepaid-headless 9e58312d130809eb8cd878189b729f1f702291d8
+```
+
+It exercises lost-response reconciliation, exact replay, one completed paid
+order, one Wallet receipt, zero COD accounts, the original recipient and
+hash-matched private Trips proof. It uses the real Flutter repository/Dio client
+and Laravel kernel but does not test the operating system secure-storage plugin.
+The separate `prepaid` Linux integration suite retains that plugin-backed check.
+Neither PC path enables live writes or replaces Android acceptance.
 
 The backend checkout is read-only. The runner archives a fixed committed revision
 and binds copied Composer metadata to that snapshot; installed dependency
@@ -72,19 +103,29 @@ required in the [selected plan](../../docs/plans/rider-orders-delivery-trips/REA
 
 ## Paid Wallet extension
 
+The windowless client-to-kernel check is suitable when no desktop window or
+native secret service should be used:
+
 ```sh
-xvfb-run -a node tool/parcel_local_api/run.mjs ../bagoo prepaid
+node tool/parcel_local_api/run.mjs ../bagoo prepaid-headless 9e58312d130809eb8cd878189b729f1f702291d8
+```
+
+It uses the in-memory secure-storage test adapter; it does not replace the
+platform-backed integration check below.
+
+```sh
+xvfb-run -a node tool/parcel_local_api/run.mjs ../bagoo prepaid 9e58312d130809eb8cd878189b729f1f702291d8
 ```
 
 This uses the owning Wallet credit/payment and normal hub assignment workflows,
 then the real native departure/delivery endpoints without cash fields. It checks
-lost-result recovery, exact original proof/UUID replay, one handover receipt and
-zero COD accounts. At the reviewed backend revision it also reproduces a 404
-retained Wallet proof response and an absent original recipient. The diagnostic
-exit does not accept those gaps or enable live writes. After owner fixes,
-strengthen the retained-evidence assertions and rerun. See the
+lost-result recovery and exact original proof/UUID replay, then requires one
+completed paid order, one handover receipt, zero COD accounts, the original
+recipient and the exact original private proof bytes/hash from Trips. The check
+passed against the pinned Bagoo source revision. It remains isolated software
+acceptance; it does not enable live writes or prove an Azure deployment. See the
 [prepaid verification](../../docs/plans/prepaid-delivery/VERIFICATION.md) and
-[owner checklist](../../docs/api/PREPAID_DELIVERY_NEEDS.md).
+[source/deployment checklist](../../docs/api/PREPAID_DELIVERY_NEEDS.md).
 
 
 ## Cash & Remittance extension

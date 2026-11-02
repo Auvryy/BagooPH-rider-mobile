@@ -43,8 +43,10 @@ outcome controllers/views; coordinate changes to the common journal/transport.
   real authorized test parcels; no gallery/typed substitution is presented as scan.
 - Azure pickup/depart/delivery/failure results match the hub/buyer/cash records and
   original command result. Replays add no extra outcome, attempt or collection.
-- Buyer completion, return-hub receipt and retry/reconciliation remain separate
-  actors' actions. Native ordinary/restricted gates continue to enforce that.
+- The Rider app has no buyer-confirmation command. The server may automatically
+  complete a newer flow-version order after verified handoff; return-hub receipt,
+  retry and COD remittance remain separate owning-role actions. Native
+  ordinary/restricted gates continue to enforce their permissions.
 
 Do not claim complete from mocked success or an APK build. Historical public
 proof cleanup is a separate operator-reviewed release gate, not authorized here.

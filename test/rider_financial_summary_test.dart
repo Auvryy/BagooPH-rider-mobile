@@ -21,7 +21,7 @@ void main() {
           'basis': 'original_delivery_earnings_ledger',
         });
         final shift = RiderShiftSummary.fromJson({
-          'shift_id': 8,
+          'shift_id': '7a1ecf31-23f6-4eb1-89e4-6a565f400001',
           'started_at': '2026-10-29T01:00:00.000Z',
           'collected_cents': '12500',
           'remitted_cents': '0',

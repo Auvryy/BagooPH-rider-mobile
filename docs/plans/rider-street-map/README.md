@@ -3,20 +3,25 @@
 ## Current scope
 
 The user's revised direction supersedes the earlier provider-backed map design:
-web and mobile both use Leaflet 1.9.4 with unfiltered standard OpenStreetMap light
-tiles. The same public sample path connects a sample rider to a sample delivery
-point. It is visibly labelled as an illustration, without live GPS, task IDs,
-logistics hubs or a claimed delivery. Reference applications remain read-only.
-The path is illustrative; it is not certified road geometry or turn-by-turn advice.
+the Android Rider app and phone-responsive Courier website use Leaflet with
+standard OpenStreetMap light tiles. The same public sample path connects a
+sample rider to a sample delivery point. It is visibly labelled as an
+illustration, without live GPS, task IDs, logistics hubs or a claimed delivery.
+Reference applications remain read-only. The path is illustrative; it is not
+certified road geometry or turn-by-turn advice.
 
-The mobile map bundles Leaflet and its BSD-2-Clause licence and runs trusted local
-HTML/JavaScript through webview_all 1.4.6 (MIT). Android uses the system WebView;
-Linux uses WebKitGTK 4.1. Both render the same light map, dashed red sample line,
-white controls and visible attribution. Native tiles use an app-identifying user
-agent and normal web-view caching. No bulk fetching, offline tile pack, map key,
-external script/font download or account token enters the map document. Its CSP
-allows only tile images and the local embedded scripts/styles/font. Top-level
-external navigation is blocked; the fixed copyright link opens deliberately.
+The Android app bundles Leaflet and its BSD-2-Clause licence and runs trusted
+local HTML/JavaScript through webview_all 1.4.6 (MIT) in Android System WebView.
+Linux Device Preview deliberately uses a separate FlutterMap renderer: its GTK
+WebView is a native overlay that cannot reliably follow Device Preview's
+simulated phone viewport. Both paths use the same light OSM tiles and sample
+coordinates, but their renderers and controls differ. A Linux preview or Linux
+map integration run therefore does not verify Android's Leaflet/WebView
+integration or lifecycle behavior. The Courier website uses its own browser
+Leaflet map. No bulk fetching, offline tile pack, map key, external script/font
+download or account token enters the Android map document. Its CSP allows only
+tile images and the local embedded scripts/styles/font. Top-level external
+navigation is blocked; the fixed copyright link opens deliberately.
 
 Map load/permission failures cannot change parcel custody or operation results.
 The public sample requests no device location. Retry replaces and closes the old
@@ -34,8 +39,47 @@ directions retain their authorization/revalidation checks. The sample never
 substitutes for delivery confirmation, a scan, a custody event or a dispatch route.
 Existing account, duty, claim, proof, payment and recovery gates remain authoritative.
 
+## Public tile-service constraint
+
+Rider requests standard OpenStreetMap raster tiles for the map currently in view.
+The Android WebView sets an app-identifying User-Agent; the Linux FlutterMap
+fallback sets its current package identity and uses `flutter_map`'s built-in
+cache, which follows HTTP freshness headers and falls back to seven days when
+they are insufficient. The map offers no offline download or bulk-prefetch
+feature. The [OpenStreetMap Foundation tile policy](https://operations.osmfoundation.org/policies/tiles/)
+requires the correct HTTPS endpoint, visible attribution, an identifying client,
+and cache-aware normal interactive use. It describes its public tile service as
+best-effort with no SLA and says access may be blocked if use harms the service.
+
+For a low-volume, human-viewed thesis demonstration, this use appears consistent
+with the policy's permitted normal interactive viewing; that is an inference,
+not a service guarantee. Before broad public rollout, review traffic and select
+a hosted tile service with suitable terms or self-hosting.
+Changing the provider requires rechecking attribution, caching, request
+identification, and the location-data disclosure. Android request and cache
+behavior remain a physical-device acceptance item.
+
 Source review: web branch through `9d8cff2`, mobile through `e3a5818`, October 25,
 2026. No Azure deployment or live parcel/account/cash command was performed.
+
+Renderer follow-up: rechecked Rider source at `9d7e8cf` and Bagoo `main` at
+`f001d396` on November 1, 2026. Android selects the embedded Leaflet WebView;
+Linux Device Preview selects the FlutterMap fallback in
+`native_delivery_map.dart`. The Courier page uses browser Leaflet. See the
+[defense rehearsal](../rider-workflow-recovery/REHEARSAL.md) for the PC-preview
+limit and source mapping.
+
+## Map data disclosure
+
+OpenStreetMap receives tile requests for the map area displayed in Rider or
+Courier web. The requested tile coordinates and source IP address can reveal the
+approximate area to the tile provider. The map displays a saved stop or a
+labelled sample path. It does not request live rider GPS. When a rider explicitly
+opens current-stop External directions, Google Maps receives the saved stop
+address or
+coordinates. The default Rider road-routing provider is unavailable, so the
+app does not send current GPS coordinates to a road-routing service or provide
+in-app GPS-follow/rerouting navigation.
 
 ## Mobile visual direction
 
@@ -48,12 +92,15 @@ map area, including 200% text. Desktop keeps the task column beside the map.
 
 ## Verification
 
-The local renderer runtime checks verify the OSM tile URL, sample geometry,
-endpoint labels, bounded errors, attribution events and cleanup without opening
-a browser. Flutter checks cover bundled document/CSP/font, key-free startup,
-renderer retry, stale callbacks, lifecycle cleanup, responsive task/notification
-controls, owned parcel details and absence of automatic GPS acquisition. Actual
-native touch/permission/performance acceptance remains a physical-device check.
+The local Leaflet renderer runtime checks verify the OSM tile URL, sample
+geometry, endpoint labels, bounded errors, attribution events and cleanup
+without opening a browser. Flutter widget checks cover the bundled Android
+document/CSP/font, key-free startup, renderer retry, stale callbacks, lifecycle
+cleanup, responsive task/notification controls, owned parcel details and absence
+of automatic GPS acquisition. The Linux map widget/integration path exercises
+the FlutterMap Device Preview fallback, not the Android WebView renderer. Actual
+Android touch, WebView lifecycle and performance acceptance remain a
+physical-device check.
 Final verification passed **631 Flutter tests with five skips**, plus both Node
 renderer runtime checks. Flutter analysis found no issues. Linux and Android
 debug builds passed with the key-free local rider configuration. Android emitted

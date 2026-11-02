@@ -3,7 +3,7 @@
 From the Rider repository root, open the normal Azure app in a PC phone frame:
 
 ```sh
-flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.geoapify.json
+flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.rider.json
 ```
 
 Open Profile → Cash & Remittance. A fresh operations-v1 session and actual cash
@@ -25,6 +25,13 @@ flutter analyze --no-pub
 flutter test --no-pub
 ```
 
+The pending-offer website handoff has a focused headless regression in the cash
+page suite:
+
+```sh
+flutter test --no-pub --concurrency=1 test/cash_pages_test.dart --reporter=expanded
+```
+
 The selected [native runner](../../../tool/parcel_local_api/README.md) exercises
 the actual Laravel kernel from an immutable committed snapshot. It creates two
 synthetic COD deliveries through their owning workflows and tests real native
@@ -32,14 +39,16 @@ cash reads/offers, original interrupted-request recovery/replay, independent
 owning hub HTTP receipts, a shortage, journal parity and denied foreign access.
 
 ```sh
-xvfb-run -a node tool/parcel_local_api/run.mjs ../bagoo cash
+xvfb-run -a node tool/parcel_local_api/run.mjs ../bagoo cash 9e58312d130809eb8cd878189b729f1f702291d8
 ```
 
 A virtual display keeps the native test off the active desktop. The runner
-requires the existing Composer development dependencies, PHP SQLite, Node and
+pins the current reviewed Wallet/handover source branch. It requires the
+existing Composer development dependencies, PHP SQLite, Node and
 Flutter/Linux toolchain with native secure storage. It restricts all state to
 SQLite `:memory:` and isolated files; the runtime is removed on exit. It cannot
 target Azure and does not read the ordinary rider's saved login or map key.
+The November 1 PC run passed **1/1** on Bagoo source `9e58312d130809eb8cd878189b729f1f702291d8`; its native Linux client ran under Xvfb, with the fixture container capped at 768 MB and the build limited to one worker. The rider's fully receipted COD parcel released **₱25.00** in delivery earnings; the short-paid parcel retained **₱25.00** pending. `dart analyze integration_test/cash_local_api_test.dart` reported no issues.
 
 ## Separate operating acceptance
 

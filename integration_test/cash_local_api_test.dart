@@ -216,9 +216,12 @@ void main() {
         final beforeReceipts = await control('cash_snapshot');
         expect(beforeReceipts['commands'], 2);
         for (final row in beforeReceipts['accounts'] as List) {
+          expect(row['flow_version'], 2);
           expect(row['offers'], 1);
           expect(row['receipts'], 0);
           expect(row['remitted_cents'], '0');
+          expect(row['order_status'], 'completed');
+          expect(row['payment_status'], 'paid');
           expect(row['web_parity'], isTrue);
         }
         await control('cash_receive', {'which': 'cash_one'});
@@ -234,10 +237,35 @@ void main() {
         expect(receivedSecond.status, 'difference');
         expect(receivedSecond.discrepancies.single.cents, BigInt.from(-100));
         expect(receivedSecond.history.last.discrepancy, BigInt.from(-100));
+        expect(receivedFirst.earnings.confirmed, greaterThan(BigInt.zero));
+        expect(receivedFirst.earnings.pending, BigInt.zero);
+        expect(
+          receivedFirst.earnings.confirmed! - reviewedFirst.earnings.confirmed!,
+          greaterThan(BigInt.zero),
+        );
+        expect(
+          receivedSecond.earnings.confirmed,
+          reviewedSecond.earnings.confirmed,
+        );
+        expect(receivedSecond.earnings.pending, greaterThan(BigInt.zero));
+        expect(
+          receivedSecond.earnings.pending,
+          reviewedSecond.earnings.pending,
+        );
         final summary = await repo.cashPage(query: first['tracking'] as String);
         expect(summary.items.single.id, firstId);
         expect(summary.held, BigInt.from(100));
         expect(summary.unresolved, 1);
+        expect(summary.earnings.available, isTrue);
+        expect(
+          summary.earnings.confirmed,
+          receivedFirst.earnings.confirmed! +
+              receivedSecond.earnings.confirmed!,
+        );
+        expect(
+          summary.earnings.pending,
+          receivedFirst.earnings.pending! + receivedSecond.earnings.pending!,
+        );
 
         for (final original in [originalFirst, originalSecond]) {
           final replay = await auth.authenticatedRequest(
@@ -305,8 +333,9 @@ void main() {
           expect(row['offers'], 1);
           expect(row['receipts'], 1);
           expect(row['reconciled_cents'], '0');
-          expect(row['order_status'], 'delivered');
-          expect(row['payment_status'], 'pending');
+          expect(row['flow_version'], 2);
+          expect(row['order_status'], 'completed');
+          expect(row['payment_status'], 'paid');
           expect(row['delivered'], 1);
           expect(row['web_parity'], isTrue);
         }
@@ -334,10 +363,14 @@ void main() {
         final other = await auth.authenticatedRequest('rider/cash');
         expect(other['data']['items'], isEmpty);
         expect(other['data']['summary']['own_held_cents'], '0');
-        expect(other['data']['earnings'], {
-          'available': false,
-          'confirmed_cents': null,
-        });
+        final otherEarnings = other['data']['earnings'] as Map;
+        expect(otherEarnings['available'], isTrue);
+        expect(
+          BigInt.parse(otherEarnings['confirmed_cents'] as String),
+          greaterThan(BigInt.zero),
+        );
+        expect(otherEarnings['pending_cents'], '0');
+        expect(otherEarnings['basis'], 'original_delivery_earnings_ledger');
         expect((await control('cash_snapshot'))['commands'], 2);
         final out = File('build/cash-verification/native-result.json');
         await out.parent.create(recursive: true);
@@ -354,14 +387,28 @@ void main() {
             'filtered_all_owned_summary': true,
             'foreign_denied': true,
             'web_parity': true,
-            'buyer_completed': false,
+            'flow_version': 2,
+            'order_status': 'completed',
+            'payment_status': 'paid',
+            'cod_delivery_released_earnings_cents':
+                (receivedFirst.earnings.confirmed! -
+                        reviewedFirst.earnings.confirmed!)
+                    .toString(),
+            'shortage_cod_delivery_released_earnings_cents':
+                (receivedSecond.earnings.confirmed! -
+                        reviewedSecond.earnings.confirmed!)
+                    .toString(),
+            'shortage_delivery_pending_earnings_cents': receivedSecond
+                .earnings
+                .pending
+                .toString(),
             'cash_reconciled': false,
             'azure_accepted': false,
             'physical_android_accepted': false,
           }),
         );
         debugPrint(
-          'Native cash recovery, original replay, independent hub receipts, signed shortage and web journal parity passed. No live activation.',
+          'Native version-two COD recovery passed: full hub receipt released only its delivery earnings; the short-paid parcel retained cash responsibility and pending delivery earnings. No live activation.',
         );
       } finally {
         if (journal != null) {

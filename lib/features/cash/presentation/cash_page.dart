@@ -6,9 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/presentation/auth_controller.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/platform/rider_website.dart';
 import '../../../core/commands/parcel_validation.dart';
 import '../../../core/ui/rider_surfaces.dart';
 import '../../workspace/presentation/workspace_controller.dart';
+import '../../workspace/presentation/workspace_widgets.dart' show WebsiteButton;
 import '../../workspace/data/workspace_models.dart';
 import '../data/cash_models.dart';
 import 'cash_controller.dart';
@@ -465,11 +467,24 @@ class _CashPageViewState extends State<CashPageView>
                 const Text(
                   'This is an offer, not a confirmed remittance. Only the recipient’s separate receipt changes the held and received balances.',
                 ),
+                const SizedBox(height: 12),
+                const WebsiteButton(
+                  key: ValueKey('cash-manage-pending-offer'),
+                  page: RiderWebsitePage.cash,
+                  label: 'Review or cancel the offer on the website',
+                ),
+                const Text(
+                  'The website checks whether this unconfirmed offer can be cancelled. Cash remains with its recorded holder until a separate receipt. Return here and refresh to see confirmed changes.',
+                ),
               ]),
             if (c.repository?.cashWritesVerified != true)
               _panel(context, 'Cash offers unavailable', [
                 const Text(
                   'You can review real cash records. Offers are awaiting service acceptance verification.',
+                ),
+                const WebsiteButton(
+                  page: RiderWebsitePage.cash,
+                  label: 'Open cash handovers on the website',
                 ),
               ])
             else if (detail.canOffer && detail.pending == null)

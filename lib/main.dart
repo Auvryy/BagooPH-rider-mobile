@@ -104,7 +104,12 @@ class _BagooRiderAppState extends ConsumerState<BagooRiderApp>
       title: 'BagooPH Rider',
       debugShowCheckedModeBanner: false,
       locale: widget.useDevicePreview ? DevicePreview.locale(context) : null,
-      builder: widget.useDevicePreview ? DevicePreview.appBuilder : null,
+      builder: (context, child) {
+        final previewChild = widget.useDevicePreview
+            ? DevicePreview.appBuilder(context, child)
+            : child ?? const SizedBox.shrink();
+        return _AppPrivacyCover(child: previewChild);
+      },
       theme: buildRiderTheme(),
       highContrastTheme: buildRiderTheme(highContrast: true),
       scrollBehavior: const RiderScrollBehavior(),
@@ -116,6 +121,99 @@ class _BagooRiderAppState extends ConsumerState<BagooRiderApp>
       },
     );
   }
+}
+
+class _AppPrivacyCover extends StatefulWidget {
+  const _AppPrivacyCover({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_AppPrivacyCover> createState() => _AppPrivacyCoverState();
+}
+
+class _AppPrivacyCoverState extends State<_AppPrivacyCover>
+    with WidgetsBindingObserver {
+  bool _foreground =
+      WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final foreground = state == AppLifecycleState.resumed;
+    if (mounted && _foreground != foreground) {
+      setState(() => _foreground = foreground);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => Stack(
+    fit: StackFit.expand,
+    children: [
+      ExcludeSemantics(
+        excluding: !_foreground,
+        child: IgnorePointer(ignoring: !_foreground, child: widget.child),
+      ),
+      if (!_foreground) const Positioned.fill(child: _AppPausedCover()),
+    ],
+  );
+}
+
+class _AppPausedCover extends StatelessWidget {
+  const _AppPausedCover();
+
+  @override
+  Widget build(BuildContext context) => ColoredBox(
+    color: RiderColors.canvas,
+    child: SafeArea(
+      child: Center(
+        child: Semantics(
+          container: true,
+          liveRegion: true,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.lock_outline_rounded,
+                  size: 36,
+                  color: RiderColors.accentText,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Rider is paused',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: RiderColors.ink,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Return to Rider to continue.',
+                  style: Theme.of(context).textTheme.bodyMedium
+                      ?.copyWith(color: RiderColors.muted),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 class AccountGate extends ConsumerWidget {

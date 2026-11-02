@@ -1,5 +1,7 @@
 import 'support/onboarding_support.dart';
 
+import 'package:bagoo_rider_mobile/core/platform/rider_website.dart';
+
 import 'package:bagoo_rider_mobile/features/auth/presentation/widgets/auth_field.dart';
 import 'package:bagoo_rider_mobile/main.dart';
 import 'package:file_selector_platform_interface/file_selector_platform_interface.dart';
@@ -10,6 +12,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bagoo_rider_mobile/features/auth/presentation/auth_controller.dart';
 
 import 'support/test_auth_repository.dart';
+
+class _RecoveryLauncher implements WebsiteLauncher {
+  final opened = <Uri>[];
+  @override
+  Future<bool> open(Uri uri) async {
+    opened.add(uri);
+    return true;
+  }
+}
 
 Finder field(String label) => find.descendant(
   of: find.byWidgetPredicate(
@@ -26,6 +37,7 @@ Future<void> openApp(
   String route = '/',
   TestAuthRepository? repository,
   bool skipOnboarding = true,
+  WebsiteLauncher? launcher,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -41,6 +53,8 @@ Future<void> openApp(
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
+        if (launcher != null)
+          websiteLauncherProvider.overrideWithValue(launcher),
         authRepositoryProvider.overrideWithValue(
           repository ?? TestAuthRepository(),
         ),
@@ -104,13 +118,14 @@ void main() {
   testWidgets(
     'login links open registration and recovery without a fake account',
     (tester) async {
-      await openApp(tester);
+      final launcher = _RecoveryLauncher();
+      final repository = TestAuthRepository();
+      await openApp(tester, launcher: launcher, repository: repository);
       await tapVisible(tester, find.text('Forgot password?'));
-      expect(
-        find.textContaining('does not send recovery emails'),
-        findsOneWidget,
-      );
-      await tapVisible(tester, find.text('Back to preview'));
+      expect(launcher.opened.single.path, '/forgot-password');
+      expect(repository.loginCalls, 0);
+      expect(repository.registrationCalls, 0);
+      expect(find.text('Welcome back.'), findsOneWidget);
       await tapVisible(tester, find.byKey(const ValueKey('open-register')));
       expect(find.text('Let’s get to know you.'), findsOneWidget);
       await tapVisible(tester, find.byTooltip('Back to sign in'));
@@ -387,6 +402,50 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets('inactive cover blocks pushed private routes and restores them', (
+    tester,
+  ) async {
+    await openApp(tester);
+    var privateRouteTaps = 0;
+    final navigator = tester.state<NavigatorState>(
+      find.byType(Navigator).first,
+    );
+    navigator.push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => Scaffold(
+          body: Center(
+            child: ElevatedButton(
+              key: const ValueKey('privacy-test-private-detail'),
+              onPressed: () => privateRouteTaps++,
+              child: const Text('Private rider detail'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Private rider detail'), findsOneWidget);
+
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    await tester.pumpAndSettle();
+    expect(find.text('Rider is paused'), findsOneWidget);
+    final semantics = tester.ensureSemantics();
+    expect(find.semantics.byLabel('Private rider detail'), findsNothing);
+    semantics.dispose();
+    await tester.tap(
+      find.byKey(const ValueKey('privacy-test-private-detail')),
+      warnIfMissed: false,
+    );
+    expect(privateRouteTaps, 0);
+
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pumpAndSettle();
+    expect(find.text('Rider is paused'), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('privacy-test-private-detail')));
+    expect(privateRouteTaps, 1);
+    expect(tester.takeException(), isNull);
+  });
 
   for (final size in [
     const Size(320, 568),

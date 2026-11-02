@@ -45,11 +45,11 @@ chat acceptance.
 
 ## PC phone-frame review
 
-From the Rider Mobile repository root, with the existing ignored map
+From the Rider Mobile repository root, with the existing ignored Rider
 configuration:
 
 ```sh
-flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.geoapify.json
+flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.rider.json
 ```
 
 This opens the ordinary Azure-connected app inside a phone layout frame. Sign in

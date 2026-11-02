@@ -14,6 +14,7 @@ import '../../workspace/presentation/workspace_controller.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
 import '../data/operations_models.dart';
 import 'home_task_panel.dart' show stopKindLabel;
+import 'doorstep_guide.dart';
 import 'task_payment_instruction.dart';
 import 'stop_guidance.dart';
 import 'task_stage_label.dart';
@@ -649,23 +650,12 @@ class _StopModePageState extends State<StopModePage>
       children: [
         Text('Next step', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
-        Text(task.nextInstruction, key: const ValueKey('stop-instruction')),
+        Text(taskInstruction(task), key: const ValueKey('stop-instruction')),
         const SizedBox(height: 12),
         Text('Next responsible actor: ${nextActorLabel(task)}'),
         const SizedBox(height: 12),
         Text(legGuide(task)),
-        if (!task.preview && _text(task.stop.instructions) != null) ...[
-          const SizedBox(height: 20),
-          Text(
-            task.stop.kind == 'buyer' ? 'Doorstep Guide' : 'Stop instructions',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
-          SelectableText(
-            task.stop.instructions!,
-            key: const ValueKey('stop-notes'),
-          ),
-        ],
+        DoorstepGuide(task: task),
       ],
     ),
   );

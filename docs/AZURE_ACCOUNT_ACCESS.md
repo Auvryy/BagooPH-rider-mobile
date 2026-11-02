@@ -21,8 +21,11 @@ flutter run -d linux --dart-define-from-file=config/azure.json
 For an authorized Android phone, select its device in Flutter and use the same
 profile. Native sessions use platform secure storage. Android has Internet
 permission, disables application backup and requires encrypted network traffic
-in release/profile. Debug builds permit local HTTP only when the existing
-loopback-only app configuration is explicitly selected.
+in release/profile. The Rider API origin validator accepts debug HTTP only when
+the loopback-only local-auth configuration is explicitly selected. The Android
+debug manifest permits cleartext at the platform level by default; that broader
+setting is not itself a localhost-only restriction. A restricted debug build
+can disable it as described in [Android packaging](ANDROID_RELEASE.md).
 
 Ordinary Android/Linux builds have no sample login or workspace route. Historical
 Home/workspace flags never disable the account API; the old workspace profile
@@ -118,14 +121,19 @@ flutter test integration_test/azure_account_test.dart -d linux --dart-define=LIV
 
 ## Build a device APK
 
+See [Android release packaging](ANDROID_RELEASE.md) for the approved package ID
+and local signing requirements before using this command:
+
 ```sh
 flutter build apk --release --dart-define-from-file=config/azure.json
 ```
 
 The package is `build/app/outputs/flutter-apk/app-release.apk`. The current
-Android scaffold signs release builds with the development debug key and uses
-the scaffold application identifier. This is a test build, not a store release.
-The compiled release APK has not been installed or exercised on the phone.
+Android release variant refuses to package until the approved application ID
+and local signing files in [Android release packaging](ANDROID_RELEASE.md)
+are configured. It never signs with the debug key. Earlier compiled APK evidence
+used the scaffold ID and debug signing and is not a distributable release. No
+new release APK was built in this configuration task, and no phone was used.
 
 ## Repeat controlled native checks
 

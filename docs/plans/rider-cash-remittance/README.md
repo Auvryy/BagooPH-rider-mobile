@@ -72,5 +72,6 @@ not activate it or change the user's private map/build configuration.
 
 See [testing](TESTING.md), [verification](VERIFICATION.md), and the
 [API acceptance checklist](../../api/CASH_REMITTANCE_NEEDS.md). The existing
-[Wallet retained-evidence requests](../../api/PREPAID_DELIVERY_NEEDS.md) remain
-open and separate from cash implementation.
+[Wallet source repair](../../api/PREPAID_DELIVERY_NEEDS.md) is implemented on
+the Bagoo review branch; deployed Wallet acceptance remains separate from this
+cash implementation.

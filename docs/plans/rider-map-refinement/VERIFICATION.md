@@ -1,5 +1,10 @@
 # Map refinement verification
 
+> **Historical verification (October 22, 2026).** These results describe the
+> then-current Geoapify/GPS implementation and do not verify today's map.
+> See the [current street-map plan](../rider-street-map/README.md) for current
+> renderer, disclosure, tile-service and acceptance evidence.
+
 Verified October 22, 2026 on `feat/home-rider-map-style`, from merged mobile
 `main` `b19a437`. The source stayed unchanged throughout the final analysis,
 full test run and native builds; the ignored check receipt records matching

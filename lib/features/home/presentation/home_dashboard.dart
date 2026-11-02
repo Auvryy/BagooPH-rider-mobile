@@ -124,6 +124,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
           ],
           if (stop != null) ...[
             const SizedBox(height: 12),
+            _mapAreaDisclosure(),
             SizedBox(height: 280, child: _mapView(stop: stop)),
             const SizedBox(height: 10),
             const Text(
@@ -153,6 +154,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
               ),
             ),
             if (_sampleExpanded) ...[
+              _mapAreaDisclosure(),
               SizedBox(height: 280, child: _mapView()),
               const SizedBox(height: 10),
               const Text(
@@ -178,6 +180,14 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
   Widget _mapView({SavedDeliveryStop? stop}) => _foreground
       ? LeafletDeliveryMap(key: const ValueKey('home-leaflet-map'), stop: stop)
       : const Center(child: Text('Map paused while the app is hidden.'));
+  Widget _mapAreaDisclosure() => const Padding(
+    padding: EdgeInsets.only(bottom: 8),
+    child: Text(
+      'OpenStreetMap receives requests for the displayed map tiles. Tile coordinates and source IP can reveal the approximate area. The map shows a saved stop or sample path, not live rider GPS.',
+      key: ValueKey('home-map-area-disclosure'),
+      style: TextStyle(fontSize: 11, height: 1.4, color: RiderColors.muted),
+    ),
+  );
   Widget _assignment() => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [

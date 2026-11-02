@@ -5,6 +5,37 @@ Selected October 22, 2026 from Rider main `a371e2e`; backend committed source
 read-only to this mobile task. Source compatibility, deployed acceptance and
 physical Android evidence are separate.
 
+## November 1 version-two compatibility follow-up
+
+- Rider commit `41f0fda` on `fix/rider-workflow-recovery` updates the cash
+  integration assertions for the current version-two contract and parses
+  backend rider-shift UUIDs instead of treating shift IDs as numeric. The
+  focused financial contract and summary tests passed (**8 tests**).
+- The headless cash-page widget file passed (**7 tests**), including the
+  pending-offer website handoff: it opens the fixed first-party `/cod` page
+  without account query parameters or a native POST. This verifies the Rider
+  handoff only; the website cancellation action still needs deployed acceptance.
+- The reviewed Bagoo checkout's `main` and `origin/main` are at `f001d39`.
+  The pushed source branch `fix/rider-wallet-trip-evidence` is at `9e58312`,
+  two commits ahead of that main snapshot. Its default version-two delivery
+  records the order as `completed`/`paid`; COD remains held until a separate
+  hub receipt, and unreleased delivery earnings remain pending.
+- The isolated native Linux COD scenario passed (**1/1**) against immutable
+  Bagoo source revision `9e58312d130809eb8cd878189b729f1f702291d8`. It used an
+  Xvfb virtual display, an in-memory SQLite Laravel kernel and a one-worker
+  Flutter build; no physical display, phone, Azure service or real cash was
+  used. Both original offer commands recovered after simulated request loss
+  and replayed after receipt. Two real owning-hub test actions received the
+  offers, including a signed **−₱1.00** shortage with **₱1.00** still held.
+  Order/payment state was `completed`/`paid`; the full receipt released
+  **₱25.00** for that parcel's delivery role, while the short-paid parcel kept
+  **₱25.00** pending. Pickup earnings were preserved, and foreign cash stayed
+  inaccessible. The report is in ignored `build/cash-verification/` output.
+- `dart analyze integration_test/cash_local_api_test.dart`: no issues. The
+  headless test verifies each parcel's earnings against its pre-receipt
+  baseline, so legitimate pickup earnings are not mistaken for COD delivery
+  earnings.
+
 ## Local implementation verified — October 22, 2026
 
 - `flutter analyze --no-pub`: no issues.

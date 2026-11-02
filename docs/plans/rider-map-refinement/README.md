@@ -1,5 +1,11 @@
 # Rider map refinement and foreground location
 
+> **Historical map/location design (superseded October 25, 2026).** The
+> Geoapify basemap, rider-location snapshot and route presentation below are
+> not current Rider behavior. Current maps use OpenStreetMap tiles and do not
+> request live GPS; default in-app road routing is unavailable. See the
+> [current street-map plan](../rider-street-map/README.md).
+
 Selected October 22, 2026 on `feat/home-rider-map-style`, from merged mobile
 `main` `b19a437`. Estimate: **6 client hours**, October 22–24, Asia/Manila.
 State: **implemented and locally verified**. See the
@@ -79,5 +85,5 @@ geography. Ordinary builds retain Azure login and their existing command gates.
 Run from the Rider repository root for the PC phone frame:
 
 ```sh
-flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.geoapify.json
+flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.rider.json
 ```

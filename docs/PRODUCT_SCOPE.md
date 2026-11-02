@@ -47,9 +47,16 @@ the system browser, keep credentials out of URLs, and let web authentication
 remain separate. A mobile registration API must be explicitly planned if a
 fully native onboarding demonstration is required.
 
-Maps enhance the baseline when approved and configured; textual stops and
-external directions must work independently. The web rider map contract needs a
-Flutter implementation decision, not a copied Leaflet component.
+The current map shows an authorized saved stop or a labelled sample path. Android
+and Courier web use Leaflet; Linux Device Preview uses FlutterMap so the map
+stays inside the simulated phone frame. Both request standard OpenStreetMap
+tiles. Rider explains that the displayed area and source IP can be exposed to
+the tile provider before its map loads; textual stops remain available when
+tiles fail. In-app road routing and GPS follow are unavailable by default.
+External directions remain an explicit Google Maps handoff with a destination
+disclosure. See the
+[current street-map plan](plans/rider-street-map/README.md) for provider and
+physical-acceptance limits.
 
 ## Selected frontend direction
 

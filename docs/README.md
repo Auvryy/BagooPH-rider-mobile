@@ -1,6 +1,6 @@
 # Rider documentation map
 
-Reviewed October 7, 2026. Working presentation target: **November 21, 2026**,
+Reviewed November 1, 2026. Working presentation target: **November 21, 2026**,
 Asia/Manila. Latest development deadline: **November 20**.
 
 BagooPH Rider Mobile is the dedicated Android client for approved pickup and
@@ -22,6 +22,7 @@ they do not authorize changing the backend or implementing every proposed featur
 | [SETTINGS.md](SETTINGS.md) | How are profile contact, password and additional-email forms prepared, and which backend/live checks remain? |
 | [SETTINGS_UX.md](SETTINGS_UX.md) | How does the compact mobile Settings hierarchy reduce scrolling and preserve readable actions? |
 | [AZURE_ACCOUNT_ACCESS.md](AZURE_ACCOUNT_ACCESS.md) | How do I run the native app against the deployed HTTPS account API, and which live/device checks passed? |
+| [ANDROID_RELEASE.md](ANDROID_RELEASE.md) | Which approved package ID and local signing settings are required for Android release packaging? |
 | [TASK_TRACKING.md](TASK_TRACKING.md) | What are the 16 major work areas, which screens belong to them, and how will later tasks/branches build and verify them? |
 | [SUBTASK_BACKLOG.md](SUBTASK_BACKLOG.md) | Which of the 180 detailed cards or 63 suggested batches can a later prompt select, with what dependencies, steps, checks and effort? |
 | [Plan registry](plans/README.md) | Where do separate implementation plans live, with their own files and ownership? |
@@ -63,6 +64,9 @@ workspace and approval holding/logout, bundled
 Bagoo branding and Plus Jakarta Sans, Android/Linux/web runners and an optional
 layout frame. Ordinary native runs connect directly to Azure. [Account access](ACCOUNT_ACCESS.md) records the implementation, local
 backend contract and checks. The [selected Home refinement](plans/home-dashboard-navigation/HOME_POLISH.md) connects v1 Home and queues and improves map/task interaction. [HDB-05](plans/home-dashboard-branch-plan/HDB-05-EVIDENCE.md) accepts native/website duty and pickup claims in the approved local build profile; parcel outcomes and later connected-record batches remain separate.
+Android release packaging requires a reviewed package ID and local signing
+setup; the debug APK remains buildable with the scaffold ID. See
+[Android release packaging](ANDROID_RELEASE.md).
 The account endpoints are available on Azure HTTPS, and native Android login,
 secure-session restoration and logout have passed. See the
 [deployment acceptance record](AZURE_ACCOUNT_ACCESS.md) for signup evidence and

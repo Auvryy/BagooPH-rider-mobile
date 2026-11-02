@@ -28,4 +28,32 @@ void main() {
       expect(config.websiteOrigin, isNull);
     }
   }, skip: !explicitApi);
+
+  test('rejects unsafe or malformed API origins', () {
+    for (final origin in [
+      'https:///api/v1',
+      'https://:443/api/v1',
+      'http://example.test/api/v1',
+      'http://localhost.example.test/api/v1',
+      'http://127.0.0.2/api/v1',
+      'https://user@example.test/api/v1',
+      'https://example.test/api/v1?token=example',
+      'https://example.test/api/v1#fragment',
+      'https://example.test/api/v2',
+    ]) {
+      expect(
+        () => AppConfig(origin, localAuth: true).origin,
+        throwsFormatException,
+        reason: origin,
+      );
+    }
+  });
+
+  test('loopback HTTP requires explicit local authentication', () {
+    for (final host in ['localhost', '127.0.0.1', '10.0.2.2']) {
+      final origin = 'http://$host:8000/api/v1';
+      expect(() => AppConfig(origin).origin, throwsFormatException);
+      expect(AppConfig(origin, localAuth: true).origin.toString(), origin);
+    }
+  });
 }

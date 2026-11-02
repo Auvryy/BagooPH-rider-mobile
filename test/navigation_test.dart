@@ -8,8 +8,10 @@ import 'package:bagoo_rider_mobile/features/navigation/data/geoapify_client.dart
 import 'package:bagoo_rider_mobile/features/navigation/data/navigation_location.dart';
 import 'package:bagoo_rider_mobile/features/navigation/data/route_geometry.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/navigation_controller.dart';
+import 'package:bagoo_rider_mobile/features/navigation/presentation/navigation_providers.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 
 OperationTask task({String id = '1', double latitude = 14.01}) {
@@ -97,6 +99,17 @@ class Location implements NavigationLocation {
 }
 
 void main() {
+  test(
+    'the default app route provider keeps in-app road routing unavailable',
+    () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final routes = container.read(roadRoutingProvider);
+      expect(routes, isA<UnavailableRoadRouting>());
+      expect(routes.configured, isFalse);
+    },
+  );
+
   test(
     'route geometry rejects ferry legs rather than drawing them as a road',
     () {

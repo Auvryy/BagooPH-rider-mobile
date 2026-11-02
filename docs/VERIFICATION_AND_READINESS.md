@@ -1,11 +1,269 @@
 # Verification and documentation assessment
 
+The onboarding Skip, Next and Sign in controls now explicitly use the bundled
+Rider font. The onboarding widget suite passed **10/10**, and a headless visual
+capture showed readable labels. The debug APK from `422a02c` includes this
+correction and passed the archive, metadata, architecture and signature checks.
+
+At Rider commit `74a30fc`, the full PC suite passed **719 tests with 9 skips**
+in 7m23s using `flutter test --no-pub --concurrency=1 --reporter=json test`.
+This includes the privacy-cover, Device Preview and API-origin checks. The
+opt-in defense-profile check is one of the skips and passed separately. This
+PC evidence does not establish physical Android behavior, deployed transactions, or release
+signing; those acceptance checks remain open.
+
+At documentation-only branch head `1f00aac`, `flutter analyze --no-pub`
+reported no issues in 11.0 seconds on the same runtime source.
+
+The alternate API-configuration test skipped by that default run also passed
+separately with a synthetic `https://example.invalid/api/v1` override and with
+an explicitly empty override (one passing case and one expected skip in each
+run). It checks configuration isolation and empty-origin rejection without a
+network request; it does not verify a deployed server.
+
+The three optional visual-review widget cases also passed with synthetic data
+and one test worker after updating their conversation fixture keys. A temporary
+copy of the test redirected captures to a temporary directory, preserving the
+existing captures. Tasks and Messages captures were inspected; these are PC
+renders, not Android device acceptance.
+
+The headless Device Preview lifecycle widget check passed **1/1**: the Rider
+sign-in surface is reachable while resumed, covered while inactive, and
+reachable again after resume. This exercises the Flutter preview wrapper; it
+does not launch a desktop window or verify Android lifecycle behavior.
+
+**Current status — November 2, 2026.** The scores and starter-screen statements
+below describe the October 5 planning snapshot, not current Rider behavior.
+An earlier full serial PC regression passed **715 tests with 8 skips and zero
+failures** in 5m14s using one Flutter test worker. It ran at Rider branch commit
+`f0de3a2` with runtime code `daacf85`, including the Doorstep Guide
+widget coverage. The preceding full run at `968e18f` passed 713 tests with the
+account-access photo cleanup follow-up; that source is published as `961d8b8`.
+The new
+fixture-dependent Wallet test is one of the skips in the ordinary suite; its
+isolated headless run passed separately. The expanded photo-recovery, parcel
+outcome, parcel workflow, workspace account-lifecycle, and Parcel Finder suites
+passed **45/45**; `flutter analyze --no-pub` reported no issues in 6.4s. At
+Rider commit `daacf85`, the focused Home and Stop Mode widget tests passed
+**46/46**, analysis was clean, and an earlier arm64 debug APK was built. Its ZIP,
+package/SDK metadata, ARM64 Flutter engine, APK v2 signature, and manifest
+permissions were checked; the scaffold package ID and Android Debug signer
+remain, and the APK was not installed. The profile APK remains the earlier build
+from `ba7823a`. The same-config fake-server activation test passed **2/2**,
+verifying duty and pickup-claim UI/flow gating without live writes. A fresh
+Linux Device Preview debug build also passed from the same runtime source with
+one Ninja job; it was not launched and does not verify Android's native renderer
+or lifecycle. No phone, ADB, emulator, install, or app window was used.
+
+The current branch has advanced beyond those test and APK revisions. Commit
+`4109b54` added the app-level inactive-state cover; `dart analyze lib/main.dart`
+reported no issues there. Commit `f02fd25` adds Android `FLAG_SECURE` while the
+activity is paused. The one-worker `:app:compileDebugKotlin` task succeeded
+with a 768 MiB heap cap, and an arm64 debug APK was built from `422a02c` and
+passed archive, package/SDK, ARM64-engine and APK v2 signature checks. It has
+the scaffold application ID and Android Debug signer and was not installed.
+See [current source and APK limits](ANDROID_RELEASE.md).
+
+A focused PC lifecycle widget check passed **1/1**. It confirms the Flutter
+cover hides semantics and blocks taps on a pushed route while inactive, then
+restores interaction on resume. It does not exercise Android `FLAG_SECURE` or
+the operating system's recent-app snapshot behavior.
+
+The subsequent serial auth, account lifecycle, workspace, onboarding and
+visual-review test run passed **45 tests, with 3 visual-review tests skipped**.
+The test fixtures explicitly start the simulated app lifecycle in `resumed`;
+the privacy assertion checks the emitted accessibility tree. This result is
+limited to those five files and does not replace the earlier full-suite run.
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact \
+  --plain-name='inactive cover blocks pushed private routes and restores them' \
+  test/auth_preview_test.dart
+```
+
+The new windowless Rider Wallet client scenario passed **1/1** in 35 seconds
+against Bagoo `9e58312d130809eb8cd878189b729f1f702291d8`. It verified lost-result
+reconciliation, exact replay, one completed paid order and Wallet receipt, zero
+COD accounts, and hash-matched retained private Trips proof with the original
+recipient. It uses an in-memory secure-storage test adapter, so it does not
+establish the Android or operating-system storage plugin.
+An unauthenticated, read-only request to the deployed Rider Home endpoint
+returned HTTP 401 JSON with `no-store, private` and `no-cache` headers and no
+redirect. It confirms endpoint response/auth behavior only, not sign-in or a
+live rider transaction.
+This is PC-only evidence: Android picker process-death behavior, Azure
+deployment, production cross-role acceptance, approved release identity and
+signing remain open. See [Android release packaging](ANDROID_RELEASE.md).
+
+An earlier full serial PC regression ran at historical test checkout `38e25cf` on
+`fix/rider-route-privacy-disclosure`. Runtime code was `9d7e8cf`; the latest
+test-source change at that checkout was `514e1cc` (Android scanner callback
+simulation). `flutter test --no-pub --concurrency=1 --reporter=compact test`
+passed **696 tests with 7 skips and zero failures** in 8m10s.
+`flutter analyze --no-pub` reported no issues in 11.1s. No phone, ADB,
+emulator, install, or app window was used.
+
+Later commits added PC widget-test coverage and, in local commit `a9b972d`, an
+accessible theme text adjustment. The historical 696-test result remains
+evidence for runtime code `9d7e8cf`; unlike the latest full run above, it
+predates the scanner layout and theme changes. Neither PC run establishes
+Android hardware, Azure deployment, or a release build.
+
+A focused PC accessibility/layout run then passed **71 tests** serially on the
+documentation-only branch head `ac1d55d`:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact \
+  test/home_overview_test.dart \
+  test/stop_mode_test.dart \
+  test/parcel_finder_pages_test.dart \
+  test/trips_pages_test.dart
+```
+
+The widget checks cover narrow/mobile and wider layouts, 200% text, scrolling,
+keyboard-safe Stop Mode content, and 48-pixel targets in the checked controls.
+Parcel Finder checks the selected slot's accessible name, enabled/selected
+state, focus, and tap action, including keyboard selection. A source scan found
+no Rider `IconButton` without an explicit tooltip. This is a focused PC widget
+subset, not a complete accessibility audit: Android TalkBack/focus behavior,
+physical-device review, and staging acceptance remain open. No phone, ADB,
+emulator, install, or app window was used.
+
+An expanded serial PC run passed **145 tests** across the remaining selected
+production-page suites at branch head `4f6a85d`:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact \
+  test/auth_preview_test.dart \
+  test/onboarding_test.dart \
+  test/workspace_pages_test.dart \
+  test/settings_layout_test.dart \
+  test/settings_pages_test.dart \
+  test/messages_pages_test.dart \
+  test/notifications_pages_test.dart \
+  test/cash_pages_test.dart \
+  test/rider_financial_summary_test.dart \
+  test/handover_pages_test.dart \
+  test/parcel_outcome_pages_test.dart \
+  test/parcel_workflow_test.dart \
+  test/company_pages_test.dart \
+  test/task_payment_instruction_test.dart \
+  test/waybill_scanner_android_test.dart
+```
+
+After adding scanner layout assertions, its updated widget file passed **3/3**
+tests, including 320×568 at 200% text and 430×932 at normal text with simulated
+safe-area insets. The fake Android camera platform verifies the 48-pixel Cancel
+control's accessible name/actions and that wrong-waybill feedback is announced
+as a live region.
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact \
+  test/waybill_scanner_android_test.dart
+```
+
+A targeted reduced-motion/high-contrast run passed **23 tests**:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact \
+  test/rider_surface_test.dart \
+  test/home_dashboard_test.dart \
+  test/app_theme_test.dart
+```
+
+Across the selected runs, **241 distinct PC test cases** passed; the count is
+not a coverage percentage. The checks include
+320–430 pixel layouts, 200% text, modeled keyboard/safe-area insets, selected
+48-pixel targets, named/focusable/tappable semantics, scanner live-region
+feedback, reduced-motion behavior and the high-contrast theme. Grayscale
+acceptance and full screen-reader order are not established. These fixture and
+widget checks do not replace Android TalkBack, physical permission/camera and
+device-layout review, or staging acceptance. This remains partial M16.07
+verification; the whole-app accessibility card remains open.
+
+After the accessibility changes, `flutter analyze --no-pub` reported no issues.
+
+The follow-up contrast and status-cue check passed **94 targeted PC tests** in
+theme, Home, notifications, handover, cash, company, parcel, settings, Trips,
+and scanner suites. The source review found status text alongside color/icon
+cues for duty availability, notification read state, handover recovery,
+cash/company status, parcel feedback, and scanner errors. Theme tests enforce at
+least 4.5:1 for normal text on the checked light surfaces: the text-only
+crimson `#C20836` is 5.45:1 on the blended 8% brand tint; muted `#62626B` is
+5.78:1 on the app canvas; white on the unchanged brand fill `#E00D42` is
+4.88:1. PC color math does not establish actual grayscale or physical-display
+rendering, so that M16.07 gate remains open.
+
+The 94-test pass used this serial PC-only command:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact \
+  test/app_theme_test.dart test/home_dashboard_test.dart \
+  test/notifications_pages_test.dart test/handover_pages_test.dart \
+  test/cash_pages_test.dart test/company_pages_test.dart \
+  test/parcel_outcome_pages_test.dart test/parcel_finder_pages_test.dart \
+  test/settings_pages_test.dart test/trips_pages_test.dart \
+  test/waybill_scanner_android_test.dart
+```
+
+Two further serial PC runs passed **129 core/responsive tests** and **80
+map/navigation tests** on the same theme revision. Together with the 94 tests
+above, these are **303 tests across disjoint selected suites**, not a complete
+app coverage claim. All used one Flutter test worker and no device or emulator.
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact \
+  test/auth_preview_test.dart test/onboarding_test.dart \
+  test/workspace_pages_test.dart test/messages_pages_test.dart \
+  test/home_overview_test.dart test/stop_mode_test.dart \
+  test/settings_layout_test.dart test/rider_surface_test.dart
+```
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact \
+  test/native_delivery_map_test.dart test/leaflet_delivery_map_test.dart \
+  test/navigation_banner_test.dart test/navigation_test.dart \
+  test/navigation_lifecycle_test.dart test/rider_map_refinement_test.dart \
+  test/philippines_map_test.dart
+```
+
+At the first post-publication GitHub fetch on November 1, Rider `main` was
+`4367331` and defense branch `fix/rider-route-privacy-disclosure` was `e099156`,
+54 commits ahead and 0 behind `main`. It included three commits since the
+previous published ref `2f8fc69`:
+the contrast fix and two evidence updates. The 699-test run at `fc99a02` records
+the published-branch result from that checkpoint. The 700-test run at `d04cb54`
+was a later local checkpoint and is superseded by the current 713-test result
+above. At the original full-test checkout,
+`38e25cf` was one documentation-only commit ahead of the then-published
+`514e1cc` and 44 commits ahead, 0 behind Rider `main`. Bagoo `main` was
+`f001d39`; its Wallet/handover source branch `9e58312` was 2 commits ahead,
+not merged or deployment evidence. Other focused evidence includes 42
+command/workflow/outcome tests at `3839de6`,
+20 proof-recovery/Trips tests at `cbd6b21`, 20 Parcel Finder tests at `d42c948`,
+six map-disclosure checks at `9d7e8cf`/`039d40d`, and one headless Rider-to-kernel
+scenario at `6a0ab47` against Bagoo `9e58312`. Earlier APKs described in this
+historical November 1 checkpoint have been superseded by the latest November 2
+builds from Rider commit `ba7823a`, whose Dart source is unchanged from
+`961d8b8`; see
+[Android release packaging](ANDROID_RELEASE.md) for sizes, hashes, metadata
+and signature checks. The current PC
+check found no `RIDER_APPLICATION_ID` and no `android/key.properties`, so these
+debug-signed scaffold-ID builds are not release artifacts and do not establish
+Android device acceptance.
+See the [current rehearsal and acceptance record](plans/rider-workflow-recovery/REHEARSAL.md),
+[selected workflow verification](plans/rider-workflow-recovery/VERIFICATION.md),
+and [Android packaging record](ANDROID_RELEASE.md). Azure, cross-role,
+release-signing, and physical Android acceptance remain open; phone testing is
+deferred.
+
 ## Readiness is evidenced behavior
 
-This docs branch improves the plan. It does not add runtime features, deploy an
-API, run native camera checks, or repair backend failures. The starter's previous
-Flutter analysis/Linux/web builds are historical evidence for the starter only.
-Record new verification when each implementation slice is completed.
+The October 5, 2026 planning-doc change improved the plan without adding runtime
+features, deploying an API, running native camera checks, or repairing backend
+failures. The starter's previous Flutter analysis/Linux/web builds were
+historical evidence for that starter only. Runtime and deployment acceptance
+must be recorded for the exact implementation slice.
 
 ## Acceptance matrix
 
@@ -15,7 +273,8 @@ Record new verification when each implementation slice is completed.
 | Privacy | Another account/company/hub/task/proof/thread denied; list/page/detail agree; no tokens/KYC/proof paths/contact leaks in JSON, logs or cache | Resource/policy tests + consumer DTO review |
 | Duty | One explicit desired state; failed response does not fake a toggle; new claims stop off duty while existing actions remain | API tests + task-controller/widget checks |
 | Claim | Two simultaneous riders, capacity reached, stale cancellation, wrong hub/company/barangay, one winner, no double assignment | Isolated PostgreSQL concurrency + cross-role acceptance |
-| Pickup | Genuine matching/wrong/malformed waybill; correct assigned actor/phase; duplicate result; wrong hub; release before/after custody | Backend transaction tests + phone scanner + origin web intake |
+| Pickup | Genuine matching/wrong/malformed waybill; correct assigned actor/phase; duplicate result; wrong hub; release before/after custody | Backend transaction tests + Android fake-platform callback test + physical phone scanner + origin web intake |
+| Map privacy and service | Tile coordinates/IP can reveal the displayed area; Google Maps receives a saved destination only after explicit directions; route provider and public tile availability are stated accurately | Source/widget checks + official tile policy review; Android request/cache behavior and production provider acceptance remain open |
 | Mother-Hub route | Same/cross-region required hubs, missing manifests/parcels, scoped handlers, no direct route shortcut | Backend logistics tests + real web handoffs in staging |
 | Departure | Only assigned final-mile rider and destination hub; wrong waybill/source state/actor denied | API tests + phone + destination web queue |
 | Delivery proof | Actual image and recipient evidence; exact COD; wrong MIME/oversize/cancel/denial/storage failure; double tap; lost response and same-key replay | Backend proof/idempotency + mobile controller + physical Android |
@@ -34,6 +293,10 @@ checks help validate rules but do not prove PostgreSQL lock behavior. Use isolat
 databases; never reset development or production data for tests. Existing backend
 suite failures need a current baseline and an explicit disposition, not a “green”
 claim inferred from selected passing tests.
+
+Android release packaging is fail-closed until the approved application ID and
+local signing configuration are supplied. See
+[Android release packaging](ANDROID_RELEASE.md).
 
 ## Verification commands when relevant
 
@@ -76,8 +339,9 @@ Baseline: committed starter `36f9a57`, with a useful README but no rider docs.
 The overall score is a weighted judgment, not the arithmetic mean of the rows.
 It is below 10 because API fields/limits/expiry still require backend agreement,
 capacity is unconfirmed, hardware checks have not happened, and the exact
-presentation date remains a working target. Runtime readiness is unchanged by
-this documentation task: Flutter remains a starter screen.
+presentation date remains a working target. At the time of this October 5,
+2026 documentation task, runtime readiness was unchanged and Flutter remained
+the starter screen.
 
 ## What improves efficiency
 
@@ -126,9 +390,9 @@ Documentation checks passed on October 5, 2026:
 - A closing read of the backend confirms the public-tracking-only API and the
   same relevant roadmap prerequisites; no web files were edited by this task.
 
-The acceptance matrix above remains future runtime work. No new Flutter build,
-native camera, backend suite, PostgreSQL concurrency, or deployment check was
-performed for this docs-only branch.
+The acceptance matrix above recorded future runtime work as of October 5, 2026.
+No new Flutter build, native camera, backend suite, PostgreSQL concurrency, or
+deployment check was performed for that docs-only documentation change.
 
 ## Detailed backlog verification — October 5, 2026
 

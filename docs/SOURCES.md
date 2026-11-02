@@ -1,5 +1,21 @@
 # Sources, authority and synchronization
 
+**November 1 current source review:** web main `f001d39` and its
+`docs/new-docs-era/README.md` govern current version-two automatic completion and
+original earnings. Historical buyer-confirmation descriptions below apply only
+where retained order evidence requires them. The selected
+[delivery guidance/recovery work](plans/rider-workflow-recovery/README.md) records
+native response fields, verified website routes and remaining owner acceptance.
+No web source or deployment was changed by this mobile work.
+
+**November 2 remote-ref refresh:** read-only GitHub refs still point to Bagoo
+`main` at `f001d396b0e9ea6bfc2fdeb85ee24b66682b997e` and
+`fix/rider-wallet-trip-evidence` at
+`9e58312d130809eb8cd878189b729f1f702291d8`. The fix branch is two commits ahead
+and zero behind `main`; it remains unmerged. This confirms published Git refs
+only, not Azure deployment, migrations, or live cross-role acceptance. The
+Bagoo checkout was left read-only.
+
 ## Reviewed source snapshot
 
 **October 9 accepted operations handoff:** clean backend main

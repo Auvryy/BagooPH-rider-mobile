@@ -1,5 +1,10 @@
 # Philippines map and current-stop focus
 
+> **Historical map presentation.** This merged implementation records the
+> earlier Geoapify renderer and Philippines outline/focus design. The October
+> 25 street-map decision superseded that presentation. See the
+> [current street-map plan](../rider-street-map/README.md) for active behavior.
+
 Selected October 14, 2026 after HDB-02 was merged in PR 18. Branch
 `feat/home-philippines-map-focus`, starting from mobile `main` `5016b03`.
 State: **merged in PR 19**, mobile `main` `d6ff936`; physical acceptance remains open.

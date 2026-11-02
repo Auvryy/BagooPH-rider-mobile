@@ -1,17 +1,32 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:bagoo_rider_mobile/app/config.dart';
 import 'package:bagoo_rider_mobile/app/theme.dart';
+import 'package:bagoo_rider_mobile/core/platform/rider_website.dart';
+import 'package:bagoo_rider_mobile/features/auth/presentation/auth_controller.dart';
 import 'package:bagoo_rider_mobile/features/cash/presentation/cash_controller.dart';
 import 'package:bagoo_rider_mobile/features/cash/presentation/cash_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'support/cash_support.dart';
 
 const renderKey = ValueKey('cash-render');
+
+class _RecordingWebsiteLauncher implements WebsiteLauncher {
+  final opened = <Uri>[];
+
+  @override
+  Future<bool> open(Uri uri) async {
+    opened.add(uri);
+    return true;
+  }
+}
+
 Future<void> render(WidgetTester tester, String name) async {
   if (!const bool.fromEnvironment('RIDER_WORK_RENDER')) return;
   final boundary = tester.renderObject<RenderRepaintBoundary>(
@@ -35,16 +50,18 @@ Future<void> mount(
   double scale = 2,
 }) async {
   await tester.pumpWidget(
-    MaterialApp(
-      theme: buildRiderTheme(),
-      builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(context).copyWith(
-          textScaler: TextScaler.linear(scale),
-          disableAnimations: true,
+    ProviderScope(
+      child: MaterialApp(
+        theme: buildRiderTheme(),
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(scale),
+            disableAnimations: true,
+          ),
+          child: RepaintBoundary(key: renderKey, child: child!),
         ),
-        child: RepaintBoundary(key: renderKey, child: child!),
+        home: CashPageView(controller: c, initialAccountId: id),
       ),
-      home: CashPageView(controller: c, initialAccountId: id),
     ),
   );
   await tester.pumpAndSettle();
@@ -192,6 +209,70 @@ void main() {
     expect(h.api.calls.where((r) => r.method == 'POST'), isEmpty);
     await tester.pumpWidget(const SizedBox.shrink());
   });
+  testWidgets(
+    'pending cash handover opens its fixed first-party review and cancellation page',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 1200);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final h = CashHarness();
+      h.json['can_offer'] = false;
+      h.json['pending_handover'] = {
+        'reference': 'OFFER-SOFTWARE-TEST',
+        'amount_cents': '12500',
+        'holder_id': '5',
+        'recipient_id': '12',
+        'holder_name': 'Test Rider',
+        'recipient_name': 'Test Hub Recipient',
+      };
+      final controller = CashController(h.repository);
+      addTearDown(controller.dispose);
+      final launcher = _RecordingWebsiteLauncher();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            appConfigProvider.overrideWithValue(
+              const AppConfig(
+                'https://bagoo.example.test/api/v1',
+                riderWebsite: 'https://courier.bagoo.example.test',
+              ),
+            ),
+            websiteLauncherProvider.overrideWithValue(launcher),
+          ],
+          child: MaterialApp(
+            theme: buildRiderTheme(),
+            home: CashPageView(
+              controller: controller,
+              initialAccountId: h.account.id,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(controller.page, isNotNull);
+      expect(controller.detail, isNotNull);
+      expect(controller.detail!.pending?.reference, 'OFFER-SOFTWARE-TEST');
+      final pendingSection = find.text('Awaiting hub receipt');
+      await reveal(tester, pendingSection);
+      expect(pendingSection, findsOneWidget);
+      final manageOffer = find.byKey(
+        const ValueKey('cash-manage-pending-offer'),
+      );
+      await reveal(tester, manageOffer);
+      await tester.tap(manageOffer);
+      await tester.pumpAndSettle();
+
+      expect(launcher.opened, [
+        Uri.parse('https://courier.bagoo.example.test/cod'),
+      ]);
+      expect(launcher.opened.single.queryParameters, isEmpty);
+      expect(h.api.calls.where((call) => call.method == 'POST'), isEmpty);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
   testWidgets(
     'background drops private cash values and draft; resume requires fresh read',
     (tester) async {

@@ -159,12 +159,19 @@ Show authorized addresses outside a lazily created map; release camera/map
 resources when leaving the view. External directions require an explicit tap
 and a validated destination/scheme. Missing maps never hide the operational stop.
 
-If public OpenStreetMap tiles are selected, use a separate unauthenticated tile
-client with identifying User-Agent, visible attribution and provider-compliant
-HTTP caching. No bulk/offline prefetch or default no-cache headers. Keep private
-addresses/contacts out of tile requests and do not add geocoding by assumption.
-These requirements follow the [tile policy](https://operations.osmfoundation.org/policies/tiles/);
-provider selection/configuration remains an open implementation decision.
+Current Rider maps use standard OpenStreetMap raster tiles through a separate
+unauthenticated client. Android sets an app-identifying User-Agent; Linux
+FlutterMap uses the current package identity, visible attribution and its
+HTTP-aware built-in cache. No bulk/offline prefetch, private addresses/contacts
+in tile requests, or assumed geocoding are added. The tile request can reveal
+the displayed area and source IP, so the map states this before it loads.
+Current-stop external directions separately disclose the saved destination sent
+to Google Maps on an explicit tap. `roadRoutingProvider` defaults to
+`UnavailableRoadRouting`; there is no default in-app GPS route or follow session.
+The [OpenStreetMap tile policy](https://operations.osmfoundation.org/policies/tiles/)
+and the current public-service availability limit are recorded in the
+[street-map plan](plans/rider-street-map/README.md). A production tile-provider
+decision remains an operational release gate, not an unmade Flutter-map choice.
 
 ## Testing seams
 

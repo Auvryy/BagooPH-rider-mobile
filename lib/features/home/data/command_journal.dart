@@ -13,10 +13,11 @@ abstract interface class CommandJournal {
   Future<void> clear();
 }
 
-/// One unresolved intent per API/account/scope. Kept through logout and expiry until
-/// reconciliation confirms a result or a definitive rejection. Selected outcome
-/// fields are encrypted by secure storage; original proof has its own protected
-/// file reference. No bearer credentials or travelled-location history is stored.
+/// One unresolved intent per API/account/scope. The complete exact intent,
+/// including its action body, is kept through logout and expiry until
+/// reconciliation confirms a result or a definitive rejection. Original proof
+/// bytes have their own protected file; only the reference is in this record.
+/// No bearer credentials or travelled-location history is stored.
 class SecureCommandJournal implements CommandJournal {
   SecureCommandJournal({
     required Uri origin,

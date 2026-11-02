@@ -55,7 +55,9 @@ flowchart TD
     D --> A[Hub assigns eligible final-mile rider]
     A --> F[Assigned rider scans out: OUT_FOR_DELIVERY]
     F --> Y[Proof and exact COD where applicable: DELIVERED]
-    Y --> B[Buyer confirms: COMPLETED]
+    Y --> V{Server applies flow-version rules}
+    V -->|Verified handoff qualifies| B[Order completed automatically]
+    V -->|Historical flow requires it| C[Buyer confirms: COMPLETED]
     F --> X[Failure reason and evidence: DELIVERY_FAILED]
     X --> H[Destination hub receives failed parcel]
     H --> R{Hub decision}
@@ -81,13 +83,16 @@ manifest, facility-handler, or counter actions in this app.
 | Assigned final mile, awaiting departure | Destination Bayan Hub | Scan the assigned parcel out | Server verifies assignment, hub, waybill, source state; records departure |
 | Out for delivery | Saved checkout buyer destination | Call/message when permitted; record success or failure | Immutable outcome evidence and server-confirmed event |
 | Failed, awaiting hub return | Destination Bayan Hub | Return directions and approved contact/recovery | Destination handler's inbound recovery scan |
-| Delivered | Recorded trip | View evidence/history within scope | Buyer confirmation is separate and cannot be triggered by rider |
+| Delivered | Recorded trip | View evidence/history within scope | Read server-returned status; newer flows may auto-complete after verified handoff, older orders retain their completion path |
 | Completed or returned | Recorded history | Read-only detail within retained scope | No reopening of terminal operational states |
 
 Client stage labels describe the returned assignment. They are separate from
 commercial order status and cannot imply possession from assignment alone.
 No generic “Set status” control exists. The backend returns permitted actions
-and reasons for unavailable actions; the server rechecks every command.
+and reasons for unavailable actions; the server rechecks every command. The
+Rider app has no buyer-confirmation command. Verified recipient handoff may
+automatically complete a newer flow-version order; COD remittance remains a
+separate owning-hub process.
 
 ## Pickup details and recovery
 

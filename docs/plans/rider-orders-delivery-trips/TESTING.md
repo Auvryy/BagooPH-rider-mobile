@@ -6,8 +6,14 @@ to Azure. Sample responses and loopback fixtures run only in explicit tests.
 ## Review the app on a Linux PC
 
 ```sh
-flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.geoapify.json
+flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.rider.json
 ```
+
+Current maps use OpenStreetMap tiles and need no Geoapify key. The default
+in-app road-routing provider is unavailable; the explicit External directions
+action discloses that Google Maps receives the saved stop address or
+coordinates. Linux Device Preview verifies the FlutterMap fallback, not the
+Android Leaflet/WebView renderer or native camera.
 
 Sign in privately with an approved account. Refresh Home, review Available
 pickups/My pickups/Assigned delivery, and open Trips. Trips searches tracking or
@@ -17,9 +23,11 @@ Manila assignment dates. Non-COD is a history filter; the separately selected
 its own acceptance gate. Open a record to refresh its original assignment
 and any advertised private proof. Changing filters cannot reuse older results.
 
-Linux supports real account reads, file selection and the existing labelled
-manual route origin. It cannot establish Android camera, permission or picker
-recovery acceptance. Normal scrolling is used for forms and recorded history.
+Linux supports real account reads, file selection and external directions. The
+default in-app road-routing provider is unavailable, so a manual route origin is
+not part of the current app. Linux Device Preview cannot establish Android
+camera, permission or picker-recovery acceptance. Normal scrolling is used for
+forms and recorded history.
 
 ## Verify locally without Azure writes
 
@@ -69,7 +77,9 @@ controlled test profile must still complete the following acceptance checks.
 4. For a hub-assigned final-mile COD parcel, scan departure, follow the current
    buyer stop and record the authorized test recipient, original image, exact
    received cash/change and explicit cash acknowledgement. Verify one delivered
-   checkpoint and collection. Buyer receipt and remittance stay separate.
+   checkpoint and collection. Verify the server-returned order status for its
+   flow version: newer orders may complete automatically after verified handoff.
+   COD remittance remains a separate owning-hub action.
 5. Prepare a separate failed-attempt scenario. Use the returned reason policy,
    notes, place and original image. Confirm one attempt and retained rider return
    responsibility until the destination hub independently receives the parcel.
@@ -86,7 +96,7 @@ To run the ordinary app on a connected Android phone:
 
 ```sh
 flutter devices
-flutter run -d <android-device-id> --dart-define-from-file=.env.geoapify.json
+flutter run -d <android-device-id> --dart-define-from-file=.env.rider.json
 ```
 
 Keep login details, bearer tokens and actual private proof outside Git and logs.

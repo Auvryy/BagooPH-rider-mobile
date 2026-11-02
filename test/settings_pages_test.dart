@@ -135,7 +135,11 @@ void main() {
       await tester.tap(find.byTooltip('Back'));
       await tester.pumpAndSettle();
       await tap(tester, 'open-help');
-      expect(find.byType(WebsiteButton), findsNothing);
+      expect(
+        find.byKey(const ValueKey('help-custody-recovery')),
+        findsOneWidget,
+      );
+      expect(find.text('Open website settings'), findsNothing);
       expect(auth.settingsReads, greaterThan(0));
       expect(tester.takeException(), isNull);
     },

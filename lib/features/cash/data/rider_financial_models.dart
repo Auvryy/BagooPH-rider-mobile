@@ -45,7 +45,7 @@ class RiderShiftSummary {
 
   static String? _id(Object? value) {
     if (value == null) return null;
-    return Wire.id(value is int ? '$value' : value);
+    return Wire.uuid(value);
   }
 
   final String? id;

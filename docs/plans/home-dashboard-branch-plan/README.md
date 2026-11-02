@@ -1,5 +1,11 @@
 # Home dashboard review and branch plan
 
+> **Historical map guidance.** The renderer, provider and explicit GPS-navigation
+> recommendations below predate the October 25 street-map decision. They do not
+> describe the current Rider map or route provider. The Home and operations
+> review remains historical context; current behavior is in the
+> [street-map plan](../rider-street-map/README.md).
+
 Reviewed October 13, 2026. The original planning delivery changed documentation.
 The user subsequently activated **HDB-01**, plus the Settings touch/large-text
 correction; see [its implementation evidence](HDB-01-EVIDENCE.md).

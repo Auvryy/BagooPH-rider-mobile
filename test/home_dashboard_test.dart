@@ -86,6 +86,14 @@ void main() {
       expect(find.byType(LeafletDeliveryMap), findsNothing);
       await tapHome(tester, find.byKey(const ValueKey('home-sample-toggle')));
       expect(find.byType(LeafletDeliveryMap), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('home-map-area-disclosure')),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('Tile coordinates and source IP'),
+        findsOneWidget,
+      );
       expect(find.text('Sample rider → Sample delivery point'), findsOneWidget);
       expect(
         find.textContaining('not a live rider or an assigned parcel'),
@@ -106,6 +114,10 @@ void main() {
       final map = tester.widget<LeafletDeliveryMap>(
         find.byType(LeafletDeliveryMap),
       );
+      expect(
+        find.byKey(const ValueKey('home-map-area-disclosure')),
+        findsOneWidget,
+      );
       expect(map.stop?.latitude, h.task.stop.latitude);
       expect(map.stop?.longitude, h.task.stop.longitude);
       expect(find.text('Current stop'), findsOneWidget);
@@ -115,6 +127,16 @@ void main() {
         find.byKey(const ValueKey('home-selected-details')),
       );
       expect(find.byType(LeafletDeliveryMap), findsNothing);
+      expect(h.api.calls.every((call) => call.method == 'GET'), isTrue);
+    },
+  );
+  managedDashboardTest(
+    'selected buyer stop states that no extra doorstep instructions were supplied',
+    (tester) async {
+      final h = await openDashboard(tester, instructions: false);
+      await tapHome(tester, find.byKey(ValueKey('home-task-${h.task.id}')));
+      expect(find.text('Doorstep Guide'), findsOneWidget);
+      expect(find.text('No extra instructions provided.'), findsOneWidget);
       expect(h.api.calls.every((call) => call.method == 'GET'), isTrue);
     },
   );
@@ -137,6 +159,7 @@ void main() {
     'off-duty riders retain their own task list and the sample is not a claim',
     (tester) async {
       final h = await openDashboard(tester, onDuty: false);
+      expect(find.text('Off duty'), findsOneWidget);
       await revealHome(
         tester,
         find.byKey(const ValueKey('task-queue-delivery')),
@@ -170,6 +193,14 @@ void main() {
         expect(h.navigation.active, isFalse);
         await tapHome(tester, find.byKey(ValueKey('home-task-${h.task.id}')));
         await revealHome(tester, find.byType(LeafletDeliveryMap));
+        expect(
+          find.byKey(const ValueKey('home-map-area-disclosure')),
+          findsOneWidget,
+        );
+        expect(
+          find.textContaining('Tile coordinates and source IP'),
+          findsOneWidget,
+        );
         expect(
           tester
               .widget<LeafletDeliveryMap>(find.byType(LeafletDeliveryMap))
@@ -215,6 +246,7 @@ openDashboard(
   double textScale = 1,
   bool onDuty = true,
   bool coordinates = true,
+  bool instructions = true,
   bool hidden = false,
   GeoapifyClient? geoClient,
   ValueListenable<bool>? visibility,
@@ -237,6 +269,7 @@ openDashboard(
   json['operational_stage'] = 'out_for_delivery';
   json['stop']['latitude'] = coordinates ? stopPoint.latitude : null;
   json['stop']['longitude'] = coordinates ? stopPoint.longitude : null;
+  if (!instructions) json['stop']['instructions'] = null;
   final task = OperationTask.fromJson(json);
   api.respond = (path, method, data, headers) async {
     if (path == 'rider/home') return home;

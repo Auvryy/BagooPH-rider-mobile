@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:bagoo_rider_mobile/app/theme.dart';
+import 'package:bagoo_rider_mobile/core/commands/parcel_proof.dart';
 import 'package:bagoo_rider_mobile/core/commands/parcel_validation.dart';
 import 'package:bagoo_rider_mobile/core/network/api_failure.dart';
 import 'package:bagoo_rider_mobile/core/ui/private_image.dart';
@@ -49,8 +50,11 @@ Future<void> _render(
 }
 
 class _Outcome {
-  _Outcome(ParcelAction action, {bool prepaid = false})
-    : domain = ParcelHarness(action: action) {
+  _Outcome(
+    ParcelAction action, {
+    bool prepaid = false,
+    DateTime Function()? now,
+  }) : domain = ParcelHarness(action: action) {
     if (prepaid) {
       domain.taskJson['payment'] = {
         'method': 'wallet',
@@ -65,6 +69,7 @@ class _Outcome {
       proofs: domain.proofs,
       isCurrent: () => domain.current,
       picker: TestParcelPhotoPicker(),
+      now: now,
     );
     work = WorkspaceController(
       domain.restart(photos: photos, prepaidEnabled: prepaid),
@@ -209,6 +214,35 @@ void main() {
   });
   setUp(() => FlutterSecureStorage.setMockInitialValues({}));
   testWidgets(
+    'background immediately clears the form image and resume offers encrypted recovery',
+    (tester) async {
+      final h = _Outcome(ParcelAction.deliver);
+      addTearDown(h.dispose);
+      await _mount(tester, h);
+      final proof = tester.state<FormFieldState<ParcelProof>>(
+        find.byType(FormField<ParcelProof>),
+      );
+      expect(proof.value, isNotNull);
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      expect(proof.value, isNull);
+      await tester.pumpAndSettle();
+      expect(find.text('Selected private parcel proof image'), findsNothing);
+
+      h.work.setForeground(false);
+      h.work.setForeground(true);
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('parcel-photo-restore')),
+        findsOneWidget,
+      );
+      expect(proof.value, isNull);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+      h.dispose();
+    },
+  );
+  testWidgets(
     'changed payment clears reviewed proof and cash without a version change',
     (tester) async {
       final h = _Outcome(ParcelAction.deliver);
@@ -229,6 +263,35 @@ void main() {
       expect(fields.received.text, isEmpty);
       expect(fields.change.text, isEmpty);
       expect(fields.ready, isFalse);
+      expect(h.sent, isEmpty);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+      h.dispose();
+    },
+  );
+  testWidgets(
+    'expired proof clears the visible draft and cannot be submitted',
+    (tester) async {
+      var photoNow = DateTime.utc(2026, 10, 18, 2);
+      final h = _Outcome(ParcelAction.deliver, now: () => photoNow);
+      addTearDown(h.dispose);
+      await _mount(tester, h);
+
+      final fields = tester.state<ParcelOutcomeFieldsState>(
+        find.byType(ParcelOutcomeFields),
+      );
+      expect(fields.ready, isTrue);
+      expect(find.textContaining('Original PNG'), findsOneWidget);
+
+      photoNow = photoNow.add(const Duration(hours: 24));
+      await tester.pump(const Duration(hours: 24));
+      await tester.pumpAndSettle();
+
+      expect(fields.proof, isNull);
+      expect(fields.ready, isFalse);
+      expect(find.textContaining('Original PNG'), findsNothing);
+      expect(find.byKey(const ValueKey('parcel-photo-choose')), findsOneWidget);
+      expect(h.domain.proofs.files, isEmpty);
       expect(h.sent, isEmpty);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());

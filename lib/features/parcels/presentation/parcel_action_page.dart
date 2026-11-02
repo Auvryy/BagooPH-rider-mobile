@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../app/theme.dart';
 import '../../../core/commands/parcel_validation.dart';
 import '../../../core/ui/rider_surfaces.dart';
+import '../../home/presentation/stop_guidance.dart';
 import '../../workspace/presentation/workspace_controller.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
 import 'parcel_action_controller.dart';
@@ -345,7 +346,7 @@ class _ParcelActionPageState extends State<ParcelActionPage>
                               Text(switch (action) {
                                 ParcelAction.pickup => 'Confirm only after receiving this parcel from the seller. The origin hub records its own intake.',
                                 ParcelAction.depart => 'Confirm only after receiving this parcel from the assigned destination hub.',
-                                ParcelAction.deliver => 'Confirm only after the actual recipient handoff. The buyer confirms receipt separately.',
+                                ParcelAction.deliver => 'Confirm only after the actual recipient handoff. New orders complete automatically after valid delivery evidence. Any COD hub receipt remains separate.',
                                 ParcelAction.fail => 'This records one failed attempt. Keep return custody until the destination hub receives the parcel.',
                               }),
                               const SizedBox(height: 24),
@@ -452,9 +453,10 @@ class _ParcelActionPageState extends State<ParcelActionPage>
         const SizedBox(height: 12),
         Text(
           widget.action == ParcelAction.deliver
-              ? 'The buyer confirms receipt separately. Your original handoff and collected COD can be reviewed in Trips.'
-              : widget.work.selectedTask?.nextInstruction ??
-                    'Refresh your tasks to see the current responsibility.',
+              ? deliveryRecordedNotice(controller.result?['commercial_status'])
+              : widget.work.selectedTask == null
+              ? 'Refresh your tasks to see the current responsibility.'
+              : taskInstruction(widget.work.selectedTask!),
         ),
         const SizedBox(height: 24),
         FilledButton(

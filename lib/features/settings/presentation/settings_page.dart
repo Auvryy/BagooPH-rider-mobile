@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/platform/rider_website.dart';
 import '../../../core/ui/argon_widgets.dart';
 import '../../../core/ui/rider_surfaces.dart';
 import '../../auth/data/account.dart';
@@ -219,6 +220,12 @@ class ProfileSettingsPage extends ConsumerWidget {
                 title: 'Change password',
                 onTap: () => form(SettingsFlow.password),
               ),
+              if (!preview)
+                const WebsiteButton(
+                  key: ValueKey('settings-security-website'),
+                  page: RiderWebsitePage.security,
+                  label: 'Login activity and sessions',
+                ),
             ],
           ),
           const _GroupTitle('Support'),
@@ -376,7 +383,7 @@ class ProfileSettingsPage extends ConsumerWidget {
               _HelpItem(
                 Icons.local_shipping_outlined,
                 'Assigned delivery',
-                'Your destination hub assigns final-mile work. Follow its handoff and record the outcome. Buyer receipt is a separate step.',
+                'Your destination hub assigns final-mile work. Scan its handoff and record valid recipient and proof evidence. New orders complete automatically after verified delivery. Check Trips for the recorded order status.',
               ),
               _HelpItem(
                 Icons.account_balance_wallet_outlined,
@@ -391,6 +398,20 @@ class ProfileSettingsPage extends ConsumerWidget {
             ],
           ),
         );
+        if (!preview) {
+          content.addAll([
+            const SizedBox(height: 16),
+            const WebsiteButton(
+              key: ValueKey('help-custody-recovery'),
+              page: RiderWebsitePage.custodyRecovery,
+              label: 'Recover parcels or cash on the website',
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Use the separate recovery service if an account restriction prevents ordinary work. Your recorded parcels and cash remain your responsibility.',
+            ),
+          ]);
+        }
       case ProfileSection.about:
         final info = ref.watch(appPackageProvider);
         content.addAll([

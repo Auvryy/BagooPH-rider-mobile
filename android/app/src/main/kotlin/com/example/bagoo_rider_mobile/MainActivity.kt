@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.NotificationManager
 import android.content.pm.PackageManager
 import android.os.Build
+import android.view.WindowManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -11,6 +12,18 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     private var notificationRequest: MethodChannel.Result? = null
     private val notificationRequestCode = 4107
+
+    override fun onPause() {
+        // Protect paused-window captures before Flutter receives its pause event.
+        // Clear the flag on resume so foreground presentation capture stays available.
+        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        super.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+    }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)

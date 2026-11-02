@@ -5,7 +5,7 @@
 From the Rider Mobile repository root, the phone frame on Linux uses:
 
 ```sh
-flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.geoapify.json
+flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.rider.json
 ```
 
 Sign in through the normal Azure account flow, then open **Home → Notifications**.

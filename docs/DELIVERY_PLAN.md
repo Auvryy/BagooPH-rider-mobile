@@ -31,9 +31,13 @@ the backend's phase order. Calendar targets do not waive operational safeguards.
 - Every execution task uses **1–14 inclusive calendar days**, an effort estimate,
   explicit acceptance and a real dependency. Split a phase into smaller tasks
   when its scope cannot fit; a broad feature name is not a two-week loophole.
-- This is a proposed plan. Only the currently requested docs work is being
-  performed here; future rows are not automatically created tasks or approved
-  coding branches. Re-estimate from evidence after the first integrated slice.
+- This remains a planning baseline, not a live status list. Since it was
+  written, selected Rider slices have moved into implementation and PC
+  verification. Current per-slice evidence and external acceptance gates live
+  in the [task map](TASK_TRACKING.md), [plan registry](plans/README.md) and
+  [readiness record](VERIFICATION_AND_READINESS.md). Future rows remain
+  proposals unless explicitly selected; re-estimate from current source, API
+  and device evidence before setting active dates.
 
 ## Selected frontend additions
 
@@ -170,8 +174,10 @@ Use approved synthetic test accounts and genuine role actions:
 3. Logistics moves it through the mandatory Mother-Hub route to destination.
    The destination handler assigns the final-mile rider.
 4. Assigned rider scans out, records genuine test proof and exact test COD.
-   Buyer confirms receipt separately; hub/platform show separate remittance
-   and reconciliation before seller settlement eligibility.
+   Verify the server-returned status: newer flow-version orders can complete
+   automatically after verified recipient handoff; older orders keep their
+   own completion path. Hub/platform show separate cash remittance and
+   reconciliation before seller settlement eligibility.
 5. On a second test parcel, show a failed attempt, hub return and approved retry
    or RTS. Show duplicate/stale request rejection with no invented state.
 6. Show correct task/message/notification/history visibility and a holding or

@@ -19,7 +19,7 @@ Map<String, dynamic> earnings({
   'basis': 'original_delivery_earnings_ledger',
 };
 Map<String, dynamic> shift({bool clear = false}) => {
-  'shift_id': 8,
+  'shift_id': '7a1ecf31-23f6-4eb1-89e4-6a565f400001',
   'started_at': '2026-10-29T01:00:00.000Z',
   'collected_cents': '12500',
   'remitted_cents': clear ? '12500' : '0',
@@ -61,7 +61,7 @@ void main() {
     expect(page.items, isEmpty);
     expect(page.earnings.confirmed, BigInt.zero);
     expect(page.earnings.pending, BigInt.from(2500));
-    expect(page.shift!.id, '8');
+    expect(page.shift!.id, '7a1ecf31-23f6-4eb1-89e4-6a565f400001');
     expect(page.shift!.held, BigInt.from(12500));
     expect(page.shift!.canClose, isFalse);
   });
@@ -109,6 +109,11 @@ void main() {
       }
       final invalid = shift()..['can_close'] = true;
       expect(() => RiderShiftSummary.fromJson(invalid), throwsFormatException);
+      final guessedId = shift()..['shift_id'] = '8';
+      expect(
+        () => RiderShiftSummary.fromJson(guessedId),
+        throwsFormatException,
+      );
     },
   );
 }

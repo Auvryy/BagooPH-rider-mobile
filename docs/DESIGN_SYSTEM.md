@@ -15,7 +15,8 @@ Visual noise, unnecessary gradients, and multi-colored rainbow tags are eliminat
 
 | Token | Value | Hex / RGBA | Role & Application |
 |---|---|---|---|
-| `brandPrimary` | Crimson Red | `#E00D42` | **The ONLY Accent Color.** Reserved for primary CTAs, active selection indicators, live badges, and focus rings. Never floods full backgrounds. |
+| `brandPrimary` | Crimson Red | `#E00D42` | **The ONLY Accent Color.** Reserved for primary CTA fills, active selection indicators, and live badges. Never floods full backgrounds. |
+| `accentText` | Deep Crimson | `#C20836` | Text and outlines in the same brand family; meets AA contrast on white and the 8% brand tint. |
 | `brandSubtle` | Soft Red Tint | `rgba(224, 13, 66, 0.08)` | Active pill backgrounds, subtle notification pings, focused chip fills. |
 | `brandGlow` | Legacy selection tint | `rgba(224, 13, 66, 0.16)` | Shared surfaces use neutral elevation; indicate selection with a border and label. |
 | `canvasBackground` | Neutral White | `#FAFAFA` | App-wide background canvas behind all views. |
@@ -23,7 +24,7 @@ Visual noise, unnecessary gradients, and multi-colored rainbow tags are eliminat
 | `surfaceCarbon` | Deep Carbon | `#090A0F` | High-contrast banners, terminal notices, and deep pill controls. |
 | `textPrimary` | Deep Ink | `#18181B` | Primary headlines, waybill IDs, customer names, and action titles. |
 | `textSecondary` | Balanced Slate | `#62626B` | Supporting labels, addresses, timestamps, and secondary captions. |
-| `textMuted` | Muted Gray | `#94A3B8` | Placeholders, disabled states, and inactive tab icons. |
+| `textMuted` | Balanced Slate | `#62626B` | Muted labels, placeholders, disabled states, and inactive tab icons. |
 | `borderQuiet` | Whisper Slate | `#DEDEE3` | Subtle 1px structural borders dividing cards and lists. |
 | `borderSubtle` | Ink Tint Border | `rgba(17, 24, 39, 0.07)` | Translucent edge borders on floating overlays and elevated pills. |
 
@@ -88,7 +89,7 @@ Every interactive component explicitly handles:
 1. **Idle:** Pristine white surface, quiet 1px border `#DEDEE3`, deep ink label.
 2. **Hover (Desktop / Mouse):** Subtle background illumination (`#F8FAFC`), crisp border sharpening.
 3. **Active / Pressed:** Physical `scale(0.98)` spring compression, subtle highlight.
-4. **Focus-Visible:** Razor-sharp Crimson (`#E00D42`) `2px` focus ring with `2px` offset.
+4. **Focus-Visible:** Razor-sharp brand crimson (`#C20836`) `2px` focus ring with `2px` offset.
 5. **Loading:** Monochromatic shimmer skeleton (`#F1F5F9` to `#DEDEE3`), never an unstyled "Loading..." text string.
 6. **Empty:** Clean illustration or centered icon with slate caption and one clear primary CTA.
 

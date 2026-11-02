@@ -14,6 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'support/app_lifecycle_support.dart';
 import 'support/test_auth_repository.dart';
 
 class MemoryIntroPreferences implements OnboardingPreferences {
@@ -39,6 +40,7 @@ Widget introApp(MemoryIntroPreferences preferences) => ProviderScope(
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  setUp(startRiderTestLifecycleResumed);
   setUpAll(() async {
     await (FontLoader(
       'Plus Jakarta Sans',

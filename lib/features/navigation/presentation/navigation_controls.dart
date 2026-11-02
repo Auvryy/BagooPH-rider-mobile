@@ -49,6 +49,14 @@ class _NavigationControlsState extends State<NavigationControls> {
       final nav = widget.navigation, stop = widget.task.stop;
       final coords = stop.latitude != null && stop.longitude != null;
       final enabled = widget.enabled && !_checking && !nav.starting;
+      final routeOrigin = nav.manual
+          ? 'your entered preview origin'
+          : 'your current location';
+      final routeNotice = [
+        'When you tap Navigate, Rider sends $routeOrigin and this stop’s saved coordinates to Geoapify to calculate the road route.',
+        if (nav.manual) 'Linux preview does not use GPS.',
+        'Rider does not send a live-location feed or route history to Bagoo.',
+      ].join(' ');
       return RiderSurface(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -109,6 +117,12 @@ class _NavigationControlsState extends State<NavigationControls> {
                   ),
                 ),
               ],
+              const SizedBox(height: 8),
+              Text(
+                routeNotice,
+                key: const ValueKey('stop-route-location-disclosure'),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
               const SizedBox(height: 12),
               FilledButton(
                 key: const ValueKey('stop-navigate'),
@@ -174,7 +188,13 @@ class _NavigationControlsState extends State<NavigationControls> {
                 onPressed: nav.stop,
                 child: const Text('Stop navigation'),
               ),
-            if (stop.address?.trim().isNotEmpty == true || coords)
+            if (stop.address?.trim().isNotEmpty == true || coords) ...[
+              const SizedBox(height: 12),
+              Text(
+                'External directions sends this stop’s saved coordinates or address to Google Maps.',
+                key: const ValueKey('stop-external-directions-disclosure'),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
               TextButton.icon(
                 key: const ValueKey('stop-external-directions'),
                 style: TextButton.styleFrom(minimumSize: const Size(0, 48)),
@@ -249,6 +269,7 @@ class _NavigationControlsState extends State<NavigationControls> {
                         }
                       },
               ),
+            ],
           ],
         ),
       );

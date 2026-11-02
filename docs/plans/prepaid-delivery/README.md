@@ -3,8 +3,9 @@
 Selected October 22, 2026 on `feat/rider-prepaid-delivery`, from merged Rider
 main `9806ce5`. This extends the existing
 [pickup/delivery/Trips implementation](../rider-orders-delivery-trips/README.md).
-The client supports the additive paid Bagoo Wallet contract; live activation
-remains gated by retained-proof and deployment acceptance.
+The client supports the additive paid Bagoo Wallet contract. Local retained
+proof compatibility is accepted against the fixed source branch; live activation
+remains gated by merging/deploying that source and controlled acceptance.
 
 ## Sources and boundaries
 
@@ -47,27 +48,31 @@ owner/device acceptance is separate from active development.
    fields; uncertain Wallet commands retain the original UUID/body/image across
    restart. A known saved result can reconcile with writes disabled; an unknown
    retry still needs all applicable write gates.
-5. Retained Trips labels Wallet accurately and reports absent recipient/cash
-   fields as unavailable facts. It never invents zero cash or substitutes the
-   parcel's current recipient for original-assignment evidence.
+5. Retained Trips labels Wallet accurately, returns the recipient from the
+   matching immutable Wallet receipt and serves the original private proof. It
+   keeps cash fields unavailable and never substitutes the parcel's current
+   recipient for original-assignment evidence.
 
 `PREPAID_DELIVERY_WRITES_VERIFIED` defaults to false and is required in addition
 to `PARCEL_WRITES_VERIFIED`. Neither local tests nor accepted duty/claim
 verification activate prepaid writes. Ordinary builds still use Azure account
 access and the existing private map configuration.
 
-## Owner dependency
+## Source acceptance and remaining gates
 
-The real native Linux client passed isolated paid handoff and original replay
-against the reviewed backend, with one Wallet receipt, one delivery command and
-zero COD accounts. It also reproduced **404 for retained Wallet proof** and a
-missing original recipient. `RiderTripService` currently reads those facts only
-through COD collection evidence. These are open backend acceptance gaps, not
-successful retained-proof functionality.
+Bagoo's source repair is on branch `fix/rider-wallet-trip-evidence` through
+`9e58312d130809eb8cd878189b729f1f702291d8`. The focused backend suite passed
+452 tests and 16,115 assertions. The native Linux client then passed the pinned
+handoff/replay flow: one completed paid delivery, one Wallet receipt, one
+delivery command, zero COD accounts, the original recipient and exact
+hash-matched private proof bytes in Trips.
 
-The [API checklist](../../api/PREPAID_DELIVERY_NEEDS.md) defines the concrete
-owner changes and controlled acceptance. See [testing](TESTING.md) and the
+This accepts the source contract only. The backend change is not merged to main
+or confirmed deployed; fresh Azure discovery and controlled owned-resource
+acceptance remain open. The [API checklist](../../api/PREPAID_DELIVERY_NEEDS.md)
+tracks those deployment and live gates. See [testing](TESTING.md) and the
 [verification record](VERIFICATION.md) for local evidence and its limits.
 
-Publication remains user-controlled. Resolve the retained-evidence gaps before
-any separately authorized live prepaid activation.
+Publication remains user-controlled. Confirm the repaired source is merged and
+deployed, then complete the separately authorized live acceptance before any
+prepaid write activation.

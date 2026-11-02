@@ -12,6 +12,7 @@ import '../../auth/presentation/auth_controller.dart';
 import '../../cash/presentation/cash_controller.dart';
 import '../../home/data/command_journal.dart';
 import '../../home/data/operations_models.dart';
+import '../../home/presentation/stop_guidance.dart';
 import '../../home/data/operations_repository.dart';
 import '../../parcels/data/parcel_photo_service.dart';
 import '../../messages/data/messages_repository.dart';
@@ -23,9 +24,31 @@ import '../../trips/data/trip_models.dart';
 import '../data/workspace_models.dart';
 import '../data/workspace_repository.dart';
 
+typedef ParcelPhotoServiceFactory = ParcelPhotoService Function({
+  required Uri origin,
+  required String accountId,
+  required ParcelProofStore proofs,
+  required bool Function() isCurrent,
+});
+
+final parcelPhotoServiceFactoryProvider = Provider<ParcelPhotoServiceFactory>(
+  (ref) =>
+      ({
+        required origin,
+        required accountId,
+        required proofs,
+        required isCurrent,
+      }) => ParcelPhotoService(
+        origin: origin,
+        accountId: accountId,
+        proofs: proofs,
+        isCurrent: isCurrent,
+      ),
+);
+
 final workspaceRepositoryProvider = Provider<WorkspaceRepository>(
   (ref) {
-    final account = ref.watch(
+    final currentAccess = ref.read(
       authControllerProvider.select(
         (s) => (
           id: s.user?.id,
@@ -34,11 +57,37 @@ final workspaceRepositoryProvider = Provider<WorkspaceRepository>(
         ),
       ),
     );
+    ParcelPhotoService? activePhotos;
+    ref.listen(
+      authControllerProvider.select(
+        (s) => (
+          id: s.user?.id,
+          approved: s.user?.approved,
+          version: s.user?.operationsApiVersion,
+        ),
+      ),
+      (previous, next) {
+        final lostAccess =
+            previous?.id != null &&
+            previous?.approved == true &&
+            (next.id != previous!.id ||
+                next.approved != true ||
+                next.version != 1);
+        if (lostAccess) {
+          final photos = activePhotos;
+          if (photos != null) {
+            unawaited(photos.clearForAccessLoss().catchError((_) {}));
+          }
+        }
+        ref.invalidateSelf();
+      },
+    );
     final repository = ref.watch(authRepositoryProvider);
     final config = ref.watch(appConfigProvider);
-    if (account.id == null ||
-        account.approved != true ||
-        account.version != 1 ||
+    final photoFactory = ref.watch(parcelPhotoServiceFactoryProvider);
+    if (currentAccess.id == null ||
+        currentAccess.approved != true ||
+        currentAccess.version != 1 ||
         repository is! RiderSessionApi) {
       return const UnavailableWorkspaceRepository();
     }
@@ -46,25 +95,26 @@ final workspaceRepositoryProvider = Provider<WorkspaceRepository>(
     ref.onDispose(() => alive = false);
     bool isCurrent() =>
         alive &&
-        ref.read(authControllerProvider).user?.id == account.id &&
+        ref.read(authControllerProvider).user?.id == currentAccess.id &&
         ref.read(authControllerProvider).user?.approved == true;
     final proofs = ProtectedParcelProofStore(
       origin: config.origin,
-      accountId: account.id!,
+      accountId: currentAccess.id!,
     );
-    final photos = ParcelPhotoService(
+    final photos = photoFactory(
       origin: config.origin,
-      accountId: account.id!,
+      accountId: currentAccess.id!,
       proofs: proofs,
       isCurrent: isCurrent,
     );
+    activePhotos = photos;
     ref.onDispose(photos.dispose);
     return OperationsRepository(
       repository as RiderSessionApi,
-      accountId: account.id!,
+      accountId: currentAccess.id!,
       journal: SecureCommandJournal(
         origin: config.origin,
-        accountId: account.id!,
+        accountId: currentAccess.id!,
       ),
       writesVerified: config.operationsWritesVerified,
       parcelWritesVerified: config.parcelWritesVerified,
@@ -358,6 +408,7 @@ class WorkspaceController extends ChangeNotifier {
     cash.setForeground(value);
     messages.setForeground(value);
     notifications.setForeground(value);
+    operations?.photos?.setForeground(value);
     if (_foreground == value) return;
     _foreground = value;
     _poll?.cancel();
@@ -372,6 +423,12 @@ class WorkspaceController extends ChangeNotifier {
     }
     if (value) unawaited(refreshAll());
   }
+
+  Future<void> clearUnsubmittedPhotoDraftForSignOut() async {
+    await operations?.photos?.clearForSignOut();
+  }
+
+  void cancelPhotoDraftSignOut() => operations?.photos?.cancelSignOut();
 
   void _schedulePoll() {
     _poll?.cancel();
@@ -442,7 +499,15 @@ class WorkspaceController extends ChangeNotifier {
       _cooldownTimer?.cancel();
       // Deliver access loss before awaiting session cleanup or a widget rebuild.
       _changed();
-      if (!_disposed) await onSessionEnd?.call(failure.message);
+      if (!_disposed) {
+        var notice = failure.message;
+        try {
+          await operations?.photos?.clearForSignOut();
+        } catch (_) {
+          notice = '$notice Unsubmitted photo cleanup could not be confirmed.';
+        }
+        await onSessionEnd?.call(notice);
+      }
     }
     return failure;
   }
@@ -703,8 +768,7 @@ class WorkspaceController extends ChangeNotifier {
             'Collection recorded. Bring the parcel to its origin hub.',
           'out_for_delivery' =>
             'Departure recorded. Follow the current buyer stop.',
-          'delivered' =>
-            'Delivery recorded. The buyer confirms receipt separately.',
+          'delivered' => deliveryRecordedNotice(result['commercial_status']),
           'delivery_failed' =>
             'Attempt recorded. Return the parcel to its destination hub.',
           _ => 'Work request confirmed.',

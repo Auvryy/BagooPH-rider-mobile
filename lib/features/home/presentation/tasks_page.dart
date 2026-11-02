@@ -15,6 +15,7 @@ import '../data/operations_models.dart';
 import 'task_stage_label.dart';
 import 'task_payment_instruction.dart';
 import 'stop_mode_page.dart';
+import 'stop_guidance.dart';
 import 'work_summary.dart';
 
 class TasksPage extends StatelessWidget {
@@ -265,7 +266,7 @@ class TasksPage extends StatelessWidget {
                   stage: selected.stage,
                   stop: selected.stop.name ?? 'Stop name unavailable',
                   address: selected.stop.address ?? 'Address unavailable',
-                  nextStep: selected.nextInstruction,
+                  nextStep: taskInstruction(selected),
                   operation: selected,
                 );
           return SafeArea(

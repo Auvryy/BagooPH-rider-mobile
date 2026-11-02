@@ -9,7 +9,9 @@ abstract final class RiderColors {
   static const rose = Color(0x14E00D42);
   static const accentGlow = Color(0x29E00D42);
   static const accentPressed = Color(0xFFC20836);
-  static const accentText = Color(0xFFE00D42);
+
+  /// AA-readable text and outline shade from the primary crimson family.
+  static const accentText = accentPressed;
 
   /// Canvas & Surfaces
   static const canvas = Color(0xFFFAFAFA);
@@ -25,7 +27,7 @@ abstract final class RiderColors {
   static const body = Color(0xFF18181B);
   static const slate = Color(0xFF62626B);
   static const muted = Color(0xFF62626B);
-  static const slateMuted = Color(0xFF94A3B8);
+  static const slateMuted = muted;
 
   /// Borders & Dividers: Whisper-quiet 1px borders
   static const border = Color(0xFFDEDEE3);

@@ -1,5 +1,134 @@
 # Rider major tasks and build workflow
 
+**November 1 locally verified client work:** [Delivery guidance and recovery access](plans/rider-workflow-recovery/README.md)
+aligns order completion/earnings presentation with current web version two and
+adds specific password, session, cash and custody website handoffs. It covers
+M01/M07/M11/M14/M15/M16 without clearing operational gates. Bagoo's Wallet
+recipient/proof and version-two handover source fixes are on branch
+`fix/rider-wallet-trip-evidence`, 2 commits ahead of the live web `main`; its
+focused backend suite and the Rider's pinned native Wallet consumer test passed.
+Azure deployment and phone acceptance are still pending.
+
+**Latest full serial PC regression (November 2):** the complete suite passed
+**715 tests with 8 skips and zero failures** in 5m14s using one Flutter test
+worker and `flutter test --no-pub --concurrency=1 --reporter=compact test`.
+It ran on Rider branch commit `f0de3a2`, including current runtime code
+`daacf85` and its Doorstep Guide tests. The preceding full run at `968e18f`
+passed 713 tests; that account-access cleanup source is published as `961d8b8`.
+The new
+fixture-dependent Wallet test is one skip in that ordinary suite; its
+windowless opt-in run passed **1/1** against Bagoo `9e58312` using an in-memory
+storage adapter.
+Before the background-memory follow-up, the focused photo-recovery and
+parcel-outcome suites passed **19/19**. The November 2 follow-up passed
+**41/41** across photo recovery, parcel outcomes and parcel workflows;
+`flutter analyze --no-pub` reported no issues in 6.4s. It covers encrypted
+same-account photo recovery on resume, background memory clearing, stale
+in-flight restore protection, expiry cleanup and sign-out removal that
+preserves separately retained command proof, including a late picker result.
+It also removes a proof file from a save that finishes during sign-out.
+These are simulated PC checks, not Android lifecycle acceptance. The serial
+command was:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact test/parcel_photo_recovery_test.dart test/parcel_outcome_pages_test.dart test/parcel_workflow_test.dart
+```
+
+It did not touch a phone, ADB, emulator, install, or app window. A further
+November 2 account-access follow-up passed **19/19** across photo recovery, the
+workspace account lifecycle, and Parcel Finder session checks. The expanded
+final run passed **45/45** across photo recovery, parcel outcomes, parcel
+workflows, workspace account lifecycle, and Parcel Finder session checks. It
+covers an approved-to-holding refresh, encrypted draft and picker-marker deletion,
+command-proof preservation, and marker-backed retry after storage cleanup
+fails. `flutter analyze --no-pub` found no issues in 6.4s. These checks used
+mocked storage on the PC. The full suite also passed after these changes;
+neither run accessed the connected phone, ADB, an emulator, or an app window.
+M16.02 owner policy acceptance, whole-app private cleanup, and physical Android
+lifecycle acceptance remain open. The serial command was:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact test/parcel_photo_recovery_test.dart test/parcel_outcome_pages_test.dart test/parcel_workflow_test.dart test/workspace_photo_access_lifecycle_test.dart test/parcel_finder_session_test.dart
+```
+
+The current arm64 debug APK was built from Rider code commit `daacf85`, including
+the saved-note/missing-note Doorstep Guide. The focused Home and Stop Mode tests
+passed **46/46**, analysis found no issues, and the APK passed archive,
+package/SDK, ARM64-engine, manifest and APK v2-signature checks. The profile
+APK remains the earlier build from `ba7823a`. A fresh Linux Device Preview debug
+build from the same Rider runtime passed with one Ninja job; it was not launched.
+Neither Android APK was installed; both use the scaffold ID and Android Debug
+signing. The local build config supplied only `OPERATIONS_WRITES_VERIFIED=true`;
+see the hashes and limits in
+[Android release evidence](ANDROID_RELEASE.md) and
+[HDB-05 acceptance](plans/home-dashboard-branch-plan/HDB-05-EVIDENCE.md).
+The same-config fake-server activation test passed **2/2** without network
+requests.
+An unauthenticated PC GET to Rider Home returned 401 JSON with private/no-cache
+headers and no redirect; no credentials or command writes were sent.
+The earlier full run at historical checkout `38e25cf` passed
+696 tests in 8m10s; the 695-test run at `54d56f2` is superseded. Focused PC
+checks also include scanner layout coverage, 145 extended page tests and 23
+motion/high-contrast tests; see
+[verification evidence](VERIFICATION_AND_READINESS.md) for commands, revisions,
+older baseline details and outstanding gates.
+The later contrast/status review adds an AA-readable brand text shade and
+readable muted text. Three current-theme serial PC batches passed 303 selected
+contrast, status, responsive, and map/navigation tests across the app.
+Android TalkBack, grayscale, physical-device, Azure and staging acceptance
+remain separate.
+
+The map/privacy runtime code at `9d7e8cf` and test-only revision `039d40d`
+passed six focused PC checks, including 320 px Home/Stop Mode layouts at 200%
+text, plus clean analysis. The app-only Parcel Finder feature also passed its
+focused suite (**20/20**), including 320 px/200% Stop Mode layout. A historical
+arm64 profile APK was rebuilt from runtime code `9d7e8cf` and passed archive-
+integrity, package-metadata, APK v2 debug-signature and embedded-disclosure
+checks; it was not installed. At the contrast-update checkpoint, an arm64-targeted
+debug APK was built from published revision `8b50401` and passed archive,
+package/SDK/version, debug-signature and SHA-256 checks; it was not installed.
+See [Android release packaging](ANDROID_RELEASE.md) and the
+[rehearsal record](plans/rider-workflow-recovery/REHEARSAL.md).
+
+**Initial post-publication GitHub fetch (November 1):** Rider `main` was
+`4367331`; the defense branch `fix/rider-route-privacy-disclosure` was
+`e099156`, 54 commits ahead and 0 behind `main`. This included the three
+reviewed commits since the previous published ref `2f8fc69`. The 699-test
+result at `fc99a02` records the published-branch checkpoint; the full run at
+`d04cb54` was a historical local checkpoint, superseded by the 702-test result
+above. At the original test checkout,
+`38e25cf` was one documentation-only commit ahead of the then-published
+`514e1cc` and 44 commits ahead, 0 behind `main`. The published accessibility
+follow-up adds an AA-readable theme text shade, regression tests and expanded
+PC evidence. The proof
+recovery and Trips viewer PC suites have since passed **20/20** at Rider
+revision `cbd6b21`;
+simulated picker and widget tests do not establish physical phone behavior.
+The parcel command/workflow/outcome suites also passed **42/42** at `3839de6`,
+including simulated exact replay and large-text phone-width forms. A headless
+Rider-to-kernel scenario passed **1/1**
+against Bagoo `9e58312`, covering COD replay and proof retention plus failed
+return and foreign denial. Physical phone acceptance remains deferred.
+
+**November 1 COD compatibility follow-up:** Rider commit `41f0fda` also fixes
+UUID parsing for backend rider shifts and updates the version-two COD native
+assertions. The focused financial model tests passed (**8/8**), and the
+headless cash-page widget file passed (**7/7**), including the pending-offer
+first-party website handoff. The isolated native COD/hub-receipt scenario then
+passed (**1/1**) against Bagoo `9e58312` under a virtual display. A full hub
+receipt released **₱25.00** of that parcel's delivery earnings; a **₱1.00**
+shortage left the other parcel's **₱25.00** delivery earnings pending. No
+desktop screen or phone was used. Azure cash acceptance and physical Android
+acceptance remain open; see the
+[cash verification record](plans/rider-cash-remittance/VERIFICATION.md).
+
+**November 1 headless failure-return check:** the focused Rider client-to-kernel
+suite passed **1/1** against Bagoo `9e58312`. It verifies one recorded attempt,
+courier custody until destination-hub receipt, approved retry/reassignment,
+retained original Trips proof and denial to another rider, without opening a
+window or using a phone. Azure, physical Android and full recovery/RTS acceptance
+remain open; see the [parcel verification record](plans/rider-orders-delivery-trips/VERIFICATION.md).
+
 This is the feature map for building BagooPH Rider Mobile, reviewed October 5,
 2026. It answers **what we need to build, in what order, and what proves each
 area works**. The [detailed backlog](SUBTASK_BACKLOG.md) now turns these areas
@@ -26,7 +155,7 @@ to the Laravel account adapter. M02 has its account transport, secure-store
 adapter and presentation foundation; M03 has the bounded account slice described
 in [ACCOUNT_ACCESS.md](ACCOUNT_ACCESS.md). Azure and physical Android account
 checks are recorded in [AZURE_ACCOUNT_ACCESS.md](AZURE_ACCOUNT_ACCESS.md).
-The selected [Home dashboard/navigation extension](plans/home-dashboard-navigation/README.md) now has local v1 Home/queue/detail and durable duty/claim adapters, a map-first panel, road routing and explicit navigation lifecycle. The [Home refinement](plans/home-dashboard-navigation/HOME_POLISH.md) adds compact counted queues, fresh stop/map selection, ordinary phone page scrolling clear of bottom navigation, wide-window panels and verified Azure Home/queue reads. [HDB-05](plans/home-dashboard-branch-plan/HDB-05-EVIDENCE.md) adds accepted controlled native/website owned-detail/duty/claim checks and enables the approved local build profile. Physical-device and later operation acceptance remain outstanding. Account checks do not finish
+The historical [Home dashboard/navigation extension](plans/home-dashboard-navigation/README.md) records an earlier Geoapify road-routing design; that provider path was superseded on October 25. Current Rider maps use Leaflet/OpenStreetMap on Android and FlutterMap/OpenStreetMap in Linux Device Preview. The default road-routing provider is unavailable, and current-stop directions explicitly open Google Maps. The map disclosure explains that tile coordinates and the source IP address can reveal the approximate displayed area; the directions disclosure identifies the saved destination sent to Google Maps. The [Home refinement](plans/home-dashboard-navigation/HOME_POLISH.md) adds compact counted queues, fresh stop/map selection, ordinary phone page scrolling clear of bottom navigation, wide-window panels and verified Azure Home/queue reads. [HDB-05](plans/home-dashboard-branch-plan/HDB-05-EVIDENCE.md) adds accepted controlled native/website owned-detail/duty/claim checks and enables the approved local build profile. Physical-device and later operation acceptance remain outstanding. Account checks do not finish
 a major area or clear unrelated backend gates.
 
 **October 13 Home planning review:** the [Home branch plan](plans/home-dashboard-branch-plan/README.md)
@@ -179,7 +308,9 @@ account roles. Operational pickup and final-mile work use one `courier` role.
 Preserve the shared route: seller → pickup rider → Origin Bayan Hub → at least
 one Mother Hub → Destination Bayan Hub → final-mile rider or self-pickup counter
 → buyer. Hub manifests, intake and counter release remain authorized web/hub
-actions; the Rider app cannot shortcut this chain or confirm buyer receipt.
+actions; the Rider app has no buyer-confirmation command. The server may complete
+a newer flow-version order automatically after verified recipient handoff;
+collected COD still follows separate hub remittance.
 
 The execution milestones R00–R11, proposed dates and capacity assumptions stay
 in [DELIVERY_PLAN.md](DELIVERY_PLAN.md). The areas below partition that same
@@ -438,8 +569,10 @@ package. No non-COD success, buyer completion or cash remittance is added.
 **October 22 prepaid extension:** the [paid Wallet slice](plans/prepaid-delivery/README.md)
 adds source-authorized prepaid handoff, omits cash controls/fields and invalidates
 changed payment reviews. Original proof/UUID recovery remains shared with COD.
-Retained Wallet proof/recipient gaps are reproduced against the real local
-backend and remain owner dependencies; live prepaid writes stay disabled.
+The source-level retained Wallet proof/recipient gap was fixed on Bagoo branch
+`fix/rider-wallet-trip-evidence`; backend regressions and the native consumer
+acceptance now pass against that source. Merge/deployment and controlled live
+acceptance remain open; prepaid writes stay disabled.
 
 **Outcome:** the assigned rider records a genuine recipient handoff and exact
 cash when COD applies.
@@ -552,8 +685,10 @@ user directory or a new realtime/push service.
 ### M11 — Trips and recorded history
 
 The [October 22 prepaid extension](plans/prepaid-delivery/README.md) labels
-Wallet history without inventing cash or recipient facts. Correct original
-Wallet proof/recipient responses remain an explicit backend acceptance gap.
+Wallet history without inventing cash facts and now returns original recipient
+and proof from the matching immutable receipt. The backend source fix and native
+consumer test pass on the review branch; Azure deployment and controlled
+acceptance remain open.
 
 **October 18 selected implementation:** the [order-to-history slice](plans/rider-orders-delivery-trips/README.md)
 consumes the accepted retained-assignment resource for pickup and final mile,
@@ -644,11 +779,13 @@ not automatic extra scope, and debug/API configuration stays out of rider flows.
 
 ### M15 — COD remittance and earnings visibility
 
-**October 22 selected implementation:** the
+**October 22 selected implementation, November 1 version-two check:** the
 [Cash & Remittance package](plans/rider-cash-remittance/README.md) activates
 OPS-05 with an authoritative read-only dashboard/detail first, then original
 protected remittance offers. An offer leaves balances unchanged until the
-independent owning hub receipt; earnings remains unavailable. Local financial,
+independent owning hub receipt. The isolated native version-two check passed:
+a full owning-hub receipt released that parcel's delivery earnings, while a
+shortage left the other parcel's delivery earnings pending. Local financial,
 lifecycle and native cross-role checks passed with 638 full-suite tests and
 ordinary Linux/Android builds; see [verification](plans/rider-cash-remittance/VERIFICATION.md).
 Azure/phone acceptance remains separate.
@@ -673,6 +810,13 @@ acceptance is a prerequisite even if cash layouts are developed earlier.
 ### M16 — Reliability, Android acceptance and release
 
 **Outcome:** the demonstrated capabilities are real, repeatable and clearly bounded.
+
+**Current release baseline (November 1, 2026):** Android release packaging now
+rejects the scaffold application ID and missing local signing settings before
+Gradle tasks execute. A PC-only debug APK build passed with the existing package
+and debug signing; no release key/package ID was supplied, and no phone was used.
+See [Android release packaging](ANDROID_RELEASE.md) and the
+[verification record](VERIFICATION_AND_READINESS.md).
 
 1. Build failure handling into every slice: cancellation, single pending intent,
    same-key replay/reconciliation, safe memory/draft cleanup and bounded polling.
@@ -713,7 +857,8 @@ opens the next operational gate.
    intake from the owning web roles. Physical logistics remains web/hub-owned.
 6. **Complete delivery and exception paths.** Implement M07, then M08 as their
    backend gates pass. Prove destination-hub assignment/departure, genuine proof,
-   exact COD evidence, buyer-only completion, failed return and restricted recovery.
+   exact COD evidence, server-owned flow-version-specific order completion,
+   failed return and restricted recovery.
    Include wrong actor, stale input, duplicate and uncertain-result cases.
 7. **Complete everyday support.** Implement M10, M11, M13 and remaining M14.
    Chat must keep phase recipients; history/profile must stay truthful. Basic

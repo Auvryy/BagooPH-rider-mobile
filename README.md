@@ -1,183 +1,165 @@
 # BagooPH Rider Mobile
 
-Flutter application for BagooPH pickup and delivery couriers. Both assignment
-phases belong to the same rider app and courier account role.
+Flutter application for BagooPH couriers handling seller pickup and assigned
+final-mile delivery. Rider is a courier-role client; Buyer, Seller, logistics
+hub and Admin workflows belong to their own applications. The backend remains
+authoritative for approval, assignment, parcel custody, order state, COD and
+earnings.
 
-## Rider map
+## Current Rider app
 
-Home uses bundled Leaflet 1.9.4 and standard OpenStreetMap light tiles inside a
-local native web view. The clearly labelled sample line joins a sample rider to
-a sample delivery point; it contains no logistics route, live position or parcel
-assignment. No map API key is required. Current-stop external directions remain
-available. See the [street-map plan](docs/plans/rider-street-map/README.md) for
-scope, rendering dependencies and verification limits.
+The repository contains a working native client, not only the original account
+starter. It includes:
 
-For a Linux phone frame, run from this repository:
+- Real Azure account access, email-verified registration, approval/restriction
+  holding, secure session restoration and logout.
+- Home and task queues, assigned pickup/departure actions, Stop Mode and
+  buyer-provided stop instructions when the task supplies them.
+- Android waybill camera integration, recipient and private photo evidence,
+  exact COD entry, failed-delivery reporting and protected recovery of
+  uncertain submissions.
+- Retained Trips with an in-app private proof viewer, plus Messages,
+  Notifications, Cash & Remittance, Company and handover issue pages.
+- Rider Profile and Settings, with some account/security actions handed off to
+  fixed first-party website pages.
+
+These are client capabilities; they do not prove that every action is enabled or
+accepted on Azure. Operational write gates default to off and require their own
+deployment and cross-role evidence. The current client state and outstanding
+gates are summarized in [verification and readiness](docs/VERIFICATION_AND_READINESS.md),
+with flow-specific details in the [workflow rehearsal](docs/plans/rider-workflow-recovery/REHEARSAL.md)
+and [delivery verification](docs/plans/rider-orders-delivery-trips/VERIFICATION.md).
+
+## Rider app and phone website
+
+The phone-responsive Courier website also supports waybill scanning and proof
+photo uploads, so those should not be presented as unavailable on the web. The
+clearest extra Rider feature is **Parcel Finder**: a rider can attach a
+session-only personal location label to an owned parcel in Stop Mode. It does
+not assign, scan or change custody. Other differences are the Android camera
+lifecycle integration, encrypted account/API-scoped recovery for uncertain
+commands and original proof, and the private proof viewer in Trips. See the
+[source-backed comparison](docs/plans/rider-workflow-recovery/REHEARSAL.md).
+
+The Rider and Courier website remain two presentations of the courier role.
+Pending cash-offer review and cancellation, and selected account/security flows,
+still open the first-party website.
+
+## Map and location behavior
+
+Android renders the bundled Leaflet map in Android System WebView. Linux Device
+Preview uses a FlutterMap fallback. The map displays a saved stop or a clearly
+labelled sample illustration; its sample line is not certified road geometry,
+an assignment or a delivery claim. The default road-routing provider is
+unavailable, so the app has no in-app road route, GPS-follow or rerouting
+session. When a rider explicitly opens External directions, Google Maps receives
+the saved stop destination. OpenStreetMap tile requests reveal the displayed
+area through tile coordinates and source IP. See the
+[street-map plan](docs/plans/rider-street-map/README.md) for renderer and
+disclosure details.
+
+## Project plan and design
+
+The [documentation map](docs/README.md) links the architecture, courier flow,
+API handoffs and selected implementation plans. The
+[major task map](docs/TASK_TRACKING.md) groups work into 16 areas; the
+[detailed backlog](docs/SUBTASK_BACKLOG.md) contains 180 cards and 63 suggested
+batches. These remain the full project plan, not a claim that every card is
+implemented. Check each plan and the readiness record for its actual state.
+
+Stop Mode and session-only Parcel Finder have client implementations. The
+current Doorstep Guide shows buyer-provided stop instructions when present;
+richer authorized collection and entrance fields remain planned. Their behavior
+and remaining acceptance are recorded in the
+[feature direction](docs/FEATURE_DIRECTION.md),
+[Parcel Finder verification](docs/plans/rider-parcel-finder/VERIFICATION.md)
+and [workflow rehearsal](docs/plans/rider-workflow-recovery/REHEARSAL.md).
+Visual tokens and interaction guidance are in the
+[Rider design system](docs/DESIGN_SYSTEM.md).
+
+The working presentation target is **November 21, 2026** in Asia/Manila;
+November 20 is the latest development deadline. The
+[delivery plan](docs/DELIVERY_PLAN.md) records scope and capacity constraints.
+
+## Local development
+
+Use Flutter 3.47.1 / Dart 3.13.1 or a compatible newer stable SDK. Sample
+repositories and preview fixtures are for automated tests; ordinary app
+launches use real account access. There is no Demo login or Preview Rider route.
+
+For a phone-sized preview on Linux, run from this repository root:
 
 ```sh
 flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.rider.json
 ```
 
-The ignored local configuration preserves existing accepted feature flags; it
-does not configure maps. If that file is absent, omit its argument and preserve
-the normal unverified-operation gates. Linux needs WebKitGTK 4.1; Android uses
-its system WebView. A full restart is required after adding the native plugin.
+The ignored `.env.rider.json` file preserves local Rider configuration. If it is
+absent, omit only `--dart-define-from-file=.env.rider.json`; do not add sample
+login or enable operational write gates. For ordinary Linux use, run
+`flutter run -d linux --debug`; it connects to the configured Azure account
+service. Chrome is a layout target, not an accepted native secure-session test
+target.
 
-## Current account flow
+When an authorized Android test device is available, Flutter can target its
+device ID with the same local Rider configuration. Android camera, picker,
+permission and process-lifecycle acceptance must be recorded on the physical
+device; Linux preview does not establish those results. For account setup and
+live-check limits, see [account access](docs/ACCOUNT_ACCESS.md) and
+[Azure acceptance](docs/AZURE_ACCOUNT_ACCESS.md).
 
-- Real Laravel account login, own-account home and current-device logout.
-- Registration with rider details, vehicle, private documents and email verification.
-- Grouped registration fields with responsive columns and numbered circular steps.
-- User-supplied GooRiders logo for Flutter headers and Android/web launcher icons,
-  with bundled Plus Jakarta Sans and the Rider design tokens.
-- Android application scaffold, with Linux and web development targets.
-- Direct Azure account access on ordinary Android/Linux runs; optional layout frame.
-- New applications remain pending server review; operational actions require the corresponding server capability and acceptance gate.
+## Android release
 
-Approved accounts now open **Tasks, Trips, Messages and Profile** navigation,
-with Settings under Profile. Native resources follow server capabilities and
-independent acceptance gates; unavailable features retain the configured Rider
-website fallback instead of showing fictional live work. See [Rider pages](docs/RIDER_PAGES.md).
+The debug/profile APK uses a scaffold application ID and debug signing. A
+production release requires an approved Rider package ID and local signing
+configuration; neither is present in the current PC setup. Release packaging is
+fail-closed until those inputs are supplied. See
+[Android release packaging](docs/ANDROID_RELEASE.md). A locally built or signed
+APK alone does not establish device, deployment or cross-role acceptance.
 
-Everyday builds use real Azure account access. Sample pages are confined to
-widget tests and have no app button or route. The
-[native API handoff](docs/api/WORKSPACE_HANDOFF.md) records backend prerequisites
-for live queues, trips and messaging.
+## Verification
 
-See [working account access](docs/ACCOUNT_ACCESS.md) for setup, controls and limits.
+The latest full serial PC regression passed **702 tests with 8 skips and zero
+failures** in 4m18s at Rider branch commit `87244ed` (runtime code `30412ed`),
+using one Flutter test worker. The opt-in headless Wallet client scenario also
+passed **1/1** against Bagoo `9e58312`; its journal uses an in-memory test
+storage adapter, so it does not verify the Android storage plugin. Focused
+photo-recovery and parcel-outcome suites passed **19/19**, and the analyzer
+reported no issues. The arm64 debug and profile APKs were built from branch
+head `94d2aaf`, PC-verified and not installed. The fake-server activation test
+using the same config passed **2/2**. No phone, ADB, emulator or
+app window was used. Exact commands, revisions, skip reasons, APK evidence and
+remaining gates are in [verification and readiness](docs/VERIFICATION_AND_READINESS.md).
 
-Profile now includes website-aligned contact, password and additional-email
-forms prepared for the native app. Native settings integration is prepared and
-gated by the server's supported version. Backend main now implements the
-[Settings contract](docs/api/SETTINGS_HANDOFF.md), and Azure now advertises native
-Settings version 1. Generic Settings website links are removed; private password
-and email acceptance checks remain outstanding. See
-[account settings](docs/SETTINGS.md) for the exact behavior and remaining live checks.
-
-The existing Bagoo Laravel application remains the backend and source of business
-rules. Future API integration must preserve approval, assignment scope, authenticated
-custody, buyer-only completion, and separate COD reconciliation. This repository
-does not modify the web/backend project.
-
-## Rider plan
-
-Start with the [documentation map](docs/README.md) for rider responsibilities,
-the recommended Flutter stack, application architecture, the proposed Laravel
-API contract, and acceptance checks.
-
-The [major task map](docs/TASK_TRACKING.md) defines 16 work areas, their screens,
-build order, dependencies and completion evidence. The
-[detailed backlog](docs/SUBTASK_BACKLOG.md) breaks them into **180 subtasks** and
-**63 suggested batches**, with stable IDs, steps, checks, dependencies and effort.
-Later prompts can request one card or a batch; full feature cards remain planned.
-Always reference the current Bagoo website project's docs and features before
-each slice so changes in other
-roles stay visible; [sources and synchronization](docs/SOURCES.md) explain where
-to check. The map is a plan, not implemented app functionality.
-
-The selected frontend direction is **Stop Mode, Parcel Finder and Doorstep
-Guide**. [Their feature plan](docs/FEATURE_DIRECTION.md) defines the desired
-screens, acceptance, dependencies and pickup-versus-final-mile dispatch model.
-These are selected additions for planning, not implemented starter features;
-the detailed catalog and estimate still describe the existing baseline.
-
-The [complete frontend design specification](docs/DESIGN_SPEC.md) now defines
-navigation, the counted screen inventory, page-by-page composition, responsive
-geometry, visual tokens, maps, theory-based rationale and illustrative layouts.
-It covers the current plan plus explicitly optional/conditional/future concepts;
-the full inventory remains planned. The account access slice is implemented
-locally; the wider operational inventory remains planned.
-
-The working presentation target is **November 21, 2026** in Asia/Manila.
-Development and verification should finish by **November 20**. The
-[delivery plan](docs/DELIVERY_PLAN.md) records dependencies and scope decisions;
-the date does not imply that the proposed features are implemented.
-
-## Requirements
-
-Created with Flutter 3.47.1 and Dart 3.13.1. Use that version or a compatible newer
-stable Flutter SDK. Commit `pubspec.lock` to keep resolved dependencies consistent.
-
-Linux development needs Flutter's Linux desktop toolchain. Chrome is used for the
-web target. Android builds require the Android SDK and a compatible JDK; the Android
-Studio IDE and an emulator are optional when using command-line tools and a real phone.
-
-## Run locally
-
-Ordinary native launches connect directly to the deployed Azure HTTPS API:
+Run the serial checks individually to keep resource use bounded:
 
 ```sh
-flutter pub get
-flutter run -d linux
+flutter analyze --no-pub
+flutter test --no-pub --concurrency=1 --reporter=compact test
 ```
 
-Sign in with your current Rider website credentials. Your account's real server
-approval/restriction state decides which pages are available. Passwords are never
-bundled or automatically filled. No Home/workspace sample entry is available.
-
-For an authorized connected Android phone:
-
-```sh
-flutter run --dart-define-from-file=config/azure.json
-```
-
-Select the Android device if Flutter offers multiple targets. For an installable
-APK, build the same connected app:
-
-```sh
-flutter build apk --debug
-```
-
-The APK is `build/app/outputs/flutter-apk/app-debug.apk`. Replacement installation
-is needed after rebuilding a phone package, but changing between a sample app
-and a live app is no longer part of the workflow. With a connected phone,
-`flutter run` installs and launches the app for you.
-
-`config/azure.json` makes the same server choice explicit. The historical
-`config/workspace-preview.json` is now a compatibility alias for that live
-configuration; old HOME_PREVIEW/WORKSPACE_PREVIEW flags are ignored by app routing
-and never clear the API address. Device Preview is disabled by default. Developers
-can explicitly enable its layout frame with `--dart-define=DEVICE_PREVIEW=true`;
-this still uses real Azure account access on Linux.
-
-Use Linux/Android for deployed account checks. Chrome does not implement the
-accepted native secure-session workflow and is not the everyday login target.
-Explicit custom/local API configurations remain available for isolated developer
-checks; follow [account access](docs/ACCOUNT_ACCESS.md). Never put real credentials
-in source, documentation, command-line build defines or logs.
-
-See [Azure account access](docs/AZURE_ACCOUNT_ACCESS.md) for the accepted contract,
-secure-session behavior and the precise live-versus-local evidence.
+These PC checks do not replace deployed Azure/cross-role acceptance or physical
+Android camera, photo-picker and lifecycle review. Current operational writes,
+release signing and those acceptance gates are tracked in the linked readiness
+record.
 
 ## Project files
 
-See [branding and icon generation](docs/BRANDING.md) for the active logo,
-provenance and reproducible launcher resources.
-
 ```text
-lib/main.dart       App entry point and live login/register routes
-lib/app/            Rider theme
-lib/core/ui/        Shared Bagoo identity
-lib/features/auth/  Login, registration, and shared form presentation
-assets/             Bagoo mark, Plus Jakarta Sans font and font license
-test/               Account behavior, transport and responsive layout checks
-android/            Android runner
-linux/              Linux preview runner
-web/                Web preview runner
-pubspec.yaml        App metadata and dependencies
+lib/main.dart                    App entry point and account routes
+lib/features/auth/               Login, registration and session state
+lib/features/home/               Home, task queues and Stop Mode
+lib/features/parcels/            Waybill scanning and delivery outcomes
+lib/features/parcel_finder/      Session-only personal parcel labels
+lib/features/navigation/          Maps, saved stops and external directions
+lib/features/trips/               Retained history and private proof viewing
+lib/features/messages/             Assignment-bound rider messages
+lib/features/notifications/       Rider notification inbox
+lib/features/cash/                Cash and remittance presentation
+lib/features/handover/             Handover issue reporting/recovery
+lib/features/settings/             Rider profile and account settings
+docs/plans/                        Feature plans and acceptance evidence
+test/                               Controller, transport and widget checks
+assets/                             Branding, typeface and bundled map files
+android/, linux/, web/              Platform runners
+pubspec.yaml                        App metadata and dependencies
 ```
-
-## Checks
-
-```sh
-flutter analyze
-flutter test
-flutter build linux --debug
-flutter build web
-```
-
-The Android application identifier and Flutter launcher icons are scaffold defaults
-to finalize before a mobile release. Begin with current website/API agreement
-(B01-A), then the remaining prerequisite conventions and Flutter foundation. Authentication
-and approval holding follow against accepted native endpoints. Select the later
-slice from the detailed backlog instead of treating the whole plan as one branch.

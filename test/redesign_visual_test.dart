@@ -20,6 +20,7 @@ import 'package:bagoo_rider_mobile/features/handover/presentation/handover_contr
 import 'package:bagoo_rider_mobile/features/handover/presentation/handover_issues_page.dart';
 import 'package:bagoo_rider_mobile/features/handover/presentation/handover_evidence_page.dart';
 
+import 'support/app_lifecycle_support.dart';
 import 'support/handover_support.dart';
 
 import 'support/test_auth_repository.dart';
@@ -59,7 +60,10 @@ Future<void> tap(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  setUp(() {
+    startRiderTestLifecycleResumed();
+    SharedPreferences.setMockInitialValues({});
+  });
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() async {
     final font = FontLoader('Plus Jakarta Sans')
@@ -161,13 +165,13 @@ void main() {
       if (name == 'messages') {
         await tap(
           tester,
-          find.byKey(const ValueKey('conversation-preview-pickup')),
+          find.byKey(const ValueKey('conversation-pickup-1-101-3')),
         );
         await capture(tester, 'conversation-390');
         await tap(tester, find.byKey(const ValueKey('conversation-back')));
         await tap(
           tester,
-          find.byKey(const ValueKey('conversation-preview-ended')),
+          find.byKey(const ValueKey('conversation-final_mile-3-103-5')),
         );
         await capture(tester, 'conversation-restricted-390');
         await tap(tester, find.byKey(const ValueKey('conversation-back')));

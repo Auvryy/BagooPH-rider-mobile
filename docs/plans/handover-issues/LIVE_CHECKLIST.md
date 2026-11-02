@@ -1,7 +1,10 @@
 # Handover deployment and device checklist
 
 This checklist owns the outstanding acceptance for the [selected integration](README.md).
-The existing Geoapify key is sufficient; handover uses Bagoo's authenticated API.
+Handover uses Bagoo's authenticated API and does not require a map-provider key.
+Current Rider maps use OpenStreetMap tiles; default in-app road routing is
+unavailable. See the [current street-map plan](../rider-street-map/README.md)
+for map and external-directions disclosures.
 Do not create substitute actors/parcels or confirm possession for a fixture.
 The October 14 native Linux read check passed fresh version-1 discovery, Home
 handover flags and an empty involved queue; see [evidence](EVIDENCE.md).
@@ -79,7 +82,7 @@ and the [repeat-safe Linux check](LINUX_REPORT_CHECK.md).
 PC phone-frame review from the Rider repository root:
 
 ```sh
-flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.geoapify.json
+flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-from-file=.env.rider.json
 ```
 
 Native acceptance on a connected phone uses the same app/configuration and its

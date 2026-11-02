@@ -33,7 +33,8 @@ class ParcelOutcomeFields extends StatefulWidget {
   State<ParcelOutcomeFields> createState() => ParcelOutcomeFieldsState();
 }
 
-class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields> {
+class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields>
+    with WidgetsBindingObserver {
   final recipient = TextEditingController(), received = TextEditingController();
   final change = TextEditingController(), location = TextEditingController();
   final proofField = GlobalKey<FormFieldState<ParcelProof>>();
@@ -42,7 +43,20 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields> {
       choosing = false,
       validImage = true,
       resettingReview = false;
-  ParcelProof? get proof => proofField.currentState?.value;
+  ParcelProof? get proof {
+    final selected = proofField.currentState?.value;
+    if (selected == null) return null;
+    return widget.photos?.isUsableDraft(
+              selected,
+              taskId: widget.task.id,
+              version: widget.task.version,
+              action: widget.action,
+            ) ==
+            true
+        ? selected
+        : null;
+  }
+
   bool get ready =>
       proof != null &&
       validImage &&
@@ -55,11 +69,50 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     widget.photos?.addListener(_photoChanged);
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) return;
+    final field = proofField.currentState;
+    if (field?.value == null) return;
+    field!.didChange(null);
+    widget.onChanged();
+    setState(() {});
+  }
+
   void _photoChanged() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    final selected = proofField.currentState?.value;
+    if (selected != null &&
+        widget.photos?.isUsableDraft(
+              selected,
+              taskId: widget.task.id,
+              version: widget.task.version,
+              action: widget.action,
+            ) !=
+            true) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted ||
+            !identical(proofField.currentState?.value, selected) ||
+            widget.photos?.isUsableDraft(
+                  selected,
+                  taskId: widget.task.id,
+                  version: widget.task.version,
+                  action: widget.action,
+                ) ==
+                true) {
+          return;
+        }
+        proofField.currentState?.didChange(null);
+        widget.onChanged();
+        setState(() {});
+      });
+      return;
+    }
+    setState(() {});
   }
 
   @override
@@ -91,6 +144,7 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     widget.photos?.removeListener(_photoChanged);
     recipient.dispose();
     received.dispose();
@@ -233,7 +287,16 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields> {
         const SizedBox(height: 12),
         FormField<ParcelProof>(
           key: proofField,
-          validator: (file) => file == null || !validImage
+          validator: (file) =>
+              file == null ||
+                  !validImage ||
+                  widget.photos?.isUsableDraft(
+                        file,
+                        taskId: widget.task.id,
+                        version: widget.task.version,
+                        action: widget.action,
+                      ) !=
+                      true
               ? 'Choose a valid original proof image.'
               : null,
           builder: (field) => WorkspacePanel(

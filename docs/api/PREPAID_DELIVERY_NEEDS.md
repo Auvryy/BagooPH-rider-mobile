@@ -6,6 +6,14 @@ Reviewed October 22, 2026 against backend
 [parcel/Trips](ORDER_DELIVERY_TRIPS_NEEDS.md), [Messages](MESSAGES_NEEDS.md) and
 [Notifications](NOTIFICATIONS_NEEDS.md) acceptance requests cumulative.
 
+**November 1 source follow-up:** the Wallet retained-proof/recipient code and
+regressions are now on Bagoo branch `fix/rider-wallet-trip-evidence` through
+`9e58312d130809eb8cd878189b729f1f702291d8`. Its focused backend suite passed
+452 tests and 16,115 assertions. The Rider native prepaid consumer check also
+passed against that pinned source. These results accept source compatibility;
+they do not establish an Azure deployment, controlled live acceptance or
+physical Android behavior. The write gates remain false.
+
 ## Confirmed local contract
 
 - [x] Existing delivery endpoint accepts evidenced paid Wallet with actual
@@ -19,21 +27,23 @@ Reviewed October 22, 2026 against backend
 - [x] A separate default-false `PREPAID_DELIVERY_WRITES_VERIFIED` gate prevents
   local compatibility evidence from activating live prepaid writes.
 
-## Concrete backend owner work
+## Source fix (completed on the review branch)
 
-- [ ] Fix `RiderTripService::checkpointProof` to resolve an original paid Wallet
-  delivery's immutable receipt/proof evidence. Its unconditional `CodAccount`
-  lookup currently returns 404 despite the returned retained proof link. Verify
-  original assignment/checkpoint/actor ownership, hash and private/no-store
-  response behavior. Do not manufacture a COD account or reuse unrelated proof.
-- [ ] Return the original Wallet recipient from the matching immutable handover
-  receipt in retained Trips. Current detail derives recipient only from a COD
-  collection, so it returns null despite a saved Wallet recipient. Do not fall
-  back to edited current-order or later-assignment recipient information.
-- [ ] Add owner tests for paid Wallet original proof/recipient, later
-  reassignment, another rider denied, changed proof rejected, original command
-  replay and unchanged COD private proof. Update native assertions to require
-  the corrected behavior and rerun against the fixed revision.
+- [x] `RiderTripService::checkpointProof` resolves original paid Wallet evidence
+  from the immutable receipt matched to delivery, checkpoint and actor. The
+  response retains private/no-store behavior and validates the original image
+  hash without creating a COD account or borrowing unrelated proof.
+- [x] Retained Trips returns the original Wallet recipient from its matching
+  receipt. It does not use the edited current-order recipient or a later
+  assignment's recipient.
+- [x] Backend regressions cover receipt identity mismatches, changed/missing
+  proof, foreign access and reassignment. The native client now requires the
+  original recipient, exact proof bytes/hash, one replayed result, one Wallet
+  receipt and zero COD accounts.
+
+The source changes are in Bagoo commits `15d7fc3` and `9e58312` on the branch
+above. The [prepaid verification](../plans/prepaid-delivery/VERIFICATION.md)
+records the pinned native run and limits.
 
 ## Deployment and controlled acceptance
 
@@ -52,7 +62,7 @@ Reviewed October 22, 2026 against backend
 - [ ] Enable prepaid writes only after this acceptance. Existing parcel
   activation is also required; duty/claim acceptance is insufficient.
 
-No new endpoint or API key is requested. Physical Android acceptance can follow
-when a phone is available. The mobile work does not authorize backend edits or
-production data preparation by the mobile agent. See the
+No new endpoint or API key is requested. Source acceptance does not authorize
+production data preparation or enable writes. Physical Android acceptance can
+follow when a phone is available. See the
 [verification record](../plans/prepaid-delivery/VERIFICATION.md) for evidence.

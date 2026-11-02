@@ -73,6 +73,7 @@ class AppConfig {
     final uri = Uri.tryParse(apiBase);
     if (uri == null ||
         !uri.hasAuthority ||
+        uri.host.isEmpty ||
         uri.userInfo.isNotEmpty ||
         uri.hasQuery ||
         uri.hasFragment ||

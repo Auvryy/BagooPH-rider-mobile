@@ -96,7 +96,8 @@ class NativeParcelFixture extends Tests\Feature\Courier\RiderParcelApiTest
                 'cash' => App\Models\CodAccount::get()->map(fn ($cash) => [
                     'delivery_id' => (string) $cash->delivery_id, 'expected_cents' => (string) $cash->expected_cents,
                     'balance_cents' => (string) $cash->state['balances']['rider:'.$this->holder->id],
-                    'events' => $cash->events()->count(), 'reconciled' => $cash->reconciled_at !== null])->all(),
+                    'events' => $cash->events()->count(), 'reconciled' => $cash->reconciled_at !== null,
+                    'private_evidence' => $cash->events()->oldest('id')->first()?->private_evidence ?? []])->all(),
                 'public_proofs' => Illuminate\Support\Facades\Storage::disk('public')->allFiles('delivery-proofs')];
         }
         if ($operation === 'prepare_prepaid') {
@@ -192,7 +193,8 @@ class NativeParcelFixture extends Tests\Feature\Courier\RiderParcelApiTest
                     'offers' => $cash->events()->where('event_type', 'handover_offered')->count(),
                     'receipts' => $cash->events()->where('event_type', 'handover_received')->count(),
                     'reconciled_cents' => (string) $cash->state['reconciled_cents'],
-                    'web_parity' => true, 'order_status' => $p->order->status, 'payment_status' => $p->order->payment_status,
+                    'web_parity' => true, 'flow_version' => (int) $p->order->logistics_flow_version,
+                    'order_status' => $p->order->status, 'payment_status' => $p->order->payment_status,
                     'delivered' => $p->checkpoints()->where('checkpoint_type', 'delivered')->count()];
             }
             return ['accounts' => $accounts, 'commands' => App\Models\RiderCommand::where('action', 'cash.offer')->count()];
@@ -297,11 +299,6 @@ class NativeParcelFixture extends Tests\Feature\Courier\RiderParcelApiTest
         if ($operation === 'receive_failure') {
             $this->receiveFailureFlow($this->parcels['failure']);
             return ['received' => true];
-        }
-        if ($operation === 'buyer_receive') {
-            $p = $this->parcels['delivery'];
-            $this->actingAs($p->order->buyer)->post('/buyer/orders/'.$p->order_id.'/confirm')->assertSessionHas('success');
-            return ['order' => $p->order->fresh()->status];
         }
         if ($operation === 'reassign_retry') {
             $p = $this->parcels['failure']->fresh();

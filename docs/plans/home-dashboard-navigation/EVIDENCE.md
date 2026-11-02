@@ -1,5 +1,10 @@
 # Dashboard/navigation implementation evidence
 
+> **Historical provider evidence.** The Geoapify implementation and smoke
+> checks below record an earlier design. They do not establish that Geoapify
+> routes are active in the current app. The current street-map plan and the
+> November 1 correction at the end of this page describe active behavior.
+
 ## Live-data phase
 
 Implemented accepted v1 Home/queues/detail decoding, account discovery, transport
@@ -146,3 +151,17 @@ text and wide-to-phone resizing work, and Home ends above bottom navigation.
 Configured ARM64 Android debug and ordinary Linux builds pass. The connected
 phone was no longer detected during this correction, so installation of this
 updated APK and physical touch review remain pending.
+
+## Current map and directions disclosure — November 1, 2026
+
+The default `roadRoutingProvider` is `UnavailableRoadRouting`; the in-app road
+route client is not active. The earlier pre-Navigate Geoapify notice is shown
+only when a configured route client is injected, so it is not visible in the
+default app. Android's Leaflet/System WebView and Linux Device Preview's
+FlutterMap request public OpenStreetMap tiles for the displayed saved-stop or
+sample area. Tile coordinates and the source IP address can reveal the
+approximate area to OpenStreetMap. The current-stop external-directions action
+explicitly opens Google Maps with the saved stop address or coordinates. Neither
+map uses live rider GPS. At Rider code revision `9d7e8cf`, four focused PC tests
+passed serially and `flutter analyze --no-pub` found no issues. No phone or
+emulator interaction was performed.

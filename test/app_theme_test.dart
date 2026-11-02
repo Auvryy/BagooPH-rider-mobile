@@ -4,6 +4,12 @@ import 'package:bagoo_rider_mobile/app/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+double _contrastRatio(Color first, Color second) {
+  final luminances = [first.computeLuminance(), second.computeLuminance()]
+    ..sort();
+  return (luminances[1] + 0.05) / (luminances[0] + 0.05);
+}
+
 void main() {
   test('DESIGN_SYSTEM.md defines the One Red #E00D42 standard and Plus Jakarta Sans', () {
     final spec = File('docs/DESIGN_SYSTEM.md').readAsStringSync();
@@ -61,6 +67,30 @@ void main() {
       );
     },
   );
+
+  test('status and brand text colors meet AA contrast on light surfaces', () {
+    final redTint = Color.alphaBlend(RiderColors.rose, RiderColors.pureWhite);
+    expect(
+      _contrastRatio(RiderColors.accentText, RiderColors.pureWhite),
+      greaterThanOrEqualTo(4.5),
+    );
+    expect(
+      _contrastRatio(RiderColors.accentText, redTint),
+      greaterThanOrEqualTo(4.5),
+    );
+    expect(
+      _contrastRatio(RiderColors.muted, RiderColors.canvas),
+      greaterThanOrEqualTo(4.5),
+    );
+    expect(
+      _contrastRatio(RiderColors.slateMuted, RiderColors.pureWhite),
+      greaterThanOrEqualTo(4.5),
+    );
+    expect(
+      _contrastRatio(Colors.white, RiderColors.accent),
+      greaterThanOrEqualTo(4.5),
+    );
+  });
 
   for (final reduced in [false, true]) {
     testWidgets(

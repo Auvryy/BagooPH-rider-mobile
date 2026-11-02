@@ -27,7 +27,9 @@ gates remain mandatory. Unsupported release/recovery/earnings portions stay open
 - Use multipart deliver with original bytes and accepted field names; respect 5,242,880-byte genuine JPEG/PNG/WebP validation.
 - Show committed/reconciled result and receipt facts; an upload or GPS proximity never claims success.
 - Close active task/navigation after accepted outcome and expose a truthful recorded-work/history entry when available.
-- Keep prepaid handoff unavailable until a separately approved backend outcome contract exists; buyer completion and remittance remain separate.
+- Keep prepaid handoff outside this COD-only branch. Its source contract and
+  independent write gates must pass before prepaid activation; buyer completion
+  and remittance remain separate.
 
 ## File ownership
 

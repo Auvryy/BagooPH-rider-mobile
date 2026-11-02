@@ -2,7 +2,8 @@
 
 The onboarding Skip, Next and Sign in controls now explicitly use the bundled
 Rider font. The onboarding widget suite passed **10/10**, and a headless visual
-capture showed readable labels. The recorded debug APK predates this correction.
+capture showed readable labels. The debug APK from `05bca09` includes this
+correction and passed the archive, metadata, architecture and signature checks.
 
 At Rider commit `5ab6b36`, the full PC suite passed **716 tests with 8 skips**
 in 6m17s using `flutter test --no-pub --concurrency=1 --reporter=json test`.
@@ -54,7 +55,7 @@ The current branch has advanced beyond those test and APK revisions. Commit
 `4109b54` added the app-level inactive-state cover; `dart analyze lib/main.dart`
 reported no issues there. Commit `f02fd25` adds Android `FLAG_SECURE` while the
 activity is paused. The one-worker `:app:compileDebugKotlin` task succeeded
-with a 768 MiB heap cap, and an arm64 debug APK was built from `18759ce` and
+with a 768 MiB heap cap, and an arm64 debug APK was built from `05bca09` and
 passed archive, package/SDK, ARM64-engine and APK v2 signature checks. It has
 the scaffold application ID and Android Debug signer and was not installed.
 See [current source and APK limits](ANDROID_RELEASE.md).

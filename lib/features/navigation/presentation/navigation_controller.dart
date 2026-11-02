@@ -47,7 +47,8 @@ class NavigationController extends ChangeNotifier {
   Timer? _authorizationTimer,
       _permissionTimer,
       _authorizationExpiry,
-      _routeFixExpiry;
+      _routeFixExpiry,
+      _displayFixExpiry;
   CancelToken? _routeCancel;
   DateTime? _lastRouteAt, _lastAuthorizedAt;
   int _generation = 0, _offRouteFixes = 0;
@@ -194,6 +195,26 @@ class NavigationController extends ChangeNotifier {
     }
     _lastFixAt = value.recordedAt;
     fix = value;
+    _displayFixExpiry?.cancel();
+    if (!manual) {
+      final generation = _generation;
+      final remaining =
+          const Duration(seconds: 30) - now().difference(value.recordedAt);
+      _displayFixExpiry = Timer(remaining, () {
+        if (_disposed ||
+            generation != _generation ||
+            !active ||
+            _lastFixAt != value.recordedAt) {
+          return;
+        }
+        _routeCancel?.cancel();
+        fix = null;
+        road = null;
+        message =
+            'Waiting for a fresh accurate location before calculating a route.';
+        _changed();
+      });
+    }
     _changed();
     if (road == null) {
       await refreshRoute();
@@ -202,7 +223,11 @@ class NavigationController extends ChangeNotifier {
     final projection = road!.project(value.point);
     if (projection.distance > 75) {
       _offRouteFixes++;
-      if (_offRouteFixes >= 2) await refreshRoute();
+      if (_offRouteFixes >= 2) {
+        road = null;
+        _changed();
+        await refreshRoute();
+      }
     } else {
       _offRouteFixes = 0;
       road = road!.trim(projection);
@@ -238,6 +263,7 @@ class NavigationController extends ChangeNotifier {
     _routeCancel = CancelToken();
     final generation = _generation;
     final cancel = _routeCancel!;
+    final routeOrigin = fix!.point;
     _routeFixExpiry?.cancel();
     if (!manual) {
       final remaining =
@@ -252,8 +278,17 @@ class NavigationController extends ChangeNotifier {
     }
     _changed();
     try {
-      final result = await routes.route(fix!.point, target!, profile!, cancel);
+      final result = await routes.route(routeOrigin, target!, profile!, cancel);
       if (_disposed || generation != _generation || cancel.isCancelled) return;
+      final latest = fix;
+      if (latest == null ||
+          (!manual && !latest.goodAt(now())) ||
+          const Distance().as(LengthUnit.Meter, routeOrigin, latest.point) >=
+              50) {
+        road = null;
+        message = 'Location changed. Waiting to update the road route.';
+        return;
+      }
       road = result;
       _offRouteFixes = 0;
       message = manual ? 'Manual preview origin · no GPS tracking' : null;
@@ -430,6 +465,7 @@ class NavigationController extends ChangeNotifier {
     _permissionTimer?.cancel();
     _authorizationExpiry?.cancel();
     _routeFixExpiry?.cancel();
+    _displayFixExpiry?.cancel();
     _checkingGeneration = null;
     final stream = _positions;
     _positions = null;

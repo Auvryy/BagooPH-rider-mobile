@@ -1,5 +1,10 @@
 # Leaflet delivery map and neutral rider controls
 
+> **Routing update in progress:** The November 2 request selects real
+> assigned-stop road guidance. This document records the earlier sample-only
+> decision; see the [road-routing plan](../rider-road-routing/README.md) for
+> the current implementation and outstanding live/device checks.
+
 ## Current scope
 
 The user's revised direction supersedes the earlier provider-backed map design:

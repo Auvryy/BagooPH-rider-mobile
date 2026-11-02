@@ -4,12 +4,16 @@ import 'dart:io';
 
 import 'package:bagoo_rider_mobile/app/theme.dart';
 import 'package:bagoo_rider_mobile/features/navigation/data/road_routing.dart';
+import 'package:bagoo_rider_mobile/features/navigation/data/route_geometry.dart';
+import 'package:bagoo_rider_mobile/features/navigation/data/saved_delivery_stop.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/leaflet_delivery_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:latlong2/latlong.dart';
 
 import 'support/delivery_map.dart';
+import 'navigation_test.dart' as fixtures;
 
 Widget view(DeliveryMapFactory factory) => ProviderScope(
   overrides: [
@@ -27,6 +31,49 @@ Widget view(DeliveryMapFactory factory) => ProviderScope(
 );
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  testWidgets('the embedded map receives updated and cleared route geometry', (
+    tester,
+  ) async {
+    final session = FakeDeliveryMapSession();
+    final stop = SavedDeliveryStop.fromTask(fixtures.task())!;
+    final route = RoadRoute([
+      [const LatLng(14, 121), const LatLng(14.01, 121)],
+    ]);
+    Widget page(RoadRoute? road) => ProviderScope(
+      overrides: [
+        deliveryMapFactoryProvider.overrideWithValue(() => session),
+        deliveryMapDocumentProvider.overrideWithValue(
+          () async => 'window.riderDeliverySample={};',
+        ),
+      ],
+      child: MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            height: 300,
+            child: LeafletDeliveryMap(stop: stop, road: road),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpWidget(page(route));
+    await tester.pumpAndSettle();
+    expect(session.road, same(route));
+    await tester.pumpWidget(page(null));
+    await tester.pumpAndSettle();
+    expect(session.road, isNull);
+    expect(session.closes, 0);
+    session.routeFailure = true;
+    await tester.pumpWidget(page(route));
+    await tester.pumpAndSettle();
+    expect(session.closes, 1);
+    expect(
+      find.textContaining('road line could not be displayed'),
+      findsOneWidget,
+    );
+    expect(find.text('Leaflet test view'), findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
+    expect(session.closes, 1);
+  }, variant: const TargetPlatformVariant({TargetPlatform.android}));
   test('the bundled Leaflet document uses unfiltered OSM tiles with no key or account connection', () async {
     final doc = await deliveryMapDocument();
     expect(doc, contains('Leaflet 1.9.4'));

@@ -9,12 +9,13 @@ function run(stop){
  const map={attributionControl:{setPrefix(){}},fitBounds(points,options){h.fit={points,options}},setView(point,zoom){h.view={point,zoom}},invalidateSize(){},remove(){h.removed++}};
  const node=()=>({setAttribute(){},addEventListener(type,cb){h.attribution=cb}});
  const L={map:(id,options)=>{h.options=options;return map},tileLayer:(url,options)=>{h.url=url;h.tiles=options;return {addTo(){return this},on(type,cb){h.handlers[type]=cb;return this}}},
-  polyline:(points,options)=>{h.lines.push({points,options});return{addTo(){return this}}},
-  circleMarker:(point,options)=>{const pin={point,options};h.pins.push(pin);return{addTo(){return this},bindTooltip(label){pin.label=label;return this}}},
+  polyline:(points,options)=>{h.lines.push({points,options});return{addTo(){return this},remove(){h.removedLayers=(h.removedLayers||0)+1}}},
+  circleMarker:(point,options)=>{const pin={point,options};h.pins.push(pin);return{addTo(){return this},bindTooltip(label){pin.label=label;return this},remove(){h.removedLayers=(h.removedLayers||0)+1}}},
   control:()=>({addTo(){this.onAdd?.();return this}}),
   DomUtil:{create:node},DomEvent:{disableClickPropagation(){},on(){}}};
  L.control.zoom=()=>({addTo(){return this}});
  const window={riderDeliverySample:sample,riderSavedStop:stop,BagooMap:{postMessage:value=>h.events.push(JSON.parse(value))},addEventListener(type,cb){h.hide=cb}};
+ h.window=window;
  vm.runInNewContext(runtime,{L,window,document:{createElement:node,querySelectorAll:()=>[node(),node()],querySelector:node,getElementById:node},ResizeObserver:class{observe(){}disconnect(){h.disconnected++}},fetch(){throw Error('Unexpected API request')},navigator:{get geolocation(){throw Error('Unexpected GPS access')}}});
  return h;
 }
@@ -35,6 +36,14 @@ test('a saved stop draws one literal-text pin without a sample line, GPS or rout
  assert.equal(h.pins[0].label.textContent,stop.label);
  assert.equal(h.view.zoom,16);assert.equal(h.fit,undefined);
  assert.ok(h.events.some(e=>e.type==='ready'));
+});
+test('an authorized route draws and clears its road geometry without requesting GPS',()=>{
+ const h=run({latitude:14.3,longitude:121.2,label:'Saved stop'});
+ h.window.setRiderRoadRoute([[[14.29,121.19],[14.3,121.2]]]);
+ assert.equal(h.lines.length,2);assert.equal(h.lines[1].options.color,'#E00D42');
+ assert.equal(h.pins.at(-1).label,'Route start');assert.equal(h.fit.points.length,2);
+ h.window.setRiderRoadRoute(null);assert.equal(h.removedLayers,3);
+ h.window.setRiderRoadRoute([[[999,121],[14.3,121.2]]]);assert.equal(h.lines.length,2);
 });
 test('an invalid saved stop fails closed instead of replacing it with the sample',()=>{
  for(const latitude of [NaN,Infinity,86]){

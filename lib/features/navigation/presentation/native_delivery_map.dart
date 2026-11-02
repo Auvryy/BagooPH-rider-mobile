@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/theme.dart';
 import '../data/saved_delivery_stop.dart';
+import '../data/route_geometry.dart';
 
 final deliveryRoadPointsProvider = FutureProvider<List<LatLng>>((ref) async {
   final data = jsonDecode(
@@ -42,8 +43,9 @@ final deliveryTilesProvider = Provider<TileProvider Function()>(
 // A native Flutter surface scales and clips with Device Preview. A GTK WebView
 // is a separate native overlay and cannot reliably share its simulated viewport.
 class NativeDeliveryMap extends ConsumerStatefulWidget {
-  const NativeDeliveryMap({super.key, this.stop});
+  const NativeDeliveryMap({super.key, this.stop, this.road});
   final SavedDeliveryStop? stop;
+  final RoadRoute? road;
   @override
   ConsumerState<NativeDeliveryMap> createState() => _NativeDeliveryMapState();
 }
@@ -62,6 +64,16 @@ class _NativeDeliveryMapState extends ConsumerState<NativeDeliveryMap> {
   }
 
   void _fit(List<LatLng> points) {
+    if (widget.road != null) {
+      _controller.fitCamera(
+        CameraFit.coordinates(
+          coordinates: widget.road!.lines.expand((line) => line).toList(),
+          padding: const EdgeInsets.all(48),
+          maxZoom: 16,
+        ),
+      );
+      return;
+    }
     if (widget.stop != null) {
       _controller.move(points.first, 16);
       return;
@@ -131,7 +143,15 @@ class _NativeDeliveryMapState extends ConsumerState<NativeDeliveryMap> {
                           options: MapOptions(
                             initialCenter: points.first,
                             initialZoom: widget.stop == null ? 13 : 16,
-                            initialCameraFit: widget.stop == null
+                            initialCameraFit: widget.road != null
+                                ? CameraFit.coordinates(
+                                    coordinates: widget.road!.lines
+                                        .expand((line) => line)
+                                        .toList(),
+                                    padding: const EdgeInsets.all(48),
+                                    maxZoom: 16,
+                                  )
+                                : widget.stop == null
                                 ? CameraFit.coordinates(
                                     coordinates: points,
                                     padding: const EdgeInsets.all(48),
@@ -163,30 +183,36 @@ class _NativeDeliveryMapState extends ConsumerState<NativeDeliveryMap> {
                               )(),
                               errorTileCallback: (_, _, _) => _tileError(),
                             ),
-                            if (widget.stop == null)
+                            if (widget.stop == null || widget.road != null)
                               PolylineLayer(
                                 simplificationTolerance: 0,
                                 polylines: [
-                                  Polyline(
-                                    points: points,
-                                    strokeWidth: 5,
-                                    borderStrokeWidth: 2,
-                                    color: const Color(0xFFE00D42),
-                                    borderColor: Colors.white,
-                                    strokeCap: StrokeCap.round,
-                                    strokeJoin: StrokeJoin.round,
-                                  ),
+                                  for (final line
+                                      in widget.road?.lines ?? [points])
+                                    Polyline(
+                                      points: line,
+                                      strokeWidth: 5,
+                                      borderStrokeWidth: 2,
+                                      color: const Color(0xFFE00D42),
+                                      borderColor: Colors.white,
+                                      strokeCap: StrokeCap.round,
+                                      strokeJoin: StrokeJoin.round,
+                                    ),
                                 ],
                               ),
                             MarkerLayer(
                               markers: [
-                                if (widget.stop == null)
+                                if (widget.stop == null || widget.road != null)
                                   Marker(
-                                    point: points.first,
+                                    point:
+                                        widget.road?.lines.first.first ??
+                                        points.first,
                                     width: 22,
                                     height: 22,
                                     child: _pin(
-                                      'Sample rider',
+                                      widget.road != null
+                                          ? 'Route start'
+                                          : 'Sample rider',
                                       const Color(0xFF18181B),
                                     ),
                                   ),

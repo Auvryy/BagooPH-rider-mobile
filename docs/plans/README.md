@@ -8,7 +8,7 @@ roadmap and backlog; it does not replace their scope, stable IDs or deadlines.
 | Rider delivery guidance and recovery | Recorded completion/earnings guidance, security and cash/custody website access; app-versus-phone-web defense comparison | Client batch and source-backed comparison locally verified; backend/live/device acceptance separate | [Plan](rider-workflow-recovery/README.md) |
 | Rider workflow updates | Current registration, earnings/shift compatibility, task-first Home and company joining | Client batch locally verified; deployed/physical acceptance separate | [Plan](rider-workflow-updates/README.md) |
 | Home dashboard/navigation | Historical October provider-backed map/location design; live Home foundation | Provider routing superseded October 25; current behavior is recorded in the [street-map plan](rider-street-map/README.md) | [Historical plan](home-dashboard-navigation/README.md) |
-| Rider street map | Leaflet/OpenStreetMap tiles, labelled sample path, saved-stop map and external directions | Current renderer and disclosure behavior source-reviewed; phone acceptance separate | [Plan](rider-street-map/README.md) |
+| Rider street map | Leaflet/OpenStreetMap tiles, labelled sample path, saved-stop map and external directions | Renderer source-reviewed; real routing is being added separately and phone acceptance remains open | [Plan](rider-street-map/README.md) |
 | Philippines map focus | Historical Geoapify country outline and stop-framing design | Merged in PR 19; presentation superseded by October 25 street-map decision | [Historical plan](philippines-map-focus/README.md) |
 | Rider map refinement | Historical Geoapify map and GPS-centering design | Superseded by current OpenStreetMap street-map direction | [Historical plan](rider-map-refinement/README.md) |
 | Map loading performance | Historical Geoapify credit scheduler and basemap-cache design | Superseded with the provider-backed renderer on October 25 | [Historical plan](map-loading-performance/README.md) |
@@ -23,6 +23,9 @@ roadmap and backlog; it does not replace their scope, stable IDs or deadlines.
 | Notifications inbox | Real pages, server unread total, exact displayed reads and safe links | Client locally verified; Azure/physical Android acceptance open | [Plan](rider-notifications/README.md) |
 
 ## Rules for future plans
+
+- [Rider road routing](rider-road-routing/README.md): real assigned-stop road
+  guidance is in progress; deployed provider and device acceptance remain open.
 
 1. Choose one stable descriptive slug and create `docs/plans/<slug>/README.md`.
    Keep that plan's steps, source review, decisions and evidence in its directory.

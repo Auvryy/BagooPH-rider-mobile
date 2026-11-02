@@ -19,6 +19,24 @@
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
   }).addTo(map);
   map.attributionControl.setPrefix(false);
+  var routeLayers = [];
+  window.setRiderRoadRoute = function (lines) {
+    routeLayers.forEach(function (layer) { layer.remove(); });
+    routeLayers = [];
+    if (!stop || lines === null) return;
+    var count = 0;
+    if (!Array.isArray(lines) || lines.length === 0 || lines.length > 100 || !lines.every(function (line) {
+      return Array.isArray(line) && line.length >= 2 && line.every(function (point) {
+        return ++count <= 10000 && Array.isArray(point) && point.length === 2 && Number.isFinite(point[0]) && Number.isFinite(point[1]) && Math.abs(point[0]) <= 85 && Math.abs(point[1]) <= 180;
+      });
+    })) return;
+    lines.forEach(function (line) {
+      routeLayers.push(L.polyline(line, {color: '#FFFFFF', weight: 8, interactive: false}).addTo(map));
+      routeLayers.push(L.polyline(line, {color: '#E00D42', weight: 5, interactive: false}).addTo(map));
+    });
+    routeLayers.push(L.circleMarker(lines[0][0], {radius: 8, color: '#FFFFFF', weight: 3, fillColor: '#18181B', fillOpacity: 1}).addTo(map).bindTooltip('Route start'));
+    map.fitBounds(lines.reduce(function (all, line) { return all.concat(line); }, []), {padding: [48, 64], maxZoom: 16, animate: false});
+  };
   if (stop) {
     var label = document.createElement('span'); label.textContent = stop.label;
     L.circleMarker(points[0], {radius: 9, color: '#FFFFFF', weight: 3, fillColor: '#E00D42', fillOpacity: 1}).addTo(map).bindTooltip(label);

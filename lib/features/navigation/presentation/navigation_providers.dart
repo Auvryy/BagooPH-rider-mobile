@@ -6,15 +6,23 @@ import '../../home/data/operations_repository.dart';
 import '../../settings/data/settings_models.dart';
 import '../../settings/presentation/settings_controller.dart';
 import '../../workspace/presentation/workspace_controller.dart';
-import '../data/road_routing.dart';
+import '../data/geoapify_client.dart';
 import '../data/navigation_location.dart';
 import 'navigation_controller.dart';
 import 'navigation_workspace_binding.dart';
 import 'home_location_controller.dart';
 
-final roadRoutingProvider = Provider<RoadRoutingClient>(
-  (ref) => UnavailableRoadRouting(),
+final roadRoutingKeyProvider = Provider<String>(
+  (ref) => const String.fromEnvironment('GEOAPIFY_API_KEY'),
 );
+
+final roadRoutingProvider = Provider<RoadRoutingClient>((ref) {
+  final key = ref.watch(roadRoutingKeyProvider).trim();
+  if (key.isEmpty) return UnavailableRoadRouting();
+  final client = GeoapifyClient(key);
+  ref.onDispose(client.dispose);
+  return client;
+});
 
 // Persistent across Home's widget/tab lifecycle; destroyed on identity/access
 // changes. No service starts until the rider explicitly presses Navigate.

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:bagoo_rider_mobile/app/theme.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/leaflet_delivery_map.dart';
+import 'package:bagoo_rider_mobile/features/navigation/data/route_geometry.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/native_delivery_map.dart';
 import 'package:bagoo_rider_mobile/features/onboarding/data/onboarding_preferences.dart';
 import 'package:bagoo_rider_mobile/features/onboarding/presentation/onboarding_page.dart';
@@ -28,6 +29,8 @@ class ObservedMap implements DeliveryMapSession {
         events.add(value['type'] as String);
         onEvent(message);
       });
+  @override
+  Future<void> updateRoute(RoadRoute? road) => delegate.updateRoute(road);
   @override
   Future<void> close() => delegate.close();
 }

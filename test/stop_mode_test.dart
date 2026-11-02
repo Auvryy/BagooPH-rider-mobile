@@ -805,8 +805,16 @@ void main() {
       await _tap(tester, 'stop-navigate');
       expect(h.nav.active, isTrue);
       expect(h.nav.road, isNotNull);
+      expect(
+        find.text('Road route to this assigned stop.', skipOffstage: false),
+        findsOneWidget,
+      );
       await _tap(tester, 'stop-navigation-stop');
       expect(h.nav.active, isFalse);
+      expect(
+        find.text('Road route to this assigned stop.', skipOffstage: false),
+        findsNothing,
+      );
       await _tap(tester, 'stop-navigate');
       expect(h.nav.active, isTrue);
       h.hubStop();

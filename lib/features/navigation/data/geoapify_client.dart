@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -19,11 +21,13 @@ export 'provider_scheduler.dart';
 /// origin and stop coordinates to Geoapify with the public client key. Requests
 /// use fixed map/API hosts and follow no redirects.
 class GeoapifyClient extends ChangeNotifier implements RoadRoutingClient {
+  static const _maxRouteBytes = 2000000;
   GeoapifyClient(
     this.apiKey, {
     Dio? client,
     ProviderScheduler? scheduler,
     this.tileCache,
+    this.routeStreamTimeout = const Duration(seconds: 20),
     DateTime Function()? now,
   }) : _client = client ?? Dio(),
        now = now ?? DateTime.now,
@@ -32,6 +36,7 @@ class GeoapifyClient extends ChangeNotifier implements RoadRoutingClient {
   final Dio _client;
   final ProviderScheduler scheduler;
   final MapTileCache? tileCache;
+  final Duration routeStreamTimeout;
   final DateTime Function() now;
   final _tiles = <String, CachedTile>{};
   final _tileFailures = <String, ({String message, CancelToken? cancel})>{};
@@ -156,12 +161,60 @@ class GeoapifyClient extends ChangeNotifier implements RoadRoutingClient {
       // Never include provider URLs or client keys in user-visible exceptions.
       if (_disposed) throw const ProviderFailure('Map provider stopped.');
       if (cancel?.isCancelled == true) throw cancel!.cancelError!;
+      if (responseType == ResponseType.stream) {
+        final body = response.data;
+        if (body is! ResponseBody) {
+          throw const FormatException('Route response is unavailable.');
+        }
+        final chunks = StreamIterator<Uint8List>(body.stream);
+        var complete = false;
+        try {
+          final length = int.tryParse(
+            response.headers.value('content-length') ?? '',
+          );
+          if (length != null && length > _maxRouteBytes) {
+            throw const FormatException('Route response is too large.');
+          }
+          final bytes = BytesBuilder(copy: false);
+          var total = 0;
+          final elapsed = Stopwatch()..start();
+          while (true) {
+            final remaining = routeStreamTimeout - elapsed.elapsed;
+            if (remaining <= Duration.zero) {
+              throw TimeoutException('Route response timed out.');
+            }
+            if (!await chunks.moveNext().timeout(remaining)) break;
+            final chunk = chunks.current;
+            if (_disposed) throw const ProviderFailure('Map provider stopped.');
+            if (cancel?.isCancelled == true) throw cancel!.cancelError!;
+            total += chunk.length;
+            if (total > _maxRouteBytes) {
+              throw const FormatException('Route response is too large.');
+            }
+            bytes.add(chunk);
+          }
+          response.data = jsonDecode(utf8.decode(bytes.takeBytes()));
+          complete = true;
+        } on TimeoutException {
+          throw const FormatException('Route response timed out.');
+        } finally {
+          if (!complete && cancel != null && !cancel.isCancelled) {
+            cancel.cancel('Route response rejected.');
+          }
+          await chunks.cancel();
+        }
+      }
       if (path.startsWith('/v1/tile/')) _tileFailures.remove(path);
       _forgetCancelledTileFailures();
       if (!coolingDown) _report(_tileFailures.values.lastOrNull?.message);
       return response;
     } on DioException catch (error) {
       if (CancelToken.isCancel(error)) rethrow;
+      if (responseType == ResponseType.stream &&
+          cancel != null &&
+          !cancel.isCancelled) {
+        cancel.cancel('Route request failed.');
+      }
       final status = error.response?.statusCode;
       final retry = int.tryParse(
         error.response?.headers.value('retry-after') ?? '',
@@ -208,21 +261,52 @@ class GeoapifyClient extends ChangeNotifier implements RoadRoutingClient {
         'Valid origin and stop coordinates are required.',
       );
     }
+    final requestCancel = CancelToken();
+    unawaited(
+      cancel.whenCancel.then((_) {
+        if (!requestCancel.isCancelled) {
+          requestCancel.cancel('Navigation stopped.');
+        }
+      }),
+    );
+    if (cancel.isCancelled) requestCancel.cancel('Navigation stopped.');
     try {
-      return RoadRoute.geoJson(
-        (await _get(
-          '/v1/routing',
-          query: {
-            'waypoints':
-                '${origin.latitude},${origin.longitude}|${target.latitude},${target.longitude}',
-            'mode': profile.mode,
-            'format': 'geojson',
-            'avoid': 'ferries',
-            'details': 'route_details',
-          },
-          cancel: cancel,
-        )).data,
-      );
+      final data = (await _get(
+        '/v1/routing',
+        query: {
+          'waypoints':
+              '${origin.latitude},${origin.longitude}|${target.latitude},${target.longitude}',
+          'mode': profile.mode,
+          'format': 'geojson',
+          'avoid': 'ferries',
+          'details': 'route_details',
+        },
+        responseType: ResponseType.stream,
+        cancel: requestCancel,
+      )).data;
+      if (data is! Map ||
+          data['features'] is! List ||
+          (data['features'] as List).isEmpty) {
+        throw const FormatException('No road route was returned.');
+      }
+      final feature = (data['features'] as List).first;
+      final properties = feature is Map ? feature['properties'] : null;
+      final legs = properties is Map ? properties['legs'] : null;
+      if (feature is! Map ||
+          feature['type'] != 'Feature' ||
+          legs is! List ||
+          legs.isEmpty ||
+          legs.any(
+            (leg) =>
+                leg is! Map ||
+                leg['steps'] is! List ||
+                (leg['steps'] as List).isEmpty,
+          )) {
+        throw const FormatException('Road route details are unavailable.');
+      }
+      final route = RoadRoute.geoJson(data);
+      route.validateEndpoints(origin, target);
+      return route;
     } on FormatException {
       throw const ProviderFailure('No valid road route was returned.');
     }

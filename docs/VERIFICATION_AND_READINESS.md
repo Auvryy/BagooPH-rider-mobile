@@ -10,13 +10,15 @@ source is now published as commit `961d8b8`. The new
 fixture-dependent Wallet test is one of the skips in the ordinary suite; its
 isolated headless run passed separately. The expanded photo-recovery, parcel
 outcome, parcel workflow, workspace account-lifecycle, and Parcel Finder suites
-passed **45/45**; `flutter analyze --no-pub` reported no issues in 6.4s. The
-latest arm64 debug and profile APKs were built from manifest-only commit
-`ba7823a`, after the Dart suite run at `961d8b8`; they passed archive,
-metadata, ARM64 engine, manifest and APK v2 signature checks. They use the
-scaffold package ID and Android Debug signing and were not installed. The same-config fake-server activation test
-passed **2/2**, verifying duty and pickup-claim UI/flow gating without live
-writes. No phone, ADB, emulator, install, or app window was used.
+passed **45/45**; `flutter analyze --no-pub` reported no issues in 6.4s. At
+Rider commit `daacf85`, the focused Home and Stop Mode widget tests passed
+**46/46**, analysis was clean, and a current arm64 debug APK was built. Its ZIP,
+package/SDK metadata, ARM64 Flutter engine, APK v2 signature, and manifest
+permissions were checked; the scaffold package ID and Android Debug signer
+remain, and the APK was not installed. The profile APK remains the earlier build
+from `ba7823a`. The same-config fake-server activation test passed **2/2**,
+verifying duty and pickup-claim UI/flow gating without live writes. No phone,
+ADB, emulator, install, or app window was used.
 
 The new windowless Rider Wallet client scenario passed **1/1** in 35 seconds
 against Bagoo `9e58312d130809eb8cd878189b729f1f702291d8`. It verified lost-result

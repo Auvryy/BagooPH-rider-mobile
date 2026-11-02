@@ -11,19 +11,19 @@ The November 2 configuration check found `RIDER_APPLICATION_ID` unset and
 
 ## Latest PC build artifacts — November 2, 2026
 
-Arm64-targeted debug and profile APKs were built sequentially from Rider commit
-`ba7823a` (`fix/rider-route-privacy-disclosure`), which removes unused location,
-notification, and foreground-service permissions from the default Android
-manifest. Its Dart source is unchanged from commit `961d8b8`, where the current
-Flutter suite and analysis were run. The ignored `.env.rider.json` supplied only
+The latest arm64-targeted debug APK was built on the PC from Rider commit
+`daacf85` (`fix/rider-route-privacy-disclosure`), which adds the saved buyer
+note and explicit missing-note state to Home and Stop Mode. The focused Home and
+Stop Mode widget tests passed 46/46, and `flutter analyze --no-pub` reported no
+issues at that source revision. The ignored `.env.rider.json` supplied only
 `OPERATIONS_WRITES_VERIFIED=true`; no API override or local-auth define was
-present. Gradle used one worker and a 1 GiB heap cap. Both builds completed
-with a nonfatal SDK XML version warning.
+present. Gradle used one worker and a 1 GiB heap cap. The build completed with a
+nonfatal SDK XML version warning.
 
-| Variant | Size | SHA-256 | Verification |
-|---|---:|---|---|
-| Debug | 176,229,927 bytes | `bb80d4e553edcc2faa0e755ecb2568c600518d27512142c35e44a807f198928f` | ZIP integrity; package/SDK metadata; ARM64 engine; APK v2 signature; location-service permissions absent |
-| Profile | 77,671,976 bytes | `f6334ab298f784444a5ae905372a274eb79e0df7f8d2a1280d7852bd90ac68a5` | ZIP integrity; package/SDK metadata; ARM64 engine; APK v2 signature; location-service permissions absent |
+| Variant | Source | Size | SHA-256 | Verification |
+|---|---|---:|---|---|
+| Debug | `daacf85` | 176,228,861 bytes | `215a1275cc6e4b83a7dce8a39e3d5a493cdecfd9391f91d1114e61af139e6d61` | ZIP integrity; package/SDK metadata; ARM64 Flutter engine; APK v2 signature; location, notification and foreground-service permissions absent |
+| Profile | `ba7823a` | 77,671,976 bytes | `f6334ab298f784444a5ae905372a274eb79e0df7f8d2a1280d7852bd90ac68a5` | Earlier ZIP integrity; package/SDK metadata; ARM64 engine; APK v2 signature; location-service permissions absent |
 
 Both have package ID `com.example.bagoo_rider_mobile`, version `0.1.0` (code
 1), minimum SDK 24, target SDK 36, and one standard Android Debug signer. Both

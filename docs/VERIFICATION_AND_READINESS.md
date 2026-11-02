@@ -1,5 +1,11 @@
 # Verification and documentation assessment
 
+At Rider commit `5ab6b36`, the full PC suite passed **716 tests with 8 skips**
+in 6m17s using `flutter test --no-pub --concurrency=1 --reporter=json test`.
+This includes the current privacy-cover test and lifecycle fixture. It does
+not establish physical Android behavior, deployed transactions, or release
+signing; those acceptance checks remain open.
+
 **Current status — November 2, 2026.** The scores and starter-screen statements
 below describe the October 5 planning snapshot, not current Rider behavior.
 The latest full serial PC regression passed **715 tests with 8 skips and zero

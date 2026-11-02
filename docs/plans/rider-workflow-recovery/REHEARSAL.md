@@ -264,7 +264,10 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   transitions clear the unsubmitted photo when the auth provider publishes the
   changed account state. The Trips proof viewer clears on background. See the
   [source audit](PRIVATE_DATA_LIFECYCLE.md); message-draft policy, whole-app
-  cleanup and real Android lifecycle acceptance remain open.
+  cleanup and real Android lifecycle acceptance remain open. The task queue and
+  selected stop also remain in memory; Stop Mode keeps the stop details rendered
+  while inactive, disables its actions and revalidates on resume. Android
+  recent-app snapshot behavior for those details has not been verified.
 - **Does the rider confirm that the buyer received the parcel?** The rider
   records the handoff. The backend returns the applicable status; newer
   flow-version orders may complete automatically. There is no separate

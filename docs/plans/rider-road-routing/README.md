@@ -38,6 +38,11 @@ provider configuration, route lifecycle, assignment changes and failures.
 These checks do not establish that Android permissions, service lifecycle,
 real provider access or deployed stop coordinates work on a device.
 
+A separate PC contract test starts navigation for an authorized stop through
+the actual Geoapify client with a synthetic HTTP response, checks the requested
+endpoints and resulting line, and confirms Stop clears it. This does not use a
+real provider key or prove production route availability.
+
 PC evidence: 63 provider/navigation/Stop Mode/map tests, 41 additional
 navigation and Home lifecycle tests, 6 embedded-map tests after the display
 failure safeguard, and 5 bundled renderer runtime checks passed. Flutter

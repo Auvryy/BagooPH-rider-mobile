@@ -14,6 +14,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 
+import 'geoapify_client_test.dart' as provider_fixture;
+
 OperationTask task({String id = '1', double latitude = 14.01}) {
   final j =
       (jsonDecode(
@@ -99,6 +101,64 @@ class Location implements NavigationLocation {
 }
 
 void main() {
+  test(
+    'an authorized stop receives the validated provider road line',
+    () async {
+      final adapter = provider_fixture.Adapter();
+      adapter.response = {
+        'type': 'FeatureCollection',
+        'features': [
+          {
+            'type': 'Feature',
+            'properties': {
+              'legs': [
+                {
+                  'steps': [
+                    {'from_index': 0, 'to_index': 1},
+                  ],
+                },
+              ],
+            },
+            'geometry': {
+              'type': 'LineString',
+              'coordinates': [
+                [121.0, 14.0],
+                [121.0, 14.01],
+              ],
+            },
+          },
+        ],
+      };
+      final dio = Dio()..httpClientAdapter = adapter;
+      final client = GeoapifyClient(
+        'synthetic-key',
+        client: dio,
+        scheduler: provider_fixture.Immediate(),
+      );
+      final nav = NavigationController(
+        routes: client,
+        authorize: (_) async => task(),
+        vehicleType: () async => 'motorcycle',
+        manual: true,
+      );
+      addTearDown(() {
+        nav.dispose();
+        client.dispose();
+      });
+      await nav.start(task(), manualOrigin: const LatLng(14, 121));
+      expect(nav.active, isTrue);
+      expect(nav.road?.lines.single, [
+        const LatLng(14, 121),
+        const LatLng(14.01, 121),
+      ]);
+      expect(
+        adapter.calls.single.queryParameters['waypoints'],
+        '14.0,121.0|14.01,121.0',
+      );
+      await nav.stop();
+      expect(nav.road, isNull);
+    },
+  );
   test(
     'the default app route provider keeps in-app road routing unavailable',
     () {

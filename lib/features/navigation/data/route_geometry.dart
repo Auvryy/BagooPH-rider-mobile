@@ -52,7 +52,10 @@ bool _hasFerry(Object? value, [int depth = 0]) {
     throw const FormatException('Route details are too deeply nested.');
   }
   if (value is Map) {
-    if (value['ferry'] == true) return true;
+    if (value['ferry'] == true ||
+        value['kind'] == 'ferry' ||
+        value['road_class'] == 'ferry')
+      return true;
     return value.values.any((item) => _hasFerry(item, depth + 1));
   }
   return value is List && value.any((item) => _hasFerry(item, depth + 1));
@@ -118,6 +121,27 @@ class RoadRoute {
     );
   }
   final List<List<LatLng>> lines;
+
+  void validateEndpoints(LatLng origin, LatLng target) {
+    const distance = Distance();
+    if (distance.as(LengthUnit.Meter, origin, lines.first.first) > 1500 ||
+        distance.as(LengthUnit.Meter, target, lines.last.last) > 1500) {
+      throw const FormatException(
+        'Route endpoints do not match the requested stop.',
+      );
+    }
+    for (var index = 1; index < lines.length; index++) {
+      if (distance.as(
+            LengthUnit.Meter,
+            lines[index - 1].last,
+            lines[index].first,
+          ) >
+          10) {
+        throw const FormatException('Route sections are disconnected.');
+      }
+    }
+  }
+
   RouteProjection project(LatLng point) {
     RouteProjection? nearest;
     final scale = math.cos(point.latitude * math.pi / 180) * 111195;

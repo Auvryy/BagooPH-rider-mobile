@@ -10,6 +10,7 @@ import 'package:latlong2/latlong.dart';
 class Adapter implements HttpClientAdapter {
   final calls = <RequestOptions>[];
   int status = 200;
+  Map<String, dynamic>? response;
   @override
   Future<ResponseBody> fetch(
     RequestOptions o,
@@ -18,20 +19,33 @@ class Adapter implements HttpClientAdapter {
   ) async {
     calls.add(o);
     return ResponseBody.fromString(
-      jsonEncode({
-        'type': 'FeatureCollection',
-        'features': [
-          {
-            'geometry': {
-              'type': 'LineString',
-              'coordinates': [
-                [121, 14],
-                [121.01, 14.01],
+      jsonEncode(
+        response ??
+            {
+              'type': 'FeatureCollection',
+              'features': [
+                {
+                  'type': 'Feature',
+                  'properties': {
+                    'legs': [
+                      {
+                        'steps': [
+                          {'from_index': 0, 'to_index': 1},
+                        ],
+                      },
+                    ],
+                  },
+                  'geometry': {
+                    'type': 'LineString',
+                    'coordinates': [
+                      [121, 14],
+                      [121.01, 14.01],
+                    ],
+                  },
+                },
               ],
             },
-          },
-        ],
-      }),
+      ),
       status,
       headers: {
         'content-type': ['application/json'],
@@ -76,6 +90,93 @@ void main() {
       expect(req.queryParameters['waypoints'], '14.0,121.0|14.01,121.01');
       expect(req.followRedirects, false);
       geo.dispose();
+    },
+  );
+  test(
+    'rejects road lines that miss the requested stop or contain gaps',
+    () async {
+      final adapter = Adapter(), dio = Dio()..httpClientAdapter = adapter;
+      final client = GeoapifyClient(
+        'synthetic-key',
+        client: dio,
+        scheduler: Immediate(),
+      );
+      addTearDown(client.dispose);
+      Future<RoadRoute> route() => client.route(
+        const LatLng(14, 121),
+        const LatLng(14.01, 121.01),
+        NavigationProfile.drive,
+        CancelToken(),
+      );
+      await expectLater(route(), completes);
+      adapter.response = {
+        'type': 'FeatureCollection',
+        'features': [
+          {
+            'type': 'Feature',
+            'properties': {
+              'legs': [
+                {
+                  'steps': [{}],
+                },
+              ],
+            },
+            'geometry': {
+              'type': 'MultiLineString',
+              'coordinates': [
+                [
+                  [121.0, 14.0],
+                  [121.001, 14.001],
+                ],
+                [
+                  [121.009, 14.009],
+                  [121.01, 14.01],
+                ],
+              ],
+            },
+          },
+        ],
+      };
+      await expectLater(route(), throwsA(isA<ProviderFailure>()));
+      adapter.response = {
+        'type': 'FeatureCollection',
+        'features': [
+          {
+            'type': 'Feature',
+            'properties': {
+              'legs': [
+                {
+                  'steps': [{}],
+                },
+              ],
+            },
+            'geometry': {
+              'type': 'LineString',
+              'coordinates': [
+                [121.0, 14.0],
+                [121.4, 14.4],
+              ],
+            },
+          },
+        ],
+      };
+      await expectLater(route(), throwsA(isA<ProviderFailure>()));
+      adapter.response = {
+        'type': 'FeatureCollection',
+        'features': [
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'LineString',
+              'coordinates': [
+                [121.0, 14.0],
+                [121.01, 14.01],
+              ],
+            },
+          },
+        ],
+      };
+      await expectLater(route(), throwsA(isA<ProviderFailure>()));
     },
   );
   test(

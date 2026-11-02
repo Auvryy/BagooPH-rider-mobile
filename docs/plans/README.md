@@ -24,6 +24,9 @@ roadmap and backlog; it does not replace their scope, stable IDs or deadlines.
 
 ## Rules for future plans
 
+- [Rider road routing](rider-road-routing/README.md): real assigned-stop road
+  guidance is in progress; deployed provider and device acceptance remain open.
+
 1. Choose one stable descriptive slug and create `docs/plans/<slug>/README.md`.
    Keep that plan's steps, source review, decisions and evidence in its directory.
    Add one registry row and one discovery link; do not rewrite another plan.

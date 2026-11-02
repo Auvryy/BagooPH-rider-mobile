@@ -209,20 +209,41 @@ class GeoapifyClient extends ChangeNotifier implements RoadRoutingClient {
       );
     }
     try {
-      return RoadRoute.geoJson(
-        (await _get(
-          '/v1/routing',
-          query: {
-            'waypoints':
-                '${origin.latitude},${origin.longitude}|${target.latitude},${target.longitude}',
-            'mode': profile.mode,
-            'format': 'geojson',
-            'avoid': 'ferries',
-            'details': 'route_details',
-          },
-          cancel: cancel,
-        )).data,
-      );
+      final data = (await _get(
+        '/v1/routing',
+        query: {
+          'waypoints':
+              '${origin.latitude},${origin.longitude}|${target.latitude},${target.longitude}',
+          'mode': profile.mode,
+          'format': 'geojson',
+          'avoid': 'ferries',
+          'details': 'route_details',
+        },
+        cancel: cancel,
+      )).data;
+      if (data is! Map ||
+          data['features'] is! List ||
+          (data['features'] as List).isEmpty) {
+        throw const FormatException('No road route was returned.');
+      }
+      final feature = (data['features'] as List).first;
+      final properties = feature is Map ? feature['properties'] : null;
+      final legs = properties is Map ? properties['legs'] : null;
+      if (feature is! Map ||
+          feature['type'] != 'Feature' ||
+          legs is! List ||
+          legs.isEmpty ||
+          legs.any(
+            (leg) =>
+                leg is! Map ||
+                leg['steps'] is! List ||
+                (leg['steps'] as List).isEmpty,
+          )) {
+        throw const FormatException('Road route details are unavailable.');
+      }
+      final route = RoadRoute.geoJson(data);
+      route.validateEndpoints(origin, target);
+      return route;
     } on FormatException {
       throw const ProviderFailure('No valid road route was returned.');
     }

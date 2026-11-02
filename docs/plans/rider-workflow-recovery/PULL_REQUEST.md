@@ -1,32 +1,46 @@
 # Pull request draft
 
-Title: Fix rider delivery guidance and recovery access
+**Title:** Prepare Rider guidance, privacy and recovery for defense
 
 ## Description
 
-Delivery success previously always told the rider to wait for buyer confirmation,
-even when the server had already completed a version-two order. The app now
-shows the committed order status, retains older uncompleted orders honestly and
-keeps COD hub receipt, ledger earnings and actual payout distinct. Stop refresh
-also checks changes to the order's commercial status.
+The Rider app shows the server-recorded delivery and order state, keeps COD
+handover and earnings separate, and opens the existing first-party account,
+restricted-custody and pending-cash recovery pages. The Doorstep Guide displays
+the saved buyer instruction for an authorized final-mile stop.
 
-Forgot password now opens the actual first-party recovery page. Compact Settings
-links to login activity/session controls, login and Help expose restricted custody
-recovery, and pending cash offers link to authorized website review/cancellation.
-All browser handoffs use a separate website session without passing app tokens.
+Photo recovery clears plaintext from memory on backgrounding and removes
+inappropriate drafts on access loss.
+An app-level cover hides the Rider interface while inactive, and Android sets
+`FLAG_SECURE` while paused. Map and external-direction disclosures describe the
+actual data shared. The default build does not enable device location or route
+following. The onboarding buttons use the bundled Rider typeface.
 
-Android builds use a 1 GB Gradle heap, one worker and no persistent build daemon.
-The UI keeps ordinary real-account entry and existing independent write gates.
-The Wallet retained-proof/recipient and version-two handover source fixes are on
-Bagoo branch `fix/rider-wallet-trip-evidence`; the native prepaid consumer check
-passed against its pinned revision. Merge/deploy and controlled live acceptance
-remain separate, and the user has deferred phone testing.
+Android release packaging requires an approved application ID and signing key.
+A separate restricted debug setting disables platform cleartext traffic for
+the defense APK; ordinary debug builds retain their local-development setting.
+The Rider API configuration also rejects origins without a host. Existing
+independent operational write gates remain in place.
 
 ## Validation
 
-At Rider source revision `f9dd4cf`, analysis is clean and the serial Flutter
-suite passed 693 tests with 7 skips. Configured Linux and Android debug builds
-passed sequentially with limited compile workers. Full local results and
-remaining acceptance are recorded in [VERIFICATION.md](VERIFICATION.md).
-The Rider branch and its commits are pushed. This file remains a PR draft; no
-pull request has been opened.
+- At Rider commit `74a30fc`, the full serial PC suite passed **719 tests with
+  9 skips**. Static analysis at documentation-only head `1f00aac` found no
+  issues. The opt-in defense-profile check passed separately.
+- The arm64 restricted debug APK built from `422a02c` passed archive,
+  package/SDK, architecture, manifest and debug-signature checks. It was not
+  installed and uses a scaffold application ID and Android Debug signer.
+- The local Wallet client scenario passed against Bagoo source `9e58312` with
+  an in-memory secure-storage adapter. The corresponding web fixes remain on
+  `fix/rider-wallet-trip-evidence`; deployment and live acceptance are separate.
+
+The exact APK hash and build settings are in [Android packaging](../../ANDROID_RELEASE.md);
+the [rehearsal](REHEARSAL.md) records the evidence and remaining gates. Physical
+Android behavior, deployed cross-role workflows, approved release identity and
+signing remain unverified. The desktop preview is a normal sign-in flow, not an
+automatic sample workspace.
+
+## Branch status
+
+The Rider feature branch is published and includes GitHub `main` at `4367331`.
+This document is a draft PR description; GitHub PR status has not been verified.

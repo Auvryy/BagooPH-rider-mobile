@@ -11,39 +11,33 @@ The November 2 configuration check found `RIDER_APPLICATION_ID` unset and
 
 ## Latest PC build artifacts — November 2, 2026
 
-The latest arm64-targeted debug APK was built on the PC from Rider commit
-`daacf85` (`fix/rider-route-privacy-disclosure`), which adds the saved buyer
-note and explicit missing-note state to Home and Stop Mode. The focused Home and
-Stop Mode widget tests passed 46/46, and `flutter analyze --no-pub` reported no
-issues at that source revision. The ignored `.env.rider.json` supplied only
-`OPERATIONS_WRITES_VERIFIED=true`; no API override or local-auth define was
-present. Gradle used one worker and a 1 GiB heap cap. The build completed with a
-nonfatal SDK XML version warning.
+The current arm64-targeted debug APK was built on the PC from Rider commit
+`18759ce` on `fix/rider-route-privacy-disclosure`. It includes the app-level
+inactive-state Flutter cover and pause-scoped Android `FLAG_SECURE` handling.
+The focused cover test passed 1/1, and `:app:compileDebugKotlin` succeeded with
+one worker and a 768 MiB heap cap. The APK build completed in 80.2 seconds with
+one Gradle worker and a 1 GiB heap cap. It emitted nonfatal SDK XML and Gradle
+deprecation warnings. The ignored `.env.rider.json` supplied the existing Rider
+build profile; no API override or local-auth define was added.
 
 | Variant | Source | Size | SHA-256 | Verification |
 |---|---|---:|---|---|
-| Debug | `daacf85` | 176,228,861 bytes | `215a1275cc6e4b83a7dce8a39e3d5a493cdecfd9391f91d1114e61af139e6d61` | ZIP integrity; package/SDK metadata; ARM64 Flutter engine; APK v2 signature; location, notification and foreground-service permissions absent |
+| Current debug | `18759ce` | 176,230,447 bytes | `7ead0ffb97ff7785ff2c8dfe61afadf3a978336d9441acb59b0322df5c20e9bc` | ZIP integrity; package/SDK metadata; ARM64 Flutter engine; APK v2 signature; no location, notification or foreground-service permissions |
+| Earlier debug | `daacf85` | 176,228,861 bytes | `215a1275cc6e4b83a7dce8a39e3d5a493cdecfd9391f91d1114e61af139e6d61` | Superseded; predates inactive-state privacy changes |
 | Profile | `ba7823a` | 77,671,976 bytes | `f6334ab298f784444a5ae905372a274eb79e0df7f8d2a1280d7852bd90ac68a5` | Earlier ZIP integrity; package/SDK metadata; ARM64 engine; APK v2 signature; location-service permissions absent |
 
-Both have package ID `com.example.bagoo_rider_mobile`, version `0.1.0` (code
-1), minimum SDK 24, target SDK 36, and one standard Android Debug signer. Both
-are debuggable and are not distributable release artifacts. They were not
-installed or launched; no phone, ADB, or emulator was used. These PC artifacts
-do not establish Android hardware, Azure, or production cross-role acceptance.
+All artifacts use package ID `com.example.bagoo_rider_mobile`, version `0.1.0`
+(code 1), minimum SDK 24, and target SDK 36. The current debug APK has one
+standard Android Debug signer and verifies with APK Signature Scheme v2. It is
+debuggable and is not a distributable release artifact. It was not installed or
+launched; no phone, ADB, or emulator was used. The archive and signature checks
+do not establish actual Android app-switcher behavior, Azure, or production
+cross-role acceptance.
 
-## Current source after the archived APKs — November 2, 2026
-
-Branch `fix/rider-route-privacy-disclosure` has since added the app-level
-inactive-state cover in `4109b54` and paused-window `FLAG_SECURE` handling in
-`f02fd25`. The archived APK above predates both changes and must not be used as
-evidence for them. A one-worker `:app:compileDebugKotlin` attempt stopped before
-Gradle because this environment has no `java` executable or `JAVA_HOME`; no
-replacement APK was built. Compile the current source in an Android-capable
-environment, then verify recent-app behavior on a physical Android device.
-
-The merged manifest declares Internet, camera, and AndroidX network-state
-permissions; it does not declare location, notification, or foreground-service
-permissions, and the geolocator service is excluded. The Home location
+The current merged manifest contains Internet, camera, AndroidX network-state,
+and the standard non-exported receiver permission. It does not contain
+location, notification, or foreground-service permissions, and the geolocator
+service is excluded. The Home location
 controller is not connected to the default Home surface. `roadRoutingProvider`
 is `UnavailableRoadRouting`, so the Navigate control and foreground route
 session cannot start through the default UI. The dormant navigation

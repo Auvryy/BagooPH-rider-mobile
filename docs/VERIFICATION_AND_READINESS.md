@@ -26,10 +26,11 @@ or lifecycle. No phone, ADB, emulator, install, or app window was used.
 The current branch has advanced beyond those test and APK revisions. Commit
 `4109b54` added the app-level inactive-state cover; `dart analyze lib/main.dart`
 reported no issues there. Commit `f02fd25` adds Android `FLAG_SECURE` while the
-activity is paused. Its one-worker Kotlin compile could not start because this
-environment has no Java executable or `JAVA_HOME`. Neither change is included
-in the archived APK; the new native lifecycle handling remains uncompiled and
-device-unverified. See [current source and APK limits](ANDROID_RELEASE.md).
+activity is paused. The one-worker `:app:compileDebugKotlin` task succeeded
+with a 768 MiB heap cap, and an arm64 debug APK was built from `18759ce` and
+passed archive, package/SDK, ARM64-engine and APK v2 signature checks. It has
+the scaffold application ID and Android Debug signer and was not installed.
+See [current source and APK limits](ANDROID_RELEASE.md).
 
 A focused PC lifecycle widget check passed **1/1**. It confirms the Flutter
 cover hides semantics and blocks taps on a pushed route while inactive, then

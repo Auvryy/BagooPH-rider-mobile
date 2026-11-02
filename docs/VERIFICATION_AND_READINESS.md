@@ -8,9 +8,9 @@ signing; those acceptance checks remain open.
 
 **Current status — November 2, 2026.** The scores and starter-screen statements
 below describe the October 5 planning snapshot, not current Rider behavior.
-The latest full serial PC regression passed **715 tests with 8 skips and zero
+An earlier full serial PC regression passed **715 tests with 8 skips and zero
 failures** in 5m14s using one Flutter test worker. It ran at Rider branch commit
-`f0de3a2` with current runtime code `daacf85`, including the Doorstep Guide
+`f0de3a2` with runtime code `daacf85`, including the Doorstep Guide
 widget coverage. The preceding full run at `968e18f` passed 713 tests with the
 account-access photo cleanup follow-up; that source is published as `961d8b8`.
 The new
@@ -19,7 +19,7 @@ isolated headless run passed separately. The expanded photo-recovery, parcel
 outcome, parcel workflow, workspace account-lifecycle, and Parcel Finder suites
 passed **45/45**; `flutter analyze --no-pub` reported no issues in 6.4s. At
 Rider commit `daacf85`, the focused Home and Stop Mode widget tests passed
-**46/46**, analysis was clean, and a current arm64 debug APK was built. Its ZIP,
+**46/46**, analysis was clean, and an earlier arm64 debug APK was built. Its ZIP,
 package/SDK metadata, ARM64 Flutter engine, APK v2 signature, and manifest
 permissions were checked; the scaffold package ID and Android Debug signer
 remain, and the APK was not installed. The profile APK remains the earlier build

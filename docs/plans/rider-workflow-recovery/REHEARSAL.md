@@ -163,9 +163,9 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    checks do not measure delivery speed, accuracy, or user satisfaction; claim
    gains only if a separate field study supports them.
 5. **Evidence and limits — 60 seconds.** The latest full serial Flutter suite
-   passed **715 tests, 8 skipped, zero failures** in 5m14s at Rider branch
-   commit `f0de3a2`, including current runtime code `daacf85` and the Doorstep
-   Guide tests. The preceding 713-test full run includes the account-access
+   passed **716 tests, 8 skipped, zero failures** in 6m17s at Rider branch
+   commit `5ab6b36`, including the privacy cover and Doorstep Guide tests.
+   The earlier 713-test full run includes the account-access
    photo cleanup now published as `961d8b8`. The
    separate headless Wallet client scenario passed
    **1/1** against the unmerged Bagoo review branch `9e58312` with an in-memory
@@ -299,9 +299,9 @@ evidence, not as an accepted live phone demonstration.
 
 ## Current PC evidence and open gates
 
-- The latest full serial Flutter suite passed **715 tests, 8 skipped, zero
-  failures** in 5m14s at Rider branch commit `f0de3a2`, with current runtime
-  code `daacf85` and the Doorstep Guide tests. The preceding 713-test run at
+- The latest full serial Flutter suite passed **716 tests, 8 skipped, zero
+  failures** in 6m17s at Rider branch commit `5ab6b36`, including the privacy
+  cover and Doorstep Guide tests. The earlier 713-test run at
   `968e18f` contains the account-access photo cleanup follow-up. The headless
   Wallet client scenario passed
   **1/1** against Bagoo `9e58312` with an in-memory storage adapter.
@@ -424,11 +424,10 @@ flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-fro
    Guide for an authorized final-mile stop. Identify any running Linux frame as
    a desktop preview, not Android hardware behavior.
 2. Show the PC evidence above with revisions attached: the latest full suite
-   passed 715 tests with 8 skips at Rider commit `f0de3a2`, with runtime code
-   `daacf85`;
+   passed 716 tests with 8 skips at Rider commit `5ab6b36`;
    the headless Wallet client scenario passed 1/1 against Bagoo `9e58312` with
    an in-memory storage adapter;
-   the arm64 debug APK from `daacf85` and the earlier profile APK from `ba7823a`
+   the arm64 debug APK from `18759ce` and the earlier profile APK from `ba7823a`
    are PC-verified, debug-signed, and uninstalled. They do not establish
    hardware behavior.
 3. If asked to demonstrate an operational transaction, explain that Azure and

@@ -403,6 +403,50 @@ void main() {
     },
   );
 
+  testWidgets('inactive cover blocks pushed private routes and restores them', (
+    tester,
+  ) async {
+    await openApp(tester);
+    var privateRouteTaps = 0;
+    final navigator = tester.state<NavigatorState>(
+      find.byType(Navigator).first,
+    );
+    navigator.push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => Scaffold(
+          body: Center(
+            child: ElevatedButton(
+              key: const ValueKey('privacy-test-private-detail'),
+              onPressed: () => privateRouteTaps++,
+              child: const Text('Private rider detail'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Private rider detail'), findsOneWidget);
+
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    await tester.pumpAndSettle();
+    expect(find.text('Rider is paused'), findsOneWidget);
+    final semantics = tester.ensureSemantics();
+    expect(find.bySemanticsLabel('Private rider detail'), findsNothing);
+    semantics.dispose();
+    await tester.tap(
+      find.byKey(const ValueKey('privacy-test-private-detail')),
+      warnIfMissed: false,
+    );
+    expect(privateRouteTaps, 0);
+
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pumpAndSettle();
+    expect(find.text('Rider is paused'), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('privacy-test-private-detail')));
+    expect(privateRouteTaps, 1);
+    expect(tester.takeException(), isNull);
+  });
+
   for (final size in [
     const Size(320, 568),
     const Size(390, 844),

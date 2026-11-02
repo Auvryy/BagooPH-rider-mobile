@@ -31,6 +31,17 @@ environment has no Java executable or `JAVA_HOME`. Neither change is included
 in the archived APK; the new native lifecycle handling remains uncompiled and
 device-unverified. See [current source and APK limits](ANDROID_RELEASE.md).
 
+A focused PC lifecycle widget check passed **1/1**. It confirms the Flutter
+cover hides semantics and blocks taps on a pushed route while inactive, then
+restores interaction on resume. It does not exercise Android `FLAG_SECURE` or
+the operating system's recent-app snapshot behavior.
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact \
+  --plain-name='inactive cover blocks pushed private routes and restores them' \
+  test/auth_preview_test.dart
+```
+
 The new windowless Rider Wallet client scenario passed **1/1** in 35 seconds
 against Bagoo `9e58312d130809eb8cd878189b729f1f702291d8`. It verified lost-result
 reconciliation, exact replay, one completed paid order and Wallet receipt, zero

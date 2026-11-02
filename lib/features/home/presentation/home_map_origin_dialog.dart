@@ -41,20 +41,28 @@ class _HomeMapOriginDialogState extends State<HomeMapOriginDialog> {
           const SizedBox(height: 20),
           TextField(
             controller: _latitude,
+            maxLength: 32,
             keyboardType: const TextInputType.numberWithOptions(
               signed: true,
               decimal: true,
             ),
-            decoration: const InputDecoration(labelText: 'Preview latitude'),
+            decoration: const InputDecoration(
+              labelText: 'Preview latitude',
+              counterText: '',
+            ),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _longitude,
+            maxLength: 32,
             keyboardType: const TextInputType.numberWithOptions(
               signed: true,
               decimal: true,
             ),
-            decoration: const InputDecoration(labelText: 'Preview longitude'),
+            decoration: const InputDecoration(
+              labelText: 'Preview longitude',
+              counterText: '',
+            ),
           ),
           if (_error != null) ...[
             const SizedBox(height: 12),

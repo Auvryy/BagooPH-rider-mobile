@@ -1,5 +1,6 @@
 import '../../../core/network/api_failure.dart';
 import '../../../core/network/wire.dart';
+import '../../../core/security/account_input_validation.dart';
 import '../../cash/data/rider_financial_models.dart';
 
 String tripId(Object? value) {
@@ -182,8 +183,8 @@ class TripFilters {
     this.from,
     this.to,
   }) : search = search.trim() {
-    if (this.search.runes.length > 100 ||
-        RegExp(r'[\x00-\x1f\x7f]').hasMatch(this.search) ||
+    if ((this.search.isNotEmpty &&
+            !riderApplicationSearchIsValid(this.search)) ||
         !['all', 'cod', 'prepaid'].contains(payment) ||
         (phase != null && !['pickup', 'final_mile'].contains(phase))) {
       throw const AccountFailure('Check the trip search and filters.');

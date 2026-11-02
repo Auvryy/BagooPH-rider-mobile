@@ -1,5 +1,16 @@
 # Rider major tasks and build workflow
 
+**Rider input-validation audit (November 2):** the focused
+[audit record](INPUT_VALIDATION_AUDIT.md) documents the reviewed page/input
+inventory, source revisions, confirmed form-validation fixes, and remaining
+deployment/device limits. The serial PC run passed **178 tests** across
+registration/settings and the audited operational pages. A follow-up contract
+review aligned Trips and company search with the API; the focused Trips,
+Company, and Cash suites passed **29/29**. `flutter analyze --no-pub`, formatting
+and diff checks were clean. Work is isolated on
+`fix/rider-input-validation-audit`; it fixes account input validation without
+clearing M03/M13/M14 live account gates or changing operational authority.
+
 **November 1 locally verified client work:** [Delivery guidance and recovery access](plans/rider-workflow-recovery/README.md)
 aligns order completion/earnings presentation with current web version two and
 adds specific password, session, cash and custody website handoffs. It covers

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../app/theme.dart';
 
@@ -18,6 +19,8 @@ class AuthField extends StatefulWidget {
     this.icon,
     this.password = false,
     this.keyboardType,
+    this.inputFormatters,
+    this.maxLength,
     this.autofillHints,
     this.validator,
     this.textInputAction = TextInputAction.next,
@@ -35,6 +38,8 @@ class AuthField extends StatefulWidget {
   final IconData? icon;
   final bool password;
   final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
+  final int? maxLength;
   final Iterable<String>? autofillHints;
   final String? Function(String?)? validator;
   final TextInputAction textInputAction;
@@ -88,6 +93,11 @@ class _AuthFieldState extends State<AuthField> {
             enableSuggestions: !widget.password,
             autocorrect: !widget.password,
             keyboardType: widget.keyboardType,
+            inputFormatters: widget.inputFormatters,
+            maxLength: widget.maxLength,
+            maxLengthEnforcement: widget.maxLength == null
+                ? null
+                : MaxLengthEnforcement.enforced,
             autofillHints: widget.autofillHints,
             validator: widget.validator,
             textInputAction: widget.textInputAction,
@@ -97,6 +107,7 @@ class _AuthFieldState extends State<AuthField> {
               errorText: widget.serverError,
               helperText: widget.helper,
               helperMaxLines: 3,
+              counterText: widget.maxLength == null ? null : '',
               prefixIcon: widget.icon == null
                   ? null
                   : Icon(widget.icon, size: 20, color: RiderColors.accentText),

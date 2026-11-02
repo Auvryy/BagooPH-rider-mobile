@@ -4,6 +4,44 @@ import 'package:flutter_test/flutter_test.dart';
 import 'support/company_support.dart';
 
 void main() {
+  test(
+    'company directory filters match API plain-text validation before dispatch',
+    () async {
+      final s = companySetup();
+      for (final query in [
+        'West`side',
+        'West{side',
+        'West\u0085side',
+        'West\u200bside',
+        'West\ufe0fside',
+        'javascript:West',
+        'West onload=bad',
+      ]) {
+        await expectLater(
+          s.repository.companies(search: query),
+          throwsA(isA<AccountFailure>()),
+        );
+        await expectLater(
+          s.repository.companies(province: query),
+          throwsA(isA<AccountFailure>()),
+        );
+      }
+      expect(s.api.calls, isEmpty);
+
+      await s.repository.companies(
+        search: ' Cebu City / North ',
+        province: ' Cebu ',
+      );
+      final query = Uri.parse(s.api.calls.single.path).queryParameters;
+      expect(query, {
+        'page': '1',
+        'per_page': '20',
+        'search': 'Cebu City / North',
+        'province': 'Cebu',
+      });
+    },
+  );
+
   test('applying uses current intake and explicit sharing, without changing duty or role', () async {
     final s = companySetup();
     final company = (await s.repository.companies()).items.single;

@@ -448,16 +448,29 @@ void main() {
       }
     },
   );
-  test('cash search rejects invisible markup and meaningless punctuation', () {
-    for (final query in [
-      '---',
-      'data:abc',
-      'ab\u034fcd',
-      'abc<def',
-      'ab\ufe00cd',
-    ]) {
-      expect(() => cashQuery(query), throwsA(isA<AccountFailure>()));
-    }
-    expect(cashQuery(' BGO-TEST '), 'BGO-TEST');
-  });
+  test(
+    'cash search rejects API-incompatible text before request dispatch',
+    () async {
+      for (final query in [
+        '---',
+        'data:abc',
+        'ab\u034fcd',
+        'abc<def',
+        'ab\ufe00cd',
+        'TRACK_%',
+        'foo\u200bbar',
+        'a@b',
+      ]) {
+        expect(() => cashQuery(query), throwsA(isA<AccountFailure>()));
+      }
+      expect(cashQuery(' BGO-TEST '), 'BGO-TEST');
+
+      final h = CashHarness();
+      await expectLater(
+        h.repository.cashPage(query: 'TRACK_%'),
+        throwsA(isA<AccountFailure>()),
+      );
+      expect(h.api.calls, isEmpty);
+    },
+  );
 }

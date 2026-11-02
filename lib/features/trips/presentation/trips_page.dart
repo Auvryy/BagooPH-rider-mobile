@@ -165,7 +165,7 @@ class _TripsPageState extends State<TripsPage> {
                     controller: search,
                     enabled: enabled,
                     onChanged: c.searchTrips,
-                    maxLength: live ? 100 : null,
+                    maxLength: 100,
                     decoration: InputDecoration(
                       labelText: 'Search trips',
                       hintText: live

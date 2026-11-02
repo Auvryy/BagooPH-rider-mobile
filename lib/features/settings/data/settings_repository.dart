@@ -1,4 +1,5 @@
 import '../../../core/network/rider_api_client.dart';
+import '../../../core/security/account_input_validation.dart';
 import '../../auth/data/account.dart';
 import 'settings_models.dart';
 
@@ -163,14 +164,24 @@ class ApiSettingsRepository implements SettingsRepository {
     String email,
     String currentPassword,
     String code,
-  ) async => _decode(
-    await api.authenticatedRequest(
-      'rider/settings/emails/confirm',
-      method: 'POST',
-      data: {'email': email, 'current_password': currentPassword, 'code': code},
-    ),
-    mutation: true,
-  );
+  ) async {
+    if (riderVerificationCodeError(code) != null) {
+      throw const AccountFailure('Enter the six-digit verification code.');
+    }
+    return _decode(
+      await api.authenticatedRequest(
+        'rider/settings/emails/confirm',
+        method: 'POST',
+        data: {
+          'email': email,
+          'current_password': currentPassword,
+          'code': code,
+        },
+      ),
+      mutation: true,
+    );
+  }
+
   String _addressPath(String id) {
     if (!isSettingsEmailId(id)) {
       throw const AccountFailure(

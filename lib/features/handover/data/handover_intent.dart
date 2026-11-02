@@ -6,6 +6,7 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../../core/network/api_failure.dart';
+import '../../../core/security/account_input_validation.dart';
 import '../../home/data/operations_models.dart';
 import 'handover_models.dart';
 
@@ -104,10 +105,7 @@ String handoverBarcode(String value) {
 
 String handoverText(String value, String field, int min, int max) {
   final text = value.trim();
-  if (text.runes.length < min ||
-      text.runes.length > max ||
-      RegExp(r'[\x00-\x09\x0b\x0c\x0e-\x1f\x7f<>`{}]').hasMatch(text) ||
-      !RegExp(r'[\p{L}\p{N}]', unicode: true).hasMatch(text)) {
+  if (!riderApplicationNotesAreValid(text, min: min, max: max)) {
     throw AccountFailure(
       'Check the handover report fields.',
       fields: {field: 'Use plain text between $min and $max characters.'},

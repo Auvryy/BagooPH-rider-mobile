@@ -516,9 +516,11 @@ class _RiderCompanyPageState extends ConsumerState<RiderCompanyPage>
       const SizedBox(height: 12),
       TextField(
         controller: search,
+        maxLength: 100,
         decoration: const InputDecoration(
           labelText: 'Company name',
           prefixIcon: Icon(Icons.search_rounded),
+          counterText: '',
         ),
         onSubmitted: c.canRefresh
             ? (_) => c.searchCompanies(search.text, province.text)
@@ -527,8 +529,10 @@ class _RiderCompanyPageState extends ConsumerState<RiderCompanyPage>
       const SizedBox(height: 12),
       TextField(
         controller: province,
+        maxLength: 100,
         decoration: const InputDecoration(
           labelText: 'Service province (optional)',
+          counterText: '',
         ),
       ),
       const SizedBox(height: 12),

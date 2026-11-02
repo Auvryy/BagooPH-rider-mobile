@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/data/account.dart';
@@ -9,6 +10,8 @@ import '../../auth/presentation/auth_controller.dart';
 import '../../auth/presentation/widgets/auth_field.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
 import '../../../core/platform/rider_website.dart';
+import '../../../core/security/account_input_validation.dart';
+import '../../../core/security/password_policy.dart';
 import '../../../app/theme.dart';
 import '../data/settings_models.dart';
 import 'settings_controller.dart';
@@ -282,6 +285,8 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
     String? Function(String?)? validator,
     Iterable<String>? hints,
     TextInputType? keyboard,
+    List<TextInputFormatter>? inputFormatters,
+    int? maxLength,
     ValueChanged<String>? changed,
   }) => AuthField(
     key: ValueKey('settings-$label'),
@@ -294,27 +299,24 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
     validator: validator,
     autofillHints: hints,
     keyboardType: keyboard,
+    inputFormatters: inputFormatters,
+    maxLength: maxLength,
     onChanged: changed,
   );
   String? _requiredPassword(String? value) =>
-      value == null || value.isEmpty ? 'Enter your current password.' : null;
-  String? _emailValid(String? value) {
-    if (!_addingEmail) return null;
-    final email = value?.trim() ?? '';
-    if (email.isEmpty ||
-        !email.contains('@') ||
-        RegExp(r'\s').hasMatch(email)) {
-      return 'Enter a valid additional email address.';
-    }
-    if (email.length > 255) return 'Use an email address up to 255 characters.';
-    return null;
-  }
+      riderCurrentPasswordError(value, label: 'current password');
+  String? _emailValid(String? value) => _addingEmail
+      ? riderEmailInputError(value, label: 'additional email address')
+      : null;
 
   List<Widget> _contact(SettingsSnapshot data) => [
     _field(
       'Mobile number',
       _phone,
+      maxLength: 24,
       errorKey: 'phone',
+      validator: (value) =>
+          riderPhilippineMobileError(value, optional: true, maxCharacters: 24),
       hints: [AutofillHints.telephoneNumber],
       keyboard: TextInputType.phone,
       changed: (_) => setState(() {}),
@@ -369,6 +371,7 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
       _field(
         'Current password',
         _current,
+        maxLength: 4096,
         secret: true,
         errorKey: 'current_password',
         validator: _requiredPassword,
@@ -378,20 +381,17 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
       _field(
         'New password',
         _next,
+        maxLength: 128,
         secret: true,
         errorKey: 'password',
         hints: [AutofillHints.newPassword],
-        validator: (value) {
-          final length = value?.runes.length ?? 0;
-          return length < 12 || length > 128
-              ? 'Use between 12 and 128 characters.'
-              : null;
-        },
+        validator: riderNewPasswordError,
       ),
       const SizedBox(height: 20),
       _field(
         'Confirm new password',
         _confirmation,
+        maxLength: 128,
         secret: true,
         errorKey: 'password_confirmation',
         hints: [AutofillHints.newPassword],
@@ -517,6 +517,7 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
         _field(
           'Current password',
           _current,
+          maxLength: 4096,
           secret: true,
           errorKey: 'current_password',
           validator: _requiredPassword,
@@ -560,6 +561,7 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
         _field(
           'Current password',
           _current,
+          maxLength: 4096,
           secret: true,
           errorKey: 'current_password',
           validator: _requiredPassword,
@@ -572,6 +574,7 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
           _field(
             'Additional email',
             _email,
+            maxLength: 255,
             errorKey: 'email',
             validator: _emailValid,
             hints: [AutofillHints.email],
@@ -585,11 +588,10 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
               errorKey: 'code',
               hints: [AutofillHints.oneTimeCode],
               keyboard: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              maxLength: 6,
               validator: (value) =>
-                  !_confirmingEmail ||
-                      RegExp(r'^[0-9]{6}$').hasMatch(value ?? '')
-                  ? null
-                  : 'Enter the six-digit code.',
+                  !_confirmingEmail ? null : riderVerificationCodeError(value),
             ),
             const SizedBox(height: 8),
             const Text(

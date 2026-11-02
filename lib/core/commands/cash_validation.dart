@@ -1,5 +1,6 @@
 import '../network/api_failure.dart';
 import '../network/wire.dart';
+import '../security/account_input_validation.dart';
 import 'parcel_validation.dart';
 
 BigInt cashCents(Object? value, {bool signed = false}) {
@@ -43,17 +44,7 @@ String cashEvidence(String value) {
 String cashQuery(String value) {
   final text = value.trim();
   if (text.isEmpty) return '';
-  if (text.runes.length > 100 ||
-      !RegExp(r'[\p{L}\p{N}]', unicode: true).hasMatch(text) ||
-      RegExp(
-            r"^[\p{Script=Latin}\p{M}\p{N} #.,’'\-/()&:]+$",
-            unicode: true,
-          ).firstMatch(text)?.end !=
-          text.length ||
-      RegExp(
-        r'(?:javascript|vbscript|data)\s*:|\bon[a-z]+\s*=|[\u034f\ufe00-\ufe0f]',
-        caseSensitive: false,
-      ).hasMatch(text)) {
+  if (!riderApplicationSearchIsValid(text)) {
     throw const AccountFailure(
       'Search using a plain parcel reference of up to 100 characters.',
     );

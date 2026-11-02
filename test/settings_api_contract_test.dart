@@ -91,6 +91,17 @@ setup() async {
 }
 
 void main() {
+  test('invalid additional-email codes are blocked before dispatch', () async {
+    final h = await setup();
+    for (final code in ['12345', '1234567', '12a456', '１２３４５６']) {
+      await expectLater(
+        h.settings.confirmEmail('contact@example.test', 'current-secret', code),
+        throwsA(isA<AccountFailure>()),
+      );
+    }
+    expect(h.adapter.requests, isEmpty);
+  });
+
   test(
     'backend v1 example decodes and contact saves use the canonical snapshot',
     () async {
@@ -323,8 +334,8 @@ void main() {
     expect(
       await c.changePassword(
         'current-secret',
-        'new-secret-1234',
-        'new-secret-1234',
+        'New-secret-1234!',
+        'New-secret-1234!',
       ),
       isTrue,
     );
@@ -334,8 +345,8 @@ void main() {
     expect(Uri.parse(request.path).path, '/api/v1/rider/settings/password');
     expect(request.data, {
       'current_password': 'current-secret',
-      'password': 'new-secret-1234',
-      'password_confirmation': 'new-secret-1234',
+      'password': 'New-secret-1234!',
+      'password_confirmation': 'New-secret-1234!',
     });
   });
 }

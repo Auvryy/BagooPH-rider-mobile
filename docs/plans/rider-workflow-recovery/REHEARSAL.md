@@ -238,10 +238,10 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   It can recover one matching photo for up to 24 hours into encrypted app-owned
   storage. The restored image stays a draft and never submits an outcome by
   itself. Rider also drops the recovered image from memory while backgrounded
-  and reloads the encrypted copy on resume if it is still fresh. The focused
-  photo-service suite passed 15/15 using simulated picker/storage, including a
-  background/resume race, expired-draft cleanup and late picker rejection;
-  actual Android kill/resume acceptance remains open.
+  and reloads the encrypted copy on resume if it is still fresh. The November 2
+  expanded PC checks recorded below cover simulated picker/storage, background
+  and resume, expiry cleanup and late picker rejection; actual Android
+  kill/resume acceptance remains open.
 - **What happens to an uncertain request after sign-out or an account change?**
   The complete `CommandIntent`, including its action body, is saved through
   Flutter Secure Storage under API-origin, account and feature-scope keys; it

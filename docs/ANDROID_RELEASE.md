@@ -16,6 +16,8 @@ The latest recorded arm64-targeted debug APK was built on the PC from Rider comm
 `RIDER_DEBUG_CLEARTEXT=false`. It includes the app-level
 inactive-state Flutter cover and pause-scoped Android `FLAG_SECURE` handling.
 It also includes the onboarding button typeface correction.
+This APK predates the API empty-host validation fix and must be rebuilt to
+include it.
 The focused cover test passed 1/1, and `:app:compileDebugKotlin` succeeded with
 one worker and a 768 MiB heap cap. The restricted APK build completed in 56.2 seconds with
 one Gradle worker and a 1 GiB heap cap. It emitted nonfatal SDK XML and Gradle
@@ -48,11 +50,14 @@ profile recorded here does not enable local authentication and uses HTTPS for
 the Rider API. The merged manifest is build evidence; actual device network
 behavior and the signed release manifest still need verification.
 
-The API configuration tests also reject non-loopback HTTP, embedded URL
+The API configuration tests also reject empty hosts, non-loopback HTTP, embedded URL
 credentials, query strings, fragments and an incorrect API path. A debug test
 confirms that the three allowed loopback hosts require explicit local
 authentication. `test/app_config_test.dart` passed three cases with its
-alternate-build-configuration case skipped in the ordinary run.
+alternate-build-configuration case skipped in the ordinary run. After adding
+the empty-host fix, the configuration, website navigation and authentication
+repository checks passed **13 tests with one skip**; the defense-profile check
+also passed **1/1** with the local build file.
 
 For an Android debug build that rejects cleartext at the platform level, set
 `RIDER_DEBUG_CLEARTEXT=false` in the build environment. The default remains

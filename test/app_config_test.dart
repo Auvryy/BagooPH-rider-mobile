@@ -31,6 +31,8 @@ void main() {
 
   test('rejects unsafe or malformed API origins', () {
     for (final origin in [
+      'https:///api/v1',
+      'https://:443/api/v1',
       'http://example.test/api/v1',
       'http://localhost.example.test/api/v1',
       'http://127.0.0.2/api/v1',

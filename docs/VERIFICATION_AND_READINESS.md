@@ -12,6 +12,9 @@ opt-in defense-profile check is one of the skips and passed separately. This
 PC evidence does not establish physical Android behavior, deployed transactions, or release
 signing; those acceptance checks remain open.
 
+At documentation-only branch head `1f00aac`, `flutter analyze --no-pub`
+reported no issues in 11.0 seconds on the same runtime source.
+
 The alternate API-configuration test skipped by that default run also passed
 separately with a synthetic `https://example.invalid/api/v1` override and with
 an explicitly empty override (one passing case and one expected skip in each

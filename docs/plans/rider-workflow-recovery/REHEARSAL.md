@@ -165,6 +165,7 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
 5. **Evidence and limits — 60 seconds.** The latest full serial Flutter suite
    passed **719 tests, 9 skipped, zero failures** in 7m23s at Rider branch
    commit `74a30fc`, including the privacy cover and Doorstep Guide tests.
+   Analysis at documentation-only head `1f00aac` reported no issues.
    The earlier 713-test full run includes the account-access
    photo cleanup now published as `961d8b8`. The
    separate headless Wallet client scenario passed

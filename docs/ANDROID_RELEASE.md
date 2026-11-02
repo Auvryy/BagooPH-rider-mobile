@@ -12,21 +12,21 @@ The November 2 configuration check found `RIDER_APPLICATION_ID` unset and
 ## Latest PC build artifacts — November 2, 2026
 
 The latest recorded arm64-targeted debug APK was built on the PC from Rider commit
-`92fc7c0` on `fix/rider-route-privacy-disclosure`, with
+`422a02c` on `fix/rider-route-privacy-disclosure`, with
 `RIDER_DEBUG_CLEARTEXT=false`. It includes the app-level
 inactive-state Flutter cover and pause-scoped Android `FLAG_SECURE` handling.
 It also includes the onboarding button typeface correction.
-This APK predates the API empty-host validation fix and must be rebuilt to
-include it.
+It includes the API empty-host validation fix.
 The focused cover test passed 1/1, and `:app:compileDebugKotlin` succeeded with
-one worker and a 768 MiB heap cap. The restricted APK build completed in 56.2 seconds with
+one worker and a 768 MiB heap cap. The restricted APK build completed in 83.8 seconds with
 one Gradle worker and a 1 GiB heap cap. It emitted nonfatal SDK XML and Gradle
 deprecation warnings. The ignored `.env.rider.json` supplied the existing Rider
 build profile; no API override or local-auth define was added.
 
 | Variant | Source | Size | SHA-256 | Verification |
 |---|---|---:|---|---|
-| Latest recorded restricted debug | `92fc7c0` | 176,230,585 bytes | `3b5aec59fd49ce1401c43e224c886920951e22302e9c60fc0ca2e349e4e364c3` | ZIP integrity; package/SDK metadata; ARM64 Flutter engine; APK v2 signature; backup and cleartext disabled; no location, notification or foreground-service permissions |
+| Latest recorded restricted debug | `422a02c` | 176,230,534 bytes | `f46928619e05cf2caa9f59c3d1f21231244ba0fd12ef88fc766927e6359eb127` | ZIP integrity; package/SDK metadata; ARM64 Flutter engine; APK v2 signature; backup and cleartext disabled; no location, notification or foreground-service permissions |
+| Earlier restricted debug | `92fc7c0` | 176,230,585 bytes | `3b5aec59fd49ce1401c43e224c886920951e22302e9c60fc0ca2e349e4e364c3` | Superseded; predates empty-host validation fix |
 | Earlier debug | `05bca09` | 176,230,585 bytes | `6f4f568fbf3c7b5e09487643e0fc14d23aa33299bf201661d132c80bafe4e74f` | Superseded; debug manifest permits cleartext |
 | Earlier debug | `18759ce` | 176,230,447 bytes | `7ead0ffb97ff7785ff2c8dfe61afadf3a978336d9441acb59b0322df5c20e9bc` | Superseded; predates onboarding typography correction |
 | Earlier debug | `daacf85` | 176,228,861 bytes | `215a1275cc6e4b83a7dce8a39e3d5a493cdecfd9391f91d1114e61af139e6d61` | Superseded; predates inactive-state privacy changes |

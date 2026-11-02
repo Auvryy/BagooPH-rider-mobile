@@ -43,6 +43,12 @@ the actual Geoapify client with a synthetic HTTP response, checks the requested
 endpoints and resulting line, and confirms Stop clears it. This does not use a
 real provider key or prove production route availability.
 
+The route controller also discards a response if the rider has moved at least
+50 metres since its request, clears the line after two off-route fixes, and
+removes it when the latest GPS fix expires. Navigation and lifecycle checks
+passed 28 tests; targeted analysis passed. Actual movement, timing and GPS
+accuracy remain physical-device acceptance items.
+
 PC evidence: 63 provider/navigation/Stop Mode/map tests, 41 additional
 navigation and Home lifecycle tests, 6 embedded-map tests after the display
 failure safeguard, and 5 bundled renderer runtime checks passed. Flutter

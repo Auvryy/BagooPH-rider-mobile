@@ -243,6 +243,63 @@ void main() {
     expect(NavigationProfile.forVehicle('bicycle'), isNull);
   });
   test(
+    'a route response from an old rider position is not displayed',
+    () async {
+      final routes = Routes(), location = Location();
+      var now = DateTime.utc(2026, 10, 9);
+      final response = Completer<RoadRoute>();
+      routes.response = () => response.future;
+      final nav = NavigationController(
+        routes: routes,
+        authorize: (_) async => task(),
+        vehicleType: () async => 'motorcycle',
+        location: location,
+        now: () => now,
+      );
+      addTearDown(() async {
+        nav.dispose();
+        routes.dispose();
+        await location.stream.close();
+      });
+      await nav.start(task());
+      final first = nav.updateFix(LocationFix(const LatLng(14, 121), now, 5));
+      now = now.add(const Duration(seconds: 1));
+      await nav.updateFix(LocationFix(const LatLng(14.002, 121), now, 5));
+      response.complete(RoadRoute.geoJson(geometry));
+      await first;
+      expect(nav.road, isNull);
+      expect(nav.message, contains('Location changed'));
+    },
+  );
+
+  testWidgets(
+    'an old GPS fix clears the displayed route until a fresh fix arrives',
+    (tester) async {
+      final routes = Routes(), location = Location();
+      final nav = NavigationController(
+        routes: routes,
+        authorize: (_) async => task(),
+        vehicleType: () async => 'motorcycle',
+        location: location,
+        now: tester.binding.clock.now,
+      );
+      addTearDown(() async {
+        routes.dispose();
+        await location.stream.close();
+      });
+      await nav.start(task());
+      await nav.updateFix(
+        LocationFix(const LatLng(14, 121), tester.binding.clock.now(), 5),
+      );
+      expect(nav.road, isNotNull);
+      await tester.pump(const Duration(seconds: 31));
+      expect(nav.road, isNull);
+      expect(nav.fix, isNull);
+      expect(nav.message, contains('fresh accurate location'));
+      nav.dispose();
+    },
+  );
+  test(
     'navigation stays idle until explicit Navigate; denial leaves it stopped',
     () async {
       final routes = Routes(), location = Location();

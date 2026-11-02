@@ -1,6 +1,7 @@
 import '../../../core/network/api_failure.dart';
 import '../../../core/network/rider_api_client.dart';
 import '../../../core/network/wire.dart';
+import '../../../core/security/account_input_validation.dart';
 import '../../home/data/command_journal.dart';
 import 'company_models.dart';
 
@@ -65,9 +66,10 @@ class RiderCompanyRepository {
     String search = '',
     String province = '',
   }) async {
-    for (final value in [search, province]) {
-      if (value.runes.length > 100 ||
-          value.contains(RegExp(r'[\x00-\x1f\x7f<>]'))) {
+    final filters = {'search': search.trim(), 'province': province.trim()};
+    for (final value in filters.values) {
+      if (value.isNotEmpty &&
+          !riderApplicationNotesAreValid(value, min: 1, max: 100)) {
         throw const AccountFailure(
           'Use up to 100 characters of plain text to search.',
         );
@@ -76,8 +78,8 @@ class RiderCompanyRepository {
     final result = CompanyPage.fromJson(
       await _request(
         _page('rider/companies', page, {
-          if (search.trim().isNotEmpty) 'search': search.trim(),
-          if (province.trim().isNotEmpty) 'province': province.trim(),
+          if (filters['search']!.isNotEmpty) 'search': filters['search']!,
+          if (filters['province']!.isNotEmpty) 'province': filters['province']!,
         }),
       ),
       RiderCompany.fromJson,
@@ -202,7 +204,8 @@ class RiderCompanyRepository {
         'offer_id': request.offer?.id,
         'terms_hash': request.offer?.termsHash,
         'acknowledged': acknowledged,
-      } else 'reason': ?companyNote(reason, field: 'reason'),
+      } else
+        'reason': ?companyNote(reason, field: 'reason'),
     }, mayDispatch);
   }
 

@@ -136,6 +136,23 @@ bool riderApplicationNotesAreValid(
   return true;
 }
 
+/// The API's `search` profile for cash and trip list queries.
+bool riderApplicationSearchIsValid(String value, {int max = 100}) {
+  final text = value.trim();
+  if (text.isEmpty || text.runes.length > max) return false;
+  return RegExp(
+        r"^[\p{Script=Latin}\p{M}\p{N} #.,’'\-/()&:]+$",
+        unicode: true,
+      ).hasMatch(text) &&
+      RegExp(r'[\p{L}\p{N}]', unicode: true).hasMatch(text) &&
+      !_hasHiddenApplicationMarker(text) &&
+      !RegExp(
+        r'(?:javascript|vbscript|data)\s*:|\bon[a-z]+\s*=',
+        caseSensitive: false,
+        unicode: true,
+      ).hasMatch(text);
+}
+
 bool _hasHiddenApplicationMarker(String text) =>
     RegExp(r'[\u034f\ufe00-\ufe0f]', unicode: true).hasMatch(text) ||
     text.runes.any((rune) => rune >= 0xe0100 && rune <= 0xe01ef);

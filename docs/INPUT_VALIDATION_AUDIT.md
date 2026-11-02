@@ -11,8 +11,9 @@ website and backend were read only.
   review covered Laravel's account password defaults, application text/contact
   validation, vehicle plate and driver-license rules, Rider Settings, the
   `RegistrationDocument` file rule, Rider verification-code checks, and the
-  current cash/company/handover text rules. This is source evidence; it does
-  not prove the same revision is deployed to Azure.
+  current `RiderCashService`, `RiderTripService`, `RiderCompanyService`, and
+  handover text rules. This is source evidence; it does not prove the same
+  revision is deployed to Azure.
 - Rider inputs reviewed: sign-in, registration and OTP; Profile/Settings;
   Home and Trips searches; Messages search/composer; company search and
   applications; cash searches and offer forms; parcel outcome and proof forms;
@@ -34,6 +35,7 @@ website and backend were read only.
 | Registration documents | Picker and repository checked only file size, so empty, mislabeled or unreadable documents could be submitted. | Validate non-empty files up to 5 MiB, extension/signature agreement and image dimensions at selection and again before upload. Dimensions are read from headers without decoding image pixels. Invalid replacements preserve the current selection. |
 | Verification codes | Registration UI checked length rather than six ASCII digits; the Settings repository had no equivalent preflight. | Validate exactly six ASCII digits in both forms and again in both repositories before any request. |
 | Input lengths | Several fields had API/model limits but no matching keyboard limit. | Add matching limits for registration/profile fields, cash and parcel amounts, company/trip/cash search, messages and OTPs. Loaded-task and conversation search use bounded local limits; manual preview coordinates are capped at 32 characters. |
+| Server query text profiles | Trip search accepted `%`, `_`, and other punctuation rejected by `ApplicationText('search')`. Company search only screened basic controls and angle brackets, so hidden markers, braces, backticks, and unsafe schemes could reach the API and receive a validation error. | Share the server-compatible search validator between cash and Trips, and apply the server's notes profile to company and province filters. Regression tests verify malformed filters stop before dispatch while ordinary search terms still reach the API. |
 
 ## Reviewed safeguards retained
 
@@ -53,6 +55,10 @@ multiline notes and the configured field limits. `flutter analyze --no-pub`
 reported no issues. Formatting and `git diff --check` were clean.
 After that broad run, the account input helper suite was rerun with a valid
 quoted local-part address case; all **9 tests** passed.
+The follow-up server-contract checks passed serially: Trips **6/6**, Company
+**9/9**, Cash **14/14**. The cash and company tests also confirm rejected
+filters do not dispatch a request. `flutter analyze --no-pub` reported no
+issues after these search fixes; formatting and `git diff --check` are clean.
 
 These checks used Flutter's PC test environment. No connected phone, ADB,
 emulator, app window, live password/contact write, or Azure deployment check was

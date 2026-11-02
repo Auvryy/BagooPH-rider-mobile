@@ -88,7 +88,7 @@ void main() {
   );
   test('assignment-date query encodes literal search and supports one-sided inclusive dates', () {
     final filter = TripFilters(
-      search: ' ORDER %_ / & ',
+      search: ' ORDER / & ',
       phase: 'pickup',
       payment: 'prepaid',
       from: DateTime(2026, 10, 18),
@@ -97,7 +97,7 @@ void main() {
     expect(query.queryParameters, {
       'page': '2',
       'per_page': '20',
-      'q': 'ORDER %_ / &',
+      'q': 'ORDER / &',
       'phase': 'pickup',
       'payment': 'prepaid',
       'from_date': '2026-10-18',
@@ -111,11 +111,20 @@ void main() {
           TripFilters(from: DateTime(2026, 10, 19), to: DateTime(2026, 10, 18)),
       throwsA(isA<AccountFailure>()),
     );
-    expect(
-      () => TripFilters(search: 'x' * 101),
-      throwsA(isA<AccountFailure>()),
-    );
-    expect(() => TripFilters(search: 'x\ny'), throwsA(isA<AccountFailure>()));
+    for (final value in [
+      'x' * 101,
+      'x\ny',
+      'TRACK_%',
+      'a@b',
+      'foo\u200bbar',
+      'javascript:abc',
+    ]) {
+      expect(
+        () => TripFilters(search: value),
+        throwsA(isA<AccountFailure>()),
+        reason: 'query must be rejected before dispatch: $value',
+      );
+    }
   });
   test('page validates retained attribution and deduplicates stable original assignment IDs', () {
     final json =

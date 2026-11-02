@@ -7,8 +7,8 @@ deferred by the user. Keep this list open until its corresponding evidence exist
 
 This source review compares the Rider runtime and Android manifest on
 `fix/rider-route-privacy-disclosure`, including the app-level inactive-state
-cover reviewed November 2, 2026. It compares that code with the
-phone-responsive Courier portal on Bagoo `main` at
+cover and paused-window security flag reviewed November 2, 2026. It compares
+that code with the phone-responsive Courier portal on Bagoo `main` at
 `f001d396b0e9ea6bfc2fdeb85ee24b66682b997e`. The remote Bagoo main and review
 branch refs were rechecked November 2, 2026. This covers the Courier website,
 not the Buyer app. It does not claim that either client was exercised in a real
@@ -59,6 +59,8 @@ final-mile work, or mark hub cash receipt/platform reconciliation. The rider
 can submit a cash handover; the owning hub and ledger remain authoritative.
 
 Sources: Rider [workspace navigation](../../../lib/features/workspace/presentation/workspace_shell.dart),
+[app-level lifecycle cover](../../../lib/main.dart),
+[Android paused-window protection](../../../android/app/src/main/kotlin/com/example/bagoo_rider_mobile/MainActivity.kt),
 [Home notifications and handover entry](../../../lib/features/home/presentation/home_dashboard.dart),
 [Home selected-stop panel](../../../lib/features/home/presentation/home_task_panel.dart),
 [Doorstep Guide](../../../lib/features/home/presentation/doorstep_guide.dart),
@@ -265,9 +267,11 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   changed account state. The Trips proof viewer clears on background. See the
   [source audit](PRIVATE_DATA_LIFECYCLE.md); message-draft policy, whole-app
   cleanup and real Android lifecycle acceptance remain open. The task queue and
-  selected stop also remain in memory; Stop Mode keeps the stop details rendered
-  while inactive, disables its actions and revalidates on resume. Android
-  recent-app snapshot behavior for those details has not been verified.
+  selected stop remain in memory. While Flutter is not resumed, an app-level
+  cover blocks interaction and hides all Navigator pages/dialogs; Android also
+  sets `FLAG_SECURE` during `onPause` and clears it on `onResume`, preserving
+  screenshot/casting access while active. Recent-app snapshot behavior still
+  needs physical-device verification.
 - **Does the rider confirm that the buyer received the parcel?** The rider
   records the handoff. The backend returns the applicable status; newer
   flow-version orders may complete automatically. There is no separate
@@ -444,8 +448,8 @@ Use this status view with the broader [acceptance matrix](../../VERIFICATION_AND
 | Failure/return | The isolated PC kernel scenario records one failed attempt, hub return, authorized retry and foreign-proof denial ([parcel verification](../rider-orders-delivery-trips/VERIFICATION.md)). | Deployed hub receipt/retry/RTS readbacks and physical Android proof/return handling. |
 | Cash/shift | The in-memory native cash scenario verifies original-command replay, two owning-hub receipts, shortage handling and earnings separation ([cash verification](../rider-cash-remittance/VERIFICATION.md)). | Current Azure migrations/capability, authorized live rider/hub receipts and physical financial-input/lifecycle checks. |
 | Messages/notices | Controller/widget and isolated-kernel behavior is recorded in [Messages verification](../rider-assignment-messages/VERIFICATION.md); the latest broad PC regression is summarized above. | Deployed send/read acceptance, live phase boundaries and later-arrival-unread behavior. |
-| Security/recovery | Fixed first-party recovery links and simulated private-draft cleanup are recorded in [workflow verification](VERIFICATION.md) and the [private-data audit](PRIVATE_DATA_LIFECYCLE.md). | Owner decisions for retained private data; deployed restricted-custody recovery; Android picker/process-death behavior. Rider now covers the whole Navigator, including pushed pages and dialogs, while inactive and blocks underlying semantics/input. Android recent-app snapshot behavior remains unverified. |
-| Phone lifecycle | PC simulations cover picker recovery, background clearing and expiry; the [private-data audit](PRIVATE_DATA_LIFECYCLE.md) lists what remains source-only. | Actual camera permission/cancel/retry, process kill/resume, account switch, keyboard/Back, task-detail redaction and app-switcher snapshot review. No current phone test was performed. |
+| Security/recovery | Fixed first-party recovery links and simulated private-draft cleanup are recorded in [workflow verification](VERIFICATION.md) and the [private-data audit](PRIVATE_DATA_LIFECYCLE.md). | Owner decisions for retained private data; deployed restricted-custody recovery; Android picker/process-death behavior. Rider covers the whole Navigator while inactive, blocks underlying semantics/input, and sets `FLAG_SECURE` while its Android activity is paused. Recent-app snapshot behavior still needs physical-device verification. |
+| Phone lifecycle | PC simulations cover picker recovery, background clearing and expiry; the [private-data audit](PRIVATE_DATA_LIFECYCLE.md) lists what remains source-only. | Compile the current Android activity change and verify camera permission/cancel/retry, process kill/resume, account switch, keyboard/Back, task-detail redaction and app-switcher snapshot. The new pause flag has not been compiled or exercised on a phone. |
 | Release identity | The arm64 debug APK and profile preview have PC archive/signature checks in [Android release evidence](../../ANDROID_RELEASE.md). | Approved application ID, protected release key, reproducible signed artifact, install/launch and artifact/source identity check. Debug APKs are not distributable releases. |
 | Deployment/cross-role | HDB-05 duty/claim is the only recorded controlled operational deployment acceptance; current Bagoo `main` and Wallet source refs are pinned above. | Confirm the deployed source/migrations for each operation and complete authorized rider, buyer, hub and cash readbacks. Source tests and `401` checks do not satisfy this gate. |
 | Evidence freeze | The Rider source/test basis, pre-refresh branch ancestry snapshot, Bagoo `main` and unmerged Wallet source refs are recorded above; APK hashes and build limits are in [Android release evidence](../../ANDROID_RELEASE.md). | Freeze the exact signed artifact, tested source and deployed revision, preserve selected test-resource results, then rehearse before November 20. |

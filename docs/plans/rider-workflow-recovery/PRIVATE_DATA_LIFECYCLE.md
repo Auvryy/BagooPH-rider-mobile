@@ -17,7 +17,7 @@ planned.
 | Unsubmitted parcel photo draft | Secure Storage holds a context and proof reference bound to API, account, task, version, action and a random key. The encrypted original is separate. Android lost-picker recovery uses a context marker. | The image is offered only for the matching context and for less than 24 hours. Backgrounding clears the in-memory image and form selection and cancels its expiry callback; resume reloads only the same account/API-scoped encrypted copy if it is still fresh. A draft that expires in the background is deleted during resume restore. A stale in-flight restore cannot repopulate memory after a background/resume transition. Explicit sign-out and invalid-session cleanup remove the owned picker marker and unsubmitted proof; a separately retained command proof is preserved. Sign-out prevents a picker or proof save already in flight from recreating the draft. Manual sign-out is canceled with a retry message if cleanup fails. The workspace provider also clears the temporary draft when auth changes the account identity, approval state, or operations API version. If secure marker storage succeeds, a marker makes later restore retry cleanup before offering the photo after a deletion failure. If the app is stopped without sign-out, expiry cleanup can wait until the next same-account restore. Physical-device behavior remains unverified. |
 | Messages | Conversation list, selected thread/history and pending UI intent are held in controller memory. Draft text is an in-memory map keyed by thread. | Backgrounding clears the cached inbox/history and pending UI intent, but leaves message draft text in memory. Losing authorization, stale-thread denial, capability removal or controller disposal clears drafts. Deactivating a surface cancels reads but retains cached state while the controller remains alive. |
 | Notifications | Inbox, selected item, pending UI intent and displayed-read tracking are held in controller memory. | Backgrounding clears private inbox/detail/pending state. Access loss, capability removal and disposal clear it too. |
-| Task queue and selected stop | `WorkspaceController` retains the task queue, pagination data and selected task in memory (`taskData`, `taskPage`, `selectedTask`). | Backgrounding pauses polling and other foreground work but does not clear these task fields. On every non-resumed lifecycle state, an app-level opaque, neutral cover sits above the Navigator, including pushed pages and dialogs; it excludes underlying app semantics and blocks pointer input. Resume reveals the retained app; Stop Mode refreshes and revalidates before actions. The Flutter cover does not clear cached task data, cancel already-dispatched operations, or set Android `FLAG_SECURE`; actual recent-app snapshot behavior is unverified. |
+| Task queue and selected stop | `WorkspaceController` retains the task queue, pagination data and selected task in memory (`taskData`, `taskPage`, `selectedTask`). | Backgrounding pauses polling and other foreground work but does not clear these task fields. On every non-resumed lifecycle state, an app-level opaque, neutral cover sits above the Navigator, including pushed pages and dialogs; it excludes underlying app semantics and blocks pointer input. Android `MainActivity.onPause` also sets `FLAG_SECURE` before delegating to Flutter, and `onResume` clears it after resume. Android documents this flag as blocking screenshots and non-secure displays ([secure activities guidance](https://developer.android.com/security/fraud-prevention/activities)); actual recent-app snapshot behavior on supported devices is still unverified. Resume reveals retained in-memory data; Stop Mode refreshes and revalidates before actions. Neither mechanism clears cached task data or cancels already-dispatched operations. |
 | Retained Trip proof view | Authorized proof bytes are held by the Trip detail controller in memory after an authenticated read. | Backgrounding clears the selected proof and its path; reopening requires a fresh read. Controller disposal also clears the view. |
 
 These are source-level observations, not physical Android acceptance. The
@@ -41,10 +41,9 @@ this audit.
    cleanup and physical Android lifecycle acceptance remain open.
 5. Confirm acceptable token, journal and proof protection on supported Android
    versions, including real process death and lost-picker behavior.
-6. Decide whether masking the retained task queue and selected-stop details is
-   sufficient or if they also require memory cleanup. Verify that the app-level
-   Flutter cover protects recent-app snapshots on supported Android versions;
-   the current source does not set Android `FLAG_SECURE`.
+6. Decide whether masking retained task and stop details is sufficient or if
+   they also require memory cleanup. Verify Flutter-cover and `FLAG_SECURE`
+   behavior for recent-app snapshots on supported Android versions.
 
 Until these choices are accepted, describe the implementation as scoped and
 recovery-oriented, with the retention questions open. Do not describe pending
@@ -67,3 +66,5 @@ deletion, and do not claim that every private draft clears on background.
 - [Workspace lifecycle](../../../lib/features/workspace/presentation/workspace_controller.dart)
   and [Stop Mode lifecycle and rendering](../../../lib/features/home/presentation/stop_mode_page.dart)
   and [Trip proof lifecycle](../../../lib/features/trips/presentation/trip_detail_controller.dart)
+- [App-level privacy cover](../../../lib/main.dart) and
+  [Android paused-window protection](../../../android/app/src/main/kotlin/com/example/bagoo_rider_mobile/MainActivity.kt)

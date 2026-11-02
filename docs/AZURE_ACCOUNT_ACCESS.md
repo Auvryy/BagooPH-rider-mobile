@@ -23,8 +23,9 @@ profile. Native sessions use platform secure storage. Android has Internet
 permission, disables application backup and requires encrypted network traffic
 in release/profile. The Rider API origin validator accepts debug HTTP only when
 the loopback-only local-auth configuration is explicitly selected. The Android
-debug manifest permits cleartext traffic at the platform level; that broader
-setting is not itself a localhost-only restriction.
+debug manifest permits cleartext at the platform level by default; that broader
+setting is not itself a localhost-only restriction. A restricted debug build
+can disable it as described in [Android packaging](ANDROID_RELEASE.md).
 
 Ordinary Android/Linux builds have no sample login or workspace route. Historical
 Home/workspace flags never disable the account API; the old workspace profile

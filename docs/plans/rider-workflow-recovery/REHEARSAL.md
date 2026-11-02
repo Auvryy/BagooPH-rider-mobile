@@ -179,7 +179,7 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    includes approval-loss cleanup. These remain simulated PC checks, not
    physical Android acceptance. At Rider code commit `daacf85`, the focused
    Home and Stop Mode tests passed **46/46** and analysis was clean. The latest recorded
-   arm64 debug APK was built from `05bca09`, including the inactive-state cover
+   arm64 debug APK was built from `92fc7c0`, including the inactive-state cover
    and paused-window flag; it passed PC archive, package/SDK, ARM64-engine,
    manifest and APK v2 signature checks. The focused privacy widget check passed
    **1/1**, and the native Kotlin compile succeeded with a 768 MiB heap cap. The
@@ -287,7 +287,7 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   separate field study.
 - **Is it ready for a live Android defense demo?** The available
   arm64-targeted debug APK was built and verified on the PC from Rider commit
-  `daacf85`; the profile APK is from `ba7823a`. Neither has been installed.
+  `92fc7c0`; the profile APK is from `ba7823a`. Neither has been installed.
   Both use the scaffold application ID and debug signing. Approved release
   identity/signing, deployed cross-role acceptance, and physical Android
   acceptance remain open, so a live-phone demo is not yet accepted.
@@ -433,7 +433,7 @@ flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-fro
    passed 716 tests with 8 skips at Rider commit `5ab6b36`;
    the headless Wallet client scenario passed 1/1 against Bagoo `9e58312` with
    an in-memory storage adapter;
-   the arm64 debug APK from `05bca09` and the earlier profile APK from `ba7823a`
+   the arm64 debug APK from `92fc7c0` and the earlier profile APK from `ba7823a`
    are PC-verified, debug-signed, and uninstalled. They do not establish
    hardware behavior.
 3. If asked to demonstrate an operational transaction, explain that Azure and

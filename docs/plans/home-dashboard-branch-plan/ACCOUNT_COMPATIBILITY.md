@@ -1,4 +1,4 @@
-# Account compatibility watch and separate conditional branch
+# Account compatibility watch and deployed-account follow-up
 
 This is outside the selected Home bug fixes. It records relevant source changes
 observed while the website developer was working; it does not modify account code
@@ -59,9 +59,10 @@ Finish evidence:
   fixtures; the broader 179-test set is recorded in the audit report.
 - [ ] Any real signup/password write uses authorized private test resources and
   source/deployment/mailbox/device evidence; no automatic production signup is implied.
-- [ ] Runtime change and evidence are reviewed in this separate branch with local
-  commits; the user publishes/merges it. It is not bundled into HDB-01.
+- [x] Runtime change and evidence are reviewed in this separate branch with a
+  local commit; it is not bundled into HDB-01.
+- [ ] The user publishes and merges the branch.
 
-The 80–137-hour HDB estimate excludes this conditional follow-up. HDB-05 must
-acknowledge compatibility when creating new native applicants or testing changed
-Settings policy, but can use an already authorized approved rider when supported.
+The 80–137-hour HDB estimate excludes remaining live account acceptance. HDB-05
+can use an already-authorized approved rider when supported; this audit does not
+require a production signup or password change.

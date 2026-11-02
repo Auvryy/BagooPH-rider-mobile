@@ -163,8 +163,8 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    checks do not measure delivery speed, accuracy, or user satisfaction; claim
    gains only if a separate field study supports them.
 5. **Evidence and limits — 60 seconds.** The latest full serial Flutter suite
-   passed **716 tests, 8 skipped, zero failures** in 6m17s at Rider branch
-   commit `5ab6b36`, including the privacy cover and Doorstep Guide tests.
+   passed **719 tests, 9 skipped, zero failures** in 7m23s at Rider branch
+   commit `74a30fc`, including the privacy cover and Doorstep Guide tests.
    The earlier 713-test full run includes the account-access
    photo cleanup now published as `961d8b8`. The
    separate headless Wallet client scenario passed
@@ -299,8 +299,8 @@ evidence, not as an accepted live phone demonstration.
 
 ## Current PC evidence and open gates
 
-- The latest full serial Flutter suite passed **716 tests, 8 skipped, zero
-  failures** in 6m17s at Rider branch commit `5ab6b36`, including the privacy
+- The latest full serial Flutter suite passed **719 tests, 9 skipped, zero
+  failures** in 7m23s at Rider branch commit `74a30fc`, including the privacy
   cover and Doorstep Guide tests. The earlier 713-test run at
   `968e18f` contains the account-access photo cleanup follow-up. The headless
   Wallet client scenario passed
@@ -430,7 +430,7 @@ flutter run -d linux --debug --dart-define=DEVICE_PREVIEW=true --dart-define-fro
    Guide for an authorized final-mile stop. Identify any running Linux frame as
    a desktop preview, not Android hardware behavior.
 2. Show the PC evidence above with revisions attached: the latest full suite
-   passed 716 tests with 8 skips at Rider commit `5ab6b36`;
+   passed 719 tests with 9 skips at Rider commit `74a30fc`;
    the headless Wallet client scenario passed 1/1 against Bagoo `9e58312` with
    an in-memory storage adapter;
    the arm64 debug APK from `422a02c` and the earlier profile APK from `ba7823a`

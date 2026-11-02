@@ -5,10 +5,11 @@ Rider font. The onboarding widget suite passed **10/10**, and a headless visual
 capture showed readable labels. The debug APK from `422a02c` includes this
 correction and passed the archive, metadata, architecture and signature checks.
 
-At Rider commit `5ab6b36`, the full PC suite passed **716 tests with 8 skips**
-in 6m17s using `flutter test --no-pub --concurrency=1 --reporter=json test`.
-This includes the current privacy-cover test and lifecycle fixture. It does
-not establish physical Android behavior, deployed transactions, or release
+At Rider commit `74a30fc`, the full PC suite passed **719 tests with 9 skips**
+in 7m23s using `flutter test --no-pub --concurrency=1 --reporter=json test`.
+This includes the privacy-cover, Device Preview and API-origin checks. The
+opt-in defense-profile check is one of the skips and passed separately. This
+PC evidence does not establish physical Android behavior, deployed transactions, or release
 signing; those acceptance checks remain open.
 
 The alternate API-configuration test skipped by that default run also passed

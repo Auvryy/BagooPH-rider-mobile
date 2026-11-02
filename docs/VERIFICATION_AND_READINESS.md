@@ -12,6 +12,12 @@ an explicitly empty override (one passing case and one expected skip in each
 run). It checks configuration isolation and empty-origin rejection without a
 network request; it does not verify a deployed server.
 
+The three optional visual-review widget cases also passed with synthetic data
+and one test worker after updating their conversation fixture keys. A temporary
+copy of the test redirected captures to a temporary directory, preserving the
+existing captures. Tasks and Messages captures were inspected; these are PC
+renders, not Android device acceptance.
+
 **Current status — November 2, 2026.** The scores and starter-screen statements
 below describe the October 5 planning snapshot, not current Rider behavior.
 An earlier full serial PC regression passed **715 tests with 8 skips and zero

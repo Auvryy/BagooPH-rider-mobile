@@ -165,13 +165,13 @@ void main() {
       if (name == 'messages') {
         await tap(
           tester,
-          find.byKey(const ValueKey('conversation-preview-pickup')),
+          find.byKey(const ValueKey('conversation-pickup-1-101-3')),
         );
         await capture(tester, 'conversation-390');
         await tap(tester, find.byKey(const ValueKey('conversation-back')));
         await tap(
           tester,
-          find.byKey(const ValueKey('conversation-preview-ended')),
+          find.byKey(const ValueKey('conversation-final_mile-3-103-5')),
         );
         await capture(tester, 'conversation-restricted-390');
         await tap(tester, find.byKey(const ValueKey('conversation-back')));

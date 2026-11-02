@@ -48,6 +48,12 @@ profile recorded here does not enable local authentication and uses HTTPS for
 the Rider API. The merged manifest is build evidence; actual device network
 behavior and the signed release manifest still need verification.
 
+The API configuration tests also reject non-loopback HTTP, embedded URL
+credentials, query strings, fragments and an incorrect API path. A debug test
+confirms that the three allowed loopback hosts require explicit local
+authentication. `test/app_config_test.dart` passed three cases with its
+alternate-build-configuration case skipped in the ordinary run.
+
 For an Android debug build that rejects cleartext at the platform level, set
 `RIDER_DEBUG_CLEARTEXT=false` in the build environment. The default remains
 `true` for the existing debug development workflow; only `true` and `false`

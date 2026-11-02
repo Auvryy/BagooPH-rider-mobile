@@ -1,5 +1,15 @@
 # Verification and documentation assessment
 
+## Post-merge source status — November 2, 2026
+
+Rider `main` now contains the reviewed work through PR #35 at `5c73ebb`. Bagoo
+`main` contains the Wallet recipient/proof fix through PR #144 at `9ca5db5`,
+including source commit `15d7fc3` and documentation follow-ups `9e58312` and
+`a54c76a`. The recorded PC tests below ran on their stated pre-merge revisions;
+this status update did not rerun them. Source merge does not prove Azure
+deployment, applied migrations, live cross-role acceptance, release signing, or
+physical Android behavior. Phone testing remains deferred.
+
 The onboarding Skip, Next and Sign in controls now explicitly use the bundled
 Rider font. The onboarding widget suite passed **10/10**, and a headless visual
 capture showed readable labels. The debug APK from `422a02c` includes this
@@ -237,11 +247,12 @@ was a later local checkpoint and is superseded by the current 713-test result
 above. At the original full-test checkout,
 `38e25cf` was one documentation-only commit ahead of the then-published
 `514e1cc` and 44 commits ahead, 0 behind Rider `main`. Bagoo `main` was
-`f001d39`; its Wallet/handover source branch `9e58312` was 2 commits ahead,
-not merged or deployment evidence. Other focused evidence includes 42
-command/workflow/outcome tests at `3839de6`,
-20 proof-recovery/Trips tests at `cbd6b21`, 20 Parcel Finder tests at `d42c948`,
-six map-disclosure checks at `9d7e8cf`/`039d40d`, and one headless Rider-to-kernel
+`f001d39`; its Wallet/handover source branch `9e58312` was 2 commits ahead at
+that November 1 snapshot. PR #144 later merged it at `9ca5db5`; neither that
+historical source check nor the merge proves deployment. Other focused evidence
+includes 42 command/workflow/outcome tests at `3839de6`, 20 proof-recovery/Trips
+tests at `cbd6b21`, 20 Parcel Finder tests at `d42c948`, six map-disclosure
+checks at `9d7e8cf`/`039d40d`, and one headless Rider-to-kernel
 scenario at `6a0ab47` against Bagoo `9e58312`. Earlier APKs described in this
 historical November 1 checkpoint have been superseded by the latest November 2
 builds from Rider commit `ba7823a`, whose Dart source is unchanged from

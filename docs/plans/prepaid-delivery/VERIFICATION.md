@@ -91,9 +91,10 @@ isolated PHP kernel used SQLite `:memory:` and no network. The native Linux test
 ran on the PC; Android hardware and Azure were not involved.
 
 This closes the local source/client compatibility gap. Both the native prepaid
-write gate and the general parcel write gate remain false. The source branch is
-not merged or confirmed deployed, and controlled Azure, cross-role and physical
-Android acceptance remain open.
+write gate and the general parcel write gate remain false. At the time of this
+November 1 run, the source branch had not yet merged; PR #144 later merged it
+into Bagoo `main` at `9ca5db5`. Deployment and controlled Azure, cross-role and
+physical Android acceptance remain open.
 
 ## November 2 windowless Rider client recheck
 

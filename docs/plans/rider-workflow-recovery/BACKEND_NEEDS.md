@@ -1,7 +1,8 @@
 # Remaining backend acceptance for native delivery
 
-Read-only source review on November 1, 2026 at web `f001d39`. This is a concrete
-API-owner handoff; this mobile delivery does not edit the backend checkout.
+Read-only source review on November 1, 2026 at web `f001d39`. The numbered
+source findings below were resolved in the later Bagoo branch and merged by
+PR #144. This remains an API-owner handoff for deployment and live acceptance.
 
 1. In `RiderTripService`, resolve a Wallet handoff's original recipient from the
    immutable `WalletHandoverReceipt` matched to the retained delivered checkpoint,
@@ -44,7 +45,8 @@ proof integrity, foreign denial, reassignment and version-two handover status.
 The Rider's native prepaid integration test also passed against that pinned
 revision, verifying exact retained proof bytes and recipient after replay.
 
-This dated owner handoff is closed for source changes. It remains open for
-confirming merge/deployment and migrations, fresh Azure discovery, controlled
-owned-resource acceptance, independent buyer/hub/earnings outcomes and physical
-Android verification. Write gates remain unchanged.
+This owner handoff is closed for source changes, and PR #144 merged them into
+Bagoo `main` at `9ca5db5`. It remains open for confirming deployment and
+migrations, fresh Azure discovery, controlled owned-resource acceptance,
+independent buyer/hub/earnings outcomes and physical Android verification.
+Write gates remain unchanged.

@@ -81,10 +81,11 @@ one immutable receipt, no COD, and the original recipient plus exact original
 private proof bytes in Trips. The PHP kernel was isolated with SQLite `:memory:`
 and no network.
 
-This resolves the local source/client gap only. The code is not merged or
-confirmed deployed, the write gates remain false, and the user deferred physical
-phone testing. The existing recovery and PC build evidence above does not claim
-live Azure, cross-role or Android hardware acceptance.
+This resolves the local source/client gap only. The write gates remain false,
+and the user deferred physical phone testing. Bagoo PR #144 later merged the
+source into `main` at `9ca5db5`; this does not confirm deployment. The existing
+recovery and PC build evidence above does not claim live Azure, cross-role or
+Android hardware acceptance.
 
 ## Earlier branch-head PC recheck — November 1, 2026
 
@@ -160,13 +161,14 @@ stopped before artifact generation and named the missing approved
 `RIDER_APPLICATION_ID` and local keystore settings. The fail-closed result is
 verified; no release APK was produced and no signing key was read or used.
 
-Live GitHub refs matched Rider `main` `4367331` and published defense branch
-`4d4663d` during this check. Local HEAD `e0aa20e` is 28 commits ahead of main
-and 2 commits ahead of the published branch. Bagoo `main` matched
-`f001d396b0e9ea6bfc2fdeb85ee24b66682b997e`; its read-only Wallet/handover branch
-`9e58312d130809eb8cd878189b729f1f702291d8` is 2 commits ahead and not merged or
-deployment evidence. Azure cross-role acceptance, approved release identity and
-signing, and physical Android acceptance remain open.
+At the time of this pre-merge check, live GitHub refs matched Rider `main`
+`4367331` and published defense branch `4d4663d`. Local HEAD `e0aa20e` is 28
+commits ahead of main and 2 commits ahead of the published branch. Bagoo `main`
+matched `f001d396b0e9ea6bfc2fdeb85ee24b66682b997e`; its read-only Wallet/handover branch
+`9e58312d130809eb8cd878189b729f1f702291d8` was 2 commits ahead at that time.
+PR #144 later merged it into Bagoo `main` at `9ca5db5`. Azure cross-role
+acceptance, approved release identity and signing, and physical Android
+acceptance remain open.
 
 ## Map-disclosure branch-head APK — November 1, 2026
 

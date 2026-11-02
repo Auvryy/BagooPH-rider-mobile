@@ -1,6 +1,6 @@
 # Sources, authority and synchronization
 
-**November 1 current source review:** web main `f001d39` and its
+**November 1 source-authority review:** web main `f001d39` and its
 `docs/new-docs-era/README.md` govern current version-two automatic completion and
 original earnings. Historical buyer-confirmation descriptions below apply only
 where retained order evidence requires them. The selected
@@ -8,13 +8,20 @@ where retained order evidence requires them. The selected
 native response fields, verified website routes and remaining owner acceptance.
 No web source or deployment was changed by this mobile work.
 
-**November 2 remote-ref refresh:** read-only GitHub refs still point to Bagoo
+**Current post-merge source status — November 2, 2026:** Rider `main` is
+`5c73ebb` after PR #35, and Bagoo `main` is `9ca5db5` after PR #144. The Wallet
+recipient/proof fix and version-two handover update are included in Bagoo
+`main`. This verifies source history only; Azure deployment, migrations and
+live cross-role acceptance remain separate.
+
+**Earlier November 2 pre-merge remote-ref snapshot:** read-only GitHub refs at
+that check pointed to Bagoo
 `main` at `f001d396b0e9ea6bfc2fdeb85ee24b66682b997e` and
 `fix/rider-wallet-trip-evidence` at
 `9e58312d130809eb8cd878189b729f1f702291d8`. The fix branch is two commits ahead
-and zero behind `main`; it remains unmerged. This confirms published Git refs
-only, not Azure deployment, migrations, or live cross-role acceptance. The
-Bagoo checkout was left read-only.
+and zero behind `main` at that snapshot. PR #144 later merged it at `9ca5db5`.
+This historical ref check confirms neither current deployment nor live
+cross-role acceptance.
 
 ## Reviewed source snapshot
 

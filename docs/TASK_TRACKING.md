@@ -571,8 +571,9 @@ adds source-authorized prepaid handoff, omits cash controls/fields and invalidat
 changed payment reviews. Original proof/UUID recovery remains shared with COD.
 The source-level retained Wallet proof/recipient gap was fixed on Bagoo branch
 `fix/rider-wallet-trip-evidence`; backend regressions and the native consumer
-acceptance now pass against that source. Merge/deployment and controlled live
-acceptance remain open; prepaid writes stay disabled.
+acceptance now pass against that source. PR #144 merged the fix into Bagoo `main`
+at `9ca5db5`. Deployment and controlled live acceptance remain open; prepaid
+writes stay disabled.
 
 **Outcome:** the assigned rider records a genuine recipient handoff and exact
 cash when COD applies.

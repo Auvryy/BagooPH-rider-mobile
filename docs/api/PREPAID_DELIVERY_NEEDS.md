@@ -14,6 +14,10 @@ passed against that pinned source. These results accept source compatibility;
 they do not establish an Azure deployment, controlled live acceptance or
 physical Android behavior. The write gates remain false.
 
+**November 2 merge update:** Bagoo PR #144 merged this source into `main` at
+`9ca5db5`. The recorded tests predate the merge. Merge does not establish Azure
+deployment, applied migrations, live acceptance or physical Android behavior.
+
 ## Confirmed local contract
 
 - [x] Existing delivery endpoint accepts evidenced paid Wallet with actual
@@ -27,7 +31,7 @@ physical Android behavior. The write gates remain false.
 - [x] A separate default-false `PREPAID_DELIVERY_WRITES_VERIFIED` gate prevents
   local compatibility evidence from activating live prepaid writes.
 
-## Source fix (completed on the review branch)
+## Source fix (completed and merged in PR #144)
 
 - [x] `RiderTripService::checkpointProof` resolves original paid Wallet evidence
   from the immutable receipt matched to delivery, checkpoint and actor. The
@@ -41,9 +45,10 @@ physical Android behavior. The write gates remain false.
   original recipient, exact proof bytes/hash, one replayed result, one Wallet
   receipt and zero COD accounts.
 
-The source changes are in Bagoo commits `15d7fc3` and `9e58312` on the branch
-above. The [prepaid verification](../plans/prepaid-delivery/VERIFICATION.md)
-records the pinned native run and limits.
+The source changes are in Bagoo commits `15d7fc3` and `9e58312`, now included
+in `main` through PR #144 at `9ca5db5`. The
+[prepaid verification](../plans/prepaid-delivery/VERIFICATION.md) records the
+pinned native run and limits.
 
 ## Deployment and controlled acceptance
 

@@ -49,9 +49,9 @@ Existing independent parcel, prepaid, cash, message, notification and handover
 write gates are unchanged. Live-account signup/login is not replaced by fixtures.
 The Wallet recipient/proof repair and version-two handover regression are now
 implemented on Bagoo branch `fix/rider-wallet-trip-evidence`; the focused backend
-suite and Rider native prepaid consumer check passed locally. The source branch
-is not merged or confirmed deployed. Azure acceptance and hardware checks remain
-separate; see the [backend follow-up](BACKEND_NEEDS.md).
+suite and Rider native prepaid consumer check passed locally. PR #144 merged the
+source into Bagoo `main` at `9ca5db5`. Deployment, Azure acceptance and hardware
+checks remain separate; see the [backend follow-up](BACKEND_NEEDS.md).
 
 Builds now use a 1 GB Gradle heap, one Gradle worker, no parallel Gradle tasks
 and no persistent project build daemon. Kotlin compilation stays in that process.

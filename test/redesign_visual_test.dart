@@ -20,6 +20,7 @@ import 'package:bagoo_rider_mobile/features/handover/presentation/handover_contr
 import 'package:bagoo_rider_mobile/features/handover/presentation/handover_issues_page.dart';
 import 'package:bagoo_rider_mobile/features/handover/presentation/handover_evidence_page.dart';
 
+import 'support/app_lifecycle_support.dart';
 import 'support/handover_support.dart';
 
 import 'support/test_auth_repository.dart';
@@ -59,7 +60,10 @@ Future<void> tap(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  setUp(() {
+    startRiderTestLifecycleResumed();
+    SharedPreferences.setMockInitialValues({});
+  });
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() async {
     final font = FontLoader('Plus Jakarta Sans')

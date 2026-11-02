@@ -37,6 +37,12 @@ cover hides semantics and blocks taps on a pushed route while inactive, then
 restores interaction on resume. It does not exercise Android `FLAG_SECURE` or
 the operating system's recent-app snapshot behavior.
 
+The subsequent serial auth, account lifecycle, workspace, onboarding and
+visual-review test run passed **45 tests, with 3 visual-review tests skipped**.
+The test fixtures explicitly start the simulated app lifecycle in `resumed`;
+the privacy assertion checks the emitted accessibility tree. This result is
+limited to those five files and does not replace the earlier full-suite run.
+
 ```sh
 flutter test --no-pub --concurrency=1 --reporter=compact \
   --plain-name='inactive cover blocks pushed private routes and restores them' \

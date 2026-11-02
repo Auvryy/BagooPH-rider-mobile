@@ -431,7 +431,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Rider is paused'), findsOneWidget);
     final semantics = tester.ensureSemantics();
-    expect(find.bySemanticsLabel('Private rider detail'), findsNothing);
+    expect(find.semantics.byLabel('Private rider detail'), findsNothing);
     semantics.dispose();
     await tester.tap(
       find.byKey(const ValueKey('privacy-test-private-detail')),

@@ -23,8 +23,12 @@ unavailable; no remote task or timer is claimed.
 Route-integrity milestone: 18 focused Geoapify and navigation tests passed on
 the PC, including rejection of mismatched endpoints and disconnected sections.
 The route provider now activates only when the build-time public client key
-`GEOAPIFY_API_KEY` is supplied; use a provider-restricted key and never treat a
-mobile build setting as a secret. With no key, external directions remain
+`GEOAPIFY_API_KEY` is supplied. This key is public in a mobile build; use a
+separate key, monitor usage and retain a way to rotate it. The provider notes
+that browser-origin restrictions do not protect native applications; stronger
+key control would require an authenticated backend routing service. See the
+[provider's mobile key guidance](https://apidocs.geoapify.com/how-to/maps/react-native-maplibre-map).
+With no key, external directions remain
 available. Navigation requires an explicit rider action and discloses the
 coordinates sent to the provider. Android declares the location foreground
 service and its required permissions; GPS and notification access are requested

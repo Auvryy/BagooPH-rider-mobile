@@ -5,6 +5,6 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
-    <application android:usesCleartextTraffic="true"
+    <application android:usesCleartextTraffic="${riderDebugCleartext}"
         tools:replace="android:usesCleartextTraffic"/>
 </manifest>

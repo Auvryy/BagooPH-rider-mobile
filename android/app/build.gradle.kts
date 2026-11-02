@@ -14,6 +14,11 @@ val validRiderApplicationId = riderApplicationId
             !id.startsWith("com.example.") && id != "com.example"
     }
 
+val riderDebugCleartext = providers.environmentVariable("RIDER_DEBUG_CLEARTEXT").orNull ?: "true"
+require(riderDebugCleartext in setOf("true", "false")) {
+    "RIDER_DEBUG_CLEARTEXT must be true or false."
+}
+
 val riderReleaseKeyPropertiesFile = rootProject.file("key.properties")
 val riderReleaseKeyProperties = Properties()
 if (riderReleaseKeyPropertiesFile.isFile) {
@@ -70,6 +75,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            manifestPlaceholders["riderDebugCleartext"] = riderDebugCleartext
+        }
         release {
             // Without local release credentials, AGP leaves this variant unsigned.
             if (riderReleaseSigningConfigured) {

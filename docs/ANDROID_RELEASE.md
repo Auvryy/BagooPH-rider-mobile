@@ -46,6 +46,13 @@ the Rider API. This does not prove that every plugin or other network path is
 restricted to HTTPS. Review the release manifest and network behavior when a
 signed release is built.
 
+For an Android debug build that rejects cleartext at the platform level, set
+`RIDER_DEBUG_CLEARTEXT=false` in the build environment. The default remains
+`true` for the existing debug development workflow; only `true` and `false`
+are accepted. The restricted build cannot use the local HTTP API configuration.
+The effect on Flutter debugging and actual Android network behavior still needs
+physical-device verification.
+
 The current merged manifest contains Internet, camera, AndroidX network-state,
 and the standard non-exported receiver permission. It does not contain
 location, notification, or foreground-service permissions, and the geolocator

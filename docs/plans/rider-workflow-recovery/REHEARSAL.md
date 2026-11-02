@@ -361,13 +361,14 @@ evidence, not as an accepted live phone demonstration.
   widget tests. It covers account/assignment scoping, cleanup, fresh ownership,
   duplicate taps, accessible controls and 320 px at 200% text. These PC checks do
   not establish physical Android layout, camera or lifecycle acceptance.
-- At the November 2 GitHub ref check immediately before this rehearsal refresh,
-  Rider `main` was
-  `4367331c51ea1dc98b7b512669242a1d3283d523`; the published defense branch is
-  `f0de3a2da6fb01efdc47197e3689cb7d73a618d9`, 80 commits ahead and 0 behind.
-  Bagoo refs remain at `main` `f001d396b0e9ea6bfc2fdeb85ee24b66682b997e` and
-  Wallet/handover source `9e58312d130809eb8cd878189b729f1f702291d8`. That source
-  is still unmerged and does not establish deployment or live acceptance.
+- At the November 2 GitHub ref check before this documentation refresh, Rider
+  `main` was `4367331c51ea1dc98b7b512669242a1d3283d523`; the defense branch
+  was `d83ffe56c1935c6553462896a8ebca340cf21902`, 85 commits ahead and 0 behind.
+  Its tested runtime remains `daacf85`; the commits through that snapshot after
+  the runtime change update documentation only. Bagoo `main` is
+  `f001d396b0e9ea6bfc2fdeb85ee24b66682b997e`, and its Wallet/handover source
+  branch is `9e58312d130809eb8cd878189b729f1f702291d8`, 2 commits ahead. Those
+  fixes remain unmerged and do not establish deployment or live acceptance.
 - The latest arm64 profile preview was built from Rider commit `ba7823a`, which
   changes only the Android manifest after the Dart source tested at `961d8b8`.
   It is 77,671,976 bytes, with SHA-256
@@ -431,19 +432,23 @@ Suggested wording: “Today I can show the implemented Rider workflow and its PC
 verification. Physical Android and deployed cross-role acceptance are still
 pending, so I am not presenting this as an accepted live-phone demo.”
 
-| Check | Evidence needed |
-|---|---|
-| Account access | Real approved native login and restored session; pending/restricted accounts retain their restrictions; no substitute production accounts. |
-| Company | Fresh current directory/request/offer, exact terms and explicit consent; no accidental duty activation or duplicate acceptance. |
-| Pickup | Actual matching/wrong scan, one claim/collection, named origin-hub receipt; no client-created intake. |
-| Version-two COD | Authorized hub departure, correct recipient/proof and counted cash; committed `completed` order visible cross-role. |
-| Paid Wallet | Original paid handoff with no COD collection, original recipient/private proof after delivery and replay, foreign proof denied. Source fixes and backend regressions are on `fix/rider-wallet-trip-evidence`; merge/deploy and controlled owned-resource acceptance are still required. |
-| Failure/return | One recorded failed attempt, truthful next hub/retry authority and actual hub receipt; preserve all prior evidence. |
-| Cash/shift | Offer leaves held cash unchanged; independent hub receipt updates the ledger and closure decision; cancellation remains separately authorized. |
-| Messages/notices | Actual phase-bound send, displayed read boundaries and later arrivals remaining unread; opening links alone is not write acceptance. |
-| Security/recovery | First-party website sign-in, session review/revocation and authorized restricted recovery through `/custody-recovery/sign-in`. Returning requires fresh native permission; links do not clear restrictions. |
-| Phone lifecycle | Camera denied/cancel/retry, interrupted picker/process kill, app restore, logout/account change, keyboard and actual Android Back. Deferred. |
-| Evidence freeze | Exact APK, source and deployed revision, selected resources and results retained; final rehearsal before the November 20 freeze. |
+Use this status view with the broader [acceptance matrix](../../VERIFICATION_AND_READINESS.md#acceptance-matrix), which defines the positive and adverse cases. This table does not mark its external, release or physical-device gates complete.
+
+| Check | Verified evidence to present | Acceptance still open |
+|---|---|---|
+| Account access | Dated native Azure account checks and a physical Android login/storage/restore/logout/revocation check are recorded in [account access evidence](../../AZURE_ACCOUNT_ACCESS.md). | No fresh phone check of the current defense artifact. Pending, restricted and expired-account transitions remain separately bounded by local checks. |
+| Company | The headless Rider consumer scenario passed **1/1** against Bagoo `9e58312`, covering original-key replay, stale-offer rejection, exact placement consent and duty remaining off ([verification](VERIFICATION.md)). | Azure capability and live company/offer acceptance with owning-site readback. |
+| Pickup | Controlled Azure duty/claim acceptance and the owning website's **20/20** post-check are recorded in [HDB-05 evidence](../home-dashboard-branch-plan/HDB-05-EVIDENCE.md). | Physical camera/scanner, origin-hub receipt, two-rider contention and later parcel operations. |
+| Version-two COD | The isolated `parcel-headless` Rider-to-kernel scenario covers synthetic COD delivery, exact replay and private proof; the latest PC recheck also covers failed return ([parcel verification](../rider-orders-delivery-trips/VERIFICATION.md)). | Current deployed contract, authorized buyer/hub readbacks, real counted cash and physical scan/proof handling. |
+| Paid Wallet | The native Wallet client scenario passed **1/1** against Bagoo source `9e58312`, including replay, original recipient and retained private proof ([workflow verification](VERIFICATION.md)). | Merge/deploy of the Bagoo fixes, fresh deployed capabilities and controlled owned-resource cross-role acceptance. |
+| Failure/return | The isolated PC kernel scenario records one failed attempt, hub return, authorized retry and foreign-proof denial ([parcel verification](../rider-orders-delivery-trips/VERIFICATION.md)). | Deployed hub receipt/retry/RTS readbacks and physical Android proof/return handling. |
+| Cash/shift | The in-memory native cash scenario verifies original-command replay, two owning-hub receipts, shortage handling and earnings separation ([cash verification](../rider-cash-remittance/VERIFICATION.md)). | Current Azure migrations/capability, authorized live rider/hub receipts and physical financial-input/lifecycle checks. |
+| Messages/notices | Controller/widget and isolated-kernel behavior is recorded in [Messages verification](../rider-assignment-messages/VERIFICATION.md); the latest broad PC regression is summarized above. | Deployed send/read acceptance, live phase boundaries and later-arrival-unread behavior. |
+| Security/recovery | Fixed first-party recovery links and simulated private-draft cleanup are recorded in [workflow verification](VERIFICATION.md) and the [private-data audit](PRIVATE_DATA_LIFECYCLE.md). | Owner decisions for retained private data; deployed restricted-custody recovery; Android picker/process-death behavior. Task/stop details also remain visible while inactive, and Android recent-app snapshot behavior is unverified. |
+| Phone lifecycle | PC simulations cover picker recovery, background clearing and expiry; the [private-data audit](PRIVATE_DATA_LIFECYCLE.md) lists what remains source-only. | Actual camera permission/cancel/retry, process kill/resume, account switch, keyboard/Back, task-detail redaction and app-switcher snapshot review. No current phone test was performed. |
+| Release identity | The arm64 debug APK and profile preview have PC archive/signature checks in [Android release evidence](../../ANDROID_RELEASE.md). | Approved application ID, protected release key, reproducible signed artifact, install/launch and artifact/source identity check. Debug APKs are not distributable releases. |
+| Deployment/cross-role | HDB-05 duty/claim is the only recorded controlled operational deployment acceptance; current Bagoo `main` and Wallet source refs are pinned above. | Confirm the deployed source/migrations for each operation and complete authorized rider, buyer, hub and cash readbacks. Source tests and `401` checks do not satisfy this gate. |
+| Evidence freeze | The Rider source/test basis, pre-refresh branch ancestry snapshot, Bagoo `main` and unmerged Wallet source refs are recorded above; APK hashes and build limits are in [Android release evidence](../../ANDROID_RELEASE.md). | Freeze the exact signed artifact, tested source and deployed revision, preserve selected test-resource results, then rehearse before November 20. |
 
 Use the existing narrow acceptance procedures for each action family. No build
 flag is evidence that these checks passed. No notification push, live tracking,

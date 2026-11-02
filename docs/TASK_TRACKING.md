@@ -10,11 +10,12 @@ focused backend suite and the Rider's pinned native Wallet consumer test passed.
 Azure deployment and phone acceptance are still pending.
 
 **Latest full serial PC regression (November 2):** the complete suite passed
-**713 tests with 8 skips and zero failures** in 4m37s using
-`flutter test --no-pub --concurrency=1 --reporter=compact test`. It ran on the
-working tree based at Rider branch commit `968e18f`, including the account-
-access photo cleanup follow-up recorded below; that tested source is now
-published as commit `961d8b8`. The new
+**715 tests with 8 skips and zero failures** in 5m14s using one Flutter test
+worker and `flutter test --no-pub --concurrency=1 --reporter=compact test`.
+It ran on Rider branch commit `f0de3a2`, including current runtime code
+`daacf85` and its Doorstep Guide tests. The preceding full run at `968e18f`
+passed 713 tests; that account-access cleanup source is published as `961d8b8`.
+The new
 fixture-dependent Wallet test is one skip in that ordinary suite; its
 windowless opt-in run passed **1/1** against Bagoo `9e58312` using an in-memory
 storage adapter.
@@ -50,14 +51,13 @@ lifecycle acceptance remain open. The serial command was:
 flutter test --no-pub --concurrency=1 --reporter=compact test/parcel_photo_recovery_test.dart test/parcel_outcome_pages_test.dart test/parcel_workflow_test.dart test/workspace_photo_access_lifecycle_test.dart test/parcel_finder_session_test.dart
 ```
 
-After manifest-only Rider commit `ba7823a` removed unused location-related
-permissions and the geolocator service, arm64 debug and profile APKs were built
-sequentially with Gradle limited to one worker and a 1 GiB heap. Both passed
-ZIP integrity, package/SDK metadata, ARM64 engine, merged-manifest and APK v2
-signature checks. Flutter tests and analysis remain attributed to unchanged
-Dart source at `961d8b8`. Neither APK was installed; both use the scaffold ID
-and Android Debug signing. The local build config supplied only
-`OPERATIONS_WRITES_VERIFIED=true`; see the artifact hashes and limits in
+The current arm64 debug APK was built from Rider code commit `daacf85`, including
+the saved-note/missing-note Doorstep Guide. The focused Home and Stop Mode tests
+passed **46/46**, analysis found no issues, and the APK passed archive,
+package/SDK, ARM64-engine, manifest and APK v2-signature checks. The profile
+APK remains the earlier build from `ba7823a`. Neither APK was installed; both
+use the scaffold ID and Android Debug signing. The local build config supplied
+only `OPERATIONS_WRITES_VERIFIED=true`; see the hashes and limits in
 [Android release evidence](ANDROID_RELEASE.md) and
 [HDB-05 acceptance](plans/home-dashboard-branch-plan/HDB-05-EVIDENCE.md).
 The same-config fake-server activation test passed **2/2** without network

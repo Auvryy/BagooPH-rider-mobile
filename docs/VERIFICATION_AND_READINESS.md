@@ -2,11 +2,12 @@
 
 **Current status — November 2, 2026.** The scores and starter-screen statements
 below describe the October 5 planning snapshot, not current Rider behavior.
-The latest full serial PC regression passed **713 tests with 8 skips and zero
-failures** in 4m37s using one Flutter test worker. It ran on the
-`fix/rider-route-privacy-disclosure` working tree based at Rider commit
-`968e18f`, including the account-access photo cleanup follow-up; that tested
-source is now published as commit `961d8b8`. The new
+The latest full serial PC regression passed **715 tests with 8 skips and zero
+failures** in 5m14s using one Flutter test worker. It ran at Rider branch commit
+`f0de3a2` with current runtime code `daacf85`, including the Doorstep Guide
+widget coverage. The preceding full run at `968e18f` passed 713 tests with the
+account-access photo cleanup follow-up; that source is published as `961d8b8`.
+The new
 fixture-dependent Wallet test is one of the skips in the ordinary suite; its
 isolated headless run passed separately. The expanded photo-recovery, parcel
 outcome, parcel workflow, workspace account-lifecycle, and Parcel Finder suites

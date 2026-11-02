@@ -6,7 +6,7 @@ deferred by the user. Keep this list open until its corresponding evidence exist
 ## Rider app versus phone-sized Courier website
 
 This source review compares Rider runtime and Android manifest code at
-`ba7823a` on `fix/rider-route-privacy-disclosure`; later branch commits only
+`daacf85` on `fix/rider-route-privacy-disclosure`; later branch commits only
 update documentation. It compares that code with the
 phone-responsive Courier portal on Bagoo `main` at
 `f001d396b0e9ea6bfc2fdeb85ee24b66682b997e`. The remote Bagoo main and review
@@ -105,10 +105,12 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
 > delivery evidence into a field-focused workflow. The backend remains the
 > authority for assignment, custody, order status, and cash records. The
 > phone-responsive Courier website already supports the shared business flows;
-> Rider adds session-only Parcel Finder labels, Android camera and lifecycle
-> integration, protected recovery of uncertain submissions, and private proof
-> viewing in Trips. Wallet-specific retained proof has only passed against an
-> unmerged Bagoo review branch, so deployed Wallet compatibility remains open.
+> Rider adds session-only Parcel Finder labels and a Doorstep Guide that shows
+> the authorized final-mile stop's exact saved buyer note, or clearly says
+> when none was provided. It also adds Android camera and lifecycle integration,
+> protected recovery of uncertain submissions, and private proof viewing in
+> Trips. Wallet-specific retained proof has only passed against an unmerged
+> Bagoo review branch, so deployed Wallet compatibility remains open.
 > Both clients use OpenStreetMap tiles and send the saved stop to Google Maps
 > only when external directions are opened. Rider's default build has no in-app
 > road routing or GPS-follow navigation. PC checks are recorded. Release
@@ -127,9 +129,12 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    status. Failed delivery keeps the rider responsible until the hub records
    return; cash remittance remains a separate handoff.
 3. **Native contribution — 55 seconds.** Stop Mode gathers the authorized stop
-   details into one screen. Parcel Finder adds a personal compartment label that
-   clears with the app session and never changes server custody. Both Rider map
-   renderers request OpenStreetMap tiles for the displayed area. Tile
+   details into one screen. Its Doorstep Guide shows the exact saved buyer note
+   for an owned final-mile stop, or says when no saved note is present; it
+   never invents a landmark. Parcel Finder adds a personal
+   compartment label that clears with the app session and never changes server
+   custody. Both Rider map renderers request OpenStreetMap tiles for the
+   displayed area. Tile
    coordinates and source IP address can reveal the approximate area to the
    provider. The default road-routing provider is unavailable, so there is no
    in-app GPS follow or rerouting. When the rider explicitly opens External
@@ -150,14 +155,15 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    maps, camera scanning, proof upload, Trips/Earnings, Messages, notifications,
    cash handovers, company requests, and handover issues. Both clients use
    OpenStreetMap tiles and open external directions in Google Maps. Core courier
-   operations remain shared. These checks do not measure delivery speed,
-   accuracy, or user satisfaction; claim gains only if a separate field study
-   supports them.
+   operations remain shared. In the reviewed Courier pages, the saved buyer
+   order note is not shown; Rider displays it for its authorized stop. These
+   checks do not measure delivery speed, accuracy, or user satisfaction; claim
+   gains only if a separate field study supports them.
 5. **Evidence and limits — 60 seconds.** The latest full serial Flutter suite
-   passed **713 tests, 8 skipped, zero failures** in 4m37s on the
-   `fix/rider-route-privacy-disclosure` working tree based at commit `968e18f`,
-   including the account-access photo cleanup follow-up, now pushed as
-   `961d8b8`. The
+   passed **715 tests, 8 skipped, zero failures** in 5m14s at Rider branch
+   commit `f0de3a2`, including current runtime code `daacf85` and the Doorstep
+   Guide tests. The preceding 713-test full run includes the account-access
+   photo cleanup now published as `961d8b8`. The
    separate headless Wallet client scenario passed
    **1/1** against the unmerged Bagoo review branch `9e58312` with an in-memory
    storage adapter; it does not verify the deployed API or Android platform
@@ -168,12 +174,13 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
    across photo recovery, parcel outcomes and parcel workflows; `flutter analyze
    --no-pub` reported no issues in 6.4s. The expanded serial **45/45** check
    includes approval-loss cleanup. These remain simulated PC checks, not
-   physical Android acceptance. The latest arm64 debug and profile APKs were
-   built from manifest-only Android commit `ba7823a`; the Flutter suite and
-   analysis above ran against the unchanged Dart source at `961d8b8`. Both APKs
-   passed PC archive, metadata, ARM64-engine, manifest and APK v2 signature
-   checks; exact hashes are in [Android release evidence](../../ANDROID_RELEASE.md).
-   Neither was installed. Both use the scaffold ID and Android Debug signing.
+   physical Android acceptance. At Rider code commit `daacf85`, the focused
+   Home and Stop Mode tests passed **46/46** and analysis was clean. The current
+   arm64 debug APK was built from that commit and passed PC archive,
+   package/SDK, ARM64-engine, manifest and APK v2 signature checks. The profile
+   APK remains the earlier build from `ba7823a`. Exact hashes are in
+   [Android release evidence](../../ANDROID_RELEASE.md). Neither was installed;
+   both use the scaffold ID and Android Debug signing.
    Their build config uses the default deployed HTTPS API and enables only the
    HDB-05 accepted duty/pickup-claim writes; parcel, cash and other write gates
    remain false. The same-config fake-server activation test passed **2/2**
@@ -195,10 +202,13 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
 ### Likely questions
 
 - **What does the app add beyond the phone website?** Rider adds session-only
-  Parcel Finder labels in Stop Mode, native camera lifecycle handling, protected
-  recovery for uncertain submissions, and private proof viewing in Trips. Both
-  clients support waybill scanning and proof upload. Wallet-specific retained
-  proof still needs the unmerged Bagoo fix deployed and accepted.
+  Parcel Finder labels in Stop Mode and displays the exact saved buyer note for
+  an authorized final-mile stop, including an explicit missing-note state. The
+  reviewed Courier pages did not show that stored note. Other implementation
+  differences include native camera lifecycle handling, protected recovery for
+  uncertain submissions, and private proof viewing in Trips. Both clients
+  support waybill scanning and proof upload. Wallet-specific retained proof
+  still needs the unmerged Bagoo fix deployed and accepted.
 - **Does Rider provide in-app navigation?** Not in the default build. The active
   map shows a saved stop or sample path, but `roadRoutingProvider` is
   `UnavailableRoadRouting`; there is no GPS follow or rerouting session.
@@ -263,9 +273,8 @@ and [handover issues](https://github.com/Auvryy/BagooPH/blob/f001d396b0e9ea6bfc2
   not measure delivery speed, accuracy, or satisfaction; those gains require a
   separate field study.
 - **Is it ready for a live Android defense demo?** The available
-  arm64-targeted debug and profile APKs were built and verified on the PC from
-  Rider commit `ba7823a`, which changes only the Android manifest after the
-  tested Dart source at `961d8b8`; neither has been installed.
+  arm64-targeted debug APK was built and verified on the PC from Rider commit
+  `daacf85`; the profile APK is from `ba7823a`. Neither has been installed.
   Both use the scaffold application ID and debug signing. Approved release
   identity/signing, deployed cross-role acceptance, and physical Android
   acceptance remain open, so a live-phone demo is not yet accepted.
@@ -277,10 +286,11 @@ evidence, not as an accepted live phone demonstration.
 
 ## Current PC evidence and open gates
 
-- The latest full serial Flutter suite passed **713 tests, 8 skipped, zero
-  failures** in 4m37s on `fix/rider-route-privacy-disclosure`, with the working
-  tree based at commit `968e18f` and containing the account-access photo
-  cleanup follow-up. The headless Wallet client scenario passed
+- The latest full serial Flutter suite passed **715 tests, 8 skipped, zero
+  failures** in 5m14s at Rider branch commit `f0de3a2`, with current runtime
+  code `daacf85` and the Doorstep Guide tests. The preceding 713-test run at
+  `968e18f` contains the account-access photo cleanup follow-up. The headless
+  Wallet client scenario passed
   **1/1** against Bagoo `9e58312` with an in-memory storage adapter.
   Focused photo recovery and parcel outcomes passed **19/19** before the
   lifecycle follow-up; the expanded relevant suite passed **45/45** afterward.
@@ -288,6 +298,13 @@ evidence, not as an accepted live phone demonstration.
   scenario are PC-only checks; the latter does not test Android platform
   storage. Android picker process-death, Azure deployment, release
   signing, and production cross-role acceptance remain open.
+- At Rider code commit `daacf85`, the focused Home and Stop Mode widget tests
+  passed **46/46**, and `flutter analyze --no-pub` found no issues. An arm64
+  debug APK was built from that same source. It is 176,228,861 bytes, with
+  SHA-256 `215a1275cc6e4b83a7dce8a39e3d5a493cdecfd9391f91d1114e61af139e6d61`.
+  ZIP integrity, package/SDK metadata, ARM64 Flutter engine, manifest
+  permissions and the single-signer APK v2 signature passed PC checks. It was
+  not installed; see [Android release evidence](../../ANDROID_RELEASE.md).
 - **November 2 photo lifecycle follow-up:** the focused photo recovery, parcel
   outcome and parcel workflow suites passed **41/41** serially. Coverage now
   includes immediate form selection clearing on background, encrypted-draft
@@ -340,19 +357,13 @@ evidence, not as an accepted live phone demonstration.
   widget tests. It covers account/assignment scoping, cleanup, fresh ownership,
   duplicate taps, accessible controls and 320 px at 200% text. These PC checks do
   not establish physical Android layout, camera or lifecycle acceptance.
-- The latest arm64 debug APK was built from Rider commit `ba7823a`, which
-  changes only the Android manifest after the Dart source tested at `961d8b8`.
-  It is 176,229,927 bytes, with SHA-256
-  `bb80d4e553edcc2faa0e755ecb2568c600518d27512142c35e44a807f198928f`.
-  Archive integrity, package/version/SDK metadata, debuggable state, arm64
-  engine and the single-signer APK v2 signature passed PC checks. It was not
-  installed; see [packaging evidence](../../ANDROID_RELEASE.md).
-- At the GitHub ref fetch immediately before the November 1 rehearsal refresh,
-  Rider `main` was `4367331`; the published defense branch was `3e6131c`, 57
-  commits ahead and 0 behind. The 699-test run was at `fc99a02`; its runtime is
-  present in the published branch. Bagoo web `main` remains `f001d396`; the
-  Wallet/handover source branch `9e58312` is 2 commits ahead of main, not merged
-  or deployment evidence.
+- At the November 2 GitHub ref check immediately before this rehearsal refresh,
+  Rider `main` was
+  `4367331c51ea1dc98b7b512669242a1d3283d523`; the published defense branch is
+  `f0de3a2da6fb01efdc47197e3689cb7d73a618d9`, 80 commits ahead and 0 behind.
+  Bagoo refs remain at `main` `f001d396b0e9ea6bfc2fdeb85ee24b66682b997e` and
+  Wallet/handover source `9e58312d130809eb8cd878189b729f1f702291d8`. That source
+  is still unmerged and does not establish deployment or live acceptance.
 - The latest arm64 profile preview was built from Rider commit `ba7823a`, which
   changes only the Android manifest after the Dart source tested at `961d8b8`.
   It is 77,671,976 bytes, with SHA-256
@@ -384,14 +395,17 @@ checks cover the bundled document separately.
 
 1. Give the four-minute explanation above and show the source-backed
    [app-versus-website comparison](#rider-app-versus-phone-sized-courier-website).
-   Make clear that the website already supports scanning and proof upload; the
-   clearest extra rider-facing feature is session-only Parcel Finder labels.
+   Make clear that the website already supports scanning and proof upload;
+   Rider adds session-only Parcel Finder labels and the saved-note Doorstep
+   Guide for an authorized final-mile stop.
 2. Show the PC evidence above with revisions attached: the latest full suite
-   passed 713 tests with 8 skips in the working tree based at `968e18f`;
+   passed 715 tests with 8 skips at Rider commit `f0de3a2`, with runtime code
+   `daacf85`;
    the headless Wallet client scenario passed 1/1 against Bagoo `9e58312` with
    an in-memory storage adapter;
-   the debug and profile APKs from `961d8b8` are PC-verified, debug-signed, and
-   uninstalled. They do not establish hardware behavior.
+   the arm64 debug APK from `daacf85` and the earlier profile APK from `ba7823a`
+   are PC-verified, debug-signed, and uninstalled. They do not establish
+   hardware behavior.
 3. If asked to demonstrate an operational transaction, explain that Azure and
    cross-role acceptance are separate open gates. Do not substitute sample data
    or imply that a PC test changed a live assignment, order, proof or cash record.

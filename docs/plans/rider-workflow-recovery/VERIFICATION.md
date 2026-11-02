@@ -239,7 +239,7 @@ backend behavior, live account acceptance, or Android-device storage behavior.
 At this earlier focused-test checkpoint, the latest full-suite total was the
 699-test result above; the full suite was rerun later at `d04cb54` below.
 
-## Current full PC regression — November 1, 2026
+## Earlier full PC regression — November 1, 2026
 
 At local Rider test head `d04cb54` on `fix/rider-route-privacy-disclosure`, the
 full serial Flutter suite passed **700 tests with 7 skips and zero failures** in
@@ -254,3 +254,26 @@ and no phone, ADB, emulator, install, or app window. Runtime code remains
 `a9b972d`; changes since then are documentation and tests. The test head is not
 pushed. These results do not establish Azure deployment, release signing,
 cross-role live acceptance, or physical Android behavior.
+
+## Doorstep Guide and defense regression — November 2, 2026
+
+At Rider branch commit `f0de3a2` (current runtime code `daacf85`), the complete
+serial Flutter suite passed **715 tests, 8 skipped, zero failures** in 5m14s
+with one worker:
+
+```sh
+flutter test --no-pub --concurrency=1 --reporter=compact test
+```
+
+The focused Home and Stop Mode test files passed **46/46**, including the
+supplied and missing saved-instruction states. `flutter analyze --no-pub` found
+no issues at runtime revision `daacf85`. A current arm64 debug APK was built
+from that same runtime source. It is 176,228,861 bytes, SHA-256
+`215a1275cc6e4b83a7dce8a39e3d5a493cdecfd9391f91d1114e61af139e6d61`; its ZIP,
+package/SDK metadata, ARM64 Flutter engine, manifest permissions and
+single-signer APK v2 signature passed PC checks. It was not installed or
+launched. The APK uses the scaffold application ID and Android Debug signing,
+so it is not a distributable release build. No phone, ADB, emulator or app
+window was used. Azure deployment, cross-role live acceptance, approved release
+signing and physical Android acceptance remain open. See the
+[current rehearsal](REHEARSAL.md) and [Android artifact record](../../ANDROID_RELEASE.md).

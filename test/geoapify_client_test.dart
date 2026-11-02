@@ -98,7 +98,9 @@ class OversizedAdapter implements HttpClientAdapter {
 
 class StalledAdapter implements HttpClientAdapter {
   bool closed = false;
+  final listening = Completer<void>();
   late final stream = StreamController<Uint8List>(
+    onListen: () => listening.complete(),
     onCancel: () {
       closed = true;
     },
@@ -172,7 +174,7 @@ void main() {
         ),
       ),
     );
-    await Future<void>.delayed(const Duration(milliseconds: 10));
+    await adapter.listening.future.timeout(const Duration(seconds: 2));
     token.cancel();
     await result;
     expect(adapter.closed, isTrue);

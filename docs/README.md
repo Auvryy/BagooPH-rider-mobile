@@ -17,6 +17,7 @@ they do not authorize changing the backend or implementing every proposed featur
 | [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) | What is the design system, color tokens, and motion language for BagooPH Rider Mobile? |
 | [AUTH_PREVIEW.md](AUTH_PREVIEW.md) | How can I open and review the implemented login and registration design previews? |
 | [ACCOUNT_ACCESS.md](ACCOUNT_ACCESS.md) | How do real Laravel login, verified registration, authenticated home and logout work locally? |
+| [INPUT_VALIDATION_AUDIT.md](INPUT_VALIDATION_AUDIT.md) | Which Rider input-validation gaps were fixed, which form safeguards were reviewed, and what PC checks and live/device limits apply? |
 | [HOME_PREVIEW.md](HOME_PREVIEW.md) | Which historical Home fixtures remain covered by automated layout tests? |
 | [RIDER_PAGES.md](RIDER_PAGES.md) | How do Home/Tasks, Trips, Messages and Profile-to-Settings work, with honest live-data availability and an isolated full-page preview? |
 | [SETTINGS.md](SETTINGS.md) | How are profile contact, password and additional-email forms prepared, and which backend/live checks remain? |

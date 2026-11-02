@@ -9,6 +9,8 @@ import '../../auth/presentation/auth_controller.dart';
 import '../../auth/presentation/widgets/auth_field.dart';
 import '../../workspace/presentation/workspace_widgets.dart';
 import '../../../core/platform/rider_website.dart';
+import '../../../core/security/account_input_validation.dart';
+import '../../../core/security/password_policy.dart';
 import '../../../app/theme.dart';
 import '../data/settings_models.dart';
 import 'settings_controller.dart';
@@ -297,24 +299,17 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
     onChanged: changed,
   );
   String? _requiredPassword(String? value) =>
-      value == null || value.isEmpty ? 'Enter your current password.' : null;
-  String? _emailValid(String? value) {
-    if (!_addingEmail) return null;
-    final email = value?.trim() ?? '';
-    if (email.isEmpty ||
-        !email.contains('@') ||
-        RegExp(r'\s').hasMatch(email)) {
-      return 'Enter a valid additional email address.';
-    }
-    if (email.length > 255) return 'Use an email address up to 255 characters.';
-    return null;
-  }
+      riderCurrentPasswordError(value, label: 'current password');
+  String? _emailValid(String? value) => _addingEmail
+      ? riderEmailInputError(value, label: 'additional email address')
+      : null;
 
   List<Widget> _contact(SettingsSnapshot data) => [
     _field(
       'Mobile number',
       _phone,
       errorKey: 'phone',
+      validator: (value) => riderPhilippineMobileError(value, optional: true),
       hints: [AutofillHints.telephoneNumber],
       keyboard: TextInputType.phone,
       changed: (_) => setState(() {}),
@@ -381,12 +376,7 @@ class _AccountSettingsFormState extends ConsumerState<AccountSettingsForm>
         secret: true,
         errorKey: 'password',
         hints: [AutofillHints.newPassword],
-        validator: (value) {
-          final length = value?.runes.length ?? 0;
-          return length < 12 || length > 128
-              ? 'Use between 12 and 128 characters.'
-              : null;
-        },
+        validator: riderNewPasswordError,
       ),
       const SizedBox(height: 20),
       _field(

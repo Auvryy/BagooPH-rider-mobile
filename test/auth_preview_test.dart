@@ -156,11 +156,21 @@ void main() {
         lessThan(844),
       );
       await tapVisible(tester, find.text('Scooter'));
-      await tester.enterText(
-        field('Plate or registration number'),
-        'PREVIEW-123',
-      );
+      await tester.enterText(field('Plate or registration number'), 'DEMO-123');
       await tester.enterText(field('Driver’s license number'), 'DEMO-123');
+      await tapVisible(tester, find.byKey(const ValueKey('registration-next')));
+      expect(
+        find.text('Enter a valid Philippine plate number for Scooter.'),
+        findsOneWidget,
+      );
+      expect(
+        find.text(
+          'Use the license number on your card, such as N01-12-345678.',
+        ),
+        findsOneWidget,
+      );
+      await tester.enterText(field('Plate or registration number'), 'AB1234');
+      await tester.enterText(field('Driver’s license number'), 'N01-12-345678');
       await tapVisible(tester, find.byKey(const ValueKey('registration-next')));
       expect(find.text('A few final details.'), findsOneWidget);
       expect(find.text('Government ID'), findsOneWidget);
@@ -173,7 +183,7 @@ void main() {
             .widget<TextFormField>(field('Plate or registration number'))
             .controller!
             .text,
-        'PREVIEW-123',
+        'AB1234',
       );
       await tapVisible(
         tester,
@@ -292,8 +302,8 @@ void main() {
       await tapVisible(tester, find.byType(DropdownButtonFormField<String>));
       await tapVisible(tester, find.text('Female').last);
       await tapVisible(tester, find.byKey(const ValueKey('registration-next')));
-      await tester.enterText(field('Plate or registration number'), 'DEMO-123');
-      await tester.enterText(field('Driver’s license number'), 'DEMO-123');
+      await tester.enterText(field('Plate or registration number'), 'AB1234');
+      await tester.enterText(field('Driver’s license number'), 'N01-12-345678');
       await tapVisible(tester, find.byKey(const ValueKey('registration-next')));
       for (final key in [
         'identity-document',

@@ -7,58 +7,56 @@ not need to wait for a new registration redesign.
 
 ## Source observations
 
-| Item | Observed backend/mobile difference | Evidence and implication |
+| Item | Current contract and Rider state | Evidence and implication |
 |---|---|---|
-| Password policy | Backend commit 10619ce changes native account/Settings policy to 8–128 characters; mobile SettingsForm still validates 12–128 | Backend RIDER_ACCOUNT_API/RIDER_SETTINGS_API and password-policy commit; settings_forms.dart new-password validator. Once this source is the accepted target, the UI rejects otherwise permitted 8–11-character new passwords |
-| New application sex field | RiderAuthController options advertises sex_required:true; ApplicationValidationService requires sex; mobile RegisterPage submits no sex | Source compatibility gap for new applications when that source is deployed. Do not guess a sex value or bypass the requirement |
-| Owner documentation conflict | The inspected RIDER_ACCOUNT_API options paragraph still says sex_required=false while options/rules say true | Ask the API owner to resolve/update the contract and examples; this review does not rewrite website docs to pick a side |
-| Vehicle profile alias | Both the backend registration enum and mobile RegisterPage allow Sedan / Van, but NavigationProfile.forVehicle recognizes only sedan or van separately | Confirmed BUG-H05, handled within HDB-02. Unknown fleet/truck/tricycle choices still require the explicit supported-profile decision |
+| Password policy | Bagoo `main` at `c55046c` uses 8–128 characters, mixed case, numbers, symbols/punctuation, and rejects category-C controls. The former Rider registration/Settings mismatch is fixed locally on `fix/rider-input-validation-audit`. | `AppServiceProvider`, `AccountSettingsService`, and `docs/api/RIDER_SETTINGS_API.md`; Rider `password_policy.dart` and shared form wiring. Source parity is covered by PC tests; Azure deployment and a live password change were not checked. |
+| New application sex field | Bagoo `main` at `c55046c` requires sex and advertises its allowed choices. Rider options parsing requires that contract; registration requires a choice and submits it with policy versions. | `RiderAuthController`, `docs/RIDER_ACCOUNT_API.md`, `registration_options.dart`, and `RegisterPage`. No current source gap was found. Deployment acceptance remains separate. |
+| Owner documentation conflict | The current `docs/RIDER_ACCOUNT_API.md` and options controller both say `sex_required=true`; the previously observed contradiction is no longer present at `c55046c`. | No owner clarification is needed for this source snapshot. |
+| Vehicle profile alias | Rider navigation recognizes the registration value `Sedan / Van` as its supported drive profile. | `NavigationProfile.forVehicle` in `route_geometry.dart`. Unsupported fleet/truck/tricycle profiles still require an explicit supported-profile decision. |
 
-These observations were rechecked when the backend owner merged to clean main
-`b91f13a57c7fedbd0252b0d98eeefe834b160aee`. The source/docs sex mismatch remained;
-The earlier working state and the final committed source are distinct from
-evidence that this release was deployed to Azure.
+The earlier observations were recorded against backend main
+`b91f13a57c7fedbd0252b0d98eeefe834b160aee`. The current source recheck at
+`c55046c` resolves the former sex documentation mismatch and confirms the
+vehicle alias handling. The password-policy client correction is in the local
+Rider audit branch. These source facts do not establish which revision is live
+on Azure.
 
 The backend login validator itself accepts a required password string rather than
 requiring the new-application minimum. Do not apply a new-password policy to an
 existing sign-in password or change permanent sign-in identity/approval rules.
 
-## Conditional delivery: ACCOUNT-COMPAT
+## Client alignment and deployed-account follow-up
 
-Suggested branch: `fix/native-account-contract-alignment`. State: **conditional,
-not activated**. Planning effort: **3–6 client hours** for focused contract alignment
-and checks, excluding owner clarification/live mailbox/device waiting. Recommended
-model/effort: **GPT-6.1 Sol / High**. Re-estimate if the current contract comparison
-reveals a larger separate registration change.
+The current client source alignment is implemented locally on
+`fix/rider-input-validation-audit`; review and merge remain user-managed. This
+does not complete M03/M13/M14 or prove the deployed service has this source.
+See the [input-validation audit](../../INPUT_VALIDATION_AUDIT.md) for the scoped
+page review and PC evidence.
 
-Dependencies: API owner resolves current source/docs/options, the actual selected
-release is identified, existing account/Settings behavior is preserved, and the
-[API-H02 checklist](../../api/HOME_DASHBOARD_NEEDS.md#api-h02) is reviewed. Associations:
-[M01.03](../../backlog/M01.md#m01-03), [M01.10](../../backlog/M01.md#m01-10),
-[M03](../../backlog/M03.md) and
+Any live acceptance still depends on identifying the Azure revision, an authorized
+account/mailbox, and a safe test window. Associations: [M01.03](../../backlog/M01.md#m01-03),
+[M01.10](../../backlog/M01.md#m01-10), [M03](../../backlog/M03.md) and
 [M13](../../backlog/M13.md). These do not activate entire account/profile areas.
 
-Scope if separately selected:
+Client source alignment covered by the current branch:
 
-- Compare every required native application/options field and policy acknowledgement
-  against the current client; limit changes to the accepted observed contract gap.
-- Consume required demographic options with explicit user input. Preserve adult
-  birthday, OTP, private documents, vehicle/license, holding and reviewed identity.
-- Align new-password limits/requirements with the accepted policy without tightening
-  existing login or changing the original sign-in email.
-- Keep native Settings contact and additional-email/current-password/OTP semantics
-  and account-scoped session revocation correct; no approval or role conversion.
-- Keep website code/docs and its uncommitted work read only; return an exact owner
-  request for any remaining contradiction instead of silently editing the backend.
+- Registration consumes required server options with explicit user input and keeps
+  the existing birthday, OTP, private-document, vehicle/license, holding and review
+  flows intact.
+- Registration and Settings share the current new-password policy. Existing login
+  passwords remain outside that policy.
+- Settings contact and additional-email/current-password/OTP semantics remain
+  unchanged; no approval, role conversion, or wider identity edit was added.
+- Bagoo source and its existing untracked audit document remain read only.
 
 Finish evidence:
 
-- [ ] Required sex/options/policy fields are represented and submitted only after
+- [x] Required sex/options/policy fields are represented and submitted only after
   valid user input; missing/changed requirements show actionable errors.
-- [ ] New passwords at the accepted minimum/bounds and each character rule are
+- [x] New passwords at the accepted minimum/bounds and each character rule are
   tested; valid existing sign-in credentials are not rejected by new-password rules.
-- [ ] Native wire/validation tests, registration/holding and Settings regressions
-  pass against accepted source fixtures, with privacy and unknown-field checks.
+- [x] Registration and Settings validation regressions pass with isolated PC
+  fixtures; the broader 179-test set is recorded in the audit report.
 - [ ] Any real signup/password write uses authorized private test resources and
   source/deployment/mailbox/device evidence; no automatic production signup is implied.
 - [ ] Runtime change and evidence are reviewed in this separate branch with local

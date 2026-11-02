@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../../core/security/account_input_validation.dart';
 import '../../../core/platform/rider_website.dart';
 import '../../workspace/presentation/workspace_widgets.dart' show WebsiteButton;
 import 'widgets/auth_field.dart';
@@ -78,15 +79,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 icon: Icons.mail_outline_rounded,
                 keyboardType: TextInputType.emailAddress,
                 autofillHints: const [AutofillHints.username],
-                validator: (value) {
-                  if (requiredText(value, 'email address') case final error?) {
-                    return error;
-                  }
-                  if (!RegExp(r'^\S+@\S+\.\S+$').hasMatch(value!.trim())) {
-                    return 'Enter a valid email address.';
-                  }
-                  return null;
-                },
+                validator: riderEmailInputError,
               ),
               const SizedBox(height: 20),
               AuthField(
@@ -96,7 +89,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 icon: Icons.lock_outline_rounded,
                 password: true,
                 autofillHints: const [AutofillHints.password],
-                validator: (value) => requiredText(value, 'password'),
+                validator: riderSignInPasswordError,
                 textInputAction: TextInputAction.done,
                 onSubmitted: (_) => _signIn(),
               ),

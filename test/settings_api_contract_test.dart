@@ -323,8 +323,8 @@ void main() {
     expect(
       await c.changePassword(
         'current-secret',
-        'new-secret-1234',
-        'new-secret-1234',
+        'New-secret-1234!',
+        'New-secret-1234!',
       ),
       isTrue,
     );
@@ -334,8 +334,8 @@ void main() {
     expect(Uri.parse(request.path).path, '/api/v1/rider/settings/password');
     expect(request.data, {
       'current_password': 'current-secret',
-      'password': 'new-secret-1234',
-      'password_confirmation': 'new-secret-1234',
+      'password': 'New-secret-1234!',
+      'password_confirmation': 'New-secret-1234!',
     });
   });
 }

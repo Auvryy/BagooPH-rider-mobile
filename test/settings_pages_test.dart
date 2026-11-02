@@ -184,21 +184,34 @@ void main() {
       await nativeSettings(tester, repo);
       await tap(tester, 'settings-contact');
       await tester.enterText(field('Mobile number'), 'letters');
+      await tap(tester, 'save-contact');
+      expect(repo.phoneCalls, 0);
+      expect(
+        find.text('Use a Philippine mobile number, such as 09171234567.'),
+        findsOneWidget,
+      );
+      expect(
+        tester.widget<TextFormField>(field('Mobile number')).controller!.text,
+        'letters',
+      );
+
+      await tester.enterText(field('Mobile number'), '09171234567');
       repo.mutationFailure = const AccountFailure(
         'Check phone',
         status: 422,
         fields: {'phone': 'Invalid number'},
       );
       await tap(tester, 'save-contact');
+      expect(repo.phoneCalls, 1);
       expect(find.text('Invalid number'), findsOneWidget);
       expect(
         tester.widget<TextFormField>(field('Mobile number')).controller!.text,
-        'letters',
+        '09171234567',
       );
       expect(find.text('Contact details saved.'), findsNothing);
       repo.mutationFailure = null;
-      await tester.enterText(field('Mobile number'), '09171234567');
       await tap(tester, 'save-contact');
+      expect(repo.phoneCalls, 2);
       expect(find.text('Contact details saved.'), findsOneWidget);
     },
   );
@@ -226,18 +239,46 @@ void main() {
         );
       }
       await tester.enterText(field('Current password'), 'current-secret');
-      await tester.enterText(field('New password'), 'new-secret-1234');
+      await tester.enterText(field('New password'), 'New-secret-1234!');
       await tester.enterText(field('Confirm new password'), 'mismatch');
       await tap(tester, 'save-password');
       expect(repo.passwordCalls, 0);
-      await tester.enterText(field('Confirm new password'), 'new-secret-1234');
+      await tester.enterText(field('Confirm new password'), 'New-secret-1234!');
       await tap(tester, 'save-password');
       expect(find.text('Welcome back.'), findsOneWidget);
       expect(
         find.text('Password updated. Sign in with your new password.'),
         findsOneWidget,
       );
-      expect(find.text('new-secret-1234'), findsNothing);
+      expect(find.text('New-secret-1234!'), findsNothing);
+    },
+  );
+  testWidgets(
+    'password form matches the API minimum and rejects a long weak password',
+    (tester) async {
+      final repo = TestSettingsRepository();
+      await nativeSettings(tester, repo);
+      await tap(tester, 'open-password');
+      await tester.enterText(field('Current password'), 'current-secret');
+      await tester.enterText(field('New password'), 'abcdefghijkl');
+      await tester.enterText(field('Confirm new password'), 'abcdefghijkl');
+      await tap(tester, 'save-password');
+      expect(repo.passwordCalls, 0);
+      expect(
+        find.text(
+          'Use uppercase and lowercase letters, a number, and a symbol.',
+        ),
+        findsOneWidget,
+      );
+
+      await tester.enterText(field('New password'), 'Abcdef1!');
+      await tester.enterText(field('Confirm new password'), 'Abcdef1!');
+      await tap(tester, 'save-password');
+      expect(repo.passwordCalls, 1);
+      expect(
+        find.text('Password updated. Sign in with your new password.'),
+        findsOneWidget,
+      );
     },
   );
   testWidgets(
@@ -261,7 +302,7 @@ void main() {
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await tester.pumpAndSettle();
-      await tester.enterText(field('New password'), 'draft-secret-1234');
+      await tester.enterText(field('New password'), 'Draft-secret-1234!');
       await tester.tap(find.byTooltip('Back'));
       await tester.pumpAndSettle();
       expect(find.text('Discard unsaved changes?'), findsOneWidget);

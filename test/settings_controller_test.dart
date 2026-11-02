@@ -115,8 +115,8 @@ void main() {
     await expectLater(
       repo.changePassword(
         'current-secret',
-        'new-secret-1234',
-        'new-secret-1234',
+        'New-secret-1234!',
+        'New-secret-1234!',
       ),
       throwsA(
         isA<AccountFailure>().having(
@@ -131,8 +131,8 @@ void main() {
     };
     await repo.changePassword(
       'current-secret',
-      'new-secret-1234',
-      'new-secret-1234',
+      'New-secret-1234!',
+      'New-secret-1234!',
     );
     await expectLater(
       repo.removeEmail('../foreign', 'current-secret'),
@@ -221,14 +221,14 @@ void main() {
     await Future<void>.delayed(Duration.zero);
     final pending = controller.changePassword(
       'old',
-      'new-secret-1234',
-      'new-secret-1234',
+      'New-secret-1234!',
+      'New-secret-1234!',
     );
     expect(
       await controller.changePassword(
         'old',
-        'new-secret-1234',
-        'new-secret-1234',
+        'New-secret-1234!',
+        'New-secret-1234!',
       ),
       isFalse,
     );
@@ -256,7 +256,7 @@ void main() {
       fields: {'current_password': 'Incorrect'},
     );
     expect(
-      await c.changePassword('old', 'new-secret-1234', 'new-secret-1234'),
+      await c.changePassword('old', 'New-secret-1234!', 'New-secret-1234!'),
       isFalse,
     );
     expect(notices, isEmpty);
@@ -265,7 +265,7 @@ void main() {
       unconfirmed: true,
     );
     expect(
-      await c.changePassword('old', 'new-secret-1234', 'new-secret-1234'),
+      await c.changePassword('old', 'New-secret-1234!', 'New-secret-1234!'),
       isFalse,
     );
     expect(notices.single, contains('not confirmed'));
@@ -273,7 +273,7 @@ void main() {
     repo.mutationFailure = null;
     await c.load();
     expect(
-      await c.changePassword('old', 'new-secret-1234', 'new-secret-1234'),
+      await c.changePassword('old', 'New-secret-1234!', 'New-secret-1234!'),
       isTrue,
     );
     expect(notices.last, contains('Password updated'));

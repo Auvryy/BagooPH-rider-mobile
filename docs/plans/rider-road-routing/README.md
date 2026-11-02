@@ -49,6 +49,13 @@ removes it when the latest GPS fix expires. Navigation and lifecycle checks
 passed 28 tests; targeted analysis passed. Actual movement, timing and GPS
 accuracy remain physical-device acceptance items.
 
+Road responses are streamed with a 2 MB limit and a response deadline before JSON
+decoding. Rejected or cancelled downloads release their network stream without
+cancelling the rider's outer navigation token. The provider, navigation and
+map-loading PC suites passed 45 tests, including the cancellation case, and
+targeted analysis passed. This limits the
+memory used by a single route response; actual device performance remains open.
+
 PC evidence: 63 provider/navigation/Stop Mode/map tests, 41 additional
 navigation and Home lifecycle tests, 6 embedded-map tests after the display
 failure safeguard, and 5 bundled renderer runtime checks passed. Flutter

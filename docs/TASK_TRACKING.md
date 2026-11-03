@@ -1,5 +1,14 @@
 # Rider major tasks and build workflow
 
+**Rider interaction QA (November 3):** the [current audit](audits/2026-11-03-rider-qa.md)
+records 756 passing serial tests with nine explicit skips, three passing pinned
+Laravel-kernel scenarios, clean analysis, controlled map cold/restart checks,
+and a passing private-display Linux navigation/settings/logout review with fresh
+430×900 captures. Login now retains server field errors and announces auth
+failures. The corrected native harness uses matching phone metrics and an
+isolated auth repository. This evidence preserves existing accepted configuration;
+it does not clear deployment gates or establish physical Android acceptance.
+
 **Rider input-validation audit (November 2):** the focused
 [audit record](INPUT_VALIDATION_AUDIT.md) documents the reviewed page/input
 inventory, source revisions, confirmed form-validation fixes, and remaining

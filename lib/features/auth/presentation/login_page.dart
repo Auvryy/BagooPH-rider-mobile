@@ -81,6 +81,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 keyboardType: TextInputType.emailAddress,
                 autofillHints: const [AutofillHints.username],
                 validator: riderEmailInputError,
+                serverError: session.fields['email'],
+                onChanged: (_) =>
+                    ref.read(authControllerProvider.notifier).clearError(),
               ),
               const SizedBox(height: 20),
               AuthField(
@@ -91,6 +94,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 password: true,
                 autofillHints: const [AutofillHints.password],
                 validator: riderSignInPasswordError,
+                serverError: session.fields['password'],
+                onChanged: (_) =>
+                    ref.read(authControllerProvider.notifier).clearError(),
                 textInputAction: TextInputAction.done,
                 onSubmitted: (_) => _signIn(),
               ),
@@ -175,9 +181,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 const SizedBox(height: 16),
               ],
               if (session.error != null) ...[
-                Text(
-                  session.error!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    session.error!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
               ],

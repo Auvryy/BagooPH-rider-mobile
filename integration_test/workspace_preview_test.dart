@@ -3,12 +3,15 @@ import 'dart:ui' as ui;
 
 import 'package:bagoo_rider_mobile/main.dart' as app;
 import 'package:bagoo_rider_mobile/app/theme.dart';
+import 'package:bagoo_rider_mobile/features/auth/presentation/auth_controller.dart';
 import 'package:bagoo_rider_mobile/features/workspace/development/workspace_preview_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+
+import '../test/support/test_auth_repository.dart';
 
 Future<void> tap(WidgetTester tester, String key) async {
   final target = find.byKey(ValueKey(key));
@@ -34,8 +37,9 @@ Future<void> capture(WidgetTester tester, String name) async {
   if (bytes == null) {
     throw StateError('The rendered page could not be captured.');
   }
-  await File('build/native-checks/workspace-$name.png')
-      .writeAsBytes(bytes.buffer.asUint8List());
+  final file = File('build/native-checks/workspace-$name.png');
+  await file.parent.create(recursive: true);
+  await file.writeAsBytes(bytes.buffer.asUint8List());
   rendered.dispose();
 }
 
@@ -49,26 +53,41 @@ void main() {
     addTearDown(() => binding.setSurfaceSize(null));
     await tester.pumpWidget(
       ProviderScope(
-        child: MaterialApp(
-          theme: buildRiderTheme(),
-          initialRoute: '/test-workspace',
-          routes: {
-            '/': (_) => const app.AccountGate(),
-            '/test-workspace': (_) => const RepaintBoundary(
-              key: ValueKey('workspace-capture'),
-              child: WorkspacePreviewPage(),
+        // Exiting the synthetic workspace must not restore a live session.
+        overrides: [
+          authRepositoryProvider.overrideWithValue(TestAuthRepository()),
+        ],
+        child: RepaintBoundary(
+          key: const ValueKey('workspace-capture'),
+          child: MaterialApp(
+            theme: buildRiderTheme(),
+            // IntegrationTest's native view retains the X11 window metrics
+            // when setSurfaceSize changes only the render surface.
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(context)
+                  .copyWith(size: const Size(430, 900), devicePixelRatio: 1),
+              child: child!,
             ),
-          },
+            initialRoute: '/test-workspace',
+            routes: {
+              '/': (_) => const app.AccountGate(),
+              '/test-workspace': (_) => const WorkspacePreviewPage(),
+            },
+          ),
         ),
       ),
     );
     await tester.pumpAndSettle();
+    expect(
+      MediaQuery.sizeOf(tester.element(find.byType(WorkspacePreviewPage))),
+      const Size(430, 900),
+    );
     await capture(tester, 'tasks');
     await tap(tester, 'nav-trips');
     await capture(tester, 'trips');
     await tap(tester, 'nav-messages');
     await capture(tester, 'messages');
-    await tap(tester, 'conversation-preview-pickup');
+    await tap(tester, 'conversation-pickup-1-101-3');
     await capture(tester, 'thread');
     await tap(tester, 'nav-profile');
     await tap(tester, 'open-settings');

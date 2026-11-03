@@ -377,9 +377,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             if (_step == 2) ..._documentFields(),
             if (_localError != null || session.error != null) ...[
               const SizedBox(height: 16),
-              Text(
-                _localError ?? session.error!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              Semantics(
+                liveRegion: true,
+                child: Text(
+                  _localError ?? session.error!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
               ),
             ],
             const SizedBox(height: 24),

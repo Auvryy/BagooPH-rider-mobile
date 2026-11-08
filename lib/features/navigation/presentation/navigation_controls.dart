@@ -3,12 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../app/theme.dart';
 import '../../../core/ui/rider_surfaces.dart';
 
 import '../../home/data/operations_models.dart';
 import '../../home/presentation/stop_guidance.dart';
 import '../data/route_geometry.dart';
 import '../data/saved_delivery_stop.dart';
+import 'fullscreen_navigation_page.dart';
 import 'leaflet_delivery_map.dart';
 import 'navigation_controller.dart';
 import 'navigation_providers.dart';
@@ -123,6 +125,23 @@ class _NavigationControlsState extends State<NavigationControls> {
                   ),
                 ),
               ],
+              Material(
+                color: Colors.transparent,
+                child: CheckboxListTile(
+                  key: const ValueKey('navigation-prioritize-highways'),
+                  value: nav.prioritizeHighways,
+                  enabled: enabled,
+                  onChanged: enabled
+                      ? (value) => nav.setPrioritizeHighways(value ?? true)
+                      : null,
+                  title: const Text('Prioritize national highways'),
+                  subtitle: const Text(
+                    'Prefers major arterial roads and national highways for routing',
+                  ),
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
               const SizedBox(height: 8),
               Text(
                 routeNotice,
@@ -194,6 +213,36 @@ class _NavigationControlsState extends State<NavigationControls> {
                     SavedDeliveryStop.fromTask(widget.task) &&
                 SavedDeliveryStop.fromTask(nav.task) != null) ...[
               const SizedBox(height: 12),
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  const Text(
+                    'Road route to this assigned stop.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  TextButton.icon(
+                    key: const ValueKey('stop-fullscreen-navigation-header'),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => FullscreenNavigationPage(
+                          navigation: nav,
+                          task: widget.task,
+                          stop: SavedDeliveryStop.fromTask(nav.task)!,
+                        ),
+                      ),
+                    ),
+                    icon: const Icon(Icons.fullscreen_rounded, size: 18),
+                    label: const Text('Fullscreen'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
               SizedBox(
                 height: 280,
                 child: LeafletDeliveryMap(
@@ -201,11 +250,26 @@ class _NavigationControlsState extends State<NavigationControls> {
                   road: nav.road,
                 ),
               ),
-              const SizedBox(height: 8),
-              const Text(
-                'Road route to this assigned stop.',
-                style: TextStyle(fontSize: 12),
+              const SizedBox(height: 12),
+              FilledButton.icon(
+                key: const ValueKey('stop-fullscreen-navigation'),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size(0, 48),
+                  backgroundColor: RiderColors.carbon,
+                ),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => FullscreenNavigationPage(
+                      navigation: nav,
+                      task: widget.task,
+                      stop: SavedDeliveryStop.fromTask(nav.task)!,
+                    ),
+                  ),
+                ),
+                icon: const Icon(Icons.two_wheeler_rounded),
+                label: const Text('Handlebar Fullscreen'),
               ),
+              const SizedBox(height: 8),
             ],
             if (nav.active || nav.starting || nav.paused)
               OutlinedButton(

@@ -61,6 +61,7 @@ class Routes extends GeoapifyClient {
           LatLng target,
           NavigationProfile profile,
           CancelToken cancel,
+          bool prioritizeHighways,
         })
       >[];
   Future<RoadRoute> Function()? response;
@@ -69,13 +70,15 @@ class Routes extends GeoapifyClient {
     LatLng origin,
     LatLng target,
     NavigationProfile profile,
-    CancelToken cancel,
-  ) {
+    CancelToken cancel, {
+    bool prioritizeHighways = true,
+  }) {
     calls.add((
       origin: origin,
       target: target,
       profile: profile,
       cancel: cancel,
+      prioritizeHighways: prioritizeHighways,
     ));
     return response?.call() ?? Future.value(RoadRoute.geoJson(geometry));
   }

@@ -254,8 +254,9 @@ class GeoapifyClient extends ChangeNotifier implements RoadRoutingClient {
     LatLng origin,
     LatLng target,
     NavigationProfile profile,
-    CancelToken cancel,
-  ) async {
+    CancelToken cancel, {
+    bool prioritizeHighways = true,
+  }) async {
     if (!validPoint(origin) || !validPoint(target)) {
       throw const ProviderFailure(
         'Valid origin and stop coordinates are required.',
@@ -280,6 +281,7 @@ class GeoapifyClient extends ChangeNotifier implements RoadRoutingClient {
           'format': 'geojson',
           'avoid': 'ferries',
           'details': 'route_details',
+          if (prioritizeHighways) 'highways': 'prefer',
         },
         responseType: ResponseType.stream,
         cancel: requestCancel,

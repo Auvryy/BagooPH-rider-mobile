@@ -42,7 +42,8 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields>
   bool cashConfirmed = false,
       choosing = false,
       validImage = true,
-      resettingReview = false;
+      resettingReview = false,
+      receivedByRepresentative = false;
   ParcelProof? get proof {
     final selected = proofField.currentState?.value;
     if (selected == null) return null;
@@ -71,6 +72,12 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     widget.photos?.addListener(_photoChanged);
+    relationship = 'buyer';
+    if (widget.action == ParcelAction.deliver &&
+        widget.task.stop.name != null &&
+        widget.task.stop.name!.trim().isNotEmpty) {
+      recipient.text = widget.task.stop.name!.trim();
+    }
   }
 
   @override
@@ -134,6 +141,13 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields>
           received.clear();
           change.clear();
           proofField.currentState?.didChange(null);
+          relationship = 'buyer';
+          receivedByRepresentative = false;
+          if (widget.action == ParcelAction.deliver &&
+              widget.task.stop.name != null &&
+              widget.task.stop.name!.trim().isNotEmpty) {
+            recipient.text = widget.task.stop.name!.trim();
+          }
           resettingReview = false;
           notice = 'This parcel changed. Review the payment instructions and capture or select proof again.';
         });
@@ -222,7 +236,7 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields>
             min: 2,
             max: 255,
           ),
-          'recipient_relationship': relationship,
+          'recipient_relationship': relationship ?? 'buyer',
           if (widget.task.deliveryPaymentKind == DeliveryPaymentKind.cod) ...{
             'cash_received': received.text.trim(),
             'change_given': change.text.trim(),
@@ -413,31 +427,61 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields>
             validator: (value) => _plain(value, 'recipient_name', min: 2),
             onChanged: (_) => _edit('recipient_name'),
           ),
-          const SizedBox(height: 16),
-          DropdownButtonFormField<String>(
-            key: ValueKey('parcel-relationship-${task.version}'),
-            initialValue: relationship,
-            isExpanded: true,
-            itemHeight: null,
-            decoration: InputDecoration(
-              labelText: 'Relationship',
-              helperText: 'To the buyer',
-              helperMaxLines: 2,
-              errorText: widget.errors['recipient_relationship'],
+          const SizedBox(height: 12),
+          Material(
+            color: Colors.transparent,
+            child: CheckboxListTile(
+              key: const ValueKey('parcel-representative-checkbox'),
+              value: receivedByRepresentative,
+              enabled: enabled,
+              onChanged: enabled
+                  ? (checked) {
+                      setState(() {
+                        receivedByRepresentative = checked ?? false;
+                        if (!receivedByRepresentative) {
+                          relationship = 'buyer';
+                        } else if (relationship == 'buyer') {
+                          relationship = null;
+                        }
+                      });
+                      _edit('recipient_relationship');
+                    }
+                  : null,
+              title: const Text('Received by representative'),
+              subtitle: const Text(
+                'Check if someone other than the buyer received this parcel',
+              ),
+              controlAffinity: ListTileControlAffinity.leading,
+              contentPadding: EdgeInsets.zero,
             ),
-            items: [
-              for (final entry in recipientRelationships.entries)
-                DropdownMenuItem(value: entry.key, child: Text(entry.value)),
-            ],
-            onChanged: enabled
-                ? (value) {
-                    setState(() => relationship = value);
-                    _edit('recipient_relationship');
-                  }
-                : null,
-            validator: (value) =>
-                value == null ? 'Choose who received the parcel.' : null,
           ),
+          if (receivedByRepresentative) ...[
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              key: ValueKey('parcel-relationship-${task.version}'),
+              initialValue: relationship,
+              isExpanded: true,
+              itemHeight: null,
+              decoration: InputDecoration(
+                labelText: 'Relationship to buyer',
+                helperText: 'Select representative’s relationship to the buyer',
+                helperMaxLines: 2,
+                errorText: widget.errors['recipient_relationship'],
+              ),
+              items: [
+                for (final entry in recipientRelationships.entries)
+                  DropdownMenuItem(value: entry.key, child: Text(entry.value)),
+              ],
+              onChanged: enabled
+                  ? (value) {
+                      setState(() => relationship = value);
+                      _edit('recipient_relationship');
+                    }
+                  : null,
+              validator: (value) =>
+                  value == null ? 'Choose who received the parcel.' : null,
+            ),
+          ],
           const SizedBox(height: 24),
           if (task.deliveryPaymentKind == DeliveryPaymentKind.cod) ...[
             Text(

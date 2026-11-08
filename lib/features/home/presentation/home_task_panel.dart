@@ -511,10 +511,46 @@ class _SelectedStop extends StatelessWidget {
             ),
           ],
         ),
+        Wrap(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 3,
+              ),
+              decoration: BoxDecoration(
+                color: RiderColors.accent,
+                borderRadius: BorderRadius.circular(RiderRadii.pill),
+              ),
+              child: const Text(
+                'WAYBILL TO SCAN',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.5,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
         SelectableText(
           task.tracking,
           key: const ValueKey('home-selected-reference'),
-          style: Theme.of(context).textTheme.titleSmall,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
+          ),
+        ),
+        const SizedBox(height: 4),
+        SelectableText(
+          task.order,
+          style: const TextStyle(
+            fontSize: 13,
+            color: RiderColors.muted,
+          ),
         ),
         const SizedBox(height: 6),
         Wrap(

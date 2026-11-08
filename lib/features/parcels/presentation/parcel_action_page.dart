@@ -103,6 +103,7 @@ class _ParcelActionPageState extends State<ParcelActionPage>
                 MaterialPageRoute(
                   builder: (_) => WaybillScannerPage(
                     expectedWaybill: reviewed.tracking,
+                    orderReference: reviewed.order,
                     authorization: widget.work,
                     isAuthorized: () =>
                         widget.work.hasWorkAccess &&
@@ -220,19 +221,54 @@ class _ParcelActionPageState extends State<ParcelActionPage>
                                   crossAxisAlignment:
                                       CrossAxisAlignment.stretch,
                                   children: [
-                                    const WorkspaceBadge(
-                                      'Current parcel',
-                                      accent: true,
+                                    Wrap(
+                                      spacing: 8,
+                                      runSpacing: 6,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: RiderColors.accent,
+                                            borderRadius: BorderRadius.circular(
+                                              RiderRadii.pill,
+                                            ),
+                                          ),
+                                          child: const Text(
+                                            'WAYBILL TO SCAN',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w800,
+                                              letterSpacing: 0.5,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                        const WorkspaceBadge(
+                                          'Current parcel',
+                                          accent: true,
+                                        ),
+                                      ],
                                     ),
                                     const SizedBox(height: 12),
                                     SelectableText(
                                       task.tracking,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.5,
+                                      ),
                                     ),
-                                    const SizedBox(height: 8),
-                                    Text(task.order),
+                                    const SizedBox(height: 6),
+                                    SelectableText(
+                                      task.order,
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        color: RiderColors.muted,
+                                      ),
+                                    ),
                                     const SizedBox(height: 16),
                                     Text(
                                       task.stop.name ?? 'Stop name unavailable',

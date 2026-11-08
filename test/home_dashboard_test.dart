@@ -61,8 +61,9 @@ class MemoryTiles extends GeoapifyClient {
     LatLng origin,
     LatLng target,
     NavigationProfile profile,
-    CancelToken cancel,
-  ) async => RoadRoute([
+    CancelToken cancel, {
+    bool prioritizeHighways = true,
+  }) async => RoadRoute([
     [origin, target],
   ]);
 }

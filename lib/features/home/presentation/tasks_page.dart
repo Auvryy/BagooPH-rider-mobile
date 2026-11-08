@@ -363,10 +363,48 @@ class TaskCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 18),
+        Wrap(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 3,
+              ),
+              decoration: BoxDecoration(
+                color: RiderColors.accent,
+                borderRadius: BorderRadius.circular(RiderRadii.pill),
+              ),
+              child: const Text(
+                'WAYBILL TO SCAN',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.5,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
         SelectableText(
           task.tracking,
-          style: Theme.of(context).textTheme.titleMedium,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
+          ),
         ),
+        if (task.operation?.order != null) ...[
+          const SizedBox(height: 4),
+          SelectableText(
+            task.operation!.order,
+            style: const TextStyle(
+              fontSize: 13,
+              color: RiderColors.muted,
+            ),
+          ),
+        ],
         const SizedBox(height: 18),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,

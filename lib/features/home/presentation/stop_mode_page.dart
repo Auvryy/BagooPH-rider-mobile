@@ -617,17 +617,50 @@ class _StopModePageState extends State<StopModePage>
         const SizedBox(height: 20),
         const Divider(),
         const SizedBox(height: 20),
-        Text('Tracking number', style: Theme.of(context).textTheme.bodySmall),
-        const SizedBox(height: 4),
+        Wrap(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 4,
+              ),
+              decoration: BoxDecoration(
+                color: RiderColors.accent,
+                borderRadius: BorderRadius.circular(RiderRadii.pill),
+              ),
+              child: const Text(
+                'WAYBILL TO SCAN',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.5,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
         SelectableText(
           task.tracking,
           key: const ValueKey('stop-tracking'),
-          style: Theme.of(context).textTheme.titleMedium,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
+          ),
         ),
         const SizedBox(height: 12),
-        Text('Order number', style: Theme.of(context).textTheme.bodySmall),
+        Text('Order reference', style: Theme.of(context).textTheme.bodySmall),
         const SizedBox(height: 4),
-        SelectableText(task.order, key: const ValueKey('stop-order')),
+        SelectableText(
+          task.order,
+          key: const ValueKey('stop-order'),
+          style: const TextStyle(
+            fontSize: 13,
+            color: RiderColors.muted,
+          ),
+        ),
         const SizedBox(height: 16),
         Text(
           custodyLabel(task),

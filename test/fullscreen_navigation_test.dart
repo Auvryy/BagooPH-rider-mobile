@@ -1,11 +1,9 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:bagoo_rider_mobile/app/theme.dart';
 import 'package:bagoo_rider_mobile/features/home/data/operations_models.dart';
 import 'package:bagoo_rider_mobile/features/navigation/data/geoapify_client.dart';
-import 'package:bagoo_rider_mobile/features/navigation/data/navigation_location.dart';
 import 'package:bagoo_rider_mobile/features/navigation/data/route_geometry.dart';
 import 'package:bagoo_rider_mobile/features/navigation/data/saved_delivery_stop.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/fullscreen_navigation_page.dart';
@@ -73,16 +71,6 @@ class _MockRoutes extends GeoapifyClient {
     ));
     return RoadRoute.geoJson(_geometry);
   }
-}
-
-class _StubLocation implements NavigationLocation {
-  final stream = StreamController<LocationFix>.broadcast();
-  @override
-  Stream<LocationFix> fixes() => stream.stream;
-  @override
-  Future<void> prepare() async {}
-  @override
-  Future<bool> permitted() async => true;
 }
 
 void main() {

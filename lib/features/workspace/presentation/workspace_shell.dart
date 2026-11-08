@@ -17,6 +17,7 @@ import '../../home/presentation/home_dashboard.dart';
 import '../../home/data/operations_repository.dart';
 import '../../navigation/presentation/navigation_providers.dart';
 import '../../navigation/presentation/navigation_controls.dart';
+import '../../navigation/presentation/rider_map_page.dart';
 import '../../messages/presentation/messages_page.dart';
 import '../../settings/presentation/settings_page.dart';
 import '../../trips/presentation/trips_page.dart';
@@ -416,6 +417,21 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                 ],
               ),
             ),
+            if (destination != 3 && !widget.preview)
+              RiderPressFeedback(
+                child: IconButton(
+                  key: const ValueKey('header-open-map'),
+                  tooltip: 'Road Navigation Map',
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => RiderMapPage(
+                        accountId: widget.account.id,
+                      ),
+                    ),
+                  ),
+                  icon: const Icon(Icons.map_rounded, color: RiderColors.ink),
+                ),
+              ),
             if (destination != 3)
               RiderPressFeedback(
                 child: IconButton(

@@ -9,9 +9,11 @@ import '../../auth/data/account.dart';
 import '../../cash/presentation/cash_page.dart';
 import '../../cash/presentation/financial_summary.dart';
 import '../../handover/presentation/handover_entry.dart';
+import '../../navigation/data/route_geometry.dart';
 import '../../navigation/presentation/leaflet_delivery_map.dart';
 import '../../navigation/data/saved_delivery_stop.dart';
 import '../../navigation/presentation/navigation_providers.dart';
+import '../../navigation/presentation/rider_map_page.dart';
 import '../../notifications/presentation/notifications_entry.dart';
 import '../../workspace/data/workspace_models.dart';
 import '../../workspace/presentation/workspace_controller.dart';
@@ -82,6 +84,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
   Widget _map() {
     final task = widget.controller.selectedTask;
     final stop = SavedDeliveryStop.fromTask(task);
+    final nav = ref.watch(navigationProvider);
     return RiderSurface(
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -105,6 +108,19 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
+              TextButton.icon(
+                key: const ValueKey('open-live-map-card'),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => RiderMapPage(
+                      initialTask: task,
+                      accountId: widget.account.id,
+                    ),
+                  ),
+                ),
+                icon: const Icon(Icons.fullscreen_rounded, size: 16),
+                label: const Text('Live Map', style: TextStyle(fontSize: 12)),
+              ),
             ],
           ),
           if (task != null) ...[
@@ -125,15 +141,28 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
           if (stop != null) ...[
             const SizedBox(height: 12),
             _mapAreaDisclosure(),
-            SizedBox(height: 280, child: _mapView(stop: stop)),
+            SizedBox(height: 280, child: _mapView(stop: stop, road: nav.road)),
             const SizedBox(height: 10),
-            const Text(
-              'Saved parcel location. This is not live rider tracking or a calculated road route.',
-              style: TextStyle(
-                fontSize: 11,
-                height: 1.4,
-                color: RiderColors.muted,
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    nav.road != null
+                        ? 'Road route calculated along mapped streets.'
+                        : 'On-refresh route calculation. Tap refresh to recalculate.',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      height: 1.4,
+                      color: RiderColors.muted,
+                    ),
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () => nav.refreshRoute(force: true),
+                  icon: const Icon(Icons.refresh_rounded, size: 14),
+                  label: const Text('Refresh', style: TextStyle(fontSize: 11)),
+                ),
+              ],
             ),
           ] else ...[
             const SizedBox(height: 6),
@@ -177,8 +206,12 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
     );
   }
 
-  Widget _mapView({SavedDeliveryStop? stop}) => _foreground
-      ? LeafletDeliveryMap(key: const ValueKey('home-leaflet-map'), stop: stop)
+  Widget _mapView({SavedDeliveryStop? stop, RoadRoute? road}) => _foreground
+      ? LeafletDeliveryMap(
+          key: const ValueKey('home-leaflet-map'),
+          stop: stop,
+          road: road,
+        )
       : const Center(child: Text('Map paused while the app is hidden.'));
   Widget _mapAreaDisclosure() => const Padding(
     padding: EdgeInsets.only(bottom: 8),

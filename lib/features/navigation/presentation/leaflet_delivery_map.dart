@@ -120,21 +120,23 @@ html,body,#map{width:100%;height:100%;margin:0;background:#F2F1ED;font-family:'P
 }
 
 class LeafletDeliveryMap extends StatelessWidget {
-  const LeafletDeliveryMap({super.key, this.stop, this.road});
+  const LeafletDeliveryMap({super.key, this.stop, this.road, this.standby = false});
   final SavedDeliveryStop? stop;
   final RoadRoute? road;
+  final bool standby;
 
   @override
   Widget build(BuildContext context) =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.linux
-      ? NativeDeliveryMap(key: ValueKey(stop), stop: stop, road: road)
-      : _EmbeddedLeafletDeliveryMap(stop: stop, road: road);
+      ? NativeDeliveryMap(key: ValueKey(stop), stop: stop, road: road, standby: standby)
+      : _EmbeddedLeafletDeliveryMap(stop: stop, road: road, standby: standby);
 }
 
 class _EmbeddedLeafletDeliveryMap extends ConsumerStatefulWidget {
-  const _EmbeddedLeafletDeliveryMap({this.stop, this.road});
+  const _EmbeddedLeafletDeliveryMap({this.stop, this.road, this.standby = false});
   final SavedDeliveryStop? stop;
   final RoadRoute? road;
+  final bool standby;
   @override
   ConsumerState<_EmbeddedLeafletDeliveryMap> createState() =>
       _LeafletDeliveryMapState();
@@ -216,6 +218,8 @@ class _LeafletDeliveryMapState
       var document = await ref.read(deliveryMapDocumentProvider)();
       if (widget.stop case final stop?) {
         document = deliveryMapDocumentForStop(document, stop);
+      } else if (widget.standby) {
+        document = deliveryMapDocumentForStandby(document);
       }
       if (!mounted || epoch != _epoch) return;
       session = ref.read(deliveryMapFactoryProvider)();
@@ -339,5 +343,20 @@ String deliveryMapDocumentForStop(String document, SavedDeliveryStop stop) {
       .replaceFirst(
         'aria-label="Sample rider to delivery route"',
         'aria-label="Saved current stop"',
+      );
+}
+
+String deliveryMapDocumentForStandby(String document) {
+  if (!document.contains('window.riderDeliverySample=')) {
+    throw const FormatException('The standby map document is unavailable.');
+  }
+  return document
+      .replaceFirst(
+        'window.riderDeliverySample=',
+        'window.riderStandby=true;\nwindow.riderDeliverySample=',
+      )
+      .replaceFirst(
+        'aria-label="Sample rider to delivery route"',
+        'aria-label="Rider GPS standby"',
       );
 }

@@ -45,6 +45,8 @@ void main() {
     'overview uses returned placement, capacity, counts and PHT observation',
     (tester) async {
       final h = await _open(tester);
+      expect(find.byType(Switch), findsOneWidget);
+      await _reveal(tester, find.text('Example logistics company'));
       expect(find.text('Example logistics company'), findsOneWidget);
       expect(find.text('Example assigned hub'), findsOneWidget);
       expect(find.text('Pickup slots: 3 of 17 in use'), findsOneWidget);
@@ -54,11 +56,9 @@ void main() {
         findsOneWidget,
       );
       expect(find.byKey(const ValueKey('home-refresh-tasks')), findsOneWidget);
-      expect(find.byType(Switch), findsOneWidget);
       await _reveal(tester, find.byKey(const ValueKey('task-queue-available')));
       for (final entry in {
         'available': '8',
-        'pickups': '42',
         'delivery': '2',
       }.entries) {
         expect(
@@ -69,6 +69,7 @@ void main() {
           findsOneWidget,
         );
       }
+      expect(find.textContaining('42 pickups'), findsOneWidget);
       expect(
         h.controller.taskData.data,
         hasLength(1),
@@ -86,6 +87,7 @@ void main() {
     h.home['data']['placement']['hub_name'] = ' ';
     await h.controller.refreshAll();
     await tester.pumpAndSettle();
+    await _reveal(tester, find.text('Company name unavailable'));
     expect(find.text('Company name unavailable'), findsOneWidget);
     expect(find.text('Hub name unavailable'), findsOneWidget);
     expect(find.text('Hub not assigned'), findsNothing);
@@ -97,6 +99,7 @@ void main() {
     h.home['data']['eligibility']['claim_denial'] = 'PLACEMENT_UNAVAILABLE';
     await h.controller.refreshAll();
     await tester.pumpAndSettle();
+    await _reveal(tester, find.text('Company not assigned'));
     expect(find.text('Company not assigned'), findsOneWidget);
     expect(find.text('Hub not assigned'), findsOneWidget);
     expect(find.text('Coverage not assigned'), findsOneWidget);
@@ -198,10 +201,11 @@ void main() {
       final gate = Completer<Map<String, dynamic>>();
       final h = await _open(tester, firstHomeGate: gate, settle: false);
       await tester.pump();
+      await _reveal(tester, find.text('Checking work availability…'));
       expect(find.text('Checking work availability…'), findsOneWidget);
       expect(find.text('Pickup capacity unavailable.'), findsOneWidget);
       await _reveal(tester, find.byKey(const ValueKey('task-queue-available')));
-      expect(find.text('—'), findsNWidgets(3));
+      expect(find.text('—'), findsNWidgets(2));
       expect(find.byKey(const ValueKey('home-checked-time')), findsNothing);
       h.homeGate = null;
       h.homeError = const AccountFailure(
@@ -213,7 +217,7 @@ void main() {
       await _reveal(tester, find.byKey(const ValueKey('home-refresh-tasks')));
       expect(find.text('Could not check work availability.'), findsOneWidget);
       expect(find.text('First Home read failed.'), findsOneWidget);
-      expect(find.text('—'), findsNWidgets(3));
+      expect(find.text('—'), findsNWidgets(2));
       h.homeError = null;
       h.home['data']['counts'] = {'available': 0, 'pickup': 0, 'final_mile': 0};
       h.home['data']['capacity'] = {
@@ -230,7 +234,7 @@ void main() {
       expect(find.text('0 slots remaining'), findsOneWidget);
       expect(find.text('Your pickup capacity is full.'), findsOneWidget);
       await _reveal(tester, find.byKey(const ValueKey('task-queue-available')));
-      expect(find.text('0'), findsNWidgets(3));
+      expect(find.text('0'), findsNWidgets(2));
       await _reveal(tester, find.text('No tasks in this queue'));
       expect(find.text('No tasks in this queue'), findsOneWidget);
     },
@@ -252,7 +256,7 @@ void main() {
       expect(find.text('Work availability unavailable.'), findsOneWidget);
       expect(find.text('Pickup capacity unavailable.'), findsOneWidget);
       expect(find.byKey(const ValueKey('home-checked-time')), findsNothing);
-      expect(find.text('—'), findsNWidgets(3));
+      expect(find.text('—'), findsNWidgets(2));
       expect(h.controller.selectedTask, isNull);
       expect(
         tester
@@ -377,9 +381,10 @@ void main() {
           );
           for (final queue in TaskQueue.values) {
             final control = find.byKey(ValueKey('task-queue-${queue.name}'));
+            await _reveal(tester, control);
+            expect(tester.getSize(control).height, greaterThanOrEqualTo(48));
             await _tap(tester, control);
             expect(h.controller.queue, queue);
-            expect(tester.getSize(control).height, greaterThanOrEqualTo(48));
           }
           await _tap(tester, find.byKey(ValueKey('home-task-${h.task.id}')));
           await _reveal(

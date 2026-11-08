@@ -441,7 +441,7 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                                     height: 50,
                                     child: Center(
                                       child: Text(
-                                        'Stop Live Navigation',
+                                        'Stop Live Map',
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.w700,
@@ -472,11 +472,11 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                                         Icon(
                                           Icons.navigation_rounded,
                                           color: Colors.white,
-                                          size: 20,
+                                          size: 18,
                                         ),
-                                        SizedBox(width: 8),
+                                        SizedBox(width: 6),
                                         Text(
-                                          'Start Live Road Navigation',
+                                          'Start Live Map',
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.w700,

@@ -80,13 +80,12 @@ const account = RiderAccount(
 );
 void main() {
   managedDashboardTest(
-    'work loads first and the optional sample never starts routing',
+    'work loads first and rider GPS standby map preview is visible at top without routing',
     (tester) async {
       final geo = MemoryTiles();
       final h = await openDashboard(tester, geoClient: geo);
-      expect(find.byType(LeafletDeliveryMap), findsNothing);
-      await tapHome(tester, find.byKey(const ValueKey('home-sample-toggle')));
       expect(find.byType(LeafletDeliveryMap), findsOneWidget);
+      expect(find.text('Rider GPS standby'), findsOneWidget);
       expect(
         find.byKey(const ValueKey('home-map-area-disclosure')),
         findsOneWidget,
@@ -95,9 +94,8 @@ void main() {
         find.textContaining('Tile coordinates and source IP'),
         findsOneWidget,
       );
-      expect(find.text('Sample rider → Sample delivery point'), findsOneWidget);
       expect(
-        find.textContaining('not a live rider or an assigned parcel'),
+        find.textContaining('Current rider GPS · Standby (No active orders to deliver)'),
         findsOneWidget,
       );
       expect(find.byType(FlutterMap), findsNothing);
@@ -142,7 +140,7 @@ void main() {
     },
   );
   managedDashboardTest(
-    'missing coordinates retain task addresses while the illustration remains labelled',
+    'missing coordinates retain task addresses without projecting a route',
     (tester) async {
       final h = await openDashboard(tester, coordinates: false);
       await tapHome(tester, find.byKey(ValueKey('home-task-${h.task.id}')));
@@ -150,9 +148,6 @@ void main() {
       expect(h.controller.selectedTask?.stop.latitude, isNull);
       expect(find.byType(LeafletDeliveryMap), findsNothing);
       expect(find.textContaining('No location pin is saved'), findsOneWidget);
-      await tapHome(tester, find.byKey(const ValueKey('home-sample-toggle')));
-      await revealHome(tester, find.textContaining('Sample rider'));
-      expect(find.textContaining('Sample rider'), findsOneWidget);
       expect(h.navigation.active, isFalse);
     },
   );
@@ -220,7 +215,6 @@ void main() {
       final visibility = ValueNotifier(true);
       addTearDown(visibility.dispose);
       final h = await openDashboard(tester, visibility: visibility);
-      await tapHome(tester, find.byKey(const ValueKey('home-sample-toggle')));
       expect(find.byType(LeafletDeliveryMap), findsOneWidget);
       visibility.value = false;
       await tester.pumpAndSettle();

@@ -43,9 +43,10 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
   int destination = 0;
   ProfileSection profileSection = ProfileSection.profile;
   bool foreground = true;
-  static const labels = ['Tasks', 'Trips', 'Messages', 'Profile'];
+  static const labels = ['Tasks', 'Map', 'Trips', 'Messages', 'Profile'];
   static const icons = [
     Icons.inventory_2_outlined,
+    Icons.map_outlined,
     Icons.route_outlined,
     Icons.forum_outlined,
     Icons.person_outline_rounded,
@@ -87,7 +88,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
     if (destination == index) return;
     setState(() {
       destination = index;
-      if (index != 3) profileSection = ProfileSection.profile;
+      if (index != 4) profileSection = ProfileSection.profile;
     });
     _arrive();
   }
@@ -190,7 +191,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
     final session = ref.watch(authControllerProvider);
     final size = MediaQuery.sizeOf(context);
     final typing =
-        destination == 2 && MediaQuery.viewInsetsOf(context).bottom > 0;
+        destination == 3 && MediaQuery.viewInsetsOf(context).bottom > 0;
     final rail = size.width >= 840;
     final railWidth = size.width >= 1200
         ? 220.0
@@ -199,14 +200,14 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
       listenable: controller,
       builder: (context, _) {
         final compactThread =
-            destination == 2 &&
+            destination == 3 &&
             controller.messages.selectedId != null &&
             !messagesUseSplitView(
               size.width - (rail ? railWidth + 1 : 0),
               MediaQuery.textScalerOf(context),
             );
         final nested =
-            destination == 3 && profileSection != ProfileSection.profile;
+            destination == 4 && profileSection != ProfileSection.profile;
         return PopScope(
           canPop: !nested && !compactThread && destination == 0,
           onPopInvokedWithResult: (didPop, _) {
@@ -321,6 +322,9 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                                       controller: controller,
                                       preview: widget.preview,
                                     ),
+                                  RiderMapPage(
+                                    accountId: widget.account.id,
+                                  ),
                                   TripsPage(
                                     controller: controller,
                                     preview: widget.preview,
@@ -328,7 +332,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                                   MessagesPage(
                                     controller: controller,
                                     preview: widget.preview,
-                                    active: destination == 2 && foreground,
+                                    active: destination == 3 && foreground,
                                   ),
                                   ProfileSettingsPage(
                                     onCash: widget.preview
@@ -366,6 +370,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
 
   static const activeIcons = [
     Icons.inventory_2_rounded,
+    Icons.map_rounded,
     Icons.route_rounded,
     Icons.forum_rounded,
     Icons.person_rounded,
@@ -417,30 +422,24 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                 ],
               ),
             ),
-            if (destination != 3 && !widget.preview)
+            if (destination != 4 && !widget.preview)
               RiderPressFeedback(
                 child: IconButton(
                   key: const ValueKey('header-open-map'),
                   tooltip: 'Road Navigation Map',
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => RiderMapPage(
-                        accountId: widget.account.id,
-                      ),
-                    ),
-                  ),
+                  onPressed: () => select(1),
                   icon: const Icon(Icons.map_rounded, color: RiderColors.ink),
                 ),
               ),
-            if (destination != 3)
+            if (destination != 4)
               RiderPressFeedback(
                 child: IconButton(
                   tooltip: 'Open Profile',
-                  onPressed: () => select(3),
+                  onPressed: () => select(4),
                   icon: WorkspaceAvatar(widget.account.name, size: 32),
                 ),
               ),
-            if (destination != 3)
+            if (destination != 4)
               RiderPressFeedback(
                 child: IconButton(
                   key: const ValueKey('logout-button'),
@@ -476,7 +475,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
       final wide = MediaQuery.sizeOf(context).width >= 1200;
       final availableWidth = constraints.maxWidth - 16;
       final itemWidth = _navigationItemWidth(context);
-      final compactLabels = !vertical && availableWidth / 4 < itemWidth;
+      final compactLabels = !vertical && availableWidth / labels.length < itemWidth;
       final children = [
         for (var index = 0; index < labels.length; index++)
           Padding(

@@ -250,6 +250,12 @@ class _ParcelActionPageState extends State<ParcelActionPage>
                                           'Current parcel',
                                           accent: true,
                                         ),
+                                        if (action == ParcelAction.deliver &&
+                                            task.stop.latitude != null &&
+                                            task.stop.longitude != null)
+                                          const WorkspaceBadge(
+                                            'Dropoff geofence: 100m GPS check',
+                                          ),
                                       ],
                                     ),
                                     const SizedBox(height: 12),

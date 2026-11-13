@@ -276,6 +276,45 @@ class _CashPageViewState extends State<CashPageView>
             ),
             const SizedBox(height: 12),
             Text('${data.unresolved} accounts with an unresolved difference'),
+            if (data.held >= BigInt.from(2000000)) ...[
+              const SizedBox(height: 12),
+              Container(
+                key: const ValueKey('cash-float-lock-banner'),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: RiderColors.rose,
+                  borderRadius: BorderRadius.circular(RiderRadii.control),
+                  border: Border.all(color: RiderColors.accent),
+                ),
+                child: const Text(
+                  'Unremitted COD float lock reached (₱20,000.00+). Remit held COD cash to your assigned hub to unlock new COD delivery completions.',
+                  style: TextStyle(
+                    color: RiderColors.accentText,
+                    fontWeight: FontWeight.w700,
+                    height: 1.45,
+                  ),
+                ),
+              ),
+            ] else if (data.held >= BigInt.from(1500000)) ...[
+              const SizedBox(height: 12),
+              Container(
+                key: const ValueKey('cash-float-warning-banner'),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: RiderColors.rose,
+                  borderRadius: BorderRadius.circular(RiderRadii.control),
+                  border: Border.all(color: RiderColors.border),
+                ),
+                child: const Text(
+                  'Unremitted COD float warning (₱15,000.00+). Remit held COD cash soon before reaching the ₱20,000.00 float lock.',
+                  style: TextStyle(
+                    color: RiderColors.accentText,
+                    fontWeight: FontWeight.w600,
+                    height: 1.45,
+                  ),
+                ),
+              ),
+            ],
           ]),
           if (detail == null) ...[
             TextField(
@@ -331,7 +370,7 @@ class _CashPageViewState extends State<CashPageView>
                 child: RiderSurface(
                   child: InkWell(
                     key: ValueKey('cash-account-${row.id}'),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(RiderRadii.surface),
                     onTap: c.canRefresh
                         ? () {
                             unawaited(c.select(row.id));

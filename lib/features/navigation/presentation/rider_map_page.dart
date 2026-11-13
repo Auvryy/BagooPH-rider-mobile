@@ -12,11 +12,7 @@ import 'navigation_providers.dart';
 /// Displays an unobstructed live road map with all controls and stop
 /// details unified in a clean bottom cockpit dock.
 class RiderMapPage extends ConsumerStatefulWidget {
-  const RiderMapPage({
-    super.key,
-    this.initialTask,
-    this.accountId,
-  });
+  const RiderMapPage({super.key, this.initialTask, this.accountId});
 
   final OperationTask? initialTask;
   final String? accountId;
@@ -38,22 +34,29 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
   Widget build(BuildContext context) {
     final nav = ref.watch(navigationProvider);
     final workspace = widget.accountId != null
-        ? ref.watch(workspaceControllerProvider(WorkspaceIdentity(widget.accountId!)))
+        ? ref.watch(
+            workspaceControllerProvider(WorkspaceIdentity(widget.accountId!)),
+          )
         : null;
 
-    final activeTask = nav.task ??
+    final activeTask =
+        nav.task ??
         _localTask ??
         workspace?.selectedTask ??
         workspace?.taskPage?.items.firstOrNull;
-    final stop = activeTask != null ? SavedDeliveryStop.fromTask(activeTask) : null;
+    final stop = activeTask != null
+        ? SavedDeliveryStop.fromTask(activeTask)
+        : null;
     final isPickup = activeTask?.stop.kind == 'seller';
-    final stopKindLabel = isPickup ? 'PICKUP · SELLER STORE' : 'DELIVERY · BUYER DESTINATION';
+    final stopKindLabel = isPickup
+        ? 'PICKUP · SELLER STORE'
+        : 'DELIVERY · BUYER DESTINATION';
 
     return ListenableBuilder(
       listenable: nav,
       builder: (context, _) => Scaffold(
         key: const ValueKey('rider-live-map-page'),
-        backgroundColor: RiderMapColors.canvas,
+        backgroundColor: RiderColors.canvas,
         body: Stack(
           children: [
             // Fullscreen Map View
@@ -73,21 +76,31 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
               child: SafeArea(
                 bottom: false,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   child: Row(
                     children: [
                       Material(
-                        color: RiderColors.carbon.withAlpha(220),
-                        shape: const CircleBorder(),
+                        color: RiderColors.surface,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            RiderRadii.control,
+                          ),
+                          side: const BorderSide(color: RiderColors.border),
+                        ),
                         child: InkWell(
                           key: const ValueKey('rider-map-back-button'),
-                          customBorder: const CircleBorder(),
+                          borderRadius: BorderRadius.circular(
+                            RiderRadii.control,
+                          ),
                           onTap: () => Navigator.of(context).pop(),
                           child: const Padding(
                             padding: EdgeInsets.all(10),
                             child: Icon(
                               Icons.arrow_back_rounded,
-                              color: Colors.white,
+                              color: RiderColors.ink,
                               size: 22,
                             ),
                           ),
@@ -102,14 +115,10 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                           ),
                           decoration: BoxDecoration(
                             color: RiderColors.accent,
-                            borderRadius: BorderRadius.circular(RiderRadii.pill),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black26,
-                                blurRadius: 8,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
+                            borderRadius: BorderRadius.circular(
+                              RiderRadii.control,
+                            ),
+                            boxShadow: RiderShadows.ambient,
                           ),
                           child: Text(
                             stopKindLabel,
@@ -128,15 +137,19 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: RiderColors.carbon.withAlpha(220),
-                            borderRadius: BorderRadius.circular(RiderRadii.pill),
+                            color: RiderColors.surface,
+                            borderRadius: BorderRadius.circular(
+                              RiderRadii.control,
+                            ),
+                            border: Border.all(color: RiderColors.border),
+                            boxShadow: RiderShadows.ambient,
                           ),
                           child: const Text(
                             'Road Map Overview',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                              color: RiderColors.ink,
                             ),
                           ),
                         ),
@@ -148,8 +161,11 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                             vertical: 5,
                           ),
                           decoration: BoxDecoration(
-                            color: RiderColors.carbon.withAlpha(220),
-                            borderRadius: BorderRadius.circular(RiderRadii.pill),
+                            color: RiderColors.surface,
+                            borderRadius: BorderRadius.circular(
+                              RiderRadii.control,
+                            ),
+                            border: Border.all(color: RiderColors.border),
                           ),
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
@@ -159,7 +175,7 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                                 height: 12,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: Colors.white,
+                                  color: RiderColors.accent,
                                 ),
                               ),
                               SizedBox(width: 6),
@@ -168,7 +184,7 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.white,
+                                  color: RiderColors.ink,
                                 ),
                               ),
                             ],
@@ -181,8 +197,11 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                             vertical: 5,
                           ),
                           decoration: BoxDecoration(
-                            color: RiderColors.carbon.withAlpha(220),
-                            borderRadius: BorderRadius.circular(RiderRadii.pill),
+                            color: RiderColors.surface,
+                            borderRadius: BorderRadius.circular(
+                              RiderRadii.control,
+                            ),
+                            border: Border.all(color: RiderColors.border),
                           ),
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
@@ -190,7 +209,7 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                               Icon(
                                 Icons.navigation_rounded,
                                 size: 13,
-                                color: Color(0xFF10B981),
+                                color: RiderColors.accent,
                               ),
                               SizedBox(width: 5),
                               Text(
@@ -199,7 +218,7 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                                   fontSize: 10,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 0.5,
-                                  color: Color(0xFF10B981),
+                                  color: RiderColors.accentText,
                                 ),
                               ),
                             ],
@@ -222,16 +241,10 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                   margin: const EdgeInsets.all(16),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: RiderColors.carbon.withAlpha(240),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.white24, width: 1.5),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black54,
-                        blurRadius: 20,
-                        offset: Offset(0, 6),
-                      ),
-                    ],
+                    color: RiderColors.surface,
+                    borderRadius: BorderRadius.circular(RiderRadii.surface),
+                    border: Border.all(color: RiderColors.border),
+                    boxShadow: RiderShadows.ambient,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,7 +263,7 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                                     style: const TextStyle(
                                       fontSize: 19,
                                       fontWeight: FontWeight.w900,
-                                      color: Colors.white,
+                                      color: RiderColors.ink,
                                       letterSpacing: -0.3,
                                     ),
                                     maxLines: 2,
@@ -262,7 +275,7 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                                       activeTask.stop.address!,
                                       style: const TextStyle(
                                         fontSize: 13,
-                                        color: Colors.white70,
+                                        color: RiderColors.muted,
                                         height: 1.25,
                                       ),
                                       maxLines: 2,
@@ -276,8 +289,12 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                             // Highway prioritization toggle
                             InkWell(
                               key: const ValueKey('rider-map-highway-toggle'),
-                              onTap: () => nav.setPrioritizeHighways(!nav.prioritizeHighways),
-                              borderRadius: BorderRadius.circular(RiderRadii.pill),
+                              onTap: () => nav.setPrioritizeHighways(
+                                !nav.prioritizeHighways,
+                              ),
+                              borderRadius: BorderRadius.circular(
+                                RiderRadii.control,
+                              ),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 10,
@@ -285,13 +302,15 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                                 ),
                                 decoration: BoxDecoration(
                                   color: nav.prioritizeHighways
-                                      ? RiderColors.accentText.withAlpha(50)
-                                      : Colors.white12,
-                                  borderRadius: BorderRadius.circular(RiderRadii.pill),
+                                      ? RiderColors.rose
+                                      : RiderColors.controlFill,
+                                  borderRadius: BorderRadius.circular(
+                                    RiderRadii.control,
+                                  ),
                                   border: Border.all(
                                     color: nav.prioritizeHighways
                                         ? RiderColors.accent
-                                        : Colors.white30,
+                                        : RiderColors.border,
                                   ),
                                 ),
                                 child: Row(
@@ -301,8 +320,8 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                                       Icons.alt_route_rounded,
                                       size: 14,
                                       color: nav.prioritizeHighways
-                                          ? Colors.white
-                                          : Colors.white70,
+                                          ? RiderColors.accentText
+                                          : RiderColors.muted,
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
@@ -313,8 +332,8 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                                         fontSize: 11,
                                         fontWeight: FontWeight.w700,
                                         color: nav.prioritizeHighways
-                                            ? Colors.white
-                                            : Colors.white70,
+                                            ? RiderColors.accentText
+                                            : RiderColors.muted,
                                       ),
                                     ),
                                   ],
@@ -331,16 +350,18 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.red.withAlpha(40),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.red.withAlpha(80)),
+                              color: RiderColors.rose,
+                              borderRadius: BorderRadius.circular(
+                                RiderRadii.control,
+                              ),
+                              border: Border.all(color: RiderColors.accent),
                             ),
                             child: Row(
                               children: [
                                 const Icon(
                                   Icons.info_outline_rounded,
                                   size: 14,
-                                  color: Color(0xFFFFB3BA),
+                                  color: RiderColors.accentText,
                                 ),
                                 const SizedBox(width: 6),
                                 Expanded(
@@ -348,7 +369,7 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                                     nav.message!,
                                     style: const TextStyle(
                                       fontSize: 12,
-                                      color: Color(0xFFFFB3BA),
+                                      color: RiderColors.accentText,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -363,7 +384,7 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w800,
-                            color: Colors.white,
+                            color: RiderColors.ink,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -371,7 +392,7 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                           'Select an assigned task or accept a delivery from the queue to start navigation.',
                           style: TextStyle(
                             fontSize: 13,
-                            color: Colors.white70,
+                            color: RiderColors.muted,
                           ),
                         ),
                       ],
@@ -383,19 +404,26 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                         children: [
                           // Recenter button
                           Material(
-                            color: Colors.white12,
-                            borderRadius: BorderRadius.circular(14),
+                            color: RiderColors.controlFill,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                RiderRadii.control,
+                              ),
+                              side: const BorderSide(color: RiderColors.border),
+                            ),
                             child: InkWell(
                               key: const ValueKey('rider-map-recenter-button'),
                               onTap: nav.recenter,
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: BorderRadius.circular(
+                                RiderRadii.control,
+                              ),
                               child: Container(
                                 width: 50,
                                 height: 50,
                                 alignment: Alignment.center,
                                 child: const Icon(
                                   Icons.my_location_rounded,
-                                  color: Colors.white,
+                                  color: RiderColors.ink,
                                   size: 24,
                                 ),
                               ),
@@ -405,19 +433,26 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
 
                           // Refresh route button
                           Material(
-                            color: Colors.white12,
-                            borderRadius: BorderRadius.circular(14),
+                            color: RiderColors.controlFill,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                RiderRadii.control,
+                              ),
+                              side: const BorderSide(color: RiderColors.border),
+                            ),
                             child: InkWell(
                               key: const ValueKey('rider-map-refresh-button'),
                               onTap: () => nav.refreshRoute(force: true),
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: BorderRadius.circular(
+                                RiderRadii.control,
+                              ),
                               child: Container(
                                 width: 50,
                                 height: 50,
                                 alignment: Alignment.center,
                                 child: const Icon(
                                   Icons.refresh_rounded,
-                                  color: Colors.white,
+                                  color: RiderColors.ink,
                                   size: 24,
                                 ),
                               ),
@@ -430,13 +465,19 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                             Expanded(
                               child: Material(
                                 color: RiderColors.accent,
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(
+                                  RiderRadii.control,
+                                ),
                                 child: InkWell(
-                                  key: const ValueKey('rider-map-stop-nav-button'),
+                                  key: const ValueKey(
+                                    'rider-map-stop-nav-button',
+                                  ),
                                   onTap: () async {
                                     await nav.stop();
                                   },
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(
+                                    RiderRadii.control,
+                                  ),
                                   child: const SizedBox(
                                     height: 50,
                                     child: Center(
@@ -457,17 +498,24 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                             Expanded(
                               child: Material(
                                 color: RiderColors.accent,
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(
+                                  RiderRadii.control,
+                                ),
                                 child: InkWell(
-                                  key: const ValueKey('rider-map-start-nav-button'),
+                                  key: const ValueKey(
+                                    'rider-map-start-nav-button',
+                                  ),
                                   onTap: () async {
                                     await nav.start(activeTask);
                                   },
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(
+                                    RiderRadii.control,
+                                  ),
                                   child: const SizedBox(
                                     height: 50,
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Icon(
                                           Icons.navigation_rounded,
@@ -492,18 +540,27 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                           else
                             Expanded(
                               child: Material(
-                                color: Colors.white12,
-                                borderRadius: BorderRadius.circular(14),
+                                color: RiderColors.controlFill,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    RiderRadii.control,
+                                  ),
+                                  side: const BorderSide(
+                                    color: RiderColors.border,
+                                  ),
+                                ),
                                 child: InkWell(
                                   onTap: () => Navigator.of(context).pop(),
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(
+                                    RiderRadii.control,
+                                  ),
                                   child: const SizedBox(
                                     height: 50,
                                     child: Center(
                                       child: Text(
                                         'Close Map',
                                         style: TextStyle(
-                                          color: Colors.white,
+                                          color: RiderColors.ink,
                                           fontWeight: FontWeight.w700,
                                           fontSize: 14,
                                         ),

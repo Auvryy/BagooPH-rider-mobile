@@ -10,6 +10,7 @@ class RiderAccount {
     required this.approved,
     required this.emailVerified,
     this.feedback,
+    this.accountStatusUrl,
     this.settingsApiVersion,
     this.operationsApiVersion,
     this.handoverApiVersion,
@@ -18,6 +19,7 @@ class RiderAccount {
   final String id, name, email, status, kycStatus;
   final bool approved, emailVerified;
   final String? feedback;
+  final String? accountStatusUrl;
   final int? settingsApiVersion;
   final int? operationsApiVersion;
   final int? handoverApiVersion;
@@ -59,6 +61,9 @@ class RiderAccount {
           ['approved', 'verified'].contains(json['kyc_status']),
       emailVerified: json['email_verified'],
       feedback: json['kyc_feedback'],
+      accountStatusUrl: json['account_status_url'] is String
+          ? json['account_status_url'] as String
+          : null,
       operationsApiVersion:
           json['operations_api_version'] is int &&
               json['operations_api_version'] == 1

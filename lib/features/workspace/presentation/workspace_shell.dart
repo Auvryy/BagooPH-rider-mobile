@@ -224,6 +224,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
           child: Scaffold(
             key: const ValueKey('rider-workspace'),
             extendBody: false,
+            drawer: _drawer(controller, busy: session.busy),
             bottomNavigationBar: !rail && !typing
                 ? SafeArea(top: false, child: _navigation(vertical: false))
                 : null,
@@ -322,9 +323,7 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                                       controller: controller,
                                       preview: widget.preview,
                                     ),
-                                  RiderMapPage(
-                                    accountId: widget.account.id,
-                                  ),
+                                  RiderMapPage(accountId: widget.account.id),
                                   TripsPage(
                                     controller: controller,
                                     preview: widget.preview,
@@ -386,40 +385,49 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
         child: Row(
           children: [
             Expanded(
-              child: Row(
-                children: [
-                  Semantics(
-                    image: true,
-                    label: 'BagooPH Rider',
-                    child: ExcludeSemantics(
-                      child: Container(
-                        padding: const EdgeInsets.all(3),
-                        decoration: ShapeDecoration(
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                              RiderRadii.brand,
+              child: Builder(
+                builder: (drawerContext) => InkWell(
+                  key: const ValueKey('header-open-drawer'),
+                  borderRadius: BorderRadius.circular(RiderRadii.control),
+                  onTap: () => Scaffold.of(drawerContext).openDrawer(),
+                  child: Row(
+                    children: [
+                      Semantics(
+                        image: true,
+                        label: 'BagooPH Rider',
+                        child: ExcludeSemantics(
+                          child: Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: ShapeDecoration(
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  RiderRadii.brand,
+                                ),
+                                side: const BorderSide(
+                                  color: RiderColors.border,
+                                ),
+                              ),
                             ),
-                            side: const BorderSide(color: RiderColors.border),
+                            child: const BagooBrandMark(size: 26),
                           ),
                         ),
-                        child: const BagooBrandMark(size: 26),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  const Flexible(
-                    child: Text(
-                      'BagooPH Rider',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.3,
-                        color: RiderColors.ink,
+                      const SizedBox(width: 10),
+                      const Flexible(
+                        child: Text(
+                          'BagooPH Rider',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.3,
+                            color: RiderColors.ink,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
             if (destination != 4 && !widget.preview)
@@ -455,6 +463,94 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
       ),
     ),
   );
+
+  Widget _drawer(WorkspaceController controller, {required bool busy}) =>
+      Drawer(
+        key: const ValueKey('rider-workspace-drawer'),
+        backgroundColor: RiderColors.surface,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.horizontal(
+            right: Radius.circular(RiderRadii.surface),
+          ),
+        ),
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Row(
+                children: [
+                  WorkspaceAvatar(widget.account.name, size: 40),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.account.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 15,
+                            color: RiderColors.ink,
+                          ),
+                        ),
+                        Text(
+                          widget.account.email,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: RiderColors.muted,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const Divider(height: 24, color: RiderColors.divider),
+              for (var index = 0; index < labels.length; index++)
+                ListTile(
+                  key: ValueKey('drawer-${labels[index].toLowerCase()}'),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(RiderRadii.control),
+                  ),
+                  selected: destination == index,
+                  selectedTileColor: RiderColors.controlFill,
+                  selectedColor: RiderColors.accentText,
+                  leading: Icon(
+                    destination == index ? activeIcons[index] : icons[index],
+                  ),
+                  title: Text(
+                    labels[index],
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    select(index);
+                  },
+                ),
+              if (!widget.preview) ...[
+                const Divider(height: 24, color: RiderColors.divider),
+                ListTile(
+                  key: const ValueKey('drawer-cash'),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(RiderRadii.control),
+                  ),
+                  leading: const Icon(Icons.payments_outlined),
+                  title: const Text(
+                    'COD Cash & Remittance',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    unawaited(openCash(context, controller));
+                  },
+                ),
+              ],
+            ],
+          ),
+        ),
+      );
+
   double _navigationItemWidth(BuildContext context) {
     final text = TextPainter(
       text: TextSpan(
@@ -475,7 +571,8 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
       final wide = MediaQuery.sizeOf(context).width >= 1200;
       final availableWidth = constraints.maxWidth - 16;
       final itemWidth = _navigationItemWidth(context);
-      final compactLabels = !vertical && availableWidth / labels.length < itemWidth;
+      final compactLabels =
+          !vertical && availableWidth / labels.length < itemWidth;
       final children = [
         for (var index = 0; index < labels.length; index++)
           Padding(

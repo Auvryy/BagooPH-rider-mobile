@@ -394,4 +394,78 @@ void main() {
     },
     variant: TargetPlatformVariant.only(TargetPlatform.linux),
   );
+
+  testWidgets(
+    'waybill scanner displays privacy banner, badge, and supports manual typing fallback',
+    (tester) async {
+      String? scannedResult;
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: buildRiderTheme(),
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () async {
+                  scannedResult = await Navigator.of(context).push<String>(
+                    MaterialPageRoute(
+                      builder: (_) => const WaybillScannerPage(
+                        expectedWaybill: 'BGO-WAYBILL-12345',
+                        orderReference: 'BGO-ORD-998877',
+                      ),
+                    ),
+                  );
+                },
+                child: const Text('Open scanner'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open scanner'));
+      await tester.pumpAndSettle();
+
+      // 1. Privacy banner
+      expect(
+        find.text(
+          'Camera Privacy: Video stream is analyzed on-device strictly for waybill barcode detection. No video is recorded or stored.',
+        ),
+        findsOneWidget,
+      );
+
+      // 2. Visual identifier hierarchy
+      expect(find.text('WAYBILL TO SCAN'), findsOneWidget);
+      expect(find.text('BGO-WAYBILL-12345'), findsOneWidget);
+      expect(find.text('BGO-ORD-998877'), findsOneWidget);
+
+      // 3. Manual typing fallback
+      final toggleFinder = find.byKey(const ValueKey('manual-waybill-toggle'));
+      expect(toggleFinder, findsOneWidget);
+      await tester.ensureVisible(toggleFinder);
+      await tester.pumpAndSettle();
+      await tester.tap(toggleFinder);
+      await tester.pumpAndSettle();
+
+      final inputFinder = find.byKey(const ValueKey('manual-waybill-input'));
+      final submitFinder = find.byKey(const ValueKey('manual-waybill-submit'));
+      expect(inputFinder, findsOneWidget);
+      expect(submitFinder, findsOneWidget);
+
+      // Mismatched entry
+      await tester.enterText(inputFinder, 'BGO-DIFFERENT-CODE');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('That waybill belongs to another parcel'),
+        findsOneWidget,
+      );
+      expect(scannedResult, isNull);
+
+      // Correct entry
+      await tester.enterText(inputFinder, 'BGO-WAYBILL-12345');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(scannedResult, 'BGO-WAYBILL-12345');
+    },
+    variant: TargetPlatformVariant.only(TargetPlatform.linux),
+  );
 }

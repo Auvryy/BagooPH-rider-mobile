@@ -16,22 +16,17 @@ void main() {
     (const Size(1200, 850), 1.0),
   ]) {
     dashboard.managedDashboardTest(
-      'light Leaflet sample remains usable at $size and ${scale}x text',
+      'light Leaflet standby remains usable at $size and ${scale}x text',
       (tester) async {
         tester.view.physicalSize = size;
         tester.view.devicePixelRatio = 1;
         final h = await dashboard.openDashboard(tester, textScale: scale);
-        expect(find.byType(LeafletDeliveryMap), findsNothing);
-        await dashboard.tapHome(
-          tester,
-          find.byKey(const ValueKey('home-sample-toggle')),
-        );
         expect(find.byType(LeafletDeliveryMap), findsOneWidget);
         expect(
-          find.text('Sample rider → Sample delivery point'),
+          find.text('Rider GPS standby'),
           findsOneWidget,
         );
-        expect(find.textContaining('Illustration only'), findsOneWidget);
+        expect(find.textContaining('Current rider GPS · Standby'), findsOneWidget);
         expect(find.text('Powered by Geoapify'), findsNothing);
         expect(find.byTooltip('Use dark map'), findsNothing);
         await dashboard.revealHome(
@@ -44,7 +39,7 @@ void main() {
     );
   }
   dashboard.managedDashboardTest(
-    'showing the sample does not request or retain rider GPS',
+    'standby map does not request or retain rider GPS',
     (tester) async {
       final source = TestMapLocation();
       addTearDown(source.close);
@@ -56,10 +51,7 @@ void main() {
         mapLocation: location,
         manual: false,
       );
-      await dashboard.tapHome(
-        tester,
-        find.byKey(const ValueKey('home-sample-toggle')),
-      );
+      expect(find.byType(LeafletDeliveryMap), findsOneWidget);
       expect(source.streams, isEmpty);
       expect(location.fix, isNull);
       expect(geo.calls, isEmpty);
@@ -68,7 +60,7 @@ void main() {
     },
   );
   dashboard.managedDashboardTest(
-    'backgrounding closes the native map and recreates only the public sample',
+    'backgrounding closes the native map and recreates standby map',
     (tester) async {
       final sessions = <FakeDeliveryMapSession>[];
       final h = await dashboard.openDashboard(
@@ -79,10 +71,7 @@ void main() {
           return session;
         },
       );
-      await dashboard.tapHome(
-        tester,
-        find.byKey(const ValueKey('home-sample-toggle')),
-      );
+      expect(find.byType(LeafletDeliveryMap), findsOneWidget);
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
       await tester.pumpAndSettle();
       expect(sessions.first.closes, 1);

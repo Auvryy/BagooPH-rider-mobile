@@ -22,6 +22,7 @@ class NotificationTarget {
         'account' => 'rider/me',
         'company_request' => 'rider/company-requests/$id',
         'company_assignment' => 'rider/company-assignment',
+        'handover_issue' => 'rider/handover-issues/$id',
         _ => null,
       };
       if (path == null || value['href'] != '/api/v1/$path') return null;

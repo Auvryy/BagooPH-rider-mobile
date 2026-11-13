@@ -43,9 +43,10 @@ final deliveryTilesProvider = Provider<TileProvider Function()>(
 // A native Flutter surface scales and clips with Device Preview. A GTK WebView
 // is a separate native overlay and cannot reliably share its simulated viewport.
 class NativeDeliveryMap extends ConsumerStatefulWidget {
-  const NativeDeliveryMap({super.key, this.stop, this.road});
+  const NativeDeliveryMap({super.key, this.stop, this.road, this.standby = false});
   final SavedDeliveryStop? stop;
   final RoadRoute? road;
+  final bool standby;
   @override
   ConsumerState<NativeDeliveryMap> createState() => _NativeDeliveryMapState();
 }
@@ -74,17 +75,17 @@ class _NativeDeliveryMapState extends ConsumerState<NativeDeliveryMap> {
       );
       return;
     }
-    if (widget.stop != null) {
-      _controller.move(points.first, 16);
+    if (!widget.standby && widget.stop == null && points.length > 1) {
+      _controller.fitCamera(
+        CameraFit.coordinates(
+          coordinates: points,
+          padding: const EdgeInsets.all(48),
+          maxZoom: 16,
+        ),
+      );
       return;
     }
-    _controller.fitCamera(
-      CameraFit.coordinates(
-        coordinates: points,
-        padding: const EdgeInsets.all(48),
-        maxZoom: 16,
-      ),
-    );
+    _controller.move(points.first, 16);
   }
 
   void _tileError() {
@@ -142,7 +143,7 @@ class _NativeDeliveryMapState extends ConsumerState<NativeDeliveryMap> {
                           mapController: _controller,
                           options: MapOptions(
                             initialCenter: points.first,
-                            initialZoom: widget.stop == null ? 13 : 16,
+                            initialZoom: 16,
                             initialCameraFit: widget.road != null
                                 ? CameraFit.coordinates(
                                     coordinates: widget.road!.lines
@@ -151,7 +152,7 @@ class _NativeDeliveryMapState extends ConsumerState<NativeDeliveryMap> {
                                     padding: const EdgeInsets.all(48),
                                     maxZoom: 16,
                                   )
-                                : widget.stop == null
+                                : (!widget.standby && widget.stop == null && points.length > 1)
                                 ? CameraFit.coordinates(
                                     coordinates: points,
                                     padding: const EdgeInsets.all(48),
@@ -183,14 +184,24 @@ class _NativeDeliveryMapState extends ConsumerState<NativeDeliveryMap> {
                               )(),
                               errorTileCallback: (_, _, _) => _tileError(),
                             ),
-                            if (widget.stop == null || widget.road != null)
+                            if (widget.road != null || (!widget.standby && widget.stop == null))
                               PolylineLayer(
                                 simplificationTolerance: 0,
                                 polylines: [
-                                  for (final line
-                                      in widget.road?.lines ?? [points])
+                                  if (widget.road != null)
+                                    for (final line in widget.road!.lines)
+                                      Polyline(
+                                        points: line,
+                                        strokeWidth: 5,
+                                        borderStrokeWidth: 2,
+                                        color: const Color(0xFFE00D42),
+                                        borderColor: Colors.white,
+                                        strokeCap: StrokeCap.round,
+                                        strokeJoin: StrokeJoin.round,
+                                      )
+                                  else
                                     Polyline(
-                                      points: line,
+                                      points: points,
                                       strokeWidth: 5,
                                       borderStrokeWidth: 2,
                                       color: const Color(0xFFE00D42),
@@ -212,20 +223,20 @@ class _NativeDeliveryMapState extends ConsumerState<NativeDeliveryMap> {
                                     child: _pin(
                                       widget.road != null
                                           ? 'Route start'
-                                          : 'Sample rider',
+                                          : 'Your location',
                                       const Color(0xFF18181B),
                                     ),
                                   ),
-                                Marker(
-                                  point: points.last,
-                                  width: 22,
-                                  height: 22,
-                                  child: _pin(
-                                    widget.stop?.label ??
-                                        'Sample delivery point',
-                                    const Color(0xFFE00D42),
+                                if (widget.stop != null || (!widget.standby && points.length > 1))
+                                  Marker(
+                                    point: points.last,
+                                    width: 22,
+                                    height: 22,
+                                    child: _pin(
+                                      widget.stop?.label ?? 'Delivery destination',
+                                      const Color(0xFFE00D42),
+                                    ),
                                   ),
-                                ),
                               ],
                             ),
                           ],
@@ -270,7 +281,9 @@ class _NativeDeliveryMapState extends ConsumerState<NativeDeliveryMap> {
                                   icon: const Icon(Icons.remove),
                                 ),
                                 IconButton(
-                                  tooltip: widget.stop == null
+                                  tooltip: widget.standby
+                                      ? 'Recenter your location'
+                                      : widget.stop == null
                                       ? 'Show sample route'
                                       : 'Recenter current stop',
                                   onPressed: !_ready

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
@@ -9,9 +10,11 @@ import '../../auth/data/account.dart';
 import '../../cash/presentation/cash_page.dart';
 import '../../cash/presentation/financial_summary.dart';
 import '../../handover/presentation/handover_entry.dart';
+import '../../navigation/data/route_geometry.dart';
 import '../../navigation/presentation/leaflet_delivery_map.dart';
 import '../../navigation/data/saved_delivery_stop.dart';
 import '../../navigation/presentation/navigation_providers.dart';
+import '../../navigation/presentation/rider_map_page.dart';
 import '../../notifications/presentation/notifications_entry.dart';
 import '../../workspace/data/workspace_models.dart';
 import '../../workspace/presentation/workspace_controller.dart';
@@ -40,7 +43,6 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
   final _searchVisible = ValueNotifier(false);
   final _searchFocus = FocusNode();
   bool _foreground = true;
-  bool _sampleExpanded = false;
   @override
   void initState() {
     super.initState();
@@ -67,7 +69,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
     controller: widget.controller,
     asSliver: sliver,
     scrollController: sliver ? _scroll : null,
-    selectedFooter: widget.controller.selectedTask == null ? null : _map(),
+    selectedFooter: null,
     header: header,
     searchVisibility: _searchVisible,
     searchFocusNode: _searchFocus,
@@ -82,6 +84,8 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
   Widget _map() {
     final task = widget.controller.selectedTask;
     final stop = SavedDeliveryStop.fromTask(task);
+    final nav = ref.watch(navigationProvider);
+    final isStandby = task == null;
     return RiderSurface(
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -90,20 +94,33 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
           Row(
             children: [
               Icon(
-                stop == null ? Icons.map_outlined : Icons.location_on_outlined,
+                isStandby ? Icons.navigation_rounded : stopKindIcon(task.stop.kind),
                 size: 18,
                 color: RiderColors.accentText,
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  task == null
-                      ? 'Map illustration'
+                  isStandby
+                      ? 'Rider GPS standby'
                       : task.preview
                       ? 'Pickup preview'
                       : 'Current stop',
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
+              ),
+              TextButton.icon(
+                key: const ValueKey('open-live-map-card'),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => RiderMapPage(
+                      initialTask: task,
+                      accountId: widget.account.id,
+                    ),
+                  ),
+                ),
+                icon: const Icon(Icons.fullscreen_rounded, size: 16),
+                label: const Text('Live Map', style: TextStyle(fontSize: 12)),
               ),
             ],
           ),
@@ -125,60 +142,56 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
           if (stop != null) ...[
             const SizedBox(height: 12),
             _mapAreaDisclosure(),
-            SizedBox(height: 280, child: _mapView(stop: stop)),
+            SizedBox(height: 160, child: _mapView(stop: stop, road: nav.road)),
             const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    nav.road != null
+                        ? 'Road route calculated along mapped streets.'
+                        : 'On-refresh route calculation. Tap refresh to recalculate.',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      height: 1.4,
+                      color: RiderColors.muted,
+                    ),
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () => nav.refreshRoute(force: true),
+                  icon: const Icon(Icons.refresh_rounded, size: 14),
+                  label: const Text('Refresh', style: TextStyle(fontSize: 11)),
+                ),
+              ],
+            ),
+          ] else if (isStandby) ...[
+            const SizedBox(height: 10),
+            _mapAreaDisclosure(),
+            SizedBox(height: 160, child: _mapView(standby: true)),
+            const SizedBox(height: 8),
             const Text(
-              'Saved parcel location. This is not live rider tracking or a calculated road route.',
+              'Current rider GPS · Standby (No active orders to deliver)',
               style: TextStyle(
                 fontSize: 11,
                 height: 1.4,
                 color: RiderColors.muted,
+                fontWeight: FontWeight.w500,
               ),
             ),
-          ] else ...[
-            const SizedBox(height: 6),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton.icon(
-                key: const ValueKey('home-sample-toggle'),
-                onPressed: () =>
-                    setState(() => _sampleExpanded = !_sampleExpanded),
-                icon: Icon(
-                  _sampleExpanded
-                      ? Icons.expand_less_rounded
-                      : Icons.expand_more_rounded,
-                ),
-                label: Text(
-                  _sampleExpanded ? 'Hide sample map' : 'Show sample map',
-                ),
-              ),
-            ),
-            if (_sampleExpanded) ...[
-              _mapAreaDisclosure(),
-              SizedBox(height: 280, child: _mapView()),
-              const SizedBox(height: 10),
-              const Text(
-                'Sample rider → Sample delivery point',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                'Illustration only. This is not a live rider or an assigned parcel.',
-                style: TextStyle(
-                  fontSize: 11,
-                  height: 1.4,
-                  color: RiderColors.muted,
-                ),
-              ),
-            ],
           ],
         ],
       ),
     );
   }
 
-  Widget _mapView({SavedDeliveryStop? stop}) => _foreground
-      ? LeafletDeliveryMap(key: const ValueKey('home-leaflet-map'), stop: stop)
+  Widget _mapView({SavedDeliveryStop? stop, RoadRoute? road, bool standby = false}) => _foreground
+      ? LeafletDeliveryMap(
+          key: const ValueKey('home-leaflet-map'),
+          stop: stop,
+          road: road,
+          standby: standby,
+        )
       : const Center(child: Text('Map paused while the app is hidden.'));
   Widget _mapAreaDisclosure() => const Padding(
     padding: EdgeInsets.only(bottom: 8),
@@ -279,11 +292,9 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
+                                _map(),
+                                const SizedBox(height: 16),
                                 _assignment(),
-                                if (widget.controller.selectedTask == null) ...[
-                                  const SizedBox(height: 16),
-                                  _map(),
-                                ],
                               ],
                             ),
                           ),
@@ -298,22 +309,22 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
           return CustomScrollView(
             key: const ValueKey('home-page-scroll'),
             controller: _scroll,
+            scrollCacheExtent: const ScrollCacheExtent.viewport(2.0),
             slivers: [
               SliverToBoxAdapter(child: header),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                  child: _map(),
+                ),
+              ),
               _tasks(sliver: true),
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
                   child: _assignment(),
                 ),
               ),
-              if (widget.controller.selectedTask == null)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                    child: _map(),
-                  ),
-                ),
             ],
           );
         },

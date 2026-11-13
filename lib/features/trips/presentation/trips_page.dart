@@ -6,6 +6,7 @@ import '../../../app/theme.dart';
 import '../../../core/platform/rider_website.dart';
 import '../../../core/ui/rider_surfaces.dart';
 import '../../auth/presentation/auth_controller.dart';
+import '../../cash/presentation/financial_summary.dart';
 import '../../home/data/operations_models.dart';
 import '../../workspace/data/workspace_models.dart';
 import '../../workspace/presentation/workspace_controller.dart';
@@ -159,6 +160,17 @@ class _TripsPageState extends State<TripsPage> {
                       ),
                     ],
                   ),
+                  if (c.cash.page case final cashPage?) ...[
+                    const SizedBox(height: 16),
+                    RiderEarningsSummary(
+                      earnings: cashPage.earnings,
+                      title: 'Your earnings',
+                    ),
+                    if (cashPage.shift case final shift?) ...[
+                      const SizedBox(height: 12),
+                      RiderShiftSummaryPanel(shift: shift),
+                    ],
+                  ],
                   const SizedBox(height: 24),
                   TextField(
                     key: const ValueKey('trip-search'),

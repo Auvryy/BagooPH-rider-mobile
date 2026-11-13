@@ -39,7 +39,8 @@ class NavigationController extends ChangeNotifier {
       starting = false,
       following = true,
       calculating = false,
-      paused = false;
+      paused = false,
+      prioritizeHighways = true;
   String? message;
   String? pausedTaskId;
   bool revalidating = false;
@@ -235,7 +236,7 @@ class NavigationController extends ChangeNotifier {
     }
   }
 
-  Future<void> refreshRoute() async {
+  Future<void> refreshRoute({bool force = false}) async {
     if (_disposed ||
         !active ||
         calculating ||
@@ -251,7 +252,8 @@ class NavigationController extends ChangeNotifier {
       _changed();
       return;
     }
-    if (_lastRouteAt != null &&
+    if (!force &&
+        _lastRouteAt != null &&
         now().difference(_lastRouteAt!) < const Duration(seconds: 30)) {
       message = 'Route refresh is available after the 30-second cooldown.';
       _changed();
@@ -278,7 +280,13 @@ class NavigationController extends ChangeNotifier {
     }
     _changed();
     try {
-      final result = await routes.route(routeOrigin, target!, profile!, cancel);
+      final result = await routes.route(
+        routeOrigin,
+        target!,
+        profile!,
+        cancel,
+        prioritizeHighways: prioritizeHighways,
+      );
       if (_disposed || generation != _generation || cancel.isCancelled) return;
       final latest = fix;
       if (latest == null ||
@@ -317,6 +325,15 @@ class NavigationController extends ChangeNotifier {
   void recenter() {
     following = true;
     _changed();
+  }
+
+  void setPrioritizeHighways(bool value) {
+    if (prioritizeHighways == value) return;
+    prioritizeHighways = value;
+    _changed();
+    if (active && fix != null) {
+      unawaited(refreshRoute(force: true));
+    }
   }
 
   void stopIfTaskChanged(OperationTask fresh) {

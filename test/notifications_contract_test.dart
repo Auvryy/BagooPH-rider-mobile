@@ -78,6 +78,14 @@ void main() {
       })?.id,
       '5',
     );
+    expect(
+      NotificationTarget.parse({
+        'kind': 'handover_issue',
+        'id': '12',
+        'href': '/api/v1/rider/handover-issues/12',
+      })?.path,
+      'rider/handover-issues/12',
+    );
     for (final href in [
       '/api/v1/rider/company-requests/1?token=secret',
       '/api/v1/rider/company-requests/2',

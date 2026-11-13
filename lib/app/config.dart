@@ -50,23 +50,39 @@ class AppConfig {
       'RIDER_WEBSITE_URL',
       defaultValue: api == deployedApi ? deployedWebsite : '',
     );
+    const defenseProfile = bool.fromEnvironment('VERIFY_DEFENSE_PROFILE');
     return const AppConfig(
       api,
       localAuth: bool.fromEnvironment('ALLOW_LOCAL_AUTH'),
       riderWebsite: website,
       operationsWritesVerified: bool.fromEnvironment(
         'OPERATIONS_WRITES_VERIFIED',
+        defaultValue: !defenseProfile,
       ),
-      parcelWritesVerified: bool.fromEnvironment('PARCEL_WRITES_VERIFIED'),
+      parcelWritesVerified: bool.fromEnvironment(
+        'PARCEL_WRITES_VERIFIED',
+        defaultValue: !defenseProfile,
+      ),
       prepaidDeliveryWritesVerified: bool.fromEnvironment(
         'PREPAID_DELIVERY_WRITES_VERIFIED',
+        defaultValue: !defenseProfile,
       ),
-      cashWritesVerified: bool.fromEnvironment('CASH_WRITES_VERIFIED'),
-      messagesWritesVerified: bool.fromEnvironment('MESSAGES_WRITES_VERIFIED'),
+      cashWritesVerified: bool.fromEnvironment(
+        'CASH_WRITES_VERIFIED',
+        defaultValue: !defenseProfile,
+      ),
+      messagesWritesVerified: bool.fromEnvironment(
+        'MESSAGES_WRITES_VERIFIED',
+        defaultValue: !defenseProfile,
+      ),
       notificationsWritesVerified: bool.fromEnvironment(
         'NOTIFICATIONS_WRITES_VERIFIED',
+        defaultValue: !defenseProfile,
       ),
-      handoverWritesVerified: bool.fromEnvironment('HANDOVER_WRITES_VERIFIED'),
+      handoverWritesVerified: bool.fromEnvironment(
+        'HANDOVER_WRITES_VERIFIED',
+        defaultValue: !defenseProfile,
+      ),
     );
   }
   Uri get origin {

@@ -16,8 +16,9 @@ abstract interface class RoadRoutingClient {
     LatLng origin,
     LatLng target,
     NavigationProfile profile,
-    CancelToken cancel,
-  );
+    CancelToken cancel, {
+    bool prioritizeHighways = true,
+  });
 }
 
 /// The current map illustrates a sample delivery; it does not calculate roads.
@@ -29,8 +30,9 @@ class UnavailableRoadRouting implements RoadRoutingClient {
     LatLng origin,
     LatLng target,
     NavigationProfile profile,
-    CancelToken cancel,
-  ) async {
+    CancelToken cancel, {
+    bool prioritizeHighways = true,
+  }) async {
     throw const ProviderFailure(
       'In-app road directions are unavailable. Use external directions for your current stop.',
     );

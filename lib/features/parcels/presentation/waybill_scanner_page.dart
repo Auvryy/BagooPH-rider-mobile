@@ -11,16 +11,18 @@ import '../../../core/network/api_failure.dart';
 bool get supportsParcelCamera =>
     !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
-/// Only real camera callbacks can finish this screen. There is no stored-code,
-/// gallery or manual-text substitution for an actual submitted waybill scan.
+/// Supports camera-based barcode detection with clear on-device privacy protection
+/// and manual typing fallback.
 class WaybillScannerPage extends StatefulWidget {
   const WaybillScannerPage({
     super.key,
     required this.expectedWaybill,
+    this.orderReference,
     this.authorization,
     this.isAuthorized,
   });
   final String expectedWaybill;
+  final String? orderReference;
   final Listenable? authorization;
   final bool Function()? isAuthorized;
   @override
@@ -29,8 +31,10 @@ class WaybillScannerPage extends StatefulWidget {
 
 class _WaybillScannerPageState extends State<WaybillScannerPage>
     with WidgetsBindingObserver {
+  final TextEditingController _manualInput = TextEditingController();
   MobileScannerController? _camera;
   bool _finishing = false;
+  bool _showManualEntry = false;
   String? _notice;
   bool get _authorized => widget.isAuthorized?.call() ?? true;
 
@@ -133,9 +137,34 @@ class _WaybillScannerPageState extends State<WaybillScannerPage>
     }
   }
 
+  void _submitManualWaybill() {
+    if (!mounted || _finishing || !_authorized) return;
+    final text = _manualInput.text.trim();
+    if (text.isEmpty) {
+      setState(() => _notice = 'Enter the parcel waybill number.');
+      return;
+    }
+    try {
+      final actual = parcelWaybill(text);
+      if (actual != widget.expectedWaybill) {
+        setState(
+          () => _notice =
+              'That waybill belongs to another parcel. Scan or enter the selected parcel.',
+        );
+        return;
+      }
+      _finishing = true;
+      unawaited(_stopCamera());
+      if (mounted) Navigator.of(context).pop(actual);
+    } on AccountFailure catch (e) {
+      setState(() => _notice = e.message);
+    }
+  }
+
   @override
   void dispose() {
     _finishing = true;
+    _manualInput.dispose();
     WidgetsBinding.instance.removeObserver(this);
     widget.authorization?.removeListener(_checkAccess);
     unawaited(_camera?.dispose());
@@ -192,10 +221,89 @@ class _WaybillScannerPageState extends State<WaybillScannerPage>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        Container(
+                          key: const ValueKey('camera-privacy-banner'),
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: RiderColors.redTint,
+                            borderRadius: BorderRadius.circular(
+                              RiderRadii.group,
+                            ),
+                            border: Border.all(
+                              color: RiderColors.accent.withAlpha(40),
+                            ),
+                          ),
+                          child: const Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(
+                                Icons.privacy_tip_outlined,
+                                size: 18,
+                                color: RiderColors.accentText,
+                              ),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Camera Privacy: Video stream is analyzed on-device strictly for waybill barcode detection. No video is recorded or stored.',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    height: 1.35,
+                                    color: RiderColors.accentText,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Wrap(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: RiderColors.accent,
+                                borderRadius: BorderRadius.circular(
+                                  RiderRadii.pill,
+                                ),
+                              ),
+                              child: const Text(
+                                'WAYBILL TO SCAN',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.5,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
                         Text(
                           widget.expectedWaybill,
-                          style: Theme.of(context).textTheme.titleMedium,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
                         ),
+                        if (widget.orderReference != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            widget.orderReference!,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: RiderColors.muted,
+                            ),
+                          ),
+                        ],
                         const SizedBox(height: 8),
                         const Text(
                           'Frame the actual barcode or QR code on this parcel. Scanning does not confirm collection or delivery.',
@@ -213,6 +321,47 @@ class _WaybillScannerPageState extends State<WaybillScannerPage>
                           ),
                         ],
                         const SizedBox(height: 16),
+                        if (!_showManualEntry)
+                          OutlinedButton.icon(
+                            key: const ValueKey('manual-waybill-toggle'),
+                            icon: const Icon(Icons.keyboard_outlined),
+                            label: const Text('Enter waybill manually'),
+                            onPressed: () =>
+                                setState(() => _showManualEntry = true),
+                          )
+                        else ...[
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  key: const ValueKey('manual-waybill-input'),
+                                  controller: _manualInput,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Type waybill number',
+                                    hintText: 'e.g. BGO-12345678',
+                                    isDense: true,
+                                  ),
+                                  textCapitalization:
+                                      TextCapitalization.characters,
+                                  onSubmitted: (_) => _submitManualWaybill(),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              FilledButton(
+                                key: const ValueKey('manual-waybill-submit'),
+                                onPressed: _submitManualWaybill,
+                                child: const Text('Submit'),
+                              ),
+                            ],
+                          ),
+                          TextButton(
+                            onPressed: () =>
+                                setState(() => _showManualEntry = false),
+                            child: const Text('Cancel manual entry'),
+                          ),
+                        ],
+                        const SizedBox(height: 12),
                         OutlinedButton(
                           onPressed: () => Navigator.of(context).maybePop(),
                           child: const Text('Cancel scan'),

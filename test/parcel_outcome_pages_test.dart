@@ -173,16 +173,23 @@ Future<void> _deliveryFields(
   WidgetTester tester,
   _Outcome h, {
   bool cash = true,
+  bool representative = false,
 }) async {
   await _enter(tester, 'parcel-recipient', 'Software Test Recipient');
   FocusManager.instance.primaryFocus?.unfocus();
   await tester.pumpAndSettle();
-  await _tap(
-    tester,
-    find.byKey(ValueKey('parcel-relationship-${h.domain.task.version}')),
-  );
-  await tester.tap(find.text('Buyer').last);
-  await tester.pumpAndSettle();
+  if (representative) {
+    await _tap(
+      tester,
+      find.byKey(const ValueKey('parcel-representative-checkbox')),
+    );
+    await _tap(
+      tester,
+      find.byKey(ValueKey('parcel-relationship-${h.domain.task.version}')),
+    );
+    await tester.tap(find.text('Authorized recipient').last);
+    await tester.pumpAndSettle();
+  }
   if (!cash) return;
   await _enter(tester, 'parcel-cash-received', '200.00');
   await _enter(tester, 'parcel-change-given', '75.00');
@@ -485,6 +492,38 @@ void main() {
       expect(
         h.work.selectedTask?.nextInstruction,
         contains('handler records receipt'),
+      );
+      await tester.pumpWidget(const SizedBox.shrink());
+      h.dispose();
+    },
+  );
+  testWidgets(
+    'POD streamlines recipient relationship with representative checkbox and pre-populated buyer name',
+    (tester) async {
+      final h = _Outcome(ParcelAction.deliver);
+      addTearDown(h.dispose);
+      await _mount(tester, h);
+      final recipientField = tester.widget<TextFormField>(
+        find.byKey(const ValueKey('parcel-recipient')),
+      );
+      expect(recipientField.controller!.text, h.domain.task.stop.name);
+      expect(
+        find.byKey(ValueKey('parcel-relationship-${h.domain.task.version}')),
+        findsNothing,
+      );
+      final repFinder = find.byKey(
+        const ValueKey('parcel-representative-checkbox'),
+      );
+      expect(repFinder, findsOneWidget);
+      await _tap(tester, repFinder);
+      expect(
+        find.byKey(ValueKey('parcel-relationship-${h.domain.task.version}')),
+        findsOneWidget,
+      );
+      await _tap(tester, repFinder);
+      expect(
+        find.byKey(ValueKey('parcel-relationship-${h.domain.task.version}')),
+        findsNothing,
       );
       await tester.pumpWidget(const SizedBox.shrink());
       h.dispose();

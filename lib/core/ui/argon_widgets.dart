@@ -1,6 +1,3 @@
-import 'dart:math' as math;
-import 'dart:ui' show ImageFilter;
-
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
@@ -109,20 +106,9 @@ class DieCutStickerWidget extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
+          SizedBox(
             width: 24,
             height: 24,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withValues(alpha: 0.55),
-                  Colors.white.withValues(alpha: 0.0),
-                ],
-              ),
-            ),
             child: Icon(icon, size: 18, color: iconColor),
           ),
           if (badgeText != null) ...[
@@ -159,51 +145,35 @@ class DieCutStickerWidget extends StatelessWidget {
     final decorated = DecoratedBox(
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(color: Colors.white, width: borderWidth),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x12111827),
-            blurRadius: 16,
-            spreadRadius: -2,
-            offset: Offset(0, 4),
-          ),
-          BoxShadow(
-            color: Color(0x08111827),
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(RiderRadii.control),
+        border: Border.all(
+          color: backgroundColor == RiderColors.accent
+              ? RiderColors.accentPressed
+              : RiderColors.border,
+        ),
+        boxShadow: RiderShadows.ambient,
       ),
       child: Padding(padding: padding, child: child),
     );
 
-    final body = rotationDegrees == 0
-        ? decorated
-        : Transform.rotate(
-            angle: rotationDegrees * (math.pi / 180.0),
-            child: decorated,
-          );
-    if (semanticLabel == null) return ExcludeSemantics(child: body);
+    if (semanticLabel == null) return ExcludeSemantics(child: decorated);
     return Semantics(
       label: semanticLabel,
-      child: ExcludeSemantics(child: body),
+      child: ExcludeSemantics(child: decorated),
     );
   }
 }
 
-/// Circular Liquid Glass Orb (`72x72` default) with `ClipOval` + `BackdropFilter`
-/// (blur `16.0`), translucent white fill (`0.75`), `1.5px` iridescent gradient border,
-/// soft outer glow, and courier dispatch iconography.
+/// Clean flat courier icon badge replacing the historical liquid glass orb.
 class LiquidGlassOrb extends StatelessWidget {
   const LiquidGlassOrb({
     super.key,
-    this.size = 72,
-    this.blurSigma = 16.0,
+    this.size = 44,
+    this.blurSigma = 0.0,
     this.onTap,
     this.rippleProgress = 0,
     this.child,
-    this.semanticLabel = 'Bagoo Argon pulse orb',
+    this.semanticLabel = 'Bagoo Rider badge',
   });
 
   final double size;
@@ -215,100 +185,28 @@ class LiquidGlassOrb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final reduced = RiderMotion.reduced(context);
-    final orb = SizedBox(
+    final badge = Container(
       width: size,
       height: size,
-      child: Stack(
-        alignment: Alignment.center,
-        clipBehavior: Clip.none,
-        children: [
-          if (rippleProgress > 0 && !reduced)
-            Positioned(
-              left: -size * 0.28 * rippleProgress,
-              right: -size * 0.28 * rippleProgress,
-              top: -size * 0.28 * rippleProgress,
-              bottom: -size * 0.28 * rippleProgress,
-              child: IgnorePointer(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: RiderColors.accent.withValues(
-                        alpha: (1 - rippleProgress).clamp(0.0, 0.55),
-                      ),
-                      width: 2.0,
-                    ),
-                  ),
-                ),
-              ),
+      decoration: BoxDecoration(
+        color: RiderColors.surface,
+        borderRadius: BorderRadius.circular(RiderRadii.control),
+        border: Border.all(color: RiderColors.border),
+        boxShadow: RiderShadows.ambient,
+      ),
+      child: Center(
+        child:
+            child ??
+            Icon(
+              Icons.two_wheeler_rounded,
+              size: size * 0.44,
+              color: RiderColors.accent,
             ),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: RiderColors.accent.withValues(alpha: 0.20),
-                  blurRadius: 24,
-                  spreadRadius: 2,
-                  offset: const Offset(-4, 8),
-                ),
-                BoxShadow(
-                  color: const Color(0xFF06B6D4).withValues(alpha: 0.18),
-                  blurRadius: 22,
-                  spreadRadius: 1,
-                  offset: const Offset(6, -4),
-                ),
-                const BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 14,
-                  offset: Offset(0, 6),
-                ),
-              ],
-            ),
-            child: ClipOval(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-                child: CustomPaint(
-                  size: Size.square(size),
-                  foregroundPainter: _IridescentOrbBorderPainter(
-                    strokeWidth: 1.5,
-                  ),
-                  child: Container(
-                    width: size,
-                    height: size,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.75),
-                      gradient: RadialGradient(
-                        center: const Alignment(-0.35, -0.45),
-                        radius: 1.1,
-                        colors: [
-                          Colors.white.withValues(alpha: 0.95),
-                          Colors.white.withValues(alpha: 0.75),
-                          const Color(0xFFFFF0F4).withValues(alpha: 0.72),
-                        ],
-                      ),
-                    ),
-                    child: Center(
-                      child: child ??
-                          Icon(
-                            Icons.two_wheeler_rounded,
-                            size: size * 0.44,
-                            color: RiderColors.accent,
-                          ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
 
     if (onTap == null) {
-      return Semantics(label: semanticLabel, child: orb);
+      return Semantics(label: semanticLabel, child: badge);
     }
     return Semantics(
       button: true,
@@ -316,62 +214,11 @@ class LiquidGlassOrb extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: orb,
+        child: badge,
       ),
     );
   }
 }
-
-class _IridescentOrbBorderPainter extends CustomPainter {
-  const _IridescentOrbBorderPainter({this.strokeWidth = 1.5});
-  final double strokeWidth;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    final inset = strokeWidth / 2;
-    final oval = rect.deflate(inset);
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..shader = const SweepGradient(
-        colors: [
-          RiderColors.accent,
-          Color(0x33E00D42),
-          Color(0xFFFFFFFF),
-          Color(0x33E00D42),
-          RiderColors.accent,
-        ],
-      ).createShader(rect);
-    canvas.drawOval(oval, paint);
-
-    // Top-left liquid glass specular arc
-    final specular = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2
-      ..shader = LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Colors.white.withValues(alpha: 0.95),
-          Colors.white.withValues(alpha: 0.0),
-        ],
-      ).createShader(rect);
-    canvas.drawArc(
-      oval.deflate(1.5),
-      -math.pi * 0.85,
-      math.pi * 0.65,
-      false,
-      specular,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _IridescentOrbBorderPainter oldDelegate) =>
-      oldDelegate.strokeWidth != strokeWidth;
-}
-
-
 
 /// Editorial Typography Core (`Zone B`) with animated `2px` horizontal strikethrough
 /// (`CustomPainter`) across the struck word and a spring-pop reveal of the replacement word.
@@ -505,16 +352,8 @@ class ArgonPillButton extends StatelessWidget {
     final pill = RiderPressFeedback(
       child: DecoratedBox(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(999),
-          boxShadow: onPressed == null
-              ? const []
-              : [
-                  BoxShadow(
-                    color: backgroundColor.withValues(alpha: 0.28),
-                    blurRadius: 18,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
+          borderRadius: BorderRadius.circular(RiderRadii.control),
+          boxShadow: onPressed == null ? const [] : RiderShadows.ambient,
         ),
         child: FilledButton(
           onPressed: onPressed,
@@ -523,33 +362,32 @@ class ArgonPillButton extends StatelessWidget {
             backgroundColor: backgroundColor,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-            shape: const StadiumBorder(),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(RiderRadii.control),
+            ),
           ),
-          child: CustomPaint(
-            foregroundPainter: const _TopInnerHighlightPainter(),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: Text(
-                    label,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontFamily: RiderTypography.family,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                      letterSpacing: -0.2,
-                    ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontFamily: RiderTypography.family,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                    letterSpacing: -0.2,
                   ),
                 ),
-                if (icon != null) ...[
-                  const SizedBox(width: 8),
-                  Icon(icon, size: 19, color: Colors.white),
-                ],
+              ),
+              if (icon != null) ...[
+                const SizedBox(width: 8),
+                Icon(icon, size: 19, color: Colors.white),
               ],
-            ),
+            ],
           ),
         ),
       ),
@@ -557,26 +395,6 @@ class ArgonPillButton extends StatelessWidget {
     if (widthFactor == null) return pill;
     return FractionallySizedBox(widthFactor: widthFactor, child: pill);
   }
-}
-
-class _TopInnerHighlightPainter extends CustomPainter {
-  const _TopInnerHighlightPainter();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white24
-      ..strokeWidth = 1.2
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-    final y = -8.0;
-    if (size.width > 16) {
-      canvas.drawLine(Offset(8, y), Offset(size.width - 8, y), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 /// Compact Argon aesthetic banner with a floating `LiquidGlassOrb` and

@@ -238,31 +238,129 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                     );
                   }
 
-                  return stack
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            for (final queue in TaskQueue.values)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: choice(queue),
-                              ),
-                          ],
-                        )
-                      : Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            for (final queue in TaskQueue.values)
-                              Expanded(
-                                child: Padding(
-                                  padding: EdgeInsets.only(
-                                    right: queue == TaskQueue.delivery ? 0 : 8,
+                  final primaryQueues = const [
+                    TaskQueue.available,
+                    TaskQueue.delivery,
+                  ];
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      stack
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                for (final queue in primaryQueues)
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: choice(queue),
                                   ),
-                                  child: choice(queue),
-                                ),
+                              ],
+                            )
+                          : Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                for (final queue in primaryQueues)
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(
+                                        right: queue == TaskQueue.delivery ? 0 : 8,
+                                      ),
+                                      child: choice(queue),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                      const SizedBox(height: 8),
+                      RiderSurface(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        child: stack
+                            ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.inventory_2_outlined,
+                                        size: 16,
+                                        color: RiderColors.muted,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'Carrying ${controller.homeData.data?.counts['pickup'] ?? 0} pickups · Managed in Trips',
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            color: RiderColors.muted,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: TextButton(
+                                      key: const ValueKey('task-queue-pickups'),
+                                      onPressed: () {
+                                        controller.selectQueue(TaskQueue.pickups);
+                                        _search.clear();
+                                        if (_scroll.hasClients) _scroll.jumpTo(0);
+                                        widget.onQueueChanged?.call(TaskQueue.pickups);
+                                      },
+                                      style: TextButton.styleFrom(
+                                        minimumSize: const Size(64, 52),
+                                      ),
+                                      child: const Text(
+                                        'View Pickups',
+                                        style: TextStyle(fontSize: 12),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Row(
+                                children: [
+                                  const Icon(
+                                    Icons.inventory_2_outlined,
+                                    size: 16,
+                                    color: RiderColors.muted,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'Carrying ${controller.homeData.data?.counts['pickup'] ?? 0} pickups · Managed in Trips',
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: RiderColors.muted,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  TextButton(
+                                    key: const ValueKey('task-queue-pickups'),
+                                    onPressed: () {
+                                      controller.selectQueue(TaskQueue.pickups);
+                                      _search.clear();
+                                      if (_scroll.hasClients) _scroll.jumpTo(0);
+                                      widget.onQueueChanged?.call(TaskQueue.pickups);
+                                    },
+                                    style: TextButton.styleFrom(
+                                      minimumSize: const Size(64, 52),
+                                    ),
+                                    child: const Text(
+                                      'View Pickups',
+                                      style: TextStyle(fontSize: 12),
+                                    ),
+                                  ),
+                                ],
                               ),
-                          ],
-                        );
+                      ),
+                    ],
+                  );
                 },
               ),
               const SizedBox(height: 14),
@@ -511,10 +609,46 @@ class _SelectedStop extends StatelessWidget {
             ),
           ],
         ),
+        Wrap(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 3,
+              ),
+              decoration: BoxDecoration(
+                color: RiderColors.accent,
+                borderRadius: BorderRadius.circular(RiderRadii.pill),
+              ),
+              child: const Text(
+                'WAYBILL TO SCAN',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.5,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
         SelectableText(
           task.tracking,
           key: const ValueKey('home-selected-reference'),
-          style: Theme.of(context).textTheme.titleSmall,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
+          ),
+        ),
+        const SizedBox(height: 4),
+        SelectableText(
+          task.order,
+          style: const TextStyle(
+            fontSize: 13,
+            color: RiderColors.muted,
+          ),
         ),
         const SizedBox(height: 6),
         Wrap(

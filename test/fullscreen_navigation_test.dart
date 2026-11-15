@@ -8,12 +8,15 @@ import 'package:bagoo_rider_mobile/features/navigation/data/route_geometry.dart'
 import 'package:bagoo_rider_mobile/features/navigation/data/saved_delivery_stop.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/fullscreen_navigation_page.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/leaflet_delivery_map.dart';
+import 'package:bagoo_rider_mobile/features/navigation/presentation/native_delivery_map.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/navigation_controller.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
+
+import 'native_delivery_map_test.dart' show MemoryTiles;
 
 OperationTask _task({String kind = 'buyer', String name = 'Test Buyer Destination'}) {
   final j =
@@ -96,6 +99,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          deliveryTilesProvider.overrideWithValue(MemoryTiles.new),
           deliveryMapFactoryProvider.overrideWithValue(FakeDeliveryMapSession.new),
         ],
         child: MaterialApp(
@@ -161,6 +165,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          deliveryTilesProvider.overrideWithValue(MemoryTiles.new),
           deliveryMapFactoryProvider.overrideWithValue(FakeDeliveryMapSession.new),
         ],
         child: MaterialApp(

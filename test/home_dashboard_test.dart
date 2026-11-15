@@ -28,6 +28,18 @@ import 'operations_contract_test.dart' as support;
 import 'support/delivery_map.dart';
 
 import 'package:bagoo_rider_mobile/features/navigation/presentation/leaflet_delivery_map.dart';
+import 'package:bagoo_rider_mobile/features/navigation/presentation/native_delivery_map.dart';
+
+class _TestMapTiles extends TileProvider {
+  int closes = 0;
+  @override
+  ImageProvider getImage(TileCoordinates coordinates, TileLayer options) =>
+      MemoryImage(TileProvider.transparentImage);
+  @override
+  void dispose() {
+    closes++;
+  }
+}
 
 class MemoryTiles extends GeoapifyClient {
   MemoryTiles() : super('synthetic-map-key');
@@ -98,7 +110,7 @@ void main() {
         find.textContaining('Current rider GPS · Standby (No active orders to deliver)'),
         findsOneWidget,
       );
-      expect(find.byType(FlutterMap), findsNothing);
+      expect(find.byType(FlutterMap), findsOneWidget);
       expect(geo.calls, isEmpty);
       expect(h.navigation.active, isFalse);
       expect(h.api.calls.every((call) => call.method == 'GET'), isTrue);
@@ -323,6 +335,7 @@ openDashboard(
         deliveryMapDocumentProvider.overrideWithValue(
           () async => '<title>Sample delivery route</title><script>window.riderDeliverySample={};</script>',
         ),
+        deliveryTilesProvider.overrideWithValue(_TestMapTiles.new),
         roadRoutingProvider.overrideWithValue(geo),
         navigationProvider.overrideWithValue(nav),
         if (mapLocation != null)

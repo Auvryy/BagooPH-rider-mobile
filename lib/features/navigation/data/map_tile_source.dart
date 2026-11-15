@@ -1,7 +1,8 @@
 enum MapTileStyle {
   dark('dark-matter-dark-grey'),
   positron('positron'),
-  bright('osm-bright-smooth');
+  bright('osm-bright-smooth'),
+  carto('osm-carto');
 
   const MapTileStyle(this.providerId);
   final String providerId;

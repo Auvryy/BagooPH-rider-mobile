@@ -5,15 +5,21 @@ import 'package:bagoo_rider_mobile/app/theme.dart';
 import 'package:bagoo_rider_mobile/features/home/data/operations_models.dart';
 import 'package:bagoo_rider_mobile/features/navigation/data/geoapify_client.dart';
 import 'package:bagoo_rider_mobile/features/navigation/data/route_geometry.dart';
+import 'package:bagoo_rider_mobile/features/navigation/presentation/home_location_controller.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/leaflet_delivery_map.dart';
+import 'package:bagoo_rider_mobile/features/navigation/presentation/native_delivery_map.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/navigation_controller.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/navigation_providers.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/rider_map_page.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
+
+import 'native_delivery_map_test.dart' show MemoryTiles;
+import 'support/map_location.dart';
 
 OperationTask _mockTask({String kind = 'buyer', String name = 'Test Buyer Destination'}) {
   final j =
@@ -103,6 +109,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          deliveryTilesProvider.overrideWithValue(MemoryTiles.new),
           deliveryMapFactoryProvider.overrideWithValue(FakeMapSession.new),
           navigationProvider.overrideWithValue(nav),
         ],
@@ -138,5 +145,54 @@ void main() {
 
     await tester.pumpWidget(const SizedBox.shrink());
     await nav.stop();
+  });
+
+  testWidgets('RiderMapPage computes real preview road route before Start Live Map', (tester) async {
+    final routes = _MockRoutes();
+    final task = _mockTask(kind: 'buyer', name: 'Buyer Stop');
+    final locationSource = TestMapLocation();
+    addTearDown(locationSource.close);
+    final homeLoc = HomeLocationController(source: locationSource);
+    addTearDown(homeLoc.dispose);
+    final nav = NavigationController(
+      routes: routes,
+      authorize: (id) async => task,
+      vehicleType: () async => 'motorcycle',
+      manual: false,
+    );
+    addTearDown(() async {
+      await nav.stop();
+      nav.dispose();
+      routes.dispose();
+    });
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          deliveryTilesProvider.overrideWithValue(MemoryTiles.new),
+          navigationProvider.overrideWithValue(nav),
+          homeLocationProvider.overrideWithValue(homeLoc),
+        ],
+        child: MaterialApp(
+          theme: buildRiderTheme(),
+          home: RiderMapPage(initialTask: task),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+    const riderGps = LatLng(14.55, 121.02);
+    locationSource.streams.single.add(LocationFix(riderGps, DateTime.now(), 8));
+    await tester.pump();
+    await tester.pumpAndSettle();
+
+    expect(homeLoc.fix?.point, riderGps);
+    expect(nav.previewMessage, isNull);
+    expect(find.text('ROAD ROUTE'), findsOneWidget);
+    expect(nav.previewRoad?.lines.single, hasLength(2));
+    expect(find.byType(PolylineLayer), findsOneWidget);
+    expect(find.byKey(const ValueKey('rider-map-start-nav-button')), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
   });
 }

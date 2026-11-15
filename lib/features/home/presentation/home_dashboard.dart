@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/ui/rider_surfaces.dart';
@@ -13,6 +14,7 @@ import '../../handover/presentation/handover_entry.dart';
 import '../../navigation/data/route_geometry.dart';
 import '../../navigation/presentation/leaflet_delivery_map.dart';
 import '../../navigation/data/saved_delivery_stop.dart';
+import '../../navigation/presentation/home_location_controller.dart';
 import '../../navigation/presentation/navigation_providers.dart';
 import '../../navigation/presentation/rider_map_page.dart';
 import '../../notifications/presentation/notifications_entry.dart';
@@ -47,12 +49,42 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _syncForegroundLocation();
+  }
+
+  void _syncForegroundLocation() {
+    if (!widget.active || !_foreground) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !widget.active || !_foreground) return;
+      final nav = ref.read(navigationProvider);
+      if (!nav.active) {
+        ref.read(homeLocationProvider).setVisible(true);
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant HomeDashboard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.active != widget.active) {
+      if (widget.active && _foreground) {
+        _syncForegroundLocation();
+      } else {
+        ref.read(homeLocationProvider).setVisible(false, notify: false);
+      }
+    }
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (mounted) {
-      setState(() => _foreground = state == AppLifecycleState.resumed);
+      final resumed = state == AppLifecycleState.resumed;
+      setState(() => _foreground = resumed);
+      if (resumed && widget.active) {
+        _syncForegroundLocation();
+      } else if (!resumed) {
+        ref.read(homeLocationProvider).setVisible(false);
+      }
     }
   }
 
@@ -85,118 +117,201 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
     final task = widget.controller.selectedTask;
     final stop = SavedDeliveryStop.fromTask(task);
     final nav = ref.watch(navigationProvider);
+    final homeLoc = ref.watch(homeLocationProvider);
     final isStandby = task == null;
-    return RiderSurface(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
+    return ListenableBuilder(
+      listenable: Listenable.merge([nav, homeLoc]),
+      builder: (context, _) {
+        final riderPoint = nav.active ? nav.fix?.point : homeLoc.fix?.point;
+        final activeRoad = nav.active
+            ? nav.road
+            : (nav.previewStopKey == task?.id ? nav.previewRoad : null);
+        if (!nav.active) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted || nav.active) return;
+            if (task != null && stop != null && riderPoint != null) {
+              unawaited(nav.syncPreview(origin: riderPoint, task: task));
+            } else if (task == null && nav.previewStopKey != null) {
+              nav.clearPreview();
+            }
+          });
+        }
+        return RiderSurface(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Icon(
-                isStandby ? Icons.navigation_rounded : stopKindIcon(task.stop.kind),
-                size: 18,
-                color: RiderColors.accentText,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  isStandby
-                      ? 'Rider GPS standby'
-                      : task.preview
-                      ? 'Pickup preview'
-                      : 'Current stop',
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-              ),
-              TextButton.icon(
-                key: const ValueKey('open-live-map-card'),
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => RiderMapPage(
-                      initialTask: task,
-                      accountId: widget.account.id,
+              Row(
+                children: [
+                  Icon(
+                    isStandby
+                        ? Icons.navigation_rounded
+                        : stopKindIcon(task.stop.kind),
+                    size: 18,
+                    color: RiderColors.accentText,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      isStandby
+                          ? 'Rider GPS standby'
+                          : task.preview
+                          ? 'Pickup preview'
+                          : 'Current stop',
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
-                ),
-                icon: const Icon(Icons.fullscreen_rounded, size: 16),
-                label: const Text('Live Map', style: TextStyle(fontSize: 12)),
+                  TextButton.icon(
+                    key: const ValueKey('open-live-map-card'),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => RiderMapPage(
+                          initialTask: task,
+                          accountId: widget.account.id,
+                        ),
+                      ),
+                    ),
+                    icon: const Icon(Icons.fullscreen_rounded, size: 16),
+                    label: const Text('Live Map', style: TextStyle(fontSize: 12)),
+                  ),
+                ],
               ),
-            ],
-          ),
-          if (task != null) ...[
-            const SizedBox(height: 8),
-            Text(task.stop.name ?? stopKindLabel(task.stop.kind)),
-            if (stop == null) ...[
-              const SizedBox(height: 6),
-              const Text(
-                'No location pin is saved for this stop. Use the recorded address in parcel details.',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: RiderColors.muted,
-                  height: 1.5,
-                ),
-              ),
-            ],
-          ],
-          if (stop != null) ...[
-            const SizedBox(height: 12),
-            _mapAreaDisclosure(),
-            SizedBox(height: 160, child: _mapView(stop: stop, road: nav.road)),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    nav.road != null
-                        ? 'Road route calculated along mapped streets.'
-                        : 'On-refresh route calculation. Tap refresh to recalculate.',
-                    style: const TextStyle(
-                      fontSize: 11,
-                      height: 1.4,
+              if (task != null) ...[
+                const SizedBox(height: 8),
+                Text(task.stop.name ?? stopKindLabel(task.stop.kind)),
+                if (stop == null) ...[
+                  const SizedBox(height: 6),
+                  const Text(
+                    'No location pin is saved for this stop. Use the recorded address in parcel details.',
+                    style: TextStyle(
+                      fontSize: 12,
                       color: RiderColors.muted,
+                      height: 1.5,
                     ),
                   ),
+                ],
+              ],
+              if (stop != null) ...[
+                const SizedBox(height: 12),
+                _mapAreaDisclosure(),
+                SizedBox(
+                  height: 160,
+                  child: _mapView(
+                    stop: stop,
+                    road: activeRoad,
+                    riderPoint: riderPoint,
+                  ),
                 ),
-                TextButton.icon(
-                  onPressed: () => nav.refreshRoute(force: true),
-                  icon: const Icon(Icons.refresh_rounded, size: 14),
-                  label: const Text('Refresh', style: TextStyle(fontSize: 11)),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        activeRoad != null
+                            ? 'Road route calculated along mapped streets.'
+                            : (nav.calculating || nav.previewCalculating)
+                            ? 'Calculating road route along mapped streets…'
+                            : (nav.message ?? nav.previewMessage) != null
+                            ? (nav.message ?? nav.previewMessage)!
+                            : riderPoint == null && homeLoc.supported
+                            ? (homeLoc.locating
+                                  ? 'Locating your GPS for street routing…'
+                                  : homeLoc.message ??
+                                        'Allow location to draw your street route.')
+                            : 'Tap refresh to calculate the road route.',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          height: 1.4,
+                          color: RiderColors.muted,
+                        ),
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: () {
+                        if (nav.active) {
+                          unawaited(nav.refreshRoute(force: true));
+                        } else {
+                          if (homeLoc.supported) {
+                            unawaited(homeLoc.locate(requestPermission: true));
+                          }
+                          unawaited(
+                            nav.syncPreview(
+                              origin: homeLoc.fix?.point,
+                              task: task,
+                              force: true,
+                            ),
+                          );
+                        }
+                      },
+                      icon: const Icon(Icons.refresh_rounded, size: 14),
+                      label: const Text('Refresh', style: TextStyle(fontSize: 11)),
+                    ),
+                  ],
+                ),
+              ] else if (isStandby) ...[
+                const SizedBox(height: 10),
+                _mapAreaDisclosure(),
+                SizedBox(
+                  height: 160,
+                  child: _mapView(riderPoint: riderPoint, standby: true),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        homeLoc.locating
+                            ? 'Locating your GPS…'
+                            : homeLoc.fix != null
+                            ? 'Live rider GPS · Standby (No active orders to deliver)'
+                            : homeLoc.message ??
+                                  'Current rider GPS · Standby (No active orders to deliver)',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          height: 1.4,
+                          color: RiderColors.muted,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    if (homeLoc.supported)
+                      TextButton.icon(
+                        onPressed: () =>
+                            unawaited(homeLoc.locate(requestPermission: true)),
+                        icon: const Icon(Icons.my_location_rounded, size: 14),
+                        label: const Text(
+                          'Locate',
+                          style: TextStyle(fontSize: 11),
+                        ),
+                      ),
+                  ],
                 ),
               ],
-            ),
-          ] else if (isStandby) ...[
-            const SizedBox(height: 10),
-            _mapAreaDisclosure(),
-            SizedBox(height: 160, child: _mapView(standby: true)),
-            const SizedBox(height: 8),
-            const Text(
-              'Current rider GPS · Standby (No active orders to deliver)',
-              style: TextStyle(
-                fontSize: 11,
-                height: 1.4,
-                color: RiderColors.muted,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ],
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Widget _mapView({SavedDeliveryStop? stop, RoadRoute? road, bool standby = false}) => _foreground
+  Widget _mapView({
+    SavedDeliveryStop? stop,
+    RoadRoute? road,
+    LatLng? riderPoint,
+    bool standby = false,
+  }) => _foreground
       ? LeafletDeliveryMap(
           key: const ValueKey('home-leaflet-map'),
           stop: stop,
           road: road,
+          riderPoint: riderPoint,
           standby: standby,
         )
       : const Center(child: Text('Map paused while the app is hidden.'));
   Widget _mapAreaDisclosure() => const Padding(
     padding: EdgeInsets.only(bottom: 8),
     child: Text(
-      'OpenStreetMap receives requests for the displayed map tiles. Tile coordinates and source IP can reveal the approximate area. The map shows a saved stop or sample path, not live rider GPS.',
+      'Geoapify receives requests for the displayed map tiles and road routes. Tile coordinates and source IP can reveal the approximate area.',
       key: ValueKey('home-map-area-disclosure'),
       style: TextStyle(fontSize: 11, height: 1.4, color: RiderColors.muted),
     ),

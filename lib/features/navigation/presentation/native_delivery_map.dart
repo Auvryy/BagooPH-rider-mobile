@@ -8,8 +8,14 @@ import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/theme.dart';
+import '../data/geoapify_client.dart';
+import '../data/map_tile_source.dart';
 import '../data/saved_delivery_stop.dart';
 import '../data/route_geometry.dart';
+import 'geoapify_tiles.dart';
+import 'navigation_providers.dart';
+
+const _defaultStandbyCenter = LatLng(14.5547, 121.0244);
 
 final deliveryRoadPointsProvider = FutureProvider<List<LatLng>>((ref) async {
   final data = jsonDecode(
@@ -36,17 +42,36 @@ final deliveryRoadPointsProvider = FutureProvider<List<LatLng>>((ref) async {
 });
 
 // Create a provider for each map mount: TileLayer owns and disposes its provider.
-final deliveryTilesProvider = Provider<TileProvider Function()>(
-  (ref) => NetworkTileProvider.new,
-);
+final deliveryTilesProvider = Provider<TileProvider Function()>((ref) {
+  final routes = ref.watch(roadRoutingProvider);
+  if (routes is GeoapifyClient && routes.configured) {
+    return () => GeoapifyTiles(
+      routes,
+      source: const MapTileSource(style: MapTileStyle.carto, retina: true),
+      clipToPhilippines: true,
+    );
+  }
+  return NetworkTileProvider.new;
+});
 
-// A native Flutter surface scales and clips with Device Preview. A GTK WebView
-// is a separate native overlay and cannot reliably share its simulated viewport.
+// A native Flutter surface scales and clips with Device Preview and gives
+// Android direct GPU map rendering with Geoapify tiles and caching.
 class NativeDeliveryMap extends ConsumerStatefulWidget {
-  const NativeDeliveryMap({super.key, this.stop, this.road, this.standby = false});
+  const NativeDeliveryMap({
+    super.key,
+    this.stop,
+    this.road,
+    this.riderPoint,
+    this.standby = false,
+    this.recenterVersion = 0,
+    this.onUserPan,
+  });
   final SavedDeliveryStop? stop;
   final RoadRoute? road;
+  final LatLng? riderPoint;
   final bool standby;
+  final int recenterVersion;
+  final VoidCallback? onUserPan;
   @override
   ConsumerState<NativeDeliveryMap> createState() => _NativeDeliveryMapState();
 }
@@ -64,11 +89,64 @@ class _NativeDeliveryMapState extends ConsumerState<NativeDeliveryMap> {
     super.dispose();
   }
 
+  List<LatLng> _currentPoints() {
+    if (widget.road != null) {
+      return [
+        if (widget.riderPoint != null) widget.riderPoint!,
+        ...widget.road!.lines.expand((line) => line),
+        if (widget.stop != null)
+          LatLng(widget.stop!.latitude, widget.stop!.longitude),
+      ];
+    }
+    if (widget.stop != null) {
+      return [
+        if (widget.riderPoint != null) widget.riderPoint!,
+        LatLng(widget.stop!.latitude, widget.stop!.longitude),
+      ];
+    }
+    if (widget.standby) {
+      return [widget.riderPoint ?? _defaultStandbyCenter];
+    }
+    return const [];
+  }
+
+  @override
+  void didUpdateWidget(covariant NativeDeliveryMap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_ready) return;
+    final fitPoints = _currentPoints();
+    if (fitPoints.isEmpty) return;
+    if (widget.recenterVersion != oldWidget.recenterVersion ||
+        (widget.road != oldWidget.road && widget.road != null) ||
+        widget.stop != oldWidget.stop ||
+        (widget.riderPoint != oldWidget.riderPoint &&
+            widget.riderPoint != null &&
+            widget.road == null)) {
+      _fit(fitPoints);
+    }
+  }
+
   void _fit(List<LatLng> points) {
     if (widget.road != null) {
+      final coords = [
+        if (widget.riderPoint != null) widget.riderPoint!,
+        ...widget.road!.lines.expand((line) => line),
+        if (widget.stop != null)
+          LatLng(widget.stop!.latitude, widget.stop!.longitude),
+      ];
       _controller.fitCamera(
         CameraFit.coordinates(
-          coordinates: widget.road!.lines.expand((line) => line).toList(),
+          coordinates: coords,
+          padding: const EdgeInsets.all(48),
+          maxZoom: 16,
+        ),
+      );
+      return;
+    }
+    if (widget.stop != null && points.length > 1) {
+      _controller.fitCamera(
+        CameraFit.coordinates(
+          coordinates: points,
           padding: const EdgeInsets.all(48),
           maxZoom: 16,
         ),
@@ -85,7 +163,8 @@ class _NativeDeliveryMapState extends ConsumerState<NativeDeliveryMap> {
       );
       return;
     }
-    _controller.move(points.first, 16);
+    final zoom = widget.standby && widget.riderPoint == null ? 11.0 : 16.0;
+    _controller.move(points.first, zoom);
   }
 
   void _tileError() {
@@ -111,13 +190,21 @@ class _NativeDeliveryMapState extends ConsumerState<NativeDeliveryMap> {
   );
 
   @override
-  Widget build(BuildContext context) =>
-      (widget.stop == null
-              ? ref.watch(deliveryRoadPointsProvider)
-              : AsyncData<List<LatLng>>([
-                  LatLng(widget.stop!.latitude, widget.stop!.longitude),
-                ]))
-          .when(
+  Widget build(BuildContext context) {
+    final AsyncValue<List<LatLng>> pointsAsync;
+    if (widget.stop != null) {
+      pointsAsync = AsyncData<List<LatLng>>([
+        if (widget.riderPoint != null) widget.riderPoint!,
+        LatLng(widget.stop!.latitude, widget.stop!.longitude),
+      ]);
+    } else if (widget.standby) {
+      pointsAsync = AsyncData<List<LatLng>>([
+        widget.riderPoint ?? _defaultStandbyCenter,
+      ]);
+    } else {
+      pointsAsync = ref.watch(deliveryRoadPointsProvider);
+    }
+    return pointsAsync.when(
             loading: () => const Center(child: Text('Loading street map…')),
             error: (_, _) => Center(
               child: Column(
@@ -143,16 +230,30 @@ class _NativeDeliveryMapState extends ConsumerState<NativeDeliveryMap> {
                           mapController: _controller,
                           options: MapOptions(
                             initialCenter: points.first,
-                            initialZoom: 16,
+                            initialZoom: widget.standby &&
+                                    widget.stop == null &&
+                                    widget.riderPoint == null
+                                ? 11
+                                : 16,
                             initialCameraFit: widget.road != null
                                 ? CameraFit.coordinates(
-                                    coordinates: widget.road!.lines
-                                        .expand((line) => line)
-                                        .toList(),
+                                    coordinates: [
+                                      if (widget.riderPoint != null)
+                                        widget.riderPoint!,
+                                      ...widget.road!.lines.expand((line) => line),
+                                      if (widget.stop != null)
+                                        LatLng(
+                                          widget.stop!.latitude,
+                                          widget.stop!.longitude,
+                                        ),
+                                    ],
                                     padding: const EdgeInsets.all(48),
                                     maxZoom: 16,
                                   )
-                                : (!widget.standby && widget.stop == null && points.length > 1)
+                                : ((widget.stop != null && points.length > 1) ||
+                                      (!widget.standby &&
+                                          widget.stop == null &&
+                                          points.length > 1))
                                 ? CameraFit.coordinates(
                                     coordinates: points,
                                     padding: const EdgeInsets.all(48),
@@ -168,21 +269,31 @@ class _NativeDeliveryMapState extends ConsumerState<NativeDeliveryMap> {
                                   InteractiveFlag.pinchZoom |
                                   InteractiveFlag.doubleTapZoom,
                             ),
+                            onPositionChanged: (_, hasGesture) {
+                              if (hasGesture) widget.onUserPan?.call();
+                            },
                             onMapReady: () {
                               if (mounted) setState(() => _ready = true);
                             },
                           ),
                           children: [
-                            TileLayer(
-                              key: ValueKey(_attempt),
-                              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                              userAgentPackageName:
-                                  'com.example.bagoo_rider_mobile',
-                              maxNativeZoom: 19,
-                              tileProvider: _tiles ??= ref.read(
-                                deliveryTilesProvider,
-                              )(),
-                              errorTileCallback: (_, _, _) => _tileError(),
+                            Builder(
+                              builder: (_) {
+                                final tiles = _tiles ??= ref.read(
+                                  deliveryTilesProvider,
+                                )();
+                                return TileLayer(
+                                  key: ValueKey(_attempt),
+                                  urlTemplate: tiles is GeoapifyTiles
+                                      ? null
+                                      : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                  userAgentPackageName:
+                                      'com.example.bagoo_rider_mobile',
+                                  maxNativeZoom: 19,
+                                  tileProvider: tiles,
+                                  errorTileCallback: (_, _, _) => _tileError(),
+                                );
+                              },
                             ),
                             if (widget.road != null || (!widget.standby && widget.stop == null))
                               PolylineLayer(
@@ -213,15 +324,21 @@ class _NativeDeliveryMapState extends ConsumerState<NativeDeliveryMap> {
                               ),
                             MarkerLayer(
                               markers: [
-                                if (widget.stop == null || widget.road != null)
+                                if ((widget.standby && widget.riderPoint != null) ||
+                                    (!widget.standby && widget.stop == null) ||
+                                    widget.riderPoint != null ||
+                                    widget.road != null)
                                   Marker(
                                     point:
+                                        widget.riderPoint ??
                                         widget.road?.lines.first.first ??
                                         points.first,
                                     width: 22,
                                     height: 22,
                                     child: _pin(
-                                      widget.road != null
+                                      widget.riderPoint != null
+                                          ? 'Your location'
+                                          : widget.road != null
                                           ? 'Route start'
                                           : 'Your location',
                                       const Color(0xFF18181B),
@@ -229,7 +346,12 @@ class _NativeDeliveryMapState extends ConsumerState<NativeDeliveryMap> {
                                   ),
                                 if (widget.stop != null || (!widget.standby && points.length > 1))
                                   Marker(
-                                    point: points.last,
+                                    point: widget.stop != null
+                                        ? LatLng(
+                                            widget.stop!.latitude,
+                                            widget.stop!.longitude,
+                                          )
+                                        : points.last,
                                     width: 22,
                                     height: 22,
                                     child: _pin(
@@ -332,20 +454,26 @@ class _NativeDeliveryMapState extends ConsumerState<NativeDeliveryMap> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.stop == null
-                              ? 'Street tiles could not load. The sample road line remains available.'
-                              : 'Street tiles could not load. Use the recorded stop address.',
+                          widget.standby || widget.stop != null
+                              ? 'Street tiles could not load. Use the recorded stop address.'
+                              : 'Street tiles could not load. The sample road line remains available.',
                           style: TextStyle(
                             fontSize: 12,
                             color: RiderColors.muted,
                           ),
                         ),
                         TextButton(
-                          onPressed: () => setState(() {
-                            _tilesFailed = false;
-                            _tiles = null;
-                            _attempt++;
-                          }),
+                          onPressed: () {
+                            final routes = ref.read(roadRoutingProvider);
+                            if (routes is GeoapifyClient && routes.configured) {
+                              routes.retryTiles();
+                            }
+                            setState(() {
+                              _tilesFailed = false;
+                              _tiles = null;
+                              _attempt++;
+                            });
+                          },
                           child: const Text('Retry map'),
                         ),
                       ],
@@ -354,4 +482,5 @@ class _NativeDeliveryMapState extends ConsumerState<NativeDeliveryMap> {
               ],
             ),
           );
+  }
 }

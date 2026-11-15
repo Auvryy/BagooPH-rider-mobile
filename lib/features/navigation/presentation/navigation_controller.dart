@@ -35,6 +35,12 @@ class NavigationController extends ChangeNotifier {
   NavigationProfile? profile;
   LocationFix? fix;
   RoadRoute? road;
+  RoadRoute? previewRoad;
+  LatLng? previewOrigin;
+  OperationTask? _previewTask;
+  String? previewStopKey;
+  bool previewCalculating = false;
+  String? previewMessage;
   bool active = false,
       starting = false,
       following = true,
@@ -50,8 +56,9 @@ class NavigationController extends ChangeNotifier {
       _authorizationExpiry,
       _routeFixExpiry,
       _displayFixExpiry;
-  CancelToken? _routeCancel;
+  CancelToken? _routeCancel, _previewCancel;
   DateTime? _lastRouteAt, _lastAuthorizedAt;
+  String? _lastPreviewRequestKey;
   int _generation = 0, _offRouteFixes = 0;
   DateTime? _lastFixAt;
   bool _disposed = false;
@@ -70,6 +77,7 @@ class NavigationController extends ChangeNotifier {
     NavigationProfile? chosenProfile,
     LatLng? manualOrigin,
   }) async {
+    clearPreview(notify: false);
     final stopped = stop();
     final generation = _generation;
     await stopped;
@@ -333,7 +341,127 @@ class NavigationController extends ChangeNotifier {
     _changed();
     if (active && fix != null) {
       unawaited(refreshRoute(force: true));
+    } else if (!active && _previewTask != null && previewOrigin != null) {
+      unawaited(syncPreview(origin: previewOrigin, task: _previewTask, force: true));
     }
+  }
+
+  /// Calculates a Geoapify road route preview before full turn-by-turn
+  /// navigation starts so Home and Live Map show accurate streets and road lines.
+  Future<void> syncPreview({
+    required LatLng? origin,
+    required OperationTask? task,
+    bool force = false,
+  }) async {
+    if (_disposed || active) return;
+    if (task == null ||
+        task.stop.latitude == null ||
+        task.stop.longitude == null) {
+      clearPreview();
+      return;
+    }
+    final dest = LatLng(task.stop.latitude!, task.stop.longitude!);
+    if (!validPoint(dest)) {
+      clearPreview();
+      return;
+    }
+    if (!routes.configured) {
+      _previewTask = task;
+      previewStopKey = task.id;
+      previewOrigin = origin;
+      previewRoad = null;
+      previewCalculating = false;
+      previewMessage = 'In-app Geoapify routing requires an API key.';
+      _changed();
+      return;
+    }
+    if (origin == null || !validPoint(origin)) {
+      if (previewStopKey != task.id) {
+        clearPreview();
+      }
+      return;
+    }
+    final key =
+        '${task.id}|${dest.latitude.toStringAsFixed(5)},${dest.longitude.toStringAsFixed(5)}|'
+        '${origin.latitude.toStringAsFixed(4)},${origin.longitude.toStringAsFixed(4)}|$prioritizeHighways';
+    if (!force &&
+        key == _lastPreviewRequestKey &&
+        (previewCalculating || previewRoad != null)) {
+      return;
+    }
+    _lastPreviewRequestKey = key;
+    _previewTask = task;
+    previewStopKey = task.id;
+    previewOrigin = origin;
+    _previewCancel?.cancel();
+    final cancel = _previewCancel = CancelToken();
+    previewCalculating = true;
+    previewMessage = null;
+    _changed();
+    try {
+      String? registered;
+      try {
+        registered = await vehicleType();
+      } catch (_) {
+        registered = null;
+      }
+      if (_disposed || active || cancel.isCancelled) return;
+      final previewProfile =
+          NavigationProfile.forVehicle(registered) ??
+          NavigationProfile.motorcycle;
+      final result = await routes.route(
+        origin,
+        dest,
+        previewProfile,
+        cancel,
+        prioritizeHighways: prioritizeHighways,
+      );
+      if (_disposed ||
+          active ||
+          cancel.isCancelled ||
+          _lastPreviewRequestKey != key) {
+        return;
+      }
+      previewRoad = result;
+      previewMessage = null;
+    } catch (error) {
+      if (!_disposed &&
+          !active &&
+          !cancel.isCancelled &&
+          _lastPreviewRequestKey == key) {
+        previewRoad = null;
+        previewMessage = error is ProviderFailure
+            ? error.message
+            : 'Could not calculate road route preview.';
+      }
+    } finally {
+      if (!_disposed && identical(_previewCancel, cancel)) {
+        previewCalculating = false;
+        _changed();
+      }
+    }
+  }
+
+  void clearPreview({bool notify = true}) {
+    final hadState =
+        _previewCancel != null ||
+        _lastPreviewRequestKey != null ||
+        _previewTask != null ||
+        previewStopKey != null ||
+        previewOrigin != null ||
+        previewRoad != null ||
+        previewCalculating ||
+        previewMessage != null;
+    _previewCancel?.cancel();
+    _previewCancel = null;
+    _lastPreviewRequestKey = null;
+    _previewTask = null;
+    previewStopKey = null;
+    previewOrigin = null;
+    previewRoad = null;
+    previewCalculating = false;
+    previewMessage = null;
+    if (notify && hadState) _changed();
   }
 
   void stopIfTaskChanged(OperationTask fresh) {
@@ -478,6 +606,8 @@ class NavigationController extends ChangeNotifier {
     ++_generation;
     _routeCancel?.cancel();
     _routeCancel = null;
+    _previewCancel?.cancel();
+    _previewCancel = null;
     _authorizationTimer?.cancel();
     _permissionTimer?.cancel();
     _authorizationExpiry?.cancel();

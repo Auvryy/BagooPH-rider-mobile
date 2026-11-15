@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,33 +8,90 @@ import '../../home/data/operations_models.dart';
 import '../../workspace/presentation/workspace_controller.dart';
 import '../data/saved_delivery_stop.dart';
 import 'leaflet_delivery_map.dart';
+import 'home_location_controller.dart';
 import 'navigation_providers.dart';
 
 /// Dedicated full Map Page for BagooPH Rider Mobile.
 /// Displays an unobstructed live road map with all controls and stop
 /// details unified in a clean bottom cockpit dock.
 class RiderMapPage extends ConsumerStatefulWidget {
-  const RiderMapPage({super.key, this.initialTask, this.accountId});
+  const RiderMapPage({
+    super.key,
+    this.initialTask,
+    this.accountId,
+    this.active = true,
+  });
 
   final OperationTask? initialTask;
   final String? accountId;
+  final bool active;
 
   @override
   ConsumerState<RiderMapPage> createState() => _RiderMapPageState();
 }
 
-class _RiderMapPageState extends ConsumerState<RiderMapPage> {
+class _RiderMapPageState extends ConsumerState<RiderMapPage>
+    with WidgetsBindingObserver {
   OperationTask? _localTask;
+  int _recenterVersion = 0;
+  bool _foreground = true;
 
   @override
   void initState() {
     super.initState();
     _localTask = widget.initialTask;
+    WidgetsBinding.instance.addObserver(this);
+    _syncForegroundLocation();
+  }
+
+  void _syncForegroundLocation() {
+    if (!widget.active || !_foreground) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !widget.active || !_foreground) return;
+      final nav = ref.read(navigationProvider);
+      if (!nav.active) {
+        ref.read(homeLocationProvider).setVisible(true);
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant RiderMapPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.active != widget.active) {
+      if (widget.active && _foreground) {
+        _syncForegroundLocation();
+      } else if (!widget.active) {
+        ref.read(homeLocationProvider).setVisible(false, notify: false);
+      }
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!mounted) return;
+    final resumed = state == AppLifecycleState.resumed;
+    if (_foreground != resumed) {
+      setState(() => _foreground = resumed);
+    }
+    if (!widget.active) return;
+    if (resumed) {
+      _syncForegroundLocation();
+    } else {
+      ref.read(homeLocationProvider).setVisible(false);
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final nav = ref.watch(navigationProvider);
+    final homeLoc = ref.watch(homeLocationProvider);
     final workspace = widget.accountId != null
         ? ref.watch(
             workspaceControllerProvider(WorkspaceIdentity(widget.accountId!)),
@@ -53,8 +112,30 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
         : 'DELIVERY · BUYER DESTINATION';
 
     return ListenableBuilder(
-      listenable: nav,
-      builder: (context, _) => Scaffold(
+      listenable: Listenable.merge([nav, homeLoc]),
+      builder: (context, _) {
+        final riderPoint = nav.active ? nav.fix?.point : homeLoc.fix?.point;
+        final activeRoad = nav.active
+            ? nav.road
+            : (activeTask != null && nav.previewStopKey == activeTask.id
+                  ? nav.previewRoad
+                  : null);
+        final statusMessage =
+            nav.message ??
+            nav.previewMessage ??
+            (!nav.active && riderPoint == null ? homeLoc.message : null);
+        if (widget.active && _foreground && !nav.active) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted || !widget.active || !_foreground || nav.active) return;
+            homeLoc.setVisible(true);
+            if (activeTask != null && stop != null && riderPoint != null) {
+              unawaited(nav.syncPreview(origin: riderPoint, task: activeTask));
+            }
+          });
+        }
+        return TickerMode(
+          enabled: widget.active,
+          child: Scaffold(
         key: const ValueKey('rider-live-map-page'),
         backgroundColor: RiderColors.canvas,
         body: Stack(
@@ -64,7 +145,11 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
               child: LeafletDeliveryMap(
                 key: const ValueKey('rider-map-leaflet-view'),
                 stop: stop,
-                road: nav.road,
+                road: activeRoad,
+                riderPoint: riderPoint,
+                standby: stop == null,
+                recenterVersion: _recenterVersion,
+                onUserPan: nav.pan,
               ),
             ),
 
@@ -154,7 +239,9 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                           ),
                         ),
                       const Spacer(),
-                      if (nav.calculating)
+                      if (nav.calculating ||
+                          nav.previewCalculating ||
+                          (!nav.active && homeLoc.locating))
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 10,
@@ -190,7 +277,7 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                             ],
                           ),
                         )
-                      else if (nav.active)
+                      else if (nav.active || activeRoad != null)
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 10,
@@ -203,18 +290,18 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                             ),
                             border: Border.all(color: RiderColors.border),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.navigation_rounded,
                                 size: 13,
                                 color: RiderColors.accent,
                               ),
-                              SizedBox(width: 5),
+                              const SizedBox(width: 5),
                               Text(
-                                'LIVE GPS',
-                                style: TextStyle(
+                                nav.active ? 'LIVE GPS' : 'ROAD ROUTE',
+                                style: const TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 0.5,
@@ -342,7 +429,7 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                             ),
                           ],
                         ),
-                        if (nav.message != null) ...[
+                        if (statusMessage != null) ...[
                           const SizedBox(height: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -366,7 +453,7 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                                 const SizedBox(width: 6),
                                 Expanded(
                                   child: Text(
-                                    nav.message!,
+                                    statusMessage,
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: RiderColors.accentText,
@@ -413,7 +500,17 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                             ),
                             child: InkWell(
                               key: const ValueKey('rider-map-recenter-button'),
-                              onTap: nav.recenter,
+                              onTap: () {
+                                nav.recenter();
+                                setState(() => _recenterVersion++);
+                                if (!nav.active &&
+                                    homeLoc.supported &&
+                                    homeLoc.fix == null) {
+                                  unawaited(
+                                    homeLoc.locate(requestPermission: true),
+                                  );
+                                }
+                              },
                               borderRadius: BorderRadius.circular(
                                 RiderRadii.control,
                               ),
@@ -442,7 +539,26 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
                             ),
                             child: InkWell(
                               key: const ValueKey('rider-map-refresh-button'),
-                              onTap: () => nav.refreshRoute(force: true),
+                              onTap: () {
+                                if (nav.active) {
+                                  unawaited(nav.refreshRoute(force: true));
+                                } else {
+                                  if (homeLoc.supported) {
+                                    unawaited(
+                                      homeLoc.locate(requestPermission: true),
+                                    );
+                                  }
+                                  if (activeTask != null) {
+                                    unawaited(
+                                      nav.syncPreview(
+                                        origin: homeLoc.fix?.point,
+                                        task: activeTask,
+                                        force: true,
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
                               borderRadius: BorderRadius.circular(
                                 RiderRadii.control,
                               ),
@@ -580,6 +696,8 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage> {
           ],
         ),
       ),
+    );
+      },
     );
   }
 }

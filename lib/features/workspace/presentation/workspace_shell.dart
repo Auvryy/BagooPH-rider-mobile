@@ -323,7 +323,10 @@ class _RiderWorkspaceShellState extends ConsumerState<RiderWorkspaceShell>
                                       controller: controller,
                                       preview: widget.preview,
                                     ),
-                                  RiderMapPage(accountId: widget.account.id),
+                                  RiderMapPage(
+                                    accountId: widget.account.id,
+                                    active: destination == 1 && foreground,
+                                  ),
                                   TripsPage(
                                     controller: controller,
                                     preview: widget.preview,

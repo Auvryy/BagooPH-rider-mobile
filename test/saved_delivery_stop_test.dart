@@ -122,10 +122,11 @@ void main() {
       expect(sessions.last.closes, 1);
       expect(tester.takeException(), isNull);
     },
+    variant: const TargetPlatformVariant({TargetPlatform.iOS}),
   );
 
   testWidgets(
-    'Linux saved stops use one pin, no sample geometry, and can be recentered after dragging',
+    'Native saved stops use one pin, no sample geometry, and can be recentered after dragging',
     (tester) async {
       final tiles = SavedStopTiles();
       final stop = SavedDeliveryStop.fromTask(task())!;
@@ -169,6 +170,9 @@ void main() {
       expect(tiles.closes, 1);
       expect(tester.takeException(), isNull);
     },
-    variant: const TargetPlatformVariant({TargetPlatform.linux}),
+    variant: const TargetPlatformVariant({
+      TargetPlatform.android,
+      TargetPlatform.linux,
+    }),
   );
 }

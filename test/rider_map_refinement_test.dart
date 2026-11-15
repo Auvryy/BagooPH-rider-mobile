@@ -1,11 +1,14 @@
+import 'package:bagoo_rider_mobile/features/navigation/data/route_geometry.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/leaflet_delivery_map.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/home_location_controller.dart';
+import 'package:bagoo_rider_mobile/features/navigation/presentation/native_delivery_map.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:latlong2/latlong.dart';
 
 import 'home_dashboard_test.dart' as dashboard;
 import 'support/map_location.dart';
-import 'support/delivery_map.dart';
 
 void main() {
   for (final (size, scale) in [
@@ -39,7 +42,7 @@ void main() {
     );
   }
   dashboard.managedDashboardTest(
-    'standby map does not request or retain rider GPS',
+    'standby map requests live GPS on Home without hardcoded sample lines and clears GPS when hidden',
     (tester) async {
       final source = TestMapLocation();
       addTearDown(source.close);
@@ -51,8 +54,19 @@ void main() {
         mapLocation: location,
         manual: false,
       );
-      expect(find.byType(LeafletDeliveryMap), findsOneWidget);
-      expect(source.streams, isEmpty);
+      expect(find.byType(NativeDeliveryMap), findsOneWidget);
+      expect(source.streams, hasLength(1));
+      const realPoint = LatLng(14.5547, 121.0244);
+      source.streams.single.add(LocationFix(realPoint, DateTime.now(), 12));
+      await tester.pumpAndSettle();
+      expect(location.fix?.point, realPoint);
+      final markers = tester
+          .widget<MarkerLayer>(find.byType(MarkerLayer))
+          .markers;
+      expect(markers.single.point, realPoint);
+      expect(find.byType(PolylineLayer), findsNothing);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await tester.pumpAndSettle();
       expect(location.fix, isNull);
       expect(geo.calls, isEmpty);
       expect(h.navigation.active, isFalse);
@@ -60,25 +74,17 @@ void main() {
     },
   );
   dashboard.managedDashboardTest(
-    'backgrounding closes the native map and recreates standby map',
+    'backgrounding pauses the native map and recreates standby map on resume',
     (tester) async {
-      final sessions = <FakeDeliveryMapSession>[];
-      final h = await dashboard.openDashboard(
-        tester,
-        mapFactory: () {
-          final session = FakeDeliveryMapSession();
-          sessions.add(session);
-          return session;
-        },
-      );
-      expect(find.byType(LeafletDeliveryMap), findsOneWidget);
-      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      final h = await dashboard.openDashboard(tester);
+      expect(find.byType(FlutterMap), findsOneWidget);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
       await tester.pumpAndSettle();
-      expect(sessions.first.closes, 1);
+      expect(find.text('Map paused while the app is hidden.'), findsOneWidget);
+      expect(find.byType(FlutterMap), findsNothing);
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await tester.pumpAndSettle();
-      expect(find.byType(LeafletDeliveryMap), findsOneWidget);
-      expect(sessions.length, greaterThanOrEqualTo(2));
+      expect(find.byType(FlutterMap), findsOneWidget);
       expect(h.navigation.active, isFalse);
       expect(h.api.calls.every((c) => c.method == 'GET'), isTrue);
     },

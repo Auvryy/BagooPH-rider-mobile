@@ -7,11 +7,14 @@ import 'package:bagoo_rider_mobile/features/navigation/data/road_routing.dart';
 import 'package:bagoo_rider_mobile/features/navigation/data/route_geometry.dart';
 import 'package:bagoo_rider_mobile/features/navigation/data/saved_delivery_stop.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/leaflet_delivery_map.dart';
+import 'package:bagoo_rider_mobile/features/navigation/presentation/native_delivery_map.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 
+import 'native_delivery_map_test.dart' show MemoryTiles;
 import 'support/delivery_map.dart';
 import 'navigation_test.dart' as fixtures;
 
@@ -31,7 +34,48 @@ Widget view(DeliveryMapFactory factory) => ProviderScope(
 );
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  testWidgets('the embedded map receives updated and cleared route geometry', (
+  testWidgets('Android LeafletDeliveryMap renders native FlutterMap with live route updates', (
+    tester,
+  ) async {
+    final tiles = MemoryTiles();
+    final stop = SavedDeliveryStop.fromTask(fixtures.task())!;
+    final route = RoadRoute([
+      [const LatLng(14, 121), const LatLng(14.01, 121)],
+    ]);
+    Widget page(RoadRoute? road) => ProviderScope(
+      overrides: [deliveryTilesProvider.overrideWithValue(() => tiles)],
+      child: MaterialApp(
+        theme: buildRiderTheme(),
+        home: Scaffold(
+          body: SizedBox(
+            height: 300,
+            child: LeafletDeliveryMap(
+              stop: stop,
+              road: road,
+              riderPoint: const LatLng(14, 121),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpWidget(page(route));
+    await tester.pumpAndSettle();
+    expect(find.byType(NativeDeliveryMap), findsOneWidget);
+    expect(find.byType(FlutterMap), findsOneWidget);
+    expect(
+      tester.widget<PolylineLayer>(find.byType(PolylineLayer)).polylines.single.points,
+      [const LatLng(14, 121), const LatLng(14.01, 121)],
+    );
+    await tester.pumpWidget(page(null));
+    await tester.pumpAndSettle();
+    expect(find.byType(PolylineLayer), findsNothing);
+    expect(
+      tester.widget<MarkerLayer>(find.byType(MarkerLayer)).markers.map((m) => m.point),
+      [const LatLng(14, 121), LatLng(stop.latitude, stop.longitude)],
+    );
+  }, variant: const TargetPlatformVariant({TargetPlatform.android}));
+
+  testWidgets('the embedded fallback map receives updated and cleared route geometry', (
     tester,
   ) async {
     final session = FakeDeliveryMapSession();
@@ -73,7 +117,7 @@ void main() {
     expect(find.text('Leaflet test view'), findsNothing);
     await tester.pumpWidget(const SizedBox.shrink());
     expect(session.closes, 1);
-  }, variant: const TargetPlatformVariant({TargetPlatform.android}));
+  }, variant: const TargetPlatformVariant({TargetPlatform.iOS}));
   test('the bundled Leaflet document uses unfiltered OSM tiles with no key or account connection', () async {
     final doc = await deliveryMapDocument();
     expect(doc, contains('Leaflet 1.9.4'));
@@ -136,6 +180,7 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
       expect(sessions.last.closes, 1);
     },
+    variant: const TargetPlatformVariant({TargetPlatform.iOS}),
   );
   testWidgets(
     'a load completing after unmount cannot restore a map or callback',
@@ -153,6 +198,7 @@ void main() {
       expect(find.text('Leaflet test view'), findsNothing);
       expect(tester.takeException(), isNull);
     },
+    variant: const TargetPlatformVariant({TargetPlatform.iOS}),
   );
   testWidgets(
     'startup failure gives a retry and ignores malformed bridge messages',
@@ -167,5 +213,6 @@ void main() {
       await tester.pump();
       expect(tester.takeException(), isNull);
     },
+    variant: const TargetPlatformVariant({TargetPlatform.iOS}),
   );
 }

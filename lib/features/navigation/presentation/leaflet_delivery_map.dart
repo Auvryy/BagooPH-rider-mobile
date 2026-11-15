@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_all/webview_all.dart';
 
@@ -120,15 +121,36 @@ html,body,#map{width:100%;height:100%;margin:0;background:#F2F1ED;font-family:'P
 }
 
 class LeafletDeliveryMap extends StatelessWidget {
-  const LeafletDeliveryMap({super.key, this.stop, this.road, this.standby = false});
+  const LeafletDeliveryMap({
+    super.key,
+    this.stop,
+    this.road,
+    this.riderPoint,
+    this.standby = false,
+    this.recenterVersion = 0,
+    this.onUserPan,
+  });
   final SavedDeliveryStop? stop;
   final RoadRoute? road;
+  final LatLng? riderPoint;
   final bool standby;
+  final int recenterVersion;
+  final VoidCallback? onUserPan;
 
   @override
   Widget build(BuildContext context) =>
-      !kIsWeb && defaultTargetPlatform == TargetPlatform.linux
-      ? NativeDeliveryMap(key: ValueKey(stop), stop: stop, road: road, standby: standby)
+      !kIsWeb &&
+          (defaultTargetPlatform == TargetPlatform.linux ||
+              defaultTargetPlatform == TargetPlatform.android)
+      ? NativeDeliveryMap(
+          key: ValueKey((stop, standby)),
+          stop: stop,
+          road: road,
+          riderPoint: riderPoint,
+          standby: standby,
+          recenterVersion: recenterVersion,
+          onUserPan: onUserPan,
+        )
       : _EmbeddedLeafletDeliveryMap(stop: stop, road: road, standby: standby);
 }
 

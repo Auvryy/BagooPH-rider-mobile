@@ -248,6 +248,8 @@ class _NavigationControlsState extends State<NavigationControls> {
                 child: LeafletDeliveryMap(
                   stop: SavedDeliveryStop.fromTask(nav.task),
                   road: nav.road,
+                  riderPoint: nav.fix?.point,
+                  onUserPan: nav.pan,
                 ),
               ),
               const SizedBox(height: 12),

@@ -48,6 +48,8 @@ class FullscreenNavigationPage extends StatelessWidget {
                 key: const ValueKey('fullscreen-delivery-map'),
                 stop: stop,
                 road: nav.road,
+                riderPoint: nav.fix?.point,
+                onUserPan: nav.pan,
               ),
             ),
 

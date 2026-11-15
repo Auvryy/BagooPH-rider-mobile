@@ -2,8 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bagoo_rider_mobile/app/theme.dart';
+import 'package:bagoo_rider_mobile/features/navigation/data/map_tile_source.dart';
+import 'package:bagoo_rider_mobile/features/navigation/presentation/geoapify_tiles.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/leaflet_delivery_map.dart';
 import 'package:bagoo_rider_mobile/features/navigation/presentation/native_delivery_map.dart';
+import 'package:bagoo_rider_mobile/features/navigation/presentation/navigation_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -167,5 +170,56 @@ void main() {
       expect(tiles.last.closed, 1);
       expect(tester.takeException(), isNull);
     },
+  );
+
+  test('configured Geoapify key wires GeoapifyTiles with crisp @2x carto street tiles', () {
+    final container = ProviderContainer(
+      overrides: [roadRoutingKeyProvider.overrideWithValue('synthetic-key')],
+    );
+    addTearDown(container.dispose);
+    final tileFactory = container.read(deliveryTilesProvider);
+    final tiles = tileFactory();
+    expect(tiles, isA<GeoapifyTiles>());
+    final geoTiles = tiles as GeoapifyTiles;
+    expect(geoTiles.source, const MapTileSource(style: MapTileStyle.carto, retina: true));
+    expect(geoTiles.clipToPhilippines, isTrue);
+    geoTiles.dispose();
+  });
+
+  testWidgets(
+    'standby map plots real rider GPS pin without loading hardcoded sample road',
+    (tester) async {
+      final tiles = MemoryTiles();
+      const gps = LatLng(14.5995, 120.9842);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            deliveryRoadPointsProvider.overrideWith(
+              (_) => throw StateError('Standby must not load sample path.'),
+            ),
+            deliveryTilesProvider.overrideWithValue(() => tiles),
+          ],
+          child: MaterialApp(
+            theme: buildRiderTheme(),
+            home: const Scaffold(
+              body: SizedBox(
+                width: 390,
+                height: 340,
+                child: LeafletDeliveryMap(standby: true, riderPoint: gps),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(PolylineLayer), findsNothing);
+      final markers = tester.widget<MarkerLayer>(find.byType(MarkerLayer)).markers;
+      expect(markers.single.point, gps);
+      expect(
+        tester.widget<FlutterMap>(find.byType(FlutterMap)).mapController!.camera.center,
+        gps,
+      );
+    },
+    variant: const TargetPlatformVariant({TargetPlatform.android}),
   );
 }

@@ -620,10 +620,7 @@ class _StopModePageState extends State<StopModePage>
         Wrap(
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 4,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: RiderColors.accent,
                 borderRadius: BorderRadius.circular(RiderRadii.pill),
@@ -656,10 +653,7 @@ class _StopModePageState extends State<StopModePage>
         SelectableText(
           task.order,
           key: const ValueKey('stop-order'),
-          style: const TextStyle(
-            fontSize: 13,
-            color: RiderColors.muted,
-          ),
+          style: const TextStyle(fontSize: 13, color: RiderColors.muted),
         ),
         const SizedBox(height: 16),
         Text(

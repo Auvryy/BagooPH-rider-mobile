@@ -366,10 +366,7 @@ class TaskCard extends StatelessWidget {
         Wrap(
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 3,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
                 color: RiderColors.accent,
                 borderRadius: BorderRadius.circular(RiderRadii.pill),
@@ -399,10 +396,7 @@ class TaskCard extends StatelessWidget {
           const SizedBox(height: 4),
           SelectableText(
             task.operation!.order,
-            style: const TextStyle(
-              fontSize: 13,
-              color: RiderColors.muted,
-            ),
+            style: const TextStyle(fontSize: 13, color: RiderColors.muted),
           ),
         ],
         const SizedBox(height: 18),

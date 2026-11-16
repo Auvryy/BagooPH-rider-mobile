@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../core/commands/parcel_proof.dart';
 import '../../../core/commands/parcel_validation.dart';
@@ -204,6 +205,11 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields>
       );
       if (!mounted) return;
       await widget.revalidate();
+      // Returning from the photo picker, the page reports itself as resumed a
+      // moment after the image arrives. Wait for that instead of dropping it.
+      for (var i = 0; i < 30 && mounted && !widget.enabled; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }
       if (!mounted) return;
       if (widget.task.version != reviewed.version ||
           widget.task.paymentTerms != reviewed.paymentTerms ||
@@ -230,12 +236,10 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields>
 
   Map<String, dynamic> fields() => widget.action == ParcelAction.deliver
       ? {
-          'recipient_name': parcelText(
-            recipient.text,
-            'recipient_name',
-            min: 2,
-            max: 255,
-          ),
+          'recipient_name':
+              !receivedByRepresentative && recipient.text.trim().isEmpty
+              ? ''
+              : parcelText(recipient.text, 'recipient_name', min: 2, max: 255),
           'recipient_relationship': relationship ?? 'buyer',
           if (widget.task.deliveryPaymentKind == DeliveryPaymentKind.cod) ...{
             'cash_received': received.text.trim(),
@@ -254,6 +258,20 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields>
       return null;
     } on AccountFailure catch (error) {
       return error.fields[field];
+    }
+  }
+
+  /// Change = cash received − amount due, filled in as the rider types (still editable).
+  void _fillChange(String value) {
+    final due = widget.task.codDueCents;
+    if (due == null) return;
+    try {
+      final tender = pesoInputCents(value);
+      final cents = tender >= due ? tender - due : BigInt.zero;
+      change.text =
+          '${cents ~/ BigInt.from(100)}.${(cents % BigInt.from(100)).toString().padLeft(2, '0')}';
+    } on AccountFailure {
+      // Incomplete amount; leave the change as it is.
     }
   }
 
@@ -419,12 +437,19 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields>
             maxLength: 255,
             textCapitalization: TextCapitalization.words,
             forceErrorText: widget.errors['recipient_name'],
-            decoration: const InputDecoration(
-              labelText: 'Recipient name',
-              helperText: 'The person who actually receives this parcel',
+            decoration: InputDecoration(
+              labelText: receivedByRepresentative
+                  ? 'Representative name'
+                  : 'Recipient name (optional)',
+              helperText: receivedByRepresentative
+                  ? 'The person who actually receives this parcel'
+                  : 'Leave empty to record the buyer on the order',
               helperMaxLines: 3,
             ),
-            validator: (value) => _plain(value, 'recipient_name', min: 2),
+            validator: (value) =>
+                !receivedByRepresentative && (value ?? '').trim().isEmpty
+                ? null
+                : _plain(value, 'recipient_name', min: 2),
             onChanged: (_) => _edit('recipient_name'),
           ),
           const SizedBox(height: 12),
@@ -521,6 +546,7 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields>
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
+                    inputFormatters: [_moneyOnly],
                     forceErrorText: widget.errors['cash_received'],
                     decoration: const InputDecoration(
                       labelText: 'Cash received',
@@ -543,8 +569,8 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields>
                       }
                       return null;
                     },
-                    onChanged: (_) {
-                      setState(() {});
+                    onChanged: (value) {
+                      setState(() => _fillChange(value.trim()));
                       _edit('cash_received');
                     },
                   ),
@@ -556,11 +582,13 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields>
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
+                    inputFormatters: [_moneyOnly],
                     forceErrorText: widget.errors['change_given'],
                     decoration: const InputDecoration(
                       labelText: 'Change given',
                       prefixText: '₱ ',
                       hintText: 'Enter 0 if no change was given',
+                      helperText: 'Worked out from the cash received',
                       counterText: '',
                     ),
                     validator: (value) => _money(value, 'change_given'),
@@ -723,3 +751,11 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields>
     );
   }
 }
+
+/// Cash fields accept only digits with up to two decimals.
+final _moneyOnly = TextInputFormatter.withFunction(
+  (oldValue, newValue) =>
+      RegExp(r'^\d{0,9}(\.\d{0,2})?$').hasMatch(newValue.text)
+      ? newValue
+      : oldValue,
+);

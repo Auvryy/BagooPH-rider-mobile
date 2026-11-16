@@ -85,12 +85,13 @@ class CommandIntent {
       final allowed = {...required, 'notes'};
       if (selected == ParcelAction.deliver) {
         required.addAll({'recipient_name', 'recipient_relationship'});
-        parcelText(
-          Wire.string(body['recipient_name']),
-          'recipient_name',
-          min: 2,
-          max: 255,
-        );
+        // A direct handover to the buyer may leave the name empty (the server
+        // records the order's recipient); anyone else must be named.
+        final name = Wire.string(body['recipient_name']);
+        if (body['recipient_relationship'] != 'buyer' ||
+            name.trim().isNotEmpty) {
+          parcelText(name, 'recipient_name', min: 2, max: 255);
+        }
         if (!recipientRelationships.containsKey(
           body['recipient_relationship'],
         )) {

@@ -176,26 +176,16 @@ class _ParcelActionPageState extends State<ParcelActionPage>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
+                            // The app bar names the step; one short line says what to do.
                             Text(
                               switch (action) {
-                                ParcelAction.pickup =>
-                                  'Collect from the seller',
-                                ParcelAction.depart =>
-                                  'Leave the destination hub',
-                                ParcelAction.deliver =>
-                                  'Record the recipient handoff',
-                                ParcelAction.fail =>
-                                  'Record a delivery attempt',
+                                ParcelAction.pickup => 'Scan the waybill, then confirm you have the parcel.',
+                                ParcelAction.depart => 'Scan the waybill, then confirm you are leaving the hub with it.',
+                                ParcelAction.deliver => 'Scan the waybill, add a photo and the cash, then record the delivery.',
+                                ParcelAction.fail => 'Scan the waybill, then record why the delivery did not happen.',
                               },
-                              style: Theme.of(context).textTheme.headlineMedium,
+                              style: const TextStyle(color: RiderColors.muted),
                             ),
-                            const SizedBox(height: 8),
-                            Text(switch (action) {
-                              ParcelAction.pickup => 'Verify this parcel, scan its waybill and confirm the handoff. Your next stop will be its origin hub.',
-                              ParcelAction.depart => 'Verify the hub-assigned parcel and scan its waybill before starting the buyer delivery.',
-                              ParcelAction.deliver => 'Review the recipient, handoff proof and payment instructions before recording this delivery.',
-                              ParcelAction.fail => 'Record the actual reason, place and proof. The hub will confirm the parcel return and any retry.',
-                            }),
                             if (validationFailed)
                               Padding(
                                 padding: const EdgeInsets.only(top: 16),
@@ -210,7 +200,7 @@ class _ParcelActionPageState extends State<ParcelActionPage>
                                   ),
                                 ),
                               ),
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 16),
                             if (c.loading)
                               const LinearProgressIndicator(
                                 semanticsLabel: 'Checking parcel',
@@ -221,53 +211,37 @@ class _ParcelActionPageState extends State<ParcelActionPage>
                                   crossAxisAlignment:
                                       CrossAxisAlignment.stretch,
                                   children: [
-                                    Wrap(
-                                      spacing: 8,
-                                      runSpacing: 6,
+                                    Row(
                                       children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                            vertical: 4,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: RiderColors.accent,
-                                            borderRadius: BorderRadius.circular(
-                                              RiderRadii.pill,
-                                            ),
-                                          ),
-                                          child: const Text(
+                                        const Expanded(
+                                          child: Text(
                                             'WAYBILL TO SCAN',
                                             style: TextStyle(
                                               fontSize: 11,
                                               fontWeight: FontWeight.w800,
                                               letterSpacing: 0.5,
-                                              color: Colors.white,
+                                              color: RiderColors.muted,
                                             ),
                                           ),
-                                        ),
-                                        const WorkspaceBadge(
-                                          'Current parcel',
-                                          accent: true,
                                         ),
                                         if (action == ParcelAction.deliver &&
                                             task.stop.latitude != null &&
                                             task.stop.longitude != null)
                                           const WorkspaceBadge(
-                                            'Dropoff geofence: 100m GPS check',
+                                            'Within 100 m of the pin',
                                           ),
                                       ],
                                     ),
-                                    const SizedBox(height: 12),
+                                    const SizedBox(height: 4),
                                     SelectableText(
                                       task.tracking,
                                       style: const TextStyle(
-                                        fontSize: 18,
+                                        fontSize: 20,
                                         fontWeight: FontWeight.bold,
                                         letterSpacing: 0.5,
                                       ),
                                     ),
-                                    const SizedBox(height: 6),
+                                    const SizedBox(height: 2),
                                     SelectableText(
                                       task.order,
                                       style: const TextStyle(
@@ -275,7 +249,7 @@ class _ParcelActionPageState extends State<ParcelActionPage>
                                         color: RiderColors.muted,
                                       ),
                                     ),
-                                    const SizedBox(height: 16),
+                                    const Divider(height: 24),
                                     Text(
                                       task.stop.name ?? 'Stop name unavailable',
                                       style: Theme.of(context)
@@ -290,21 +264,39 @@ class _ParcelActionPageState extends State<ParcelActionPage>
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: 24),
+                              const SizedBox(height: 20),
                               Text(
-                                '1. Verify the waybill',
-                                style: Theme.of(context).textTheme.titleLarge,
+                                '1. Scan the waybill',
+                                style: Theme.of(context).textTheme.titleMedium,
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 8),
                               if (c.barcode != null) ...[
                                 Semantics(
                                   liveRegion: true,
-                                  child: Text(
-                                    'Waybill matched: ${c.barcode}',
-                                    key: const ValueKey('parcel-matched-scan'),
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.check_circle_rounded,
+                                        color: Color(0xFF15803D),
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'Waybill matched: ${c.barcode}',
+                                          key: const ValueKey(
+                                            'parcel-matched-scan',
+                                          ),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xFF15803D),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 8),
                               ],
                               OutlinedButton.icon(
                                 key: const ValueKey('parcel-scan'),
@@ -347,8 +339,10 @@ class _ParcelActionPageState extends State<ParcelActionPage>
                                 ),
                               if (!action.requiresProof)
                                 Text(
-                                  '2. Review the handoff',
-                                  style: Theme.of(context).textTheme.titleLarge,
+                                  '2. Confirm the handoff',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium,
                                 ),
                               const SizedBox(height: 12),
                               TextFormField(
@@ -385,12 +379,24 @@ class _ParcelActionPageState extends State<ParcelActionPage>
                                 },
                               ),
                               const SizedBox(height: 16),
-                              Text(switch (action) {
-                                ParcelAction.pickup => 'Confirm only after receiving this parcel from the seller. The origin hub records its own intake.',
-                                ParcelAction.depart => 'Confirm only after receiving this parcel from the assigned destination hub.',
-                                ParcelAction.deliver => 'Confirm only after the actual recipient handoff. New orders complete automatically after valid delivery evidence. Any COD hub receipt remains separate.',
-                                ParcelAction.fail => 'This records one failed attempt. Keep return custody until the destination hub receives the parcel.',
-                              }),
+                              Text(
+                                switch (action) {
+                                  ParcelAction.pickup => 'Confirm only once the parcel is in your hands.',
+                                  ParcelAction.depart => 'Confirm only once the hub has handed you the parcel.',
+                                  ParcelAction.deliver => 'Confirm only after handing the parcel over.',
+                                  ParcelAction.fail => 'Keep the parcel until the hub receives it back.',
+                                },
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: RiderColors.muted,
+                                ),
+                              ),
+                              if (validationFailed) ...[
+                                const SizedBox(height: 12),
+                                const _ErrorBox(
+                                  'Some details need fixing. Check the fields marked in red above.',
+                                ),
+                              ],
                               const SizedBox(height: 24),
                               FilledButton(
                                 key: const ValueKey('parcel-submit'),
@@ -401,6 +407,13 @@ class _ParcelActionPageState extends State<ParcelActionPage>
                                             outcome.currentState?.ready == true)
                                     ? _submit
                                     : null,
+                                style: FilledButton.styleFrom(
+                                  minimumSize: const Size.fromHeight(56),
+                                  textStyle: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
                                 child: Text(
                                   c.submitting ? 'Confirming…' : action.label,
                                 ),
@@ -414,12 +427,9 @@ class _ParcelActionPageState extends State<ParcelActionPage>
                               const SizedBox(height: 16),
                               Semantics(
                                 liveRegion: true,
-                                child: Text(
+                                child: _ErrorBox(
                                   c.failure!.message,
-                                  key: const ValueKey('parcel-error'),
-                                  style: const TextStyle(
-                                    color: RiderColors.accentText,
-                                  ),
+                                  textKey: const ValueKey('parcel-error'),
                                 ),
                               ),
                               for (final error in c.failure!.fields.values)
@@ -509,6 +519,44 @@ class _ParcelActionPageState extends State<ParcelActionPage>
             widget.action == ParcelAction.deliver
                 ? 'Back to tasks'
                 : 'Continue to current stop',
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+/// A visible red message box so errors are not missed below the fold.
+class _ErrorBox extends StatelessWidget {
+  const _ErrorBox(this.message, {this.textKey});
+  final String message;
+  final Key? textKey;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: const Color(0xFFFEF2F2),
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: const Color(0xFFFECACA)),
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Icon(
+          Icons.error_outline_rounded,
+          color: Color(0xFFB91C1C),
+          size: 20,
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            message,
+            key: textKey,
+            style: const TextStyle(
+              color: Color(0xFFB91C1C),
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ],

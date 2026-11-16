@@ -513,6 +513,12 @@ class ParcelPhotoService extends ChangeNotifier {
     }
   }
 
+  Future<void> _awaitForeground() async {
+    for (var i = 0; i < 30 && !_foreground && !_disposed; i++) {
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    }
+  }
+
   void setForeground(bool value) {
     if (_disposed || _endingSession || _foreground == value) return;
     _foreground = value;
@@ -569,6 +575,10 @@ class ParcelPhotoService extends ChangeNotifier {
       }
       _guard();
       final file = await picker.choose(camera: camera);
+      _guard();
+      // Android returns the picked image just before it reports the app as
+      // resumed. Wait briefly for that instead of discarding the photo.
+      await _awaitForeground();
       _guard();
       if (!_foreground) {
         throw const AccountFailure('Return to Rider before choosing a photo.');

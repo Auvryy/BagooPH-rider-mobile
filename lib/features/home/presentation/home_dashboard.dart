@@ -122,7 +122,15 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
     return ListenableBuilder(
       listenable: Listenable.merge([nav, homeLoc]),
       builder: (context, _) {
-        final riderPoint = nav.active ? nav.fix?.point : homeLoc.fix?.point;
+        // Without a phone location fix, routes start from the rider's hub
+        // (as on the website) so the stop still gets a line and directions.
+        final home = widget.controller.homeData.data;
+        final hubPoint = home?.hubLatitude != null && home?.hubLongitude != null
+            ? LatLng(home!.hubLatitude!, home.hubLongitude!)
+            : null;
+        final riderPoint = nav.active
+            ? nav.fix?.point
+            : (homeLoc.fix?.point ?? hubPoint);
         final activeRoad = nav.active
             ? nav.road
             : (nav.previewStopKey == task?.id ? nav.previewRoad : null);
@@ -172,7 +180,10 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
                       ),
                     ),
                     icon: const Icon(Icons.fullscreen_rounded, size: 16),
-                    label: const Text('Live Map', style: TextStyle(fontSize: 12)),
+                    label: const Text(
+                      'Live Map',
+                      style: TextStyle(fontSize: 12),
+                    ),
                   ),
                 ],
               ),
@@ -244,7 +255,10 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
                         }
                       },
                       icon: const Icon(Icons.refresh_rounded, size: 14),
-                      label: const Text('Refresh', style: TextStyle(fontSize: 11)),
+                      label: const Text(
+                        'Refresh',
+                        style: TextStyle(fontSize: 11),
+                      ),
                     ),
                   ],
                 ),
@@ -264,8 +278,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
                             ? 'Locating your GPS…'
                             : homeLoc.fix != null
                             ? 'Live rider GPS · Standby (No active orders to deliver)'
-                            : homeLoc.message ??
-                                  'Current rider GPS · Standby (No active orders to deliver)',
+                            : homeLoc.message ?? 'Current rider GPS · Standby (No active orders to deliver)',
                         style: const TextStyle(
                           fontSize: 11,
                           height: 1.4,
@@ -311,7 +324,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
   Widget _mapAreaDisclosure() => const Padding(
     padding: EdgeInsets.only(bottom: 8),
     child: Text(
-      'Geoapify receives requests for the displayed map tiles and road routes. Tile coordinates and source IP can reveal the approximate area.',
+      'Map by Geoapify. Tile coordinates and source IP can reveal the approximate area.',
       key: ValueKey('home-map-area-disclosure'),
       style: TextStyle(fontSize: 11, height: 1.4, color: RiderColors.muted),
     ),

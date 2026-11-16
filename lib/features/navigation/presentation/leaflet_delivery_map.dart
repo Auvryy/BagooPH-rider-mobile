@@ -155,7 +155,11 @@ class LeafletDeliveryMap extends StatelessWidget {
 }
 
 class _EmbeddedLeafletDeliveryMap extends ConsumerStatefulWidget {
-  const _EmbeddedLeafletDeliveryMap({this.stop, this.road, this.standby = false});
+  const _EmbeddedLeafletDeliveryMap({
+    this.stop,
+    this.road,
+    this.standby = false,
+  });
   final SavedDeliveryStop? stop;
   final RoadRoute? road;
   final bool standby;

@@ -263,7 +263,9 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                                   Expanded(
                                     child: Padding(
                                       padding: EdgeInsets.only(
-                                        right: queue == TaskQueue.delivery ? 0 : 8,
+                                        right: queue == TaskQueue.delivery
+                                            ? 0
+                                            : 8,
                                       ),
                                       child: choice(queue),
                                     ),
@@ -306,10 +308,15 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                                     child: TextButton(
                                       key: const ValueKey('task-queue-pickups'),
                                       onPressed: () {
-                                        controller.selectQueue(TaskQueue.pickups);
+                                        controller.selectQueue(
+                                          TaskQueue.pickups,
+                                        );
                                         _search.clear();
-                                        if (_scroll.hasClients) _scroll.jumpTo(0);
-                                        widget.onQueueChanged?.call(TaskQueue.pickups);
+                                        if (_scroll.hasClients)
+                                          _scroll.jumpTo(0);
+                                        widget.onQueueChanged?.call(
+                                          TaskQueue.pickups,
+                                        );
                                       },
                                       style: TextButton.styleFrom(
                                         minimumSize: const Size(64, 52),
@@ -346,7 +353,9 @@ class _HomeTaskPanelState extends State<HomeTaskPanel> {
                                       controller.selectQueue(TaskQueue.pickups);
                                       _search.clear();
                                       if (_scroll.hasClients) _scroll.jumpTo(0);
-                                      widget.onQueueChanged?.call(TaskQueue.pickups);
+                                      widget.onQueueChanged?.call(
+                                        TaskQueue.pickups,
+                                      );
                                     },
                                     style: TextButton.styleFrom(
                                       minimumSize: const Size(64, 52),
@@ -612,10 +621,7 @@ class _SelectedStop extends StatelessWidget {
         Wrap(
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 3,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
                 color: RiderColors.accent,
                 borderRadius: BorderRadius.circular(RiderRadii.pill),
@@ -645,10 +651,7 @@ class _SelectedStop extends StatelessWidget {
         const SizedBox(height: 4),
         SelectableText(
           task.order,
-          style: const TextStyle(
-            fontSize: 13,
-            color: RiderColors.muted,
-          ),
+          style: const TextStyle(fontSize: 13, color: RiderColors.muted),
         ),
         const SizedBox(height: 6),
         Wrap(

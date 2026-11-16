@@ -28,6 +28,19 @@ class OperationsHome {
     company = Wire.nullableString(placement['company_name']);
     hub = Wire.nullableString(placement['hub_name']);
     barangay = Wire.nullableString(placement['barangay']);
+    // Optional: older servers do not send the hub location.
+    final hubLat = placement['hub_latitude'],
+        hubLon = placement['hub_longitude'];
+    if (hubLat is num &&
+        hubLon is num &&
+        hubLat.abs() <= 90 &&
+        hubLon.abs() <= 180) {
+      hubLatitude = hubLat.toDouble();
+      hubLongitude = hubLon.toDouble();
+    } else {
+      hubLatitude = null;
+      hubLongitude = null;
+    }
     final eligibility = Wire.object(j['eligibility']);
     operational = Wire.boolean(eligibility['operational']);
     canClaim = Wire.boolean(eligibility['can_claim']);
@@ -56,6 +69,7 @@ class OperationsHome {
   final DateTime observedAt;
   late final int? handoverApiVersion;
   late final String? companyId, hubId, company, hub, barangay, claimDenial;
+  late final double? hubLatitude, hubLongitude;
   late final bool operational, canClaim;
   final Map<String, bool> capabilities;
   final Map<String, int> counts, capacity, limits;

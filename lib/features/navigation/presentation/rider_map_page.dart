@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
@@ -114,7 +115,14 @@ class _RiderMapPageState extends ConsumerState<RiderMapPage>
     return ListenableBuilder(
       listenable: Listenable.merge([nav, homeLoc]),
       builder: (context, _) {
-        final riderPoint = nav.active ? nav.fix?.point : homeLoc.fix?.point;
+        // No phone fix yet: start from the rider's hub, as the website does.
+        final home = workspace?.homeData.data;
+        final hubPoint = home?.hubLatitude != null && home?.hubLongitude != null
+            ? LatLng(home!.hubLatitude!, home.hubLongitude!)
+            : null;
+        final riderPoint = nav.active
+            ? nav.fix?.point
+            : (homeLoc.fix?.point ?? hubPoint);
         final activeRoad = nav.active
             ? nav.road
             : (activeTask != null && nav.previewStopKey == activeTask.id

@@ -35,7 +35,9 @@ class FullscreenNavigationPage extends StatelessWidget {
       }
 
       final isPickup = task.stop.kind == 'seller';
-      final stopKindLabel = isPickup ? 'PICKUP · SELLER STORE' : 'DELIVERY · BUYER DESTINATION';
+      final stopKindLabel = isPickup
+          ? 'PICKUP · SELLER STORE'
+          : 'DELIVERY · BUYER DESTINATION';
 
       return Scaffold(
         key: const ValueKey('fullscreen-navigation-page'),
@@ -61,7 +63,10 @@ class FullscreenNavigationPage extends StatelessWidget {
               child: SafeArea(
                 bottom: false,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   child: Row(
                     children: [
                       // Back / Exit button
@@ -119,7 +124,9 @@ class FullscreenNavigationPage extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: RiderColors.carbon.withAlpha(220),
-                            borderRadius: BorderRadius.circular(RiderRadii.pill),
+                            borderRadius: BorderRadius.circular(
+                              RiderRadii.pill,
+                            ),
                           ),
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
@@ -152,7 +159,9 @@ class FullscreenNavigationPage extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: RiderColors.carbon.withAlpha(220),
-                            borderRadius: BorderRadius.circular(RiderRadii.pill),
+                            borderRadius: BorderRadius.circular(
+                              RiderRadii.pill,
+                            ),
                           ),
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
@@ -246,8 +255,12 @@ class FullscreenNavigationPage extends StatelessWidget {
                           // Highway Toggle Chip
                           InkWell(
                             key: const ValueKey('handlebar-highways-toggle'),
-                            onTap: () => nav.setPrioritizeHighways(!nav.prioritizeHighways),
-                            borderRadius: BorderRadius.circular(RiderRadii.pill),
+                            onTap: () => nav.setPrioritizeHighways(
+                              !nav.prioritizeHighways,
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              RiderRadii.pill,
+                            ),
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 10,
@@ -257,7 +270,9 @@ class FullscreenNavigationPage extends StatelessWidget {
                                 color: nav.prioritizeHighways
                                     ? RiderColors.accentText.withAlpha(50)
                                     : Colors.white12,
-                                borderRadius: BorderRadius.circular(RiderRadii.pill),
+                                borderRadius: BorderRadius.circular(
+                                  RiderRadii.pill,
+                                ),
                                 border: Border.all(
                                   color: nav.prioritizeHighways
                                       ? RiderColors.accent
@@ -362,7 +377,9 @@ class FullscreenNavigationPage extends StatelessWidget {
                               color: Colors.white12,
                               borderRadius: BorderRadius.circular(14),
                               child: InkWell(
-                                key: const ValueKey('handlebar-exit-fullscreen'),
+                                key: const ValueKey(
+                                  'handlebar-exit-fullscreen',
+                                ),
                                 onTap: () => Navigator.of(context).pop(),
                                 borderRadius: BorderRadius.circular(14),
                                 child: const SizedBox(
@@ -400,7 +417,8 @@ class FullscreenNavigationPage extends StatelessWidget {
                               key: const ValueKey('handlebar-stop-navigation'),
                               onTap: () async {
                                 await nav.stop();
-                                if (context.mounted) Navigator.of(context).pop();
+                                if (context.mounted)
+                                  Navigator.of(context).pop();
                               },
                               borderRadius: BorderRadius.circular(14),
                               child: Container(

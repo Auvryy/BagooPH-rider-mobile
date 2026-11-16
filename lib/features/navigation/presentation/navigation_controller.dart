@@ -342,7 +342,9 @@ class NavigationController extends ChangeNotifier {
     if (active && fix != null) {
       unawaited(refreshRoute(force: true));
     } else if (!active && _previewTask != null && previewOrigin != null) {
-      unawaited(syncPreview(origin: previewOrigin, task: _previewTask, force: true));
+      unawaited(
+        syncPreview(origin: previewOrigin, task: _previewTask, force: true),
+      );
     }
   }
 

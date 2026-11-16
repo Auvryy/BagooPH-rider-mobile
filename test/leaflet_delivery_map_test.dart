@@ -68,7 +68,10 @@ void main() {
     );
     await tester.pumpWidget(page(null));
     await tester.pumpAndSettle();
-    expect(find.byType(PolylineLayer), findsNothing);
+    // Without a road route, a dashed preview line joins the rider and the stop.
+    final preview = tester.widget<PolylineLayer>(find.byType(PolylineLayer)).polylines.single;
+    expect(preview.points, [const LatLng(14, 121), LatLng(stop.latitude, stop.longitude)]);
+    expect(preview.pattern, isNot(const StrokePattern.solid()));
     expect(
       tester.widget<MarkerLayer>(find.byType(MarkerLayer)).markers.map((m) => m.point),
       [const LatLng(14, 121), LatLng(stop.latitude, stop.longitude)],

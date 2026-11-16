@@ -221,10 +221,7 @@ class _NavigationControlsState extends State<NavigationControls> {
                 children: [
                   const Text(
                     'Road route to this assigned stop.',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                   TextButton.icon(
                     key: const ValueKey('stop-fullscreen-navigation-header'),

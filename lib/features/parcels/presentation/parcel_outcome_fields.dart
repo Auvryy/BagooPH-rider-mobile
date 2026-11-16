@@ -205,6 +205,11 @@ class ParcelOutcomeFieldsState extends State<ParcelOutcomeFields>
       );
       if (!mounted) return;
       await widget.revalidate();
+      // Returning from the photo picker, the page reports itself as resumed a
+      // moment after the image arrives. Wait for that instead of dropping it.
+      for (var i = 0; i < 30 && mounted && !widget.enabled; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }
       if (!mounted) return;
       if (widget.task.version != reviewed.version ||
           widget.task.paymentTerms != reviewed.paymentTerms ||

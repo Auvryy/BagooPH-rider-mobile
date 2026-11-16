@@ -324,7 +324,7 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard>
   Widget _mapAreaDisclosure() => const Padding(
     padding: EdgeInsets.only(bottom: 8),
     child: Text(
-      'Geoapify receives requests for the displayed map tiles and road routes. Tile coordinates and source IP can reveal the approximate area.',
+      'Map by Geoapify. Tile coordinates and source IP can reveal the approximate area.',
       key: ValueKey('home-map-area-disclosure'),
       style: TextStyle(fontSize: 11, height: 1.4, color: RiderColors.muted),
     ),
